@@ -67,9 +67,11 @@ export function UnionsMap() {
           <MapContainer
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
-            whenReady={(e) => setMapInstance(e.target)}
-            center={[51.505, -0.09]}
-            zoom={13}
+            ref={(map) => {
+              if (map) {
+                setMapInstance(map);
+              }
+            }}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
