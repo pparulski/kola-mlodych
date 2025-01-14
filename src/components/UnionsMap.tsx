@@ -55,6 +55,7 @@ export function UnionsMap() {
 
   useEffect(() => {
     if (map) {
+      console.log("Map instance updated:", map);
       map.setView([51.505, -0.09], 13);
     }
   }, [map]);
@@ -66,8 +67,6 @@ export function UnionsMap() {
           <MapContainer
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
-            center={[51.505, -0.09]}
-            zoom={13}
             ref={setMap}
           >
             <TileLayer
