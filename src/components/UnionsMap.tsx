@@ -64,11 +64,11 @@ export function UnionsMap() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <MapContainer
-            whenReady={(map) => setMap(map.target)}
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
             center={[51.505, -0.09]}
             zoom={13}
+            ref={setMap}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
