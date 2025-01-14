@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import Index from "./pages/Index";
 import Map from "./pages/Map";
+import Downloads from "./pages/Downloads";
+import Ebooks from "./pages/Ebooks";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/map" element={<Map />} />
+            <Route path="/downloads" element={<Downloads />} />
+            <Route path="/ebooks" element={<Ebooks />} />
           </Routes>
         </Layout>
       </BrowserRouter>
