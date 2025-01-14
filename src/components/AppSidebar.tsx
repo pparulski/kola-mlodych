@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Facebook, Instagram, Tiktok, X } from "lucide-react";
+import { Newspaper, Users, Download, Book, Facebook, Instagram, BrandTiktok, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const menuItems = [
@@ -23,7 +23,7 @@ const socialLinks = [
   { icon: Facebook, url: "https://facebook.com/studentunion" },
   { icon: Instagram, url: "https://instagram.com/studentunion" },
   { icon: X, url: "https://x.com/studentunion" },
-  { icon: Tiktok, url: "https://tiktok.com/@studentunion" },
+  { icon: BrandTiktok, url: "https://tiktok.com/@studentunion" },
 ];
 
 export function AppSidebar() {
