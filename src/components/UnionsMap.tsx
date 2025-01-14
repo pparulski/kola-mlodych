@@ -67,7 +67,7 @@ export function UnionsMap() {
           <MapContainer
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
-            whenCreated={setMapInstance}
+            whenReady={(e) => setMapInstance(e.target)}
             center={[51.505, -0.09]}
             zoom={13}
           >
