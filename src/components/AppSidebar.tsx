@@ -7,8 +7,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, MapPin, Download, Book, Share2 } from "lucide-react";
+import { Newspaper, MapPin, Download, Book, Facebook, Instagram, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const menuItems = [
@@ -16,7 +17,12 @@ const menuItems = [
   { title: "Local Unions Map", icon: MapPin, path: "/map" },
   { title: "Downloads", icon: Download, path: "/downloads" },
   { title: "eBooks", icon: Book, path: "/ebooks" },
-  { title: "Social Media", icon: Share2, path: "/social" },
+];
+
+const socialLinks = [
+  { icon: Facebook, url: "https://facebook.com/studentunion" },
+  { icon: Instagram, url: "https://instagram.com/studentunion" },
+  { icon: Twitter, url: "https://twitter.com/studentunion" },
 ];
 
 export function AppSidebar() {
@@ -41,6 +47,21 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-4 border-t">
+        <div className="flex justify-center space-x-4">
+          {socialLinks.map((link, index) => (
+            <a
+              key={index}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-accent transition-colors"
+            >
+              <link.icon className="w-5 h-5" />
+            </a>
+          ))}
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

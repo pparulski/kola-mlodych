@@ -25,15 +25,15 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1a365d",
+          DEFAULT: "#800020", // burgundy
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#ed8936",
+          DEFAULT: "#4a0012", // darker burgundy
           foreground: "#ffffff",
         },
         accent: {
-          DEFAULT: "#319795",
+          DEFAULT: "#590014", // deep burgundy
           foreground: "#ffffff",
         },
         destructive: {
@@ -41,16 +41,16 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#1a1a1a", // dark gray
+          foreground: "#ffffff",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#000000",
+          foreground: "#ffffff",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#1a1a1a",
+          foreground: "#ffffff",
         },
       },
       borderRadius: {
