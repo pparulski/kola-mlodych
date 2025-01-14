@@ -46,24 +46,31 @@ const exampleLocations: UnionLocation[] = [
 export function UnionsMap() {
   const [locations] = useState<UnionLocation[]>(exampleLocations);
   const [searchTerm, setSearchTerm] = useState("");
+  const [map, setMap] = useState<L.Map | null>(null);
 
   const filteredLocations = locations.filter(location =>
     location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    if (map) {
+      map.setView([51.505, -0.09], 13);
+    }
+  }, [map]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <MapContainer
-            center={[51.505, -0.09]}
-            zoom={13}
-            className="h-[600px] rounded-lg shadow-lg"
+            whenCreated={setMap}
+            style={{ height: "600px" }}
+            className="rounded-lg shadow-lg"
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
             {locations.map((location) => (
               <Marker key={location.id} position={location.coordinates}>
