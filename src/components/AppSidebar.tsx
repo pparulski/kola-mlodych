@@ -9,20 +9,19 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, MapPin, Download, Book, Facebook, Instagram, Twitter } from "lucide-react";
+import { Newspaper, Users, Download, Book, Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const menuItems = [
-  { title: "News", icon: Newspaper, path: "/" },
-  { title: "Local Unions Map", icon: MapPin, path: "/map" },
-  { title: "Downloads", icon: Download, path: "/downloads" },
-  { title: "eBooks", icon: Book, path: "/ebooks" },
+  { title: "Aktualności", icon: Newspaper, path: "/" },
+  { title: "Lista Kół Młodych", icon: Users, path: "/map" },
+  { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
+  { title: "eBooki", icon: Book, path: "/ebooks" },
 ];
 
 const socialLinks = [
   { icon: Facebook, url: "https://facebook.com/studentunion" },
   { icon: Instagram, url: "https://instagram.com/studentunion" },
-  { icon: Twitter, url: "https://twitter.com/studentunion" },
 ];
 
 export function AppSidebar() {
@@ -30,7 +29,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Student Union</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
