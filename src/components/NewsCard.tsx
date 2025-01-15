@@ -16,13 +16,13 @@ export function NewsCard({ id, title, date, content, previewLength = 200 }: News
     : content;
 
   return (
-    <Card className="mb-4 hover:shadow-lg transition-shadow">
+    <Card className="mb-4 hover:shadow-lg transition-shadow bg-card">
       <CardHeader>
         <CardTitle className="text-xl font-semibold">{title}</CardTitle>
-        <p className="text-sm text-gray-500">{date}</p>
+        <p className="text-sm text-muted-foreground">{date}</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-gray-700">{preview}</p>
+        <p className="text-card-foreground">{preview}</p>
         {content.length > previewLength && (
           <Button asChild variant="outline">
             <Link to={`/news/${id}`}>Czytaj więcej</Link>
