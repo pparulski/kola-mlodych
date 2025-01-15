@@ -6,11 +6,13 @@ import { NewsEditor } from "@/components/NewsEditor";
 
 const newsItems = [
   {
+    id: "1",
     title: "Wybory do Zarządu Koła Młodych",
     date: "2024-02-20",
     content: "Coroczne wybory do zarządu Koła Młodych odbędą się w przyszłym miesiącu. Zachęcamy wszystkich członków do aktywnego udziału.",
   },
   {
+    id: "2",
     title: "Nowa przestrzeń do nauki",
     date: "2024-02-19",
     content: "W przyszłym tygodniu zostanie otwarta nowa przestrzeń do nauki w budynku biblioteki, dostępna 24/7, wyposażona w nowoczesny sprzęt i sale do pracy grupowej.",
@@ -37,8 +39,8 @@ const Index = () => {
       )}
 
       <div className="space-y-4">
-        {newsItems.map((item, index) => (
-          <NewsCard key={index} {...item} />
+        {newsItems.map((item) => (
+          <NewsCard key={item.id} {...item} />
         ))}
       </div>
     </div>
