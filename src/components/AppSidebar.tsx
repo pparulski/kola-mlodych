@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2 } from "lucide-react";
+import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const menuItems = [
@@ -31,7 +31,7 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-4 flex justify-center">
           <img 
-            src="/logo.png" 
+            src="/lovable-uploads/a69e03ab-2d39-4e2c-acef-8b773e96bc91.png" 
             alt="Logo Koła Młodych" 
             className="w-24 h-24 object-contain"
           />
@@ -59,15 +59,24 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">
         <div className="flex flex-col items-center gap-4">
-          <a
-            href="https://ozzip.pl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
-          >
-            <Building2 className="w-4 h-4" />
-            <span>Inicjatywa Pracownicza</span>
-          </a>
+          <div className="flex flex-col items-center gap-2">
+            <a
+              href="https://ozzip.pl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Inicjatywa Pracownicza</span>
+            </a>
+            <a
+              href="mailto:mlodzi.ip@ozzip.pl"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              <span>mlodzi.ip@ozzip.pl</span>
+            </a>
+          </div>
           <div className="flex justify-center space-x-4">
             {socialLinks.map((link, index) => (
               <a
