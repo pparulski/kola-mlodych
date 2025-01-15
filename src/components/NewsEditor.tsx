@@ -26,7 +26,7 @@ export function NewsEditor() {
         className="w-full p-2 border rounded"
       />
       <Editor
-        apiKey="your-api-key-here" // You'll need to get this from TinyMCE
+        apiKey="vasnexdz0vp8r14mwm4viwjkcvz47fqe7g9rwkdjbmafsxak"
         init={{
           height: 500,
           menubar: true,

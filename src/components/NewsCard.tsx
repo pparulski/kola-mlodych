@@ -1,20 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface NewsCardProps {
+  id: string;
   title: string;
   date: string;
   content: string;
+  previewLength?: number;
 }
 
-export function NewsCard({ title, date, content }: NewsCardProps) {
+export function NewsCard({ id, title, date, content, previewLength = 200 }: NewsCardProps) {
+  const preview = content.length > previewLength 
+    ? content.substring(0, previewLength) + "..."
+    : content;
+
   return (
     <Card className="mb-4 hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="text-xl font-semibold">{title}</CardTitle>
         <p className="text-sm text-gray-500">{date}</p>
       </CardHeader>
-      <CardContent>
-        <p className="text-gray-700">{content}</p>
+      <CardContent className="space-y-4">
+        <p className="text-gray-700">{preview}</p>
+        {content.length > previewLength && (
+          <Button asChild variant="outline">
+            <Link to={`/news/${id}`}>Czytaj więcej</Link>
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
