@@ -22,11 +22,19 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Layout />}>
+            {/* Public routes */}
+            <Route index element={<Index />} />
+            <Route path="map" element={<Map />} />
+            <Route path="downloads" element={<Downloads />} />
+            <Route path="ebooks" element={<Ebooks />} />
+            
+            {/* Protected routes for content management */}
             <Route element={<AuthGuard />}>
-              <Route index element={<Index />} />
-              <Route path="map" element={<Map />} />
-              <Route path="downloads" element={<Downloads />} />
-              <Route path="ebooks" element={<Ebooks />} />
+              <Route path="manage">
+                <Route path="news" element={<Index adminMode={true} />} />
+                <Route path="downloads" element={<Downloads adminMode={true} />} />
+                <Route path="ebooks" element={<Ebooks adminMode={true} />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

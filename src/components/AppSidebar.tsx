@@ -12,12 +12,19 @@ import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2, Ma
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
+import { useEffect, useState } from "react";
 
-const menuItems = [
+const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/map" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { title: "eBooki", icon: Book, path: "/ebooks" },
+];
+
+const adminMenuItems = [
+  { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
+  { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
+  { title: "Zarządzaj ebookami", icon: Book, path: "/manage/ebooks" },
 ];
 
 const socialLinks = [
@@ -28,6 +35,21 @@ const socialLinks = [
 
 export function AppSidebar() {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: isAdmin } = await supabase.rpc('is_admin', { 
+          user_id: session.user.id 
+        });
+        setIsAdmin(!!isAdmin);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -36,7 +58,7 @@ export function AppSidebar() {
         title: "Wylogowano pomyślnie",
         description: "Do zobaczenia!",
       });
-      navigate("/auth");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
       toast({
@@ -60,7 +82,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {publicMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link 
@@ -73,15 +95,38 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
-                >
-                  <LogOut className="w-6 h-6" />
-                  <span className="flex-1">Wyloguj się</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+
+              {isAdmin && (
+                <>
+                  <SidebarMenuItem>
+                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                      Panel Admina
+                    </div>
+                  </SidebarMenuItem>
+                  {adminMenuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link 
+                          to={item.path}
+                          className="transition-colors hover:text-accent text-lg py-3"
+                        >
+                          <item.icon className="w-6 h-6" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={handleLogout}
+                      className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
+                    >
+                      <LogOut className="w-6 h-6" />
+                      <span className="flex-1">Wyloguj się</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
