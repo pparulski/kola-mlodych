@@ -11,13 +11,17 @@ const Auth = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    console.log("Setting up auth state change listener");
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
+      console.log("Auth state changed:", event, "Session:", session?.user?.id);
       
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN" && session?.user?.id) {
+        console.log("User signed in, checking admin status");
         // Check if the user is an admin
         const { data: isAdmin, error: adminCheckError } = await supabase
-          .rpc('is_admin', { user_id: session?.user?.id });
+          .rpc('is_admin', { user_id: session.user.id });
+
+        console.log("Admin check result:", isAdmin, "Error:", adminCheckError);
 
         if (adminCheckError) {
           console.error("Error checking admin status:", adminCheckError);
@@ -26,15 +30,20 @@ const Auth = () => {
         }
 
         if (isAdmin) {
+          console.log("User is admin, redirecting to home");
           navigate("/");
         } else {
+          console.log("User is not admin, showing error");
           setErrorMessage("Access denied. Only administrators can log in.");
           await supabase.auth.signOut();
         }
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Cleaning up auth state change listener");
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
@@ -60,6 +69,8 @@ const Auth = () => {
             }
           }}
           providers={[]}
+          view="sign_in"
+          showLinks={false}
         />
       </div>
     </div>
