@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Map from "./pages/Map";
 import Downloads from "./pages/Downloads";
 import Ebooks from "./pages/Ebooks";
+import Auth from "./pages/Auth";
+import { AuthGuard } from "./components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -17,14 +19,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/downloads" element={<Downloads />} />
-            <Route path="/ebooks" element={<Ebooks />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            element={
+              <Layout>
+                <AuthGuard>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/map" element={<Map />} />
+                    <Route path="/downloads" element={<Downloads />} />
+                    <Route path="/ebooks" element={<Ebooks />} />
+                  </Routes>
+                </AuthGuard>
+              </Layout>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -8,8 +8,10 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2, Mail } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2, Mail, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "./ui/use-toast";
 
 const menuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
@@ -25,6 +27,26 @@ const socialLinks = [
 ];
 
 export function AppSidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Wylogowano pomyślnie",
+        description: "Do zobaczenia!",
+      });
+      navigate("/auth");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Błąd wylogowania",
+        description: "Spróbuj ponownie później",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -51,6 +73,15 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center"
+                >
+                  <LogOut className="w-6 h-6" />
+                  <span>Wyloguj się</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
