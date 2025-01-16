@@ -4,11 +4,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("Session exists, checking admin status");
+        const { data: isAdmin } = await supabase.rpc('is_admin', { 
+          user_id: session.user.id 
+        });
+        
+        if (isAdmin) {
+          console.log("User is admin, redirecting to home");
+          navigate("/");
+        }
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
 
   useEffect(() => {
     console.log("Setting up auth state change listener");
@@ -17,7 +35,6 @@ const Auth = () => {
       
       if (event === "SIGNED_IN" && session?.user?.id) {
         console.log("User signed in, checking admin status");
-        // Check if the user is an admin
         const { data: isAdmin, error: adminCheckError } = await supabase
           .rpc('is_admin', { user_id: session.user.id });
 
@@ -69,8 +86,8 @@ const Auth = () => {
             }
           }}
           providers={[]}
-          showLinks={true}
-          view="sign_up"
+          showLinks={false}
+          view="sign_in"
         />
       </div>
     </div>

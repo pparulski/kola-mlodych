@@ -76,10 +76,10 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={handleLogout}
-                  className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center"
+                  className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
                 >
                   <LogOut className="w-6 h-6" />
-                  <span>Wyloguj się</span>
+                  <span className="flex-1">Wyloguj się</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
