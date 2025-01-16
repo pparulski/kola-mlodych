@@ -21,20 +21,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
-          <Route
-            element={
-              <Layout>
-                <AuthGuard>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/map" element={<Map />} />
-                    <Route path="/downloads" element={<Downloads />} />
-                    <Route path="/ebooks" element={<Ebooks />} />
-                  </Routes>
-                </AuthGuard>
-              </Layout>
-            }
-          />
+          <Route path="/" element={<Layout />}>
+            <Route element={<AuthGuard />}>
+              <Route index element={<Index />} />
+              <Route path="map" element={<Map />} />
+              <Route path="downloads" element={<Downloads />} />
+              <Route path="ebooks" element={<Ebooks />} />
+            </Route>
+          </Route>
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
