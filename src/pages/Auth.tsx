@@ -69,8 +69,8 @@ const Auth = () => {
             }
           }}
           providers={[]}
-          view="sign_in"
-          showLinks={false}
+          showLinks={true}
+          view="sign_up"
         />
       </div>
     </div>
