@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
-import pdfImgConvert from "npm:pdf-img-convert@1.2.1";
+import { fromPath } from "npm:pdf2pic@3.1.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,33 +14,37 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting PDF cover generation process");
     const { pdfUrl } = await req.json();
-    console.log("Processing PDF URL:", pdfUrl);
+    
+    if (!pdfUrl) {
+      console.error("No PDF URL provided");
+      throw new Error("PDF URL is required");
+    }
 
-    // Fetch PDF file
+    console.log("Fetching PDF from URL:", pdfUrl);
     const pdfResponse = await fetch(pdfUrl);
     if (!pdfResponse.ok) {
       console.error("Failed to fetch PDF:", pdfResponse.statusText);
       throw new Error(`Failed to fetch PDF: ${pdfResponse.statusText}`);
     }
 
-    const pdfBuffer = await pdfResponse.arrayBuffer();
-    console.log("PDF fetched successfully, size:", pdfBuffer.byteLength);
-
-    // Convert first page to PNG with reduced scale
+    // Convert PDF to image
+    console.log("Converting PDF to image");
     const options = {
-      page_numbers: [1],
-      base64: false,
-      scale: 0.5
+      density: 100,
+      saveFilename: "page",
+      savePath: "./",
+      format: "png",
+      width: 800,
+      height: 600
     };
 
-    console.log("Starting PDF to PNG conversion...");
-    const pngPages = await pdfImgConvert.convert(new Uint8Array(pdfBuffer), options);
-    console.log("PDF converted to PNG successfully");
+    const convert = fromPath(pdfUrl, options);
+    const pageToConvertAsImage = 1;
 
-    if (!pngPages || pngPages.length === 0) {
-      throw new Error("Failed to convert PDF to PNG");
-    }
+    const image = await convert(pageToConvertAsImage);
+    console.log("PDF converted to image:", image);
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -54,7 +58,7 @@ serve(async (req) => {
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("ebooks")
-      .upload(coverFileName, pngPages[0], {
+      .upload(coverFileName, image.base64, {
         contentType: "image/png",
         upsert: false,
       });
