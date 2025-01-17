@@ -32,13 +32,10 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
-      // Upload file to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      
+      // Upload file to storage using original filename
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file);
+        .upload(file.name, file, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -49,7 +46,7 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(fileName);
+        .getPublicUrl(file.name);
 
       console.log("Public URL generated:", publicUrl);
       
