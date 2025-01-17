@@ -31,16 +31,11 @@ export function StaticPage() {
       const { data, error } = await supabase
         .from('news')
         .select('*')
+        .eq('is_static_page', true)
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // No data found, return null
-          return null;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       console.log("Static page data:", data);
       return data;

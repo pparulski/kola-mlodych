@@ -1,48 +1,43 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import Index from "./pages/Index";
-import Map from "./pages/Map";
-import Downloads from "./pages/Downloads";
-import Ebooks from "./pages/Ebooks";
-import Auth from "./pages/Auth";
-import { AuthGuard } from "./components/AuthGuard";
-import NewsArticle from "./pages/NewsArticle";
+import { StaticPage } from "./components/StaticPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "./components/ui/toaster";
+import { ThemeProvider } from "./components/theme-provider";
+import { Map } from "./pages/Map";
+import { Downloads } from "./pages/Downloads";
+import { Ebooks } from "./pages/Ebooks";
+import { NewsDetails } from "./pages/NewsDetails";
+import { ManageNews } from "./pages/manage/ManageNews";
+import { ManageEbooks } from "./pages/manage/ManageEbooks";
+import { ManageDownloads } from "./pages/manage/ManageDownloads";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<Layout />}>
-            {/* Public routes */}
-            <Route index element={<Index />} />
-            <Route path="news/:id" element={<NewsArticle />} />
-            <Route path="map" element={<Map />} />
-            <Route path="downloads" element={<Downloads />} />
-            <Route path="ebooks" element={<Ebooks />} />
-            
-            {/* Protected routes for content management */}
-            <Route element={<AuthGuard />}>
-              <Route path="manage">
-                <Route path="news" element={<Index adminMode={true} />} />
-                <Route path="downloads" element={<Downloads adminMode={true} />} />
-                <Route path="ebooks" element={<Ebooks adminMode={true} />} />
-              </Route>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Index />} />
+              <Route path="/static/:slug" element={<StaticPage />} />
+              <Route path="/map" element={<Map />} />
+              <Route path="/downloads" element={<Downloads />} />
+              <Route path="/ebooks" element={<Ebooks />} />
+              <Route path="/news/:id" element={<NewsDetails />} />
+              <Route path="/manage/news" element={<ManageNews />} />
+              <Route path="/manage/ebooks" element={<ManageEbooks />} />
+              <Route path="/manage/downloads" element={<ManageDownloads />} />
             </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+          </Routes>
+        </Router>
+        <Toaster />
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

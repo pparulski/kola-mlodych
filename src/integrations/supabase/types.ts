@@ -86,6 +86,7 @@ export type Database = {
           date: string | null
           featured_image: string | null
           id: string
+          is_static_page: boolean | null
           title: string
         }
         Insert: {
@@ -95,6 +96,7 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
+          is_static_page?: boolean | null
           title: string
         }
         Update: {
@@ -104,6 +106,7 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
+          is_static_page?: boolean | null
           title?: string
         }
         Relationships: []

@@ -24,7 +24,7 @@ const Index = ({ adminMode = false }: IndexProps) => {
       const { data, error } = await supabase
         .from('news')
         .select('*')
-        .is('is_static_page', null)
+        .eq('is_static_page', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
