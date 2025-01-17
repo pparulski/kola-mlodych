@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, BookOpen, Trash2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { FileUpload } from "@/components/FileUpload";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { EbookCard } from "@/components/ebooks/EbookCard";
+import { EbookUpload } from "@/components/ebooks/EbookUpload";
 
 interface Ebook {
   id: string;
@@ -24,7 +18,7 @@ interface EbooksProps {
   adminMode?: boolean;
 }
 
-const Ebooks = ({ adminMode = false }: EbooksProps) => {
+export default function Ebooks({ adminMode = false }: EbooksProps) {
   const [showUpload, setShowUpload] = useState(false);
   const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +68,6 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
     try {
       console.log("Generating cover for PDF:", file_url);
       
-      // Call the edge function to generate the cover
       const { data: { coverUrl }, error: functionError } = await supabase.functions
         .invoke('generate-pdf-cover', {
           body: { pdfUrl: file_url }
@@ -127,57 +120,17 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
       </div>
 
       {showUpload && adminMode && (
-        <div className="mb-8">
-          <FileUpload
-            bucket="ebooks"
-            onSuccess={handleUploadSuccess}
-            acceptedFileTypes=".pdf"
-          />
-        </div>
+        <EbookUpload onUploadSuccess={handleUploadSuccess} />
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {ebooks.map((ebook) => (
-          <Card key={ebook.id} className="w-[300px] h-[250px] flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-lg truncate" title={ebook.title}>
-                {ebook.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              {ebook.cover_url ? (
-                <img
-                  src={ebook.cover_url}
-                  alt={`Cover of ${ebook.title}`}
-                  className="w-full h-32 object-contain mb-2"
-                />
-              ) : (
-                <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
-                  <BookOpen className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              <p className="text-sm text-muted-foreground">
-                Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}
-              </p>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" asChild>
-                <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Czytaj
-                </a>
-              </Button>
-              {adminMode && (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDelete(ebook.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
+          <EbookCard
+            key={ebook.id}
+            ebook={ebook}
+            onDelete={handleDelete}
+            adminMode={adminMode}
+          />
         ))}
       </div>
 
@@ -188,6 +141,4 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
       )}
     </div>
   );
-};
-
-export default Ebooks;
+}
