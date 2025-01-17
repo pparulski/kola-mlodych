@@ -26,7 +26,7 @@ const NewsArticle = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto mt-8">
+      <div className="w-full max-w-4xl mx-auto mt-8 px-4">
         <h1 className="text-2xl">Loading...</h1>
       </div>
     );
@@ -34,14 +34,14 @@ const NewsArticle = () => {
 
   if (!article) {
     return (
-      <div className="max-w-4xl mx-auto mt-8">
+      <div className="w-full max-w-4xl mx-auto mt-8 px-4">
         <h1 className="text-2xl font-bold text-red-500">Artykuł nie został znaleziony</h1>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-8">
+    <div className="w-full max-w-4xl mx-auto mt-8 px-4">
       <Button 
         variant="outline" 
         className="mb-4"

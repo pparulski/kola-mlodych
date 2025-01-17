@@ -124,8 +124,8 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full max-w-4xl mx-auto px-4">
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h1 className="text-3xl font-bold text-primary">Pliki do pobrania</h1>
         {adminMode && (
           <Button onClick={() => setShowUpload(!showUpload)}>
@@ -144,44 +144,46 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         </div>
       )}
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nazwa pliku</TableHead>
-            <TableHead>Data dodania</TableHead>
-            <TableHead className="text-right">Akcje</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {files.map((file) => (
-            <TableRow key={file.id}>
-              <TableCell className="font-medium">{file.name}</TableCell>
-              <TableCell>
-                {new Date(file.created_at).toLocaleDateString("pl-PL")}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" asChild>
-                    <a href={file.url} target="_blank" rel="noopener noreferrer">
-                      <Download className="mr-2 h-4 w-4" />
-                      Pobierz
-                    </a>
-                  </Button>
-                  {adminMode && (
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => handleDelete(file.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nazwa pliku</TableHead>
+              <TableHead>Data dodania</TableHead>
+              <TableHead className="text-right">Akcje</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {files.map((file) => (
+              <TableRow key={file.id}>
+                <TableCell className="font-medium">{file.name}</TableCell>
+                <TableCell>
+                  {new Date(file.created_at).toLocaleDateString("pl-PL")}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2 flex-wrap">
+                    <Button variant="outline" asChild>
+                      <a href={file.url} target="_blank" rel="noopener noreferrer">
+                        <Download className="mr-2 h-4 w-4" />
+                        Pobierz
+                      </a>
+                    </Button>
+                    {adminMode && (
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(file.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {files.length === 0 && (
         <div className="text-center text-muted-foreground mt-8">
