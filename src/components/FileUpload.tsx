@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 interface FileUploadProps {
   onSuccess: (name: string, url: string) => void;
-  bucket: "downloads" | "ebooks";
+  bucket: "downloads" | "ebooks" | "news_images";
   acceptedFileTypes?: string;
 }
 

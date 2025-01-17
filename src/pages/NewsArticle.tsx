@@ -2,12 +2,34 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { newsItems } from "@/data/newsItems";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const NewsArticle = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const article = newsItems.find(item => item.id === id);
+
+  const { data: article, isLoading } = useQuery({
+    queryKey: ['news', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto mt-8">
+        <h1 className="text-2xl">Loading...</h1>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -40,7 +62,9 @@ const NewsArticle = () => {
         )}
         <CardHeader>
           <CardTitle className="text-3xl font-bold">{article.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">{article.date}</p>
+          <p className="text-sm text-muted-foreground">
+            {new Date(article.created_at).toLocaleDateString("pl-PL")}
+          </p>
         </CardHeader>
         <CardContent>
           <div className="prose prose-lg max-w-none">
