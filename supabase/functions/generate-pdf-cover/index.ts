@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
-import { PDFDocument } from 'https://cdn.skypack.dev/pdf-lib';
+import { PDFDocument } from 'https://cdn.skypack.dev/pdf-lib'
+import * as base64 from "https://deno.land/std@0.182.0/encoding/base64.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,7 +17,7 @@ serve(async (req) => {
     const { pdfUrl } = await req.json()
     console.log('Generating cover for PDF:', pdfUrl)
 
-    // Fetch and validate PDF
+    // Fetch PDF
     const response = await fetch(pdfUrl)
     if (!response.ok) {
       throw new Error('Failed to fetch PDF')
@@ -30,7 +30,7 @@ serve(async (req) => {
     
     console.log('PDF file fetched successfully, size:', pdfBytes.byteLength)
 
-    // Load and validate PDF document
+    // Load PDF document
     const pdfDoc = await PDFDocument.load(pdfBytes)
     const pages = pdfDoc.getPages()
     
@@ -38,6 +38,7 @@ serve(async (req) => {
       throw new Error('PDF has no pages')
     }
     
+    // Get first page
     const firstPage = pages[0]
     const { width, height } = firstPage.getSize()
     
@@ -47,74 +48,15 @@ serve(async (req) => {
     
     console.log('PDF dimensions:', { width, height })
 
-    // Calculate image dimensions with strict validation
-    const MIN_DIMENSION = 100
-    const MAX_DIMENSION = 1200
-    
-    let imageWidth = Math.round(width)
-    let imageHeight = Math.round(height)
-    
-    // Scale down if too large
-    if (imageWidth > MAX_DIMENSION) {
-      const scale = MAX_DIMENSION / imageWidth
-      imageWidth = MAX_DIMENSION
-      imageHeight = Math.round(imageHeight * scale)
-    }
-    
-    // Ensure minimum dimensions
-    imageWidth = Math.max(MIN_DIMENSION, imageWidth)
-    imageHeight = Math.max(MIN_DIMENSION, imageHeight)
-    
-    console.log('Final image dimensions:', { imageWidth, imageHeight })
+    // Create a new PDF with just the first page
+    const coverPdf = await PDFDocument.create()
+    const [coverPage] = await coverPdf.copyPages(pdfDoc, [0])
+    coverPdf.addPage(coverPage)
 
-    // Create and validate image
-    const image = new Image(imageWidth, imageHeight)
-    if (!image) {
-      throw new Error('Failed to create image')
-    }
-
-    // Fill background
-    await image.fill(0xFFFFFFFF)
-    console.log('Background filled')
-
-    // Create pattern with safe dimensions
-    const PATTERN_SIZE = Math.min(50, Math.floor(imageWidth / 4))
-    console.log('Pattern size:', PATTERN_SIZE)
-
-    // Draw pattern with strict bounds checking
-    for (let y = PATTERN_SIZE; y < imageHeight - PATTERN_SIZE; y += PATTERN_SIZE * 2) {
-      for (let x = PATTERN_SIZE; x < imageWidth - PATTERN_SIZE; x += PATTERN_SIZE * 2) {
-        try {
-          // Draw a single black square with validation
-          const size = Math.min(
-            PATTERN_SIZE - 2,
-            imageWidth - x - 2,
-            imageHeight - y - 2
-          )
-          
-          if (size > 0) {
-            for (let dy = 0; dy < size; dy++) {
-              for (let dx = 0; dx < size; dx++) {
-                const px = x + dx
-                const py = y + dy
-                if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
-                  image.setPixelAt(px, py, 0x000000FF)
-                }
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error drawing pattern at:', { x, y }, error)
-          // Continue with next square
-        }
-      }
-    }
-
-    console.log('Pattern created successfully')
-
-    // Encode image
-    const pngBytes = await image.encode()
-    console.log('Image encoded successfully, size:', pngBytes.byteLength)
+    // Convert to PNG format
+    const pngBytes = await coverPdf.saveAsBase64({ dataUri: true })
+    const pngData = pngBytes.split(',')[1] // Remove data URI prefix
+    const imageBytes = base64.decode(pngData)
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -128,7 +70,7 @@ serve(async (req) => {
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('ebooks')
-      .upload(coverFileName, pngBytes, {
+      .upload(coverFileName, imageBytes, {
         contentType: 'image/png',
         upsert: false
       })
