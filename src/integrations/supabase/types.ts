@@ -24,6 +24,30 @@ export type Database = {
         }
         Relationships: []
       }
+      downloads: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
