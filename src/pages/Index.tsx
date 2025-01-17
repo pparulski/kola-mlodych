@@ -24,6 +24,7 @@ const Index = ({ adminMode = false }: IndexProps) => {
       const { data, error } = await supabase
         .from('news')
         .select('*')
+        .is('is_static_page', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -34,6 +35,25 @@ const Index = ({ adminMode = false }: IndexProps) => {
 
   const handleDelete = async (id: string) => {
     try {
+      // Get the news item to access its featured image
+      const newsItem = newsItems?.find(item => item.id === id);
+      
+      // If there's a featured image, delete it from storage
+      if (newsItem?.featured_image) {
+        const imagePath = newsItem.featured_image.split('/').pop();
+        if (imagePath) {
+          const { error: storageError } = await supabase.storage
+            .from('news_images')
+            .remove([imagePath]);
+          
+          if (storageError) {
+            console.error("Error deleting image:", storageError);
+            throw storageError;
+          }
+        }
+      }
+
+      // Delete the news record from the database
       const { error } = await supabase
         .from('news')
         .delete()
@@ -113,6 +133,6 @@ const Index = ({ adminMode = false }: IndexProps) => {
       )}
     </div>
   );
-};
+}
 
 export default Index;

@@ -10,9 +10,11 @@ import { useQueryClient } from "@tanstack/react-query";
 interface NewsEditorProps {
   existingNews?: any;
   onSuccess?: () => void;
+  isStaticPage?: boolean;
+  defaultSlug?: string;
 }
 
-export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
+export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug }: NewsEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
@@ -31,6 +33,20 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Delete old featured image if it exists and we're uploading a new one
+      if (existingNews?.featured_image && featuredImage !== existingNews.featured_image) {
+        const oldImagePath = existingNews.featured_image.split('/').pop();
+        if (oldImagePath) {
+          const { error: deleteError } = await supabase.storage
+            .from('news_images')
+            .remove([oldImagePath]);
+          
+          if (deleteError) {
+            console.error("Error deleting old image:", deleteError);
+          }
+        }
+      }
+
       if (existingNews) {
         const { error } = await supabase
           .from('news')
@@ -38,6 +54,8 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
             title,
             content,
             featured_image: featuredImage,
+            is_static_page: isStaticPage || false,
+            slug: defaultSlug,
           })
           .eq('id', existingNews.id);
 
@@ -48,7 +66,9 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
           title,
           content,
           featured_image: featuredImage,
-          created_by: user?.id
+          created_by: user?.id,
+          is_static_page: isStaticPage || false,
+          slug: defaultSlug,
         });
 
         if (error) throw error;
@@ -56,6 +76,9 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
       }
 
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      if (isStaticPage) {
+        queryClient.invalidateQueries({ queryKey: ['static-page'] });
+      }
       setTitle("");
       setContent("");
       setFeaturedImage(null);

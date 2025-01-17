@@ -6,6 +6,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Newspaper, Users, Download, Book, Building2, Mail, LogOut } from "lucide-react";
@@ -17,14 +20,22 @@ import { useEffect, useState } from "react";
 const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/map" },
+  { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
-  { title: "Publikacje", icon: Book, path: "/ebooks" },
+  { 
+    title: "Nasze działania",
+    subItems: [
+      { title: "Jowita", path: "/pages/jowita" },
+      { title: "Kamionka", path: "/pages/kamionka" },
+      { title: "Stołówki", path: "/pages/stolowki" },
+    ]
+  },
 ];
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
-  { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
   { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
+  { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
 ];
 
 export function AppSidebar() {
@@ -78,15 +89,32 @@ export function AppSidebar() {
             <SidebarMenu>
               {publicMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link 
-                      to={item.path}
-                      className="transition-colors hover:text-accent text-lg py-3"
-                    >
-                      <item.icon className="w-6 h-6" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  {item.subItems ? (
+                    <>
+                      <SidebarMenuButton className="font-medium">
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                      <SidebarMenuSub>
+                        {item.subItems.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <Link to={subItem.path}>{subItem.title}</Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </>
+                  ) : (
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.path}
+                        className="transition-colors hover:text-accent text-lg py-3"
+                      >
+                        {item.icon && <item.icon className="w-6 h-6" />}
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
 
