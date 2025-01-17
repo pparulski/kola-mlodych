@@ -44,8 +44,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="w-64">
-      <ScrollArea className="h-full">
+    <Sidebar className="w-64 flex flex-col h-full">
+      <ScrollArea className="flex-1">
         <SidebarContent>
           <SidebarLogo />
           <SidebarGroup>
@@ -56,10 +56,8 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          <div className="flex-1" />
-
           {isAdmin && (
-            <SidebarGroup className="mt-auto border-t border-border/50 pt-4">
+            <SidebarGroup className="border-t border-border/50 pt-4">
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
@@ -74,7 +72,7 @@ export function AppSidebar() {
           )}
         </SidebarContent>
       </ScrollArea>
-      <SidebarFooter className="p-4 border-t">
+      <SidebarFooter className="border-t mt-auto">
         <SidebarFooterContent />
       </SidebarFooter>
     </Sidebar>
