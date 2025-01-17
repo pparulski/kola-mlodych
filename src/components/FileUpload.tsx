@@ -17,9 +17,14 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file type for PDF uploads only when it's a PDF upload
+    // Validate file type based on acceptedFileTypes prop
     if (acceptedFileTypes === ".pdf" && !file.type.includes("pdf")) {
-      toast.error("Only PDF files are allowed for ebooks");
+      toast.error("Only PDF files are allowed");
+      return;
+    }
+
+    if (acceptedFileTypes === "image/*" && !file.type.includes("image")) {
+      toast.error("Only image files are allowed");
       return;
     }
 
