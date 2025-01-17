@@ -1,19 +1,44 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { toast } from "./ui/use-toast";
+import { toast } from "sonner";
+import { FileUpload } from "./FileUpload";
+import { Image } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function NewsEditor() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [featuredImage, setFeaturedImage] = useState<string | null>(null);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
-  const handleSubmit = () => {
-    // Here you would typically send this to your backend
-    console.log({ title, content });
-    toast({
-      title: "Sukces",
-      description: "Artykuł został zapisany",
-    });
+  const handleSubmit = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error } = await supabase.from('news').insert({
+        title,
+        content,
+        featured_image: featuredImage,
+        created_by: user?.id
+      });
+
+      if (error) throw error;
+
+      toast.success("Artykuł został zapisany");
+      setTitle("");
+      setContent("");
+      setFeaturedImage(null);
+    } catch (error) {
+      console.error("Error saving article:", error);
+      toast.error("Nie udało się zapisać artykułu");
+    }
+  };
+
+  const handleImageUpload = (name: string, url: string) => {
+    setFeaturedImage(url);
+    setShowImageUpload(false);
+    toast.success("Zdjęcie zostało dodane");
   };
 
   return (
@@ -25,6 +50,34 @@ export function NewsEditor() {
         placeholder="Tytuł artykułu..."
         className="w-full p-2 border rounded"
       />
+
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          onClick={() => setShowImageUpload(!showImageUpload)}
+        >
+          <Image className="mr-2 h-4 w-4" />
+          {featuredImage ? "Zmień zdjęcie" : "Dodaj zdjęcie"}
+        </Button>
+        {featuredImage && (
+          <img
+            src={featuredImage}
+            alt="Featured"
+            className="h-20 w-20 object-cover rounded"
+          />
+        )}
+      </div>
+
+      {showImageUpload && (
+        <div className="mb-4">
+          <FileUpload
+            bucket="news_images"
+            onSuccess={handleImageUpload}
+            acceptedFileTypes="image/*"
+          />
+        </div>
+      )}
+
       <Editor
         apiKey="vasnexdz0vp8r14mwm4viwjkcvz47fqe7g9rwkdjbmafsxak"
         init={{

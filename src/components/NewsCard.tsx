@@ -7,16 +7,33 @@ interface NewsCardProps {
   title: string;
   date: string;
   content: string;
+  featured_image?: string | null;
   previewLength?: number;
 }
 
-export function NewsCard({ id, title, date, content, previewLength = 200 }: NewsCardProps) {
+export function NewsCard({ 
+  id, 
+  title, 
+  date, 
+  content, 
+  featured_image,
+  previewLength = 200 
+}: NewsCardProps) {
   const preview = content.length > previewLength 
     ? content.substring(0, previewLength) + "..."
     : content;
 
   return (
-    <Card className="mb-4 hover:shadow-lg transition-shadow bg-card">
+    <Card className="mb-4 hover:shadow-lg transition-shadow bg-card overflow-hidden">
+      {featured_image && (
+        <div className="relative w-full h-[200px]">
+          <img
+            src={featured_image}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <CardHeader>
         <CardTitle className="text-xl font-semibold">{title}</CardTitle>
         <p className="text-sm text-muted-foreground">{date}</p>
