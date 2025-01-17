@@ -11,7 +11,7 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, Fist } from "lucide-react";
+import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, GripHorizontal } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
@@ -26,7 +26,7 @@ const publicMenuItems = [
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
-    icon: Fist,
+    icon: GripHorizontal,
     subItems: [
       { title: "Jowita", path: "/static/jowita" },
       { title: "Kamionka", path: "/static/kamionka" },
