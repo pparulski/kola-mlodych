@@ -68,7 +68,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     try {
       console.log("Generating cover for PDF:", file_url);
       
-      const { data: { coverUrl }, error: functionError } = await supabase.functions
+      const { data, error: functionError } = await supabase.functions
         .invoke('generate-pdf-cover', {
           body: { pdfUrl: file_url }
         });
@@ -78,7 +78,8 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         throw new Error('Failed to generate cover');
       }
 
-      console.log("Cover generated successfully:", coverUrl);
+      console.log("Cover generation response:", data);
+      const coverUrl = data?.coverUrl;
 
       console.log("Saving ebook metadata:", { title, file_url, coverUrl });
       const { error } = await supabase.from("ebooks").insert({
