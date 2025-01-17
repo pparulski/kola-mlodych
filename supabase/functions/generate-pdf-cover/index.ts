@@ -36,38 +36,47 @@ serve(async (req) => {
     
     console.log('PDF first page dimensions:', width, height)
 
-    // Create an image with fixed dimensions to ensure consistency
-    const imageWidth = 600 // Fixed width
-    const imageHeight = Math.floor((height * imageWidth) / width) // Maintain aspect ratio
+    // Create an image with fixed dimensions
+    const targetWidth = 600 // Fixed width
+    const targetHeight = Math.ceil((height * targetWidth) / width) // Maintain aspect ratio
     
-    console.log('Creating image with dimensions:', imageWidth, imageHeight)
+    console.log('Target dimensions calculated:', targetWidth, targetHeight)
+
+    // Create image with minimum dimensions of 1x1
+    const imageWidth = Math.max(1, targetWidth)
+    const imageHeight = Math.max(1, targetHeight)
     
-    // Ensure minimum dimensions
-    if (imageWidth < 1 || imageHeight < 1) {
-      throw new Error('Invalid image dimensions calculated')
-    }
+    console.log('Final image dimensions:', imageWidth, imageHeight)
 
     const image = new Image(imageWidth, imageHeight)
     
     // Fill with white background
-    image.fill(0xFFFFFFFF) // White color
+    image.fill(0xFFFFFFFF)
     
     console.log('Background filled, creating pattern')
 
-    // Create a pattern of rectangles to represent the content
-    const gridSize = 40 // Larger grid size for better visibility
-    const rectSize = 20 // Larger rectangles
+    // Create a pattern with larger spacing and safer bounds checking
+    const gridSize = 50 // Increased spacing between elements
+    const rectSize = 30 // Larger rectangles for better visibility
 
-    for (let y = 0; y < imageHeight; y += gridSize) {
-      for (let x = 0; x < imageWidth; x += gridSize) {
-        // Only draw if we have enough space for the rectangle
-        if (x + rectSize <= imageWidth && y + rectSize <= imageHeight) {
-          // Draw a filled rectangle
-          for (let dy = 0; dy < rectSize; dy++) {
-            for (let dx = 0; dx < rectSize; dx++) {
-              const px = x + dx
-              const py = y + dy
-              // Extra safety check
+    // Calculate number of complete rectangles that will fit
+    const numRows = Math.floor(imageHeight / gridSize)
+    const numCols = Math.floor(imageWidth / gridSize)
+
+    console.log(`Creating pattern grid: ${numRows} rows x ${numCols} columns`)
+
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        const startX = col * gridSize
+        const startY = row * gridSize
+
+        // Only draw rectangle if we have enough space
+        if (startX + rectSize <= imageWidth && startY + rectSize <= imageHeight) {
+          // Draw filled rectangle
+          for (let y = 0; y < rectSize; y++) {
+            for (let x = 0; x < rectSize; x++) {
+              const px = startX + x
+              const py = startY + y
               if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
                 image.setPixelAt(px, py, 0x000000FF)
               }
@@ -77,11 +86,11 @@ serve(async (req) => {
       }
     }
 
-    console.log('Pattern created, encoding image')
+    console.log('Pattern created successfully')
 
     // Encode the image to PNG
     const pngBytes = await image.encode()
-    console.log('Cover image generated successfully')
+    console.log('Image encoded successfully')
 
     // Initialize Supabase client
     const supabase = createClient(
