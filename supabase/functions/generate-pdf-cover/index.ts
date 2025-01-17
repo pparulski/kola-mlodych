@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
-import { PDFDocument } from "https://cdn.skypack.dev/pdf-lib";
+import * as pdfImgConvert from "npm:pdf-img-convert";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -31,36 +31,20 @@ serve(async (req) => {
 
         console.log("PDF file fetched successfully, size:", pdfBytes.byteLength);
 
-        // Load and validate PDF document
-        const pdfDoc = await PDFDocument.load(pdfBytes);
-        const pages = pdfDoc.getPages();
-
-        if (pages.length === 0) {
-            throw new Error("PDF has no pages");
-        }
-
-        const firstPage = pages[0];
-        
-        // Get page dimensions
-        const { width: pdfWidth, height: pdfHeight } = firstPage.getSize();
-        
-        // Create a new PDF with just the first page
-        const singlePagePdf = await PDFDocument.create();
-        const [copiedPage] = await singlePagePdf.copyPages(pdfDoc, [0]);
-        singlePagePdf.addPage(copiedPage);
-        
-        // Convert to PNG using renderToImage
-        const pngBytes = await singlePagePdf.saveAsImage({
-            format: 'png',
-            page: 0,
-            width: pdfWidth,
-            height: pdfHeight
+        // Convert first page to PNG using pdf-img-convert
+        const pngPages = await pdfImgConvert.convert(new Uint8Array(pdfBytes), {
+            page_numbers: [1], // only convert first page
+            base64: false,
         });
 
-        console.log("PDF page converted to PNG successfully");
+        if (!pngPages || pngPages.length === 0) {
+            throw new Error("Failed to convert PDF to PNG");
+        }
+
+        console.log("PDF first page converted to PNG successfully");
 
         // Load the PNG into ImageScript for resizing
-        const image = await Image.decode(pngBytes);
+        const image = await Image.decode(pngPages[0]);
         
         let { width, height } = image;
 
