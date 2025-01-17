@@ -10,7 +10,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarFooter,
-  useSidebarContext,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Newspaper, Users, Download, Book, Building2, Mail, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -53,7 +53,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { setOpen } = useSidebarContext();
+  const { setOpen } = useSidebar();
   const isMobile = useIsMobile();
 
   useEffect(() => {
