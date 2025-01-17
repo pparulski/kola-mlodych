@@ -46,32 +46,21 @@ const exampleLocations: UnionLocation[] = [
 export function UnionsMap() {
   const [locations] = useState<UnionLocation[]>(exampleLocations);
   const [searchTerm, setSearchTerm] = useState("");
-  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
   const filteredLocations = locations.filter(location =>
     location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    if (mapInstance) {
-      console.log("Map instance updated:", mapInstance);
-      mapInstance.setView([51.505, -0.09], 13);
-    }
-  }, [mapInstance]);
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <MapContainer
+            center={[51.505, -0.09]}
+            zoom={13}
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
-            ref={(map) => {
-              if (map) {
-                setMapInstance(map);
-              }
-            }}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
