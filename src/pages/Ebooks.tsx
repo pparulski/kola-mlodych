@@ -16,8 +16,8 @@ interface Ebook {
   id: string;
   title: string;
   file_url: string;
-  created_at: string;
   cover_url?: string;
+  created_at: string;
 }
 
 interface EbooksProps {
@@ -72,10 +72,26 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
 
   const handleUploadSuccess = async (title: string, file_url: string) => {
     try {
-      console.log("Saving ebook metadata:", { title, file_url });
+      console.log("Generating cover for PDF:", file_url);
+      
+      // Call the edge function to generate the cover
+      const { data: { coverUrl }, error: functionError } = await supabase.functions
+        .invoke('generate-pdf-cover', {
+          body: { pdfUrl: file_url }
+        });
+
+      if (functionError) {
+        console.error("Error generating cover:", functionError);
+        throw new Error('Failed to generate cover');
+      }
+
+      console.log("Cover generated successfully:", coverUrl);
+
+      console.log("Saving ebook metadata:", { title, file_url, coverUrl });
       const { error } = await supabase.from("ebooks").insert({
         title,
         file_url,
+        cover_url: coverUrl,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
@@ -129,9 +145,17 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-              <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
-                <BookOpen className="h-12 w-12 text-muted-foreground" />
-              </div>
+              {ebook.cover_url ? (
+                <img
+                  src={ebook.cover_url}
+                  alt={`Cover of ${ebook.title}`}
+                  className="w-full h-32 object-contain mb-2"
+                />
+              ) : (
+                <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
+                  <BookOpen className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">
                 Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}
               </p>
