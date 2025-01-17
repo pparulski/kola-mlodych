@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
-import { decode } from "https://deno.land/x/pngs@0.1.1/mod.ts";
+import pdfImgConvert from "npm:pdf-img-convert@1.2.1";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -17,25 +17,41 @@ serve(async (req) => {
         const { pdfUrl } = await req.json();
         console.log("Generating cover for PDF:", pdfUrl);
 
+        // Fetch PDF file
+        const pdfResponse = await fetch(pdfUrl);
+        if (!pdfResponse.ok) {
+            throw new Error("Failed to fetch PDF");
+        }
+
+        const pdfBuffer = await pdfResponse.arrayBuffer();
+        console.log("PDF fetched, size:", pdfBuffer.byteLength);
+
+        // Convert first page to PNG
+        const options = {
+            page_numbers: [1],
+            base64: false,
+            scale: 0.5  // Reduce size of the output image
+        };
+
+        const pngPages = await pdfImgConvert.convert(new Uint8Array(pdfBuffer), options);
+        console.log("PDF converted to PNG");
+
+        if (!pngPages || pngPages.length === 0) {
+            throw new Error("Failed to convert PDF to PNG");
+        }
+
         // Initialize Supabase client
         const supabase = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
             Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
         );
 
-        // For now, we'll use a placeholder image since we can't process PDFs
-        // in a lightweight way within Edge Functions
-        const placeholderImage = await fetch("https://placehold.co/600x800/png")
-            .then(res => res.arrayBuffer());
-
-        console.log("Generated placeholder image for PDF cover");
-
         const coverFileName = `${crypto.randomUUID()}-cover.png`;
 
         // Upload to Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from("ebooks")
-            .upload(coverFileName, placeholderImage, {
+            .upload(coverFileName, pngPages[0], {
                 contentType: "image/png",
                 upsert: false,
             });
