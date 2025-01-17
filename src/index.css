@@ -58,11 +58,11 @@
 
   /* Style links in articles */
   article a {
-    @apply text-primary hover:text-accent underline;
+    @apply text-primary hover:text-accent no-underline;
   }
 
   .dark article a {
-    @apply text-accent-foreground hover:text-primary-foreground;
+    @apply text-primary hover:text-accent;
   }
 
   /* Style divs in articles */

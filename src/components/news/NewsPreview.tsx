@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
+import { ArrowRight } from "lucide-react";
 
 interface NewsPreviewProps {
   id: string;
@@ -33,7 +34,7 @@ export function NewsPreview({
     : "";
 
   return (
-    <article className="space-y-6 p-6 bg-card rounded-lg shadow-sm">
+    <article className="space-y-6 p-6 bg-card rounded-lg border-2 border-border">
       {featured_image && (
         <img
           src={featured_image}
@@ -42,15 +43,15 @@ export function NewsPreview({
         />
       )}
       <div className="space-y-6">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Link
             to={slug ? `/static/${slug}` : `/news/${id}`}
-            className="hover:text-accent transition-colors"
+            className="no-underline"
           >
-            <h2 className="text-2xl font-bold">{title}</h2>
+            <h2 className="text-2xl font-bold text-primary hover:text-accent transition-colors">{title}</h2>
           </Link>
           {formattedDate && (
-            <p className="text-sm text-foreground">{formattedDate}</p>
+            <p className="text-sm text-muted-foreground">{formattedDate}</p>
           )}
         </div>
         <div 
@@ -60,9 +61,9 @@ export function NewsPreview({
         <div className="pt-4">
           <Link
             to={slug ? `/static/${slug}` : `/news/${id}`}
-            className="text-primary hover:text-accent transition-colors"
+            className="inline-flex items-center text-primary hover:text-accent transition-colors no-underline"
           >
-            Czytaj więcej
+            Czytaj więcej <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
       </div>
