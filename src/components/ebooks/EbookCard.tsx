@@ -29,8 +29,8 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
   };
 
   return (
-    <Card className="w-[300px] h-[250px] flex flex-col group">
-      <CardHeader className="text-center">
+    <Card className="w-[300px] h-[300px] flex flex-col group">
+      <CardHeader className="text-center pb-2">
         <CardTitle 
           className="text-lg truncate relative inline-block cursor-pointer after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left" 
           title={ebook.title}
@@ -39,9 +39,9 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
           {ebook.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow">
+      <CardContent className="flex-grow pb-2">
         <div 
-          className="relative w-full h-48 mb-2 overflow-hidden cursor-pointer"
+          className="relative w-full h-48 mb-4 overflow-hidden cursor-pointer"
           onClick={handleClick}
         >
           {ebook.cover_url ? (
@@ -61,7 +61,7 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
         </div>
       </CardContent>
       {adminMode && onDelete && (
-        <CardFooter className="justify-end">
+        <CardFooter className="justify-end pt-0">
           <Button
             variant="destructive"
             size="icon"
