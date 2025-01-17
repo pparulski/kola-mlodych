@@ -79,7 +79,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
       }
 
       console.log("Cover generation response:", data);
-      const coverUrl = data?.coverUrl;
+      const coverUrl = data?.coverUrl || "/placeholder.svg";
 
       console.log("Saving ebook metadata:", { title, file_url, coverUrl });
       const { error } = await supabase.from("ebooks").insert({
