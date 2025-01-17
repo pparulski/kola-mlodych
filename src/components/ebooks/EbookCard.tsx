@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Trash2 } from "lucide-react";
+import { Book, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,27 +29,36 @@ interface EbookCardProps {
 }
 
 export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps) {
+  const handleOpenPdf = () => {
+    window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <Card className="flex flex-col h-full bg-muted/10">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold line-clamp-2">
+        <CardTitle className="text-lg font-semibold line-clamp-2 text-center">
           {ebook.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
         {ebook.cover_url ? (
-          <img
-            src={ebook.cover_url}
-            alt={`Okładka ${ebook.title}`}
-            className="w-full h-48 object-cover rounded-md mb-4"
-          />
+          <button
+            onClick={handleOpenPdf}
+            className="w-full group"
+          >
+            <img
+              src={ebook.cover_url}
+              alt={`Okładka ${ebook.title}`}
+              className="w-full h-48 object-cover rounded-md mb-4 transition-transform duration-200 group-hover:scale-105"
+            />
+          </button>
         ) : (
           <div className="w-full h-48 bg-muted rounded-md mb-4 flex items-center justify-center">
             <span className="text-muted-foreground">Brak okładki</span>
           </div>
         )}
         {ebook.publication_year && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-center dark:text-muted-foreground text-foreground">
             Rok wydania: {ebook.publication_year}
           </p>
         )}
@@ -57,8 +66,8 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
       <CardFooter className="flex justify-between gap-2">
         <Button asChild className="flex-1">
           <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
-            <Download className="mr-2 h-4 w-4" />
-            Pobierz
+            <Book className="mr-2 h-4 w-4" />
+            Czytaj
           </a>
         </Button>
         {adminMode && onDelete && (

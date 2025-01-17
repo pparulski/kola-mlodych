@@ -116,35 +116,32 @@ export type Database = {
       }
       unions: {
         Row: {
-          address: string
           contact: string
-          coordinates: unknown
           created_at: string
           facebook_url: string | null
           id: string
           instagram_url: string | null
+          logo_url: string | null
           name: string
           year_created: number
         }
         Insert: {
-          address: string
           contact: string
-          coordinates: unknown
           created_at?: string
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          logo_url?: string | null
           name: string
           year_created: number
         }
         Update: {
-          address?: string
           contact?: string
-          coordinates?: unknown
           created_at?: string
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          logo_url?: string | null
           name?: string
           year_created?: number
         }
