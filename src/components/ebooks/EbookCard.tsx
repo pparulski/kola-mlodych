@@ -1,4 +1,4 @@
-import { BookOpen, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +14,7 @@ interface Ebook {
   file_url: string;
   cover_url?: string;
   created_at: string;
+  publication_year?: number;
 }
 
 interface EbookCardProps {
@@ -24,36 +25,36 @@ interface EbookCardProps {
 
 export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps) {
   return (
-    <Card className="w-[300px] h-[250px] flex flex-col">
+    <Card className="w-[300px] h-[250px] flex flex-col group">
       <CardHeader>
-        <CardTitle className="text-lg truncate" title={ebook.title}>
+        <CardTitle 
+          className="text-lg truncate relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left" 
+          title={ebook.title}
+        >
           {ebook.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        {ebook.cover_url ? (
-          <img
-            src={ebook.cover_url}
-            alt={`Cover of ${ebook.title}`}
-            className="w-full h-32 object-contain mb-2"
-          />
-        ) : (
-          <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
-            <BookOpen className="h-12 w-12 text-muted-foreground" />
-          </div>
-        )}
-        <p className="text-sm text-muted-foreground">
-          Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}
-        </p>
+        <div className="relative w-full h-32 mb-2 overflow-hidden">
+          {ebook.cover_url ? (
+            <img
+              src={ebook.cover_url}
+              alt={`Cover of ${ebook.title}`}
+              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <div className="text-muted-foreground text-sm">No cover image</div>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <span>Rok publikacji: {ebook.publication_year || "N/A"}</span>
+          <span>Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}</span>
+        </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" asChild>
-          <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
-            <BookOpen className="mr-2 h-4 w-4" />
-            Czytaj
-          </a>
-        </Button>
-        {adminMode && onDelete && (
+      {adminMode && onDelete && (
+        <CardFooter className="justify-end">
           <Button
             variant="destructive"
             size="icon"
@@ -61,8 +62,8 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-        )}
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 }

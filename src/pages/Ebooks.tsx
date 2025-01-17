@@ -12,6 +12,7 @@ interface Ebook {
   file_url: string;
   cover_url?: string;
   created_at: string;
+  publication_year?: number;
 }
 
 interface EbooksProps {
@@ -64,28 +65,25 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     }
   };
 
-  const handleUploadSuccess = async (title: string, file_url: string) => {
+  const handleUploadSuccess = async (
+    title: string, 
+    file_url: string, 
+    cover_url: string, 
+    publication_year: number
+  ) => {
     try {
-      console.log("Generating cover for PDF:", file_url);
+      console.log("Saving ebook metadata:", { 
+        title, 
+        file_url, 
+        cover_url, 
+        publication_year 
+      });
       
-      const { data, error: functionError } = await supabase.functions
-        .invoke('generate-pdf-cover', {
-          body: { pdfUrl: file_url }
-        });
-
-      if (functionError) {
-        console.error("Error generating cover:", functionError);
-        throw new Error('Failed to generate cover');
-      }
-
-      console.log("Cover generation response:", data);
-      const coverUrl = data?.coverUrl || "/placeholder.svg";
-
-      console.log("Saving ebook metadata:", { title, file_url, coverUrl });
       const { error } = await supabase.from("ebooks").insert({
         title,
         file_url,
-        cover_url: coverUrl,
+        cover_url,
+        publication_year,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
