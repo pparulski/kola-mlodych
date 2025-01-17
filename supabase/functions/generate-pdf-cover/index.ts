@@ -53,8 +53,14 @@ serve(async (req) => {
     const [coverPage] = await coverPdf.copyPages(pdfDoc, [0])
     coverPdf.addPage(coverPage)
 
-    // Convert to PNG format
-    const pngBytes = await coverPdf.saveAsBase64({ dataUri: true })
+    // Convert to PNG format with specific options for better quality
+    const pngBytes = await coverPdf.saveAsBase64({ 
+      dataUri: true,
+      format: 'png',
+      quality: 100
+    })
+    
+    // Extract the base64 data and convert to bytes
     const pngData = pngBytes.split(',')[1] // Remove data URI prefix
     const imageBytes = base64.decode(pngData)
 
@@ -66,7 +72,7 @@ serve(async (req) => {
 
     const coverFileName = `${crypto.randomUUID()}-cover.png`
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage with explicit content type
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('ebooks')
