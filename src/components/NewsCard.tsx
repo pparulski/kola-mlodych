@@ -19,9 +19,17 @@ export function NewsCard({
   featured_image,
   previewLength = 200 
 }: NewsCardProps) {
-  const preview = content.length > previewLength 
-    ? content.substring(0, previewLength) + "..."
-    : content;
+  // Strip HTML tags for preview
+  const stripHtml = (html: string) => {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
+  const plainText = stripHtml(content);
+  const preview = plainText.length > previewLength 
+    ? plainText.substring(0, previewLength) + "..."
+    : plainText;
 
   return (
     <Card className="mb-4 hover:shadow-lg transition-shadow bg-card overflow-hidden">
@@ -40,7 +48,7 @@ export function NewsCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-card-foreground">{preview}</p>
-        {content.length > previewLength && (
+        {plainText.length > previewLength && (
           <Button asChild variant="outline">
             <Link to={`/news/${id}`}>Czytaj więcej</Link>
           </Button>

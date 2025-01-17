@@ -79,7 +79,7 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Tytuł artykułu..."
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded text-black bg-white"
       />
 
       <div className="flex items-center gap-4">
