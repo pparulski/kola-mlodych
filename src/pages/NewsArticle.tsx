@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { newsItems } from "./Index"; // We'll need to move this to a shared location later
+import { newsItems } from "@/data/newsItems";
 
 const NewsArticle = () => {
   const { id } = useParams();
