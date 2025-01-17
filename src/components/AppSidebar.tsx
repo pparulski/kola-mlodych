@@ -19,8 +19,8 @@ import { useEffect, useState } from "react";
 
 const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
-  { title: "Lista Kół Młodych", icon: Users, path: "/map" },
-  { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
+  { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
+  { title: "Nasze publikacje", icon: Book, path: "/publikacje" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
@@ -35,7 +35,7 @@ const publicMenuItems = [
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
-  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
+  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/publikacje" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
 ];
 

@@ -19,7 +19,6 @@ export function NewsPreview({
   featured_image,
   previewLength = 200 
 }: NewsPreviewProps) {
-  // Strip HTML tags for preview
   const stripHtml = (html: string) => {
     const tmp = document.createElement("div");
     tmp.innerHTML = html;
