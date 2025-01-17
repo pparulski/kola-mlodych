@@ -24,7 +24,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
-  { title: "Nasze publikacje", icon: Book, path: "/publikacje" },
+  { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
