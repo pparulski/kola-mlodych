@@ -1,1 +1,10 @@
 project_id = "zhxajqfwzevtrazipwlg"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[[functions]]
+name = "generate-pdf-cover"
+verify_jwt = false
