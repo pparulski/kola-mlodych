@@ -1,56 +1,51 @@
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 interface NewsPreviewProps {
   id: string;
   title: string;
   content: string;
-  date: string;
-  featured_image?: string | null;
-  previewLength?: number;
+  date?: string;
+  featured_image?: string;
+  slug?: string;
 }
 
-export function NewsPreview({ id, title, content, date, featured_image, previewLength = 200 }: NewsPreviewProps) {
-  const previewContent = content.length > previewLength 
-    ? content.substring(0, previewLength) + "..."
+export function NewsPreview({
+  id,
+  title,
+  content,
+  date,
+  featured_image,
+  slug,
+}: NewsPreviewProps) {
+  const previewContent = content.length > 300 
+    ? content.substring(0, 300) + "..."
     : content;
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {featured_image && (
-            <div className="relative w-full h-[200px] overflow-hidden rounded-lg">
-              <img
-                src={featured_image}
-                alt={title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <Link 
-            to={`/news/${id}`}
-            className="block hover:text-accent transition-colors"
+    <article className="space-y-4 p-6 bg-card rounded-lg shadow-sm">
+      {featured_image && (
+        <img
+          src={featured_image}
+          alt=""
+          className="w-full h-48 object-cover rounded-md"
+        />
+      )}
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <Link
+            to={slug ? `/static/${slug}` : `/news/${id}`}
+            className="hover:text-accent transition-colors"
           >
             <h2 className="text-2xl font-bold">{title}</h2>
           </Link>
-          <p className="text-sm text-foreground">{date}</p>
-          <div 
-            className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
-          <div className="flex justify-end">
-            <Button asChild variant="ghost">
-              <Link to={`/news/${id}`} className="flex items-center gap-2">
-                Czytaj więcej
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
+          <p className="text-sm text-foreground">{formatDate(date)}</p>
         </div>
-      </CardContent>
-    </Card>
+        <div 
+          className="prose prose-sm max-w-none dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: previewContent }}
+        />
+      </div>
+    </article>
   );
 }

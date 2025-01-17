@@ -104,7 +104,7 @@ export function StaticPage() {
               onClick={() => setIsEditing(true)}
               variant="outline"
               size="sm"
-              className="gap-2 hover:text-accent"
+              className="gap-2 hover:text-primary-foreground hover:bg-primary"
             >
               <Pencil className="h-4 w-4" />
               Edytuj stronę
@@ -123,7 +123,7 @@ export function StaticPage() {
               <Button
                 onClick={() => setIsEditing(true)}
                 variant="outline"
-                className="hover:text-accent"
+                className="hover:text-primary-foreground hover:bg-primary"
               >
                 Kliknij tutaj aby utworzyć stronę
               </Button>
@@ -135,4 +135,5 @@ export function StaticPage() {
       </div>
     </div>
   );
+
 }

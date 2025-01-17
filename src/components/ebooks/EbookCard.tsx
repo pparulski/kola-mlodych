@@ -56,7 +56,7 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
             </div>
           )}
         </div>
-        <div className="text-sm text-muted-foreground text-center">
+        <div className="text-sm text-foreground text-center">
           <span>Rok publikacji: {ebook.publication_year || "N/A"}</span>
         </div>
       </CardContent>
