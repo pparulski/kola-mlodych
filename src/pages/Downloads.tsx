@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Download, Trash2 } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/FileUpload";
 
@@ -110,7 +111,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         {adminMode && (
           <Button onClick={() => setShowUpload(!showUpload)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Cancel" : "Dodaj plik"}
+            {showUpload ? "Anuluj" : "Dodaj plik"}
           </Button>
         )}
       </div>
@@ -124,37 +125,44 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {files.map((file) => (
-          <Card key={file.id}>
-            <CardHeader>
-              <CardTitle className="text-lg">{file.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Dodano: {new Date(file.created_at).toLocaleDateString("pl-PL")}
-              </p>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" asChild>
-                <a href={file.url} target="_blank" rel="noopener noreferrer">
-                  <Download className="mr-2 h-4 w-4" />
-                  Pobierz
-                </a>
-              </Button>
-              {adminMode && (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDelete(file.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nazwa pliku</TableHead>
+            <TableHead>Data dodania</TableHead>
+            <TableHead className="text-right">Akcje</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {files.map((file) => (
+            <TableRow key={file.id}>
+              <TableCell className="font-medium">{file.name}</TableCell>
+              <TableCell>
+                {new Date(file.created_at).toLocaleDateString("pl-PL")}
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" asChild>
+                    <a href={file.url} target="_blank" rel="noopener noreferrer">
+                      <Download className="mr-2 h-4 w-4" />
+                      Pobierz
+                    </a>
+                  </Button>
+                  {adminMode && (
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDelete(file.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {files.length === 0 && (
         <div className="text-center text-muted-foreground mt-8">

@@ -119,11 +119,13 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {ebooks.map((ebook) => (
-          <Card key={ebook.id}>
+          <Card key={ebook.id} className="w-[300px] h-[250px] flex flex-col">
             <CardHeader>
-              <CardTitle className="text-lg">{ebook.title}</CardTitle>
+              <CardTitle className="text-lg truncate" title={ebook.title}>
+                {ebook.title}
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow">
               <p className="text-sm text-muted-foreground">
                 Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}
               </p>
