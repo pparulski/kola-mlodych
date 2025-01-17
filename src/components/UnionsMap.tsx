@@ -59,28 +59,30 @@ export function UnionsMap() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
-          <MapContainer
-            center={defaultCenter}
-            zoom={13}
-            style={{ height: "600px" }}
-            className="rounded-lg shadow-lg"
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {locations.map((location) => (
-              <Marker key={location.id} position={location.coordinates}>
-                <Popup>
-                  <div className="p-2">
-                    <h3 className="font-bold">{location.name}</h3>
-                    <p>{location.address}</p>
-                    <p>Contact: {location.contact}</p>
-                    <p>Founded: {location.yearCreated}</p>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
+          <div style={{ height: "600px" }} className="rounded-lg shadow-lg">
+            <MapContainer
+              style={{ height: "100%" }}
+              className="rounded-lg"
+              center={defaultCenter}
+              zoom={13}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {locations.map((location) => (
+                <Marker key={location.id} position={location.coordinates}>
+                  <Popup>
+                    <div className="p-2">
+                      <h3 className="font-bold">{location.name}</h3>
+                      <p>{location.address}</p>
+                      <p>Contact: {location.contact}</p>
+                      <p>Founded: {location.yearCreated}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
         </div>
         <div>
           <Card className="p-4">
