@@ -36,49 +36,56 @@ serve(async (req) => {
     
     console.log('PDF first page dimensions:', width, height)
 
-    // Create an image with fixed dimensions
-    const targetWidth = 600 // Fixed width
-    const targetHeight = Math.ceil((height * targetWidth) / width) // Maintain aspect ratio
+    // Set fixed dimensions with minimum values
+    const baseWidth = 600
+    const baseHeight = Math.ceil((height * baseWidth) / width)
     
-    console.log('Target dimensions calculated:', targetWidth, targetHeight)
-
-    // Create image with minimum dimensions of 1x1
-    const imageWidth = Math.max(1, targetWidth)
-    const imageHeight = Math.max(1, targetHeight)
+    // Ensure minimum dimensions and handle potential NaN/Infinity
+    const imageWidth = Math.max(2, Math.min(baseWidth, 1200))
+    const imageHeight = Math.max(2, Math.min(baseHeight, 1200))
     
-    console.log('Final image dimensions:', imageWidth, imageHeight)
+    console.log('Creating image with dimensions:', imageWidth, imageHeight)
 
+    // Create the image with validated dimensions
     const image = new Image(imageWidth, imageHeight)
     
     // Fill with white background
-    image.fill(0xFFFFFFFF)
+    await image.fill(0xFFFFFFFF)
     
-    console.log('Background filled, creating pattern')
+    // Create a simpler pattern with larger elements and more spacing
+    const gridSize = 60 // Increased spacing
+    const rectSize = 40 // Larger rectangles
 
-    // Create a pattern with larger spacing and safer bounds checking
-    const gridSize = 50 // Increased spacing between elements
-    const rectSize = 30 // Larger rectangles for better visibility
+    // Calculate grid dimensions
+    const rows = Math.floor(imageHeight / gridSize)
+    const cols = Math.floor(imageWidth / gridSize)
+    
+    console.log(`Creating pattern with ${rows} rows and ${cols} columns`)
 
-    // Calculate number of complete rectangles that will fit
-    const numRows = Math.floor(imageHeight / gridSize)
-    const numCols = Math.floor(imageWidth / gridSize)
-
-    console.log(`Creating pattern grid: ${numRows} rows x ${numCols} columns`)
-
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        const startX = col * gridSize
-        const startY = row * gridSize
-
-        // Only draw rectangle if we have enough space
-        if (startX + rectSize <= imageWidth && startY + rectSize <= imageHeight) {
-          // Draw filled rectangle
-          for (let y = 0; y < rectSize; y++) {
-            for (let x = 0; x < rectSize; x++) {
-              const px = startX + x
-              const py = startY + y
-              if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
-                image.setPixelAt(px, py, 0x000000FF)
+    // Create checkerboard pattern
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        // Only draw every other rectangle for a checkerboard effect
+        if ((row + col) % 2 === 0) {
+          const x = col * gridSize
+          const y = row * gridSize
+          
+          // Ensure we're within bounds
+          const actualRectSize = Math.min(
+            rectSize,
+            imageWidth - x,
+            imageHeight - y
+          )
+          
+          if (actualRectSize > 0) {
+            // Draw filled rectangle with boundary checking
+            for (let dy = 0; dy < actualRectSize; dy++) {
+              for (let dx = 0; dx < actualRectSize; dx++) {
+                const px = x + dx
+                const py = y + dy
+                if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
+                  image.setPixelAt(px, py, 0x000000FF)
+                }
               }
             }
           }
