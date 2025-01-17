@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Book, Trash2 } from "lucide-react";
+import { BookOpenText, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +49,8 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
             <img
               src={ebook.cover_url}
               alt={`Okładka ${ebook.title}`}
-              className="w-full h-48 object-cover rounded-md mb-4 transition-transform duration-200 group-hover:scale-105"
+              className="w-full object-contain rounded-md mb-4 transition-transform duration-200 group-hover:scale-105"
+              style={{ maxHeight: '400px' }}
             />
           </button>
         ) : (
@@ -66,7 +67,7 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
       <CardFooter className="flex justify-between gap-2">
         <Button asChild className="flex-1">
           <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
-            <Book className="mr-2 h-4 w-4" />
+            <BookOpenText className="mr-2 h-4 w-4" />
             Czytaj
           </a>
         </Button>
