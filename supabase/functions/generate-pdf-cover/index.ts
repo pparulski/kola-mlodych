@@ -3,7 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
 import { PDFDocument } from "https://cdn.skypack.dev/pdf-lib@1.17.1";
 
-
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
@@ -47,7 +46,6 @@ serve(async (req) => {
         const image = await Image.decode(pageImage);
         
         let { width, height } = image;
-
 
         if (width <= 0 || height <= 0) {
             throw new Error("Invalid PDF dimensions");
