@@ -12,7 +12,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Building2, Mail, LogOut } from "lucide-react";
+import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, Activity } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
@@ -28,13 +28,7 @@ const publicMenuItems = [
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
-    icon: () => (
-      <img 
-        src="/lovable-uploads/d68beed2-a9e1-4055-86a9-b7e55943ce34.png" 
-        alt="Nasze działania" 
-        className="w-6 h-6"
-      />
-    ),
+    icon: Activity,
     subItems: [
       { title: "Jowita", path: "/static/jowita" },
       { title: "Kamionka", path: "/static/kamionka" },
@@ -78,6 +72,9 @@ export function AppSidebar() {
         description: "Do zobaczenia!",
       });
       navigate("/");
+      if (isMobile) {
+        setOpen(false);
+      }
     } catch (error) {
       console.error("Logout error:", error);
       toast({
@@ -207,20 +204,20 @@ export function AppSidebar() {
               href="https://ozzip.pl"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
+              className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
             >
               <Building2 className="w-4 h-4" />
               <span>OZZ Inicjatywa Pracownicza</span>
             </a>
             <a
               href="mailto:mlodzi.ip@ozzip.pl"
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
+              className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
             >
               <Mail className="w-4 h-4" />
               <span>mlodzi.ip@ozzip.pl</span>
             </a>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-foreground">
             OZZIP 2024
           </div>
         </div>

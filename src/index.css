@@ -78,7 +78,7 @@
 
   /* Footer links in light mode */
   .sidebar-footer a {
-    @apply text-primary hover:text-accent transition-colors;
+    @apply text-foreground hover:text-accent transition-colors;
   }
 
   .dark .sidebar-footer a {

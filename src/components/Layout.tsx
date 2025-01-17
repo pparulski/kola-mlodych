@@ -1,15 +1,15 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Outlet } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export function Layout() {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full flex-col">
+      <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col md:pl-64">
-          <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg">
+          <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10">
             <a 
               href="https://ozzip.pl/dolacz-do-nas" 
               target="_blank" 
