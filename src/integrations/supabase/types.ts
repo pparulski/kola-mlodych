@@ -48,6 +48,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ebooks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_url: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_url: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_url?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

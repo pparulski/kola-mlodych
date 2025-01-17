@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { FileUpload } from "@/components/FileUpload";
 
 interface DownloadItem {
   id: string;
@@ -25,6 +26,7 @@ interface DownloadsProps {
 const Downloads = ({ adminMode = false }: DownloadsProps) => {
   const [files, setFiles] = useState<DownloadItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
     fetchFiles();
@@ -75,6 +77,24 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
     }
   };
 
+  const handleUploadSuccess = async (name: string, url: string) => {
+    try {
+      const { error } = await supabase.from("downloads").insert({
+        name,
+        url,
+        created_by: (await supabase.auth.getUser()).data.user?.id,
+      });
+
+      if (error) throw error;
+      
+      fetchFiles();
+      setShowUpload(false);
+    } catch (error) {
+      console.error("Error saving file metadata:", error);
+      toast.error("Failed to save file information");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -88,12 +108,21 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Pliki do pobrania</h1>
         {adminMode && (
-          <Button>
+          <Button onClick={() => setShowUpload(!showUpload)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Dodaj plik
+            {showUpload ? "Cancel" : "Dodaj plik"}
           </Button>
         )}
       </div>
+
+      {showUpload && adminMode && (
+        <div className="mb-8">
+          <FileUpload
+            bucket="downloads"
+            onSuccess={handleUploadSuccess}
+          />
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {files.map((file) => (
