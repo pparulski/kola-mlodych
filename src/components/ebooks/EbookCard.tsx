@@ -1,12 +1,17 @@
-import { Trash2 } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Download, Trash2 } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Ebook {
   id: string;
@@ -24,53 +29,62 @@ interface EbookCardProps {
 }
 
 export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps) {
-  const handleClick = () => {
-    window.open(ebook.file_url, '_blank');
-  };
-
   return (
-    <Card className="w-[300px] h-[400px] flex flex-col group">
-      <CardHeader className="text-center pb-2">
-        <CardTitle 
-          className="text-lg truncate relative inline-block cursor-pointer after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left" 
-          title={ebook.title}
-          onClick={handleClick}
-        >
+    <Card className="flex flex-col h-full bg-muted/10">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold line-clamp-2">
           {ebook.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow pb-2">
-        <div 
-          className="relative w-full h-64 mb-4 overflow-hidden cursor-pointer"
-          onClick={handleClick}
-        >
-          {ebook.cover_url ? (
-            <img
-              src={ebook.cover_url}
-              alt={`Okładka publikacji ${ebook.title}`}
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <div className="text-muted-foreground text-sm">Brak okładki</div>
-            </div>
-          )}
-        </div>
-        <div className="text-sm text-foreground text-center">
-          <span>Rok publikacji: {ebook.publication_year || "N/A"}</span>
-        </div>
+      <CardContent className="flex-grow">
+        {ebook.cover_url ? (
+          <img
+            src={ebook.cover_url}
+            alt={`Okładka ${ebook.title}`}
+            className="w-full h-48 object-cover rounded-md mb-4"
+          />
+        ) : (
+          <div className="w-full h-48 bg-muted rounded-md mb-4 flex items-center justify-center">
+            <span className="text-muted-foreground">Brak okładki</span>
+          </div>
+        )}
+        {ebook.publication_year && (
+          <p className="text-sm text-muted-foreground">
+            Rok wydania: {ebook.publication_year}
+          </p>
+        )}
       </CardContent>
-      {adminMode && onDelete && (
-        <CardFooter className="justify-end pt-0">
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => onDelete(ebook.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </CardFooter>
-      )}
+      <CardFooter className="flex justify-between gap-2">
+        <Button asChild className="flex-1">
+          <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
+            <Download className="mr-2 h-4 w-4" />
+            Pobierz
+          </a>
+        </Button>
+        {adminMode && onDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="icon">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Czy na pewno chcesz usunąć tę publikację?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Ta akcja jest nieodwracalna. Publikacja zostanie trwale usunięta z systemu.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(ebook.id)}>
+                  Usuń
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </CardFooter>
     </Card>
   );
 }

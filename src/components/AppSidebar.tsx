@@ -3,6 +3,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -39,7 +40,7 @@ const publicMenuItems = [
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
-  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/publikacje" },
+  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
 ];
 
