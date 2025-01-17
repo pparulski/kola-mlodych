@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import L from "leaflet";
 import { ScrollArea } from "./ui/scroll-area";
+import type { LatLngExpression } from "leaflet";
 
 // Fix Leaflet default icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -52,12 +53,14 @@ export function UnionsMap() {
     location.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const defaultCenter: LatLngExpression = [51.505, -0.09];
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <MapContainer
-            center={[51.505, -0.09]}
+            center={defaultCenter}
             zoom={13}
             style={{ height: "600px" }}
             className="rounded-lg shadow-lg"
