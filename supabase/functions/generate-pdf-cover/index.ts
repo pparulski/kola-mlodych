@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
-import { PDFDocument } from "https://cdn.skypack.dev/pdf-lib";
+import { PDFDocument } from "https://cdn.skypack.dev/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,19 +42,15 @@ serve(async (req) => {
     const firstPage = pages[0];
     const { width, height } = firstPage.getSize();
 
-    // Create a new PDF document with just the first page
-    const singlePagePdf = await PDFDocument.create();
-    const [copiedPage] = await singlePagePdf.copyPages(pdfDoc, [0]);
-    singlePagePdf.addPage(copiedPage);
+    // Render the first page to a bitmap
+    const pageImage = await firstPage.convertToPng();
+    const image = await Image.decode(pageImage);
 
-    // Convert to PNG format with higher DPI
-    const pngBytes = await singlePagePdf.saveAsBase64({ format: 'png' });
-    const pngBuffer = Uint8Array.from(atob(pngBytes), c => c.charCodeAt(0));
+    if (width <= 0 || height <= 0) {
+      throw new Error("Invalid PDF dimensions");
+    }
 
-    console.log("PDF converted to PNG successfully");
-
-    // Load the PNG into ImageScript for resizing
-    const image = await Image.decode(pngBuffer);
+    console.log("PDF dimensions:", { width, height });
 
     // Calculate image dimensions with strict validation
     const MIN_DIMENSION = 100;
@@ -83,8 +79,8 @@ serve(async (req) => {
     }
 
     // Encode image
-    const finalPngBytes = await scaledImage.encode();
-    console.log("Image encoded successfully, size:", finalPngBytes.byteLength);
+    const pngBytes = await scaledImage.encode();
+    console.log("Image encoded successfully, size:", pngBytes.byteLength);
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -97,7 +93,7 @@ serve(async (req) => {
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("ebooks")
-      .upload(coverFileName, finalPngBytes, {
+      .upload(coverFileName, pngBytes, {
         contentType: "image/png",
         upsert: false,
       });
