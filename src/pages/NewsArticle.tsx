@@ -68,7 +68,7 @@ const NewsArticle = () => {
         </CardHeader>
         <CardContent>
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert"
+            className="prose prose-lg max-w-none dark:prose-invert [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </CardContent>
