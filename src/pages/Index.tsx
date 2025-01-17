@@ -1,10 +1,11 @@
 import { NewsCard } from "@/components/NewsCard";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { NewsEditor } from "@/components/NewsEditor";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface IndexProps {
   adminMode?: boolean;
@@ -12,19 +13,45 @@ interface IndexProps {
 
 const Index = ({ adminMode = false }: IndexProps) => {
   const [showEditor, setShowEditor] = useState(false);
+  const [editingNews, setEditingNews] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   const { data: newsItems, isLoading } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
+      console.log("Fetching news...");
       const { data, error } = await supabase
         .from('news')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log("News fetched:", data);
       return data;
     }
   });
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success("Artykuł został usunięty");
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+    } catch (error) {
+      console.error("Error deleting news:", error);
+      toast.error("Nie udało się usunąć artykułu");
+    }
+  };
+
+  const handleEdit = (news: any) => {
+    setEditingNews(news);
+    setShowEditor(true);
+  };
 
   if (isLoading) {
     return (
@@ -39,7 +66,10 @@ const Index = ({ adminMode = false }: IndexProps) => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Aktualności</h1>
         {adminMode && (
-          <Button onClick={() => setShowEditor(!showEditor)}>
+          <Button onClick={() => {
+            setEditingNews(null);
+            setShowEditor(!showEditor);
+          }}>
             <PlusCircle className="mr-2 h-4 w-4" />
             {showEditor ? "Anuluj" : "Dodaj artykuł"}
           </Button>
@@ -48,17 +78,39 @@ const Index = ({ adminMode = false }: IndexProps) => {
       
       {showEditor && adminMode && (
         <div className="mb-8">
-          <NewsEditor />
+          <NewsEditor existingNews={editingNews} onSuccess={() => {
+            setShowEditor(false);
+            setEditingNews(null);
+          }} />
         </div>
       )}
 
       <div className="space-y-4">
         {newsItems?.map((item) => (
-          <NewsCard 
-            key={item.id} 
-            {...item} 
-            date={new Date(item.created_at).toLocaleDateString("pl-PL")}
-          />
+          <div key={item.id} className="relative">
+            <NewsCard 
+              {...item} 
+              date={new Date(item.created_at).toLocaleDateString("pl-PL")}
+            />
+            {adminMode && (
+              <div className="absolute top-4 right-4 flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleEdit(item)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 

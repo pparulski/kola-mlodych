@@ -61,7 +61,7 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
 
       if (error) throw error;
 
-      toast.success("Ebook deleted successfully");
+      toast.success("Ebook został usunięty");
       fetchEbooks();
     } catch (error) {
       console.error("Error deleting ebook:", error);

@@ -1,34 +1,65 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
 import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
-export function NewsEditor() {
+interface NewsEditorProps {
+  existingNews?: any;
+  onSuccess?: () => void;
+}
+
+export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (existingNews) {
+      setTitle(existingNews.title);
+      setContent(existingNews.content);
+      setFeaturedImage(existingNews.featured_image);
+    }
+  }, [existingNews]);
 
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      const { error } = await supabase.from('news').insert({
-        title,
-        content,
-        featured_image: featuredImage,
-        created_by: user?.id
-      });
+      if (existingNews) {
+        const { error } = await supabase
+          .from('news')
+          .update({
+            title,
+            content,
+            featured_image: featuredImage,
+          })
+          .eq('id', existingNews.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success("Artykuł został zaktualizowany");
+      } else {
+        const { error } = await supabase.from('news').insert({
+          title,
+          content,
+          featured_image: featuredImage,
+          created_by: user?.id
+        });
 
-      toast.success("Artykuł został zapisany");
+        if (error) throw error;
+        toast.success("Artykuł został zapisany");
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['news'] });
       setTitle("");
       setContent("");
       setFeaturedImage(null);
+      onSuccess?.();
     } catch (error) {
       console.error("Error saving article:", error);
       toast.error("Nie udało się zapisać artykułu");
@@ -97,7 +128,7 @@ export function NewsEditor() {
         onEditorChange={setContent}
       />
       <Button onClick={handleSubmit} className="mt-4">
-        Opublikuj
+        {existingNews ? "Zaktualizuj" : "Opublikuj"}
       </Button>
     </div>
   );
