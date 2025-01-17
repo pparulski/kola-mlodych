@@ -36,40 +36,48 @@ serve(async (req) => {
     
     console.log('PDF first page dimensions:', width, height)
 
-    // Create an image with the page dimensions
-    const imageWidth = Math.floor(width)
-    const imageHeight = Math.floor(height)
+    // Create an image with fixed dimensions to ensure consistency
+    const imageWidth = 600 // Fixed width
+    const imageHeight = Math.floor((height * imageWidth) / width) // Maintain aspect ratio
+    
+    console.log('Creating image with dimensions:', imageWidth, imageHeight)
+    
+    // Ensure minimum dimensions
+    if (imageWidth < 1 || imageHeight < 1) {
+      throw new Error('Invalid image dimensions calculated')
+    }
+
     const image = new Image(imageWidth, imageHeight)
     
     // Fill with white background
-    for (let y = 0; y < imageHeight; y++) {
-      for (let x = 0; x < imageWidth; x++) {
-        image.setPixelAt(x, y, 0xFFFFFFFF) // White color
-      }
-    }
-
-    // Extract text content and draw it on the image
-    const textContent = await firstPage.doc.getForm()
-    const fields = textContent.getFields()
+    image.fill(0xFFFFFFFF) // White color
     
-    console.log('Processing form fields:', fields.length)
+    console.log('Background filled, creating pattern')
 
-    // Draw some visual representation of the content
-    // Since we can't directly render PDF content, we'll create a simple visual pattern
-    for (let y = 0; y < imageHeight; y += 20) {
-      for (let x = 0; x < imageWidth; x += 20) {
-        // Create a small rectangle pattern
-        for (let dy = 0; dy < 10; dy++) {
-          for (let dx = 0; dx < 10; dx++) {
-            const px = x + dx
-            const py = y + dy
-            if (px < imageWidth && py < imageHeight) {
-              image.setPixelAt(px, py, 0x000000FF)
+    // Create a pattern of rectangles to represent the content
+    const gridSize = 40 // Larger grid size for better visibility
+    const rectSize = 20 // Larger rectangles
+
+    for (let y = 0; y < imageHeight; y += gridSize) {
+      for (let x = 0; x < imageWidth; x += gridSize) {
+        // Only draw if we have enough space for the rectangle
+        if (x + rectSize <= imageWidth && y + rectSize <= imageHeight) {
+          // Draw a filled rectangle
+          for (let dy = 0; dy < rectSize; dy++) {
+            for (let dx = 0; dx < rectSize; dx++) {
+              const px = x + dx
+              const py = y + dy
+              // Extra safety check
+              if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
+                image.setPixelAt(px, py, 0x000000FF)
+              }
             }
           }
         }
       }
     }
+
+    console.log('Pattern created, encoding image')
 
     // Encode the image to PNG
     const pngBytes = await image.encode()
