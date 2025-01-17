@@ -47,9 +47,7 @@
     --input: 0 0% 20%;
     --ring: 345 100% 25%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -97,25 +95,28 @@
   }
 }
 
-/* Make content responsive */
-.container {
-  @apply mx-auto max-w-4xl px-4;
-}
-
-article, 
-.article-content {
-  @apply w-full max-w-4xl mx-auto;
-}
-
 /* Ensure text is visible in light mode */
-.text-content {
+.text-content,
+.publication-year,
+.admin-panel,
+.news-title,
+.news-date,
+.news-content,
+.download-name,
+.download-date,
+.union-name,
+.union-address,
+.union-contact,
+.social-icon {
   @apply text-foreground;
 }
 
-.admin-panel {
-  @apply text-foreground;
-}
-
-.publication-year {
-  @apply text-foreground;
+/* Make content responsive */
+.container,
+article,
+.article-content,
+.downloads-container,
+.news-container,
+.static-page-container {
+  @apply w-full max-w-4xl mx-auto px-4;
 }

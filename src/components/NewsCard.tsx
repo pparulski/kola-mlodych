@@ -15,6 +15,8 @@ export function NewsCard(props: NewsCardProps) {
   const formattedDate = format(new Date(props.date), "d MMMM yyyy", { locale: pl });
   
   return (
-    <NewsPreview {...props} date={formattedDate} />
+    <div className="w-full">
+      <NewsPreview {...props} date={formattedDate} />
+    </div>
   );
 }

@@ -19,11 +19,13 @@ export function Layout() {
               <span>Dołącz do nas!</span>
             </a>
           </div>
-          <main className="flex-1 p-4 md:p-6 container">
+          <main className="flex-1 p-4 md:p-6">
             <SidebarTrigger className="mb-4 md:hidden">
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
-            <Outlet />
+            <div className="max-w-4xl mx-auto">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
