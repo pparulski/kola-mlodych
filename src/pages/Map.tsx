@@ -46,7 +46,7 @@ const Map = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4">
       <h1 className="text-3xl font-bold text-primary mb-6">Lista Kół Młodych</h1>
       <Card className="p-4">
         <div className="space-y-4">
@@ -60,9 +60,9 @@ const Map = () => {
             <div className="space-y-4">
               {filteredLocations.map((location) => (
                 <Card key={location.id} className="p-4 hover:bg-accent/50">
-                  <h3 className="font-bold">{location.name}</h3>
-                  <p className="text-sm text-muted-foreground">{location.address}</p>
-                  <p className="text-sm">Rok założenia: {location.yearCreated}</p>
+                  <h3 className="font-bold text-foreground">{location.name}</h3>
+                  <p className="text-sm text-foreground">{location.address}</p>
+                  <p className="text-sm text-foreground">Rok założenia: {location.yearCreated}</p>
                   <div className="flex items-center gap-4 mt-2">
                     <Button
                       variant="link"
@@ -77,7 +77,7 @@ const Map = () => {
                           href={location.facebook_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-accent transition-colors"
+                          className="text-foreground hover:text-accent transition-colors"
                         >
                           <Facebook className="w-5 h-5" />
                         </a>
@@ -87,7 +87,7 @@ const Map = () => {
                           href={location.instagram_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-accent transition-colors"
+                          className="text-foreground hover:text-accent transition-colors"
                         >
                           <Instagram className="w-5 h-5" />
                         </a>

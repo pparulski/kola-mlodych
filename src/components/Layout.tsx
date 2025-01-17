@@ -8,7 +8,7 @@ export function Layout() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col md:pl-64">
+        <div className="flex-1 flex flex-col md:pl-[256px]">
           <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10">
             <a 
               href="https://ozzip.pl/dolacz-do-nas" 
@@ -19,7 +19,7 @@ export function Layout() {
               <span>Dołącz do nas!</span>
             </a>
           </div>
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-4 md:p-6 container">
             <SidebarTrigger className="mb-4 md:hidden">
               <Menu className="h-6 w-6" />
             </SidebarTrigger>

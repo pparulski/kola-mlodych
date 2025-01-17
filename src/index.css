@@ -96,3 +96,26 @@
     @apply bg-background/95 backdrop-blur-lg;
   }
 }
+
+/* Make content responsive */
+.container {
+  @apply mx-auto max-w-4xl px-4;
+}
+
+article, 
+.article-content {
+  @apply w-full max-w-4xl mx-auto;
+}
+
+/* Ensure text is visible in light mode */
+.text-content {
+  @apply text-foreground;
+}
+
+.admin-panel {
+  @apply text-foreground;
+}
+
+.publication-year {
+  @apply text-foreground;
+}
