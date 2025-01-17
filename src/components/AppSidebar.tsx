@@ -10,14 +10,16 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarFooter,
+  useSidebarContext,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, GripHorizontal } from "lucide-react";
+import { Newspaper, Users, Download, Book, Building2, Mail, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
 import { useEffect, useState } from "react";
 import { Switch } from "./ui/switch";
 import { useTheme } from "./ui/theme-provider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
@@ -26,7 +28,13 @@ const publicMenuItems = [
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
-    icon: GripHorizontal,
+    icon: () => (
+      <img 
+        src="/lovable-uploads/d68beed2-a9e1-4055-86a9-b7e55943ce34.png" 
+        alt="Nasze działania" 
+        className="w-6 h-6"
+      />
+    ),
     subItems: [
       { title: "Jowita", path: "/static/jowita" },
       { title: "Kamionka", path: "/static/kamionka" },
@@ -45,6 +53,8 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { setOpen } = useSidebarContext();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -78,6 +88,12 @@ export function AppSidebar() {
     }
   };
 
+  const handleMenuClick = () => {
+    if (isMobile) {
+      setOpen(false);
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -106,7 +122,12 @@ export function AppSidebar() {
                         {item.subItems.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>
-                              <Link to={subItem.path}>{subItem.title}</Link>
+                              <Link 
+                                to={subItem.path}
+                                onClick={handleMenuClick}
+                              >
+                                {subItem.title}
+                              </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -117,6 +138,7 @@ export function AppSidebar() {
                       <Link 
                         to={item.path}
                         className="transition-colors hover:text-accent text-lg py-3"
+                        onClick={handleMenuClick}
                       >
                         {item.icon && <item.icon className="w-6 h-6" />}
                         <span>{item.title}</span>
@@ -146,6 +168,7 @@ export function AppSidebar() {
                       <Link 
                         to={item.path}
                         className="transition-colors hover:text-accent text-lg py-3"
+                        onClick={handleMenuClick}
                       >
                         <item.icon className="w-6 h-6" />
                         <span>{item.title}</span>
@@ -155,7 +178,10 @@ export function AppSidebar() {
                 ))}
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      handleMenuClick();
+                    }}
                     className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
                   >
                     <LogOut className="w-6 h-6" />

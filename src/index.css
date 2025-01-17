@@ -75,6 +75,15 @@
   .dark article div {
     @apply bg-muted text-muted-foreground;
   }
+
+  /* Footer links in light mode */
+  .sidebar-footer a {
+    @apply text-primary hover:text-accent transition-colors;
+  }
+
+  .dark .sidebar-footer a {
+    @apply text-muted-foreground hover:text-accent;
+  }
 }
 
 /* Mobile sidebar styles */
