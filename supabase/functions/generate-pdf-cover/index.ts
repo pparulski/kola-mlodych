@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { decode } from "https://deno.land/x/pdflib@v0.1.1/mod.ts";
 import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
+import * as pdfjs from "https://deno.land/x/pdf@v0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,18 +23,16 @@ serve(async (req) => {
     const pdfBytes = await response.arrayBuffer()
     console.log('PDF file fetched successfully')
 
-    // Decode the PDF
-    const pdf = await decode(new Uint8Array(pdfBytes));
-    if (!pdf || pdf.pages.length === 0) {
-      throw new Error('Invalid PDF or no pages found');
-    }
-
-    // Get the first page
-    const page = pdf.pages[0];
+    // Parse the PDF
+    const pdf = await pdfjs.getDocument(new Uint8Array(pdfBytes));
+    const page = await pdf.getPage(1); // Get first page
+    const viewport = page.getViewport({ scale: 1.0 });
     
-    // Create an image from the page
-    const width = 612; // Standard US Letter width
-    const height = 792; // Standard US Letter height
+    console.log('PDF page loaded, viewport:', viewport.width, viewport.height);
+
+    // Create an image with the page dimensions
+    const width = Math.floor(viewport.width);
+    const height = Math.floor(viewport.height);
     const image = new Image(width, height);
     
     // Fill with white background
@@ -44,15 +42,25 @@ serve(async (req) => {
       }
     }
 
-    // Render PDF content onto the image (basic representation)
-    const operations = page.operations;
-    for (const op of operations) {
-      if (op.operator === 'Tj' || op.operator === 'TJ') {
-        // Handle text operations
-        const x = Math.floor(op.transform?.[4] ?? 0);
-        const y = Math.floor(height - (op.transform?.[5] ?? 0));
-        if (x >= 0 && x < width && y >= 0 && y < height) {
-          image.setPixelAt(x, y, 0x000000FF); // Black color for text
+    // Get the text content
+    const textContent = await page.getTextContent();
+    console.log('Processing text items:', textContent.items.length);
+
+    // Draw text items on the image
+    for (const item of textContent.items) {
+      const x = Math.floor(item.transform[4]);
+      const y = Math.floor(height - item.transform[5]); // Flip Y coordinate
+      
+      if (x >= 0 && x < width && y >= 0 && y < height) {
+        // Draw a small rectangle for each text item
+        for (let dx = -2; dx <= 2; dx++) {
+          for (let dy = -2; dy <= 2; dy++) {
+            const px = x + dx;
+            const py = y + dy;
+            if (px >= 0 && px < width && py >= 0 && py < height) {
+              image.setPixelAt(px, py, 0x000000FF);
+            }
+          }
         }
       }
     }
