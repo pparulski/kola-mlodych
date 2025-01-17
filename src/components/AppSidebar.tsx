@@ -11,12 +11,11 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, HandMetal } from "lucide-react";
+import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, Fist } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 import { useTheme } from "./ui/theme-provider";
 
@@ -27,7 +26,7 @@ const publicMenuItems = [
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
-    icon: HandMetal,
+    icon: Fist,
     subItems: [
       { title: "Jowita", path: "/static/jowita" },
       { title: "Kamionka", path: "/static/kamionka" },
@@ -81,20 +80,13 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <div className="bg-primary p-4 text-primary-foreground text-center font-bold">
-        <a 
-          href="https://ozzip.pl/dolacz-do-nas" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="hover:underline"
-        >
-          Dołącz do nas!
-        </a>
-      </div>
       <SidebarContent>
         <div className="p-6 flex justify-center">
           <img 
-            src="/lovable-uploads/a69e03ab-2d39-4e2c-acef-8b773e96bc91.png" 
+            src={theme === 'dark' 
+              ? "/lovable-uploads/a69e03ab-2d39-4e2c-acef-8b773e96bc91.png"
+              : "/lovable-uploads/f47783a4-9b20-4e2a-ad2c-ee83934d60cc.png"
+            } 
             alt="Logo Koła Młodych" 
             className="w-40 h-40 object-contain"
           />
@@ -137,7 +129,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="flex-1" /> {/* This pushes the admin section to the bottom */}
+        <div className="flex-1" />
 
         {isAdmin && (
           <SidebarGroup className="mt-auto border-t border-border/50 pt-4">

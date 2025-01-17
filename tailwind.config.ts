@@ -45,12 +45,12 @@ export default {
           foreground: "#ffffff",
         },
         popover: {
-          DEFAULT: "#000000",
-          foreground: "#ffffff",
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "#1a1a1a",
-          foreground: "#ffffff",
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
       borderRadius: {

@@ -57,4 +57,33 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Style links in articles */
+  article a {
+    @apply text-primary hover:text-accent underline;
+  }
+
+  .dark article a {
+    @apply text-accent-foreground hover:text-primary-foreground;
+  }
+
+  /* Style divs in articles */
+  article div {
+    @apply bg-background text-foreground border-border;
+  }
+
+  .dark article div {
+    @apply bg-muted text-muted-foreground;
+  }
+}
+
+/* Mobile sidebar styles */
+@media (max-width: 768px) {
+  [data-sidebar="sidebar"] {
+    @apply bg-background/95 backdrop-blur-lg;
+  }
+
+  .dark [data-sidebar="sidebar"] {
+    @apply bg-background/95 backdrop-blur-lg;
+  }
 }
