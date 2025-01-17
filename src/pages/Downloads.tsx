@@ -59,15 +59,34 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
+      // Find the file to get its URL before deletion
+      const fileToDelete = files.find(file => file.id === id);
+      if (!fileToDelete) return;
+
+      // Extract filename from URL
+      const filename = fileToDelete.url.split('/').pop();
+      
+      if (filename) {
+        // Delete the file from storage
+        const { error: storageError } = await supabase.storage
+          .from('downloads')
+          .remove([filename]);
+
+        if (storageError) {
+          console.error("Error deleting file from storage:", storageError);
+          throw storageError;
+        }
+      }
+
+      // Delete the database record
+      const { error: dbError } = await supabase
         .from("downloads")
         .delete()
         .eq("id", id);
 
-      if (error) {
-        console.error("Error deleting file:", error);
-        toast.error("Nie udało się usunąć pliku");
-        return;
+      if (dbError) {
+        console.error("Error deleting file from database:", dbError);
+        throw dbError;
       }
 
       toast.success("Plik został usunięty");
@@ -171,6 +190,6 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
       )}
     </div>
   );
-};
+}
 
 export default Downloads;

@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Facebook, Instagram, X, Building2, Mail, LogOut } from "lucide-react";
+import { Newspaper, Users, Download, Book, Building2, Mail, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
@@ -18,19 +18,13 @@ const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/map" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
-  { title: "eBooki", icon: Book, path: "/ebooks" },
+  { title: "Publikacje", icon: Book, path: "/ebooks" },
 ];
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
-  { title: "Zarządzaj ebookami", icon: Book, path: "/manage/ebooks" },
-];
-
-const socialLinks = [
-  { icon: Facebook, url: "https://facebook.com/studentunion" },
-  { icon: Instagram, url: "https://instagram.com/studentunion" },
-  { icon: X, url: "https://x.com/studentunion" },
+  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
 ];
 
 export function AppSidebar() {
@@ -141,7 +135,7 @@ export function AppSidebar() {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
             >
               <Building2 className="w-4 h-4" />
-              <span>Inicjatywa Pracownicza</span>
+              <span>OZZ Inicjatywa Pracownicza</span>
             </a>
             <a
               href="mailto:mlodzi.ip@ozzip.pl"
@@ -151,18 +145,8 @@ export function AppSidebar() {
               <span>mlodzi.ip@ozzip.pl</span>
             </a>
           </div>
-          <div className="flex justify-center space-x-4">
-            {socialLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-              >
-                <link.icon className="w-5 h-5" />
-              </a>
-            ))}
+          <div className="text-sm text-muted-foreground">
+            OZZIP 2024
           </div>
         </div>
       </SidebarFooter>

@@ -30,7 +30,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
   const fetchEbooks = async () => {
     try {
-      console.log("Fetching ebooks...");
+      console.log("Fetching publikacje...");
       const { data, error } = await supabase
         .from("ebooks")
         .select("*")
@@ -38,11 +38,11 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       if (error) throw error;
 
-      console.log("Ebooks fetched:", data);
+      console.log("Publikacje fetched:", data);
       setEbooks(data || []);
     } catch (error) {
-      console.error("Error fetching ebooks:", error);
-      toast.error("Failed to load ebooks");
+      console.error("Error fetching publikacje:", error);
+      toast.error("Nie udało się pobrać publikacji");
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +58,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
       const pdfFilename = ebookToDelete.file_url.split('/').pop();
       const coverFilename = ebookToDelete.cover_url?.split('/').pop();
 
-      console.log("Deleting ebook files:", { pdfFilename, coverFilename });
+      console.log("Deleting publication files:", { pdfFilename, coverFilename });
 
       // Delete the PDF file from storage
       if (pdfFilename) {
@@ -92,11 +92,11 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       if (dbDeleteError) throw dbDeleteError;
 
-      toast.success("Ebook został usunięty");
+      toast.success("Publikacja została usunięta");
       fetchEbooks();
     } catch (error) {
-      console.error("Error deleting ebook:", error);
-      toast.error("Failed to delete ebook");
+      console.error("Error deleting publication:", error);
+      toast.error("Nie udało się usunąć publikacji");
     }
   };
 
@@ -107,7 +107,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     publication_year: number
   ) => {
     try {
-      console.log("Saving ebook metadata:", { 
+      console.log("Saving publication metadata:", { 
         title, 
         file_url, 
         cover_url, 
@@ -124,19 +124,19 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       if (error) throw error;
       
-      toast.success("Ebook został dodany");
+      toast.success("Publikacja została dodana");
       fetchEbooks();
       setShowUpload(false);
     } catch (error) {
-      console.error("Error saving ebook metadata:", error);
-      toast.error("Failed to save ebook information");
+      console.error("Error saving publication metadata:", error);
+      toast.error("Nie udało się zapisać informacji o publikacji");
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">Ładowanie...</div>
       </div>
     );
   }
@@ -144,11 +144,11 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">eBooki</h1>
+        <h1 className="text-3xl font-bold text-primary">Publikacje</h1>
         {adminMode && (
           <Button onClick={() => setShowUpload(!showUpload)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Cancel" : "Dodaj ebooka"}
+            {showUpload ? "Anuluj" : "Dodaj publikację"}
           </Button>
         )}
       </div>
@@ -170,7 +170,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       {ebooks.length === 0 && (
         <div className="text-center text-muted-foreground mt-8">
-          Brak ebooków
+          Brak publikacji
         </div>
       )}
     </div>
