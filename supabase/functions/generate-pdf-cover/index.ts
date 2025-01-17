@@ -9,7 +9,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -18,12 +17,20 @@ serve(async (req) => {
     const { pdfUrl } = await req.json()
     console.log('Generating cover for PDF:', pdfUrl)
 
-    // Fetch the PDF file
+    // Fetch and validate PDF
     const response = await fetch(pdfUrl)
+    if (!response.ok) {
+      throw new Error('Failed to fetch PDF')
+    }
+    
     const pdfBytes = await response.arrayBuffer()
-    console.log('PDF file fetched successfully')
+    if (pdfBytes.byteLength === 0) {
+      throw new Error('PDF file is empty')
+    }
+    
+    console.log('PDF file fetched successfully, size:', pdfBytes.byteLength)
 
-    // Load the PDF document
+    // Load and validate PDF document
     const pdfDoc = await PDFDocument.load(pdfBytes)
     const pages = pdfDoc.getPages()
     
@@ -34,53 +41,60 @@ serve(async (req) => {
     const firstPage = pages[0]
     const { width, height } = firstPage.getSize()
     
-    console.log('PDF first page dimensions:', width, height)
-
-    // Set fixed dimensions with minimum values
-    const baseWidth = 600
-    const baseHeight = Math.ceil((height * baseWidth) / width)
+    if (width <= 0 || height <= 0) {
+      throw new Error('Invalid PDF dimensions')
+    }
     
-    // Ensure minimum dimensions and handle potential NaN/Infinity
-    const imageWidth = Math.max(2, Math.min(baseWidth, 1200))
-    const imageHeight = Math.max(2, Math.min(baseHeight, 1200))
-    
-    console.log('Creating image with dimensions:', imageWidth, imageHeight)
+    console.log('PDF dimensions:', { width, height })
 
-    // Create the image with validated dimensions
+    // Calculate image dimensions with strict validation
+    const MIN_DIMENSION = 100
+    const MAX_DIMENSION = 1200
+    
+    let imageWidth = Math.round(width)
+    let imageHeight = Math.round(height)
+    
+    // Scale down if too large
+    if (imageWidth > MAX_DIMENSION) {
+      const scale = MAX_DIMENSION / imageWidth
+      imageWidth = MAX_DIMENSION
+      imageHeight = Math.round(imageHeight * scale)
+    }
+    
+    // Ensure minimum dimensions
+    imageWidth = Math.max(MIN_DIMENSION, imageWidth)
+    imageHeight = Math.max(MIN_DIMENSION, imageHeight)
+    
+    console.log('Final image dimensions:', { imageWidth, imageHeight })
+
+    // Create and validate image
     const image = new Image(imageWidth, imageHeight)
-    
-    // Fill with white background
+    if (!image) {
+      throw new Error('Failed to create image')
+    }
+
+    // Fill background
     await image.fill(0xFFFFFFFF)
-    
-    // Create a simpler pattern with larger elements and more spacing
-    const gridSize = 60 // Increased spacing
-    const rectSize = 40 // Larger rectangles
+    console.log('Background filled')
 
-    // Calculate grid dimensions
-    const rows = Math.floor(imageHeight / gridSize)
-    const cols = Math.floor(imageWidth / gridSize)
-    
-    console.log(`Creating pattern with ${rows} rows and ${cols} columns`)
+    // Create pattern with safe dimensions
+    const PATTERN_SIZE = Math.min(50, Math.floor(imageWidth / 4))
+    console.log('Pattern size:', PATTERN_SIZE)
 
-    // Create checkerboard pattern
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        // Only draw every other rectangle for a checkerboard effect
-        if ((row + col) % 2 === 0) {
-          const x = col * gridSize
-          const y = row * gridSize
-          
-          // Ensure we're within bounds
-          const actualRectSize = Math.min(
-            rectSize,
-            imageWidth - x,
-            imageHeight - y
+    // Draw pattern with strict bounds checking
+    for (let y = PATTERN_SIZE; y < imageHeight - PATTERN_SIZE; y += PATTERN_SIZE * 2) {
+      for (let x = PATTERN_SIZE; x < imageWidth - PATTERN_SIZE; x += PATTERN_SIZE * 2) {
+        try {
+          // Draw a single black square with validation
+          const size = Math.min(
+            PATTERN_SIZE - 2,
+            imageWidth - x - 2,
+            imageHeight - y - 2
           )
           
-          if (actualRectSize > 0) {
-            // Draw filled rectangle with boundary checking
-            for (let dy = 0; dy < actualRectSize; dy++) {
-              for (let dx = 0; dx < actualRectSize; dx++) {
+          if (size > 0) {
+            for (let dy = 0; dy < size; dy++) {
+              for (let dx = 0; dx < size; dx++) {
                 const px = x + dx
                 const py = y + dy
                 if (px >= 0 && px < imageWidth && py >= 0 && py < imageHeight) {
@@ -89,15 +103,18 @@ serve(async (req) => {
               }
             }
           }
+        } catch (error) {
+          console.error('Error drawing pattern at:', { x, y }, error)
+          // Continue with next square
         }
       }
     }
 
     console.log('Pattern created successfully')
 
-    // Encode the image to PNG
+    // Encode image
     const pngBytes = await image.encode()
-    console.log('Image encoded successfully')
+    console.log('Image encoded successfully, size:', pngBytes.byteLength)
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -105,10 +122,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Generate a unique filename for the cover
     const coverFileName = `${crypto.randomUUID()}-cover.png`
 
-    // Upload the PNG to Supabase Storage
+    // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('ebooks')
@@ -123,7 +139,7 @@ serve(async (req) => {
 
     console.log('Cover uploaded successfully:', coverFileName)
 
-    // Get the public URL for the cover
+    // Get public URL
     const { data: { publicUrl: coverUrl } } = supabase
       .storage
       .from('ebooks')
@@ -141,7 +157,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error generating PDF cover:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
         headers: { 
           ...corsHeaders,
