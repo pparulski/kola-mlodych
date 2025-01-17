@@ -22,6 +22,8 @@ export function NewsPreview({
     ? content.substring(0, 300) + "..."
     : content;
 
+  const formattedDate = formatDate(date);
+
   return (
     <article className="space-y-4 p-6 bg-card rounded-lg shadow-sm">
       {featured_image && (
@@ -39,7 +41,9 @@ export function NewsPreview({
           >
             <h2 className="text-2xl font-bold">{title}</h2>
           </Link>
-          <p className="text-sm text-foreground">{formatDate(date)}</p>
+          {formattedDate && (
+            <p className="text-sm text-foreground">{formattedDate}</p>
+          )}
         </div>
         <div 
           className="prose prose-sm max-w-none dark:prose-invert"
