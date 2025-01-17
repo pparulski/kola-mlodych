@@ -16,6 +16,7 @@ import { SidebarLogo } from "./sidebar/SidebarLogo";
 import { PublicMenu } from "./sidebar/PublicMenu";
 import { AdminMenu } from "./sidebar/AdminMenu";
 import { SidebarFooterContent } from "./sidebar/SidebarFooterContent";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AppSidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -43,34 +44,36 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarLogo />
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <PublicMenu onItemClick={handleMenuClick} />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <div className="flex-1" />
-
-        {isAdmin && (
-          <SidebarGroup className="mt-auto border-t border-border/50 pt-4">
+    <Sidebar className="w-64">
+      <ScrollArea className="h-full">
+        <SidebarContent>
+          <SidebarLogo />
+          <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <div className="px-3 py-2 text-sm font-semibold text-foreground">
-                    Panel Admina
-                  </div>
-                </SidebarMenuItem>
-                <AdminMenu onItemClick={handleMenuClick} />
+                <PublicMenu onItemClick={handleMenuClick} />
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
-      </SidebarContent>
+
+          <div className="flex-1" />
+
+          {isAdmin && (
+            <SidebarGroup className="mt-auto border-t border-border/50 pt-4">
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <div className="px-3 py-2 text-sm font-semibold text-foreground">
+                      Panel Admina
+                    </div>
+                  </SidebarMenuItem>
+                  <AdminMenu onItemClick={handleMenuClick} />
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+        </SidebarContent>
+      </ScrollArea>
       <SidebarFooter className="p-4 border-t">
         <SidebarFooterContent />
       </SidebarFooter>
