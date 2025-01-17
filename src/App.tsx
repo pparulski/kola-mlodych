@@ -10,6 +10,7 @@ import Downloads from "./pages/Downloads";
 import Ebooks from "./pages/Ebooks";
 import Auth from "./pages/Auth";
 import { AuthGuard } from "./components/AuthGuard";
+import NewsArticle from "./pages/NewsArticle";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<Layout />}>
             {/* Public routes */}
             <Route index element={<Index />} />
+            <Route path="news/:id" element={<NewsArticle />} />
             <Route path="map" element={<Map />} />
             <Route path="downloads" element={<Downloads />} />
             <Route path="ebooks" element={<Ebooks />} />
