@@ -50,7 +50,7 @@ export const SidebarGroupContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("space-y-4", className)}
+    className={cn("space-y-1", className)}
     {...props}
   />
 ))
@@ -74,7 +74,7 @@ export const SidebarMenuSub = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("space-y-4", className)}
+    className={cn("pl-6 space-y-1", className)}
     {...props}
   />
 ))
