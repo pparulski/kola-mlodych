@@ -4,6 +4,8 @@ import { NewsEditor } from "./NewsEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Pencil } from "lucide-react";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -61,12 +63,12 @@ export function StaticPage() {
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-bold">{pageTitle}</h1>
-          <button
+          <Button
+            variant="outline"
             onClick={() => setIsEditing(false)}
-            className="text-sm text-muted-foreground hover:text-accent"
           >
             Anuluj edycję
-          </button>
+          </Button>
         </div>
         <NewsEditor
           existingNews={page}
@@ -98,12 +100,15 @@ export function StaticPage() {
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-bold">{pageTitle}</h1>
           {isAdmin && (
-            <button
+            <Button
               onClick={() => setIsEditing(true)}
-              className="text-sm text-muted-foreground hover:text-accent"
+              variant="destructive"
+              size="sm"
+              className="gap-2"
             >
+              <Pencil className="h-4 w-4" />
               Edytuj stronę
-            </button>
+            </Button>
           )}
         </div>
         
@@ -115,12 +120,13 @@ export function StaticPage() {
         ) : (
           <div className="text-center text-muted-foreground">
             {isAdmin ? (
-              <button
+              <Button
                 onClick={() => setIsEditing(true)}
-                className="text-accent hover:underline"
+                variant="outline"
+                className="hover:text-accent"
               >
                 Kliknij tutaj aby utworzyć stronę
-              </button>
+              </Button>
             ) : (
               "Ta strona jest w trakcie tworzenia."
             )}

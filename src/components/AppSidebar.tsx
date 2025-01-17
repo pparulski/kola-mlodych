@@ -16,6 +16,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
+import { useTheme } from "./ui/theme-provider";
 
 const publicMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
@@ -42,6 +45,7 @@ const adminMenuItems = [
 export function AppSidebar() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -77,6 +81,16 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      <div className="bg-primary p-4 text-primary-foreground text-center font-bold">
+        <a 
+          href="https://ozzip.pl/dolacz-do-nas" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          Dołącz do nas!
+        </a>
+      </div>
       <SidebarContent>
         <div className="p-6 flex justify-center">
           <img 
@@ -93,6 +107,7 @@ export function AppSidebar() {
                   {item.subItems ? (
                     <>
                       <SidebarMenuButton className="font-medium">
+                        {item.icon && <item.icon className="w-6 h-6" />}
                         <span>{item.title}</span>
                       </SidebarMenuButton>
                       <SidebarMenuSub>
@@ -118,44 +133,57 @@ export function AppSidebar() {
                   )}
                 </SidebarMenuItem>
               ))}
-
-              {isAdmin && (
-                <>
-                  <SidebarMenuItem>
-                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
-                      Panel Admina
-                    </div>
-                  </SidebarMenuItem>
-                  {adminMenuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link 
-                          to={item.path}
-                          className="transition-colors hover:text-accent text-lg py-3"
-                        >
-                          <item.icon className="w-6 h-6" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={handleLogout}
-                      className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
-                    >
-                      <LogOut className="w-6 h-6" />
-                      <span className="flex-1">Wyloguj się</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <div className="flex-1" /> {/* This pushes the admin section to the bottom */}
+
+        {isAdmin && (
+          <SidebarGroup className="mt-auto border-t border-border/50 pt-4">
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                    Panel Admina
+                  </div>
+                </SidebarMenuItem>
+                {adminMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.path}
+                        className="transition-colors hover:text-accent text-lg py-3"
+                      >
+                        <item.icon className="w-6 h-6" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={handleLogout}
+                    className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
+                  >
+                    <LogOut className="w-6 h-6" />
+                    <span className="flex-1">Wyloguj się</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">
         <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">Ciemny motyw</span>
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+          </div>
           <div className="flex flex-col items-center gap-2">
             <a
               href="https://ozzip.pl"
