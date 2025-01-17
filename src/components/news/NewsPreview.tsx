@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 
 interface NewsPreviewProps {
@@ -24,7 +24,12 @@ export function NewsPreview({
     : content;
 
   const formattedDate = date 
-    ? format(new Date(date), "d MMMM yyyy", { locale: pl })
+    ? (() => {
+        const parsedDate = new Date(date);
+        return isValid(parsedDate) 
+          ? format(parsedDate, "d MMMM yyyy", { locale: pl })
+          : "";
+      })()
     : "";
 
   return (
