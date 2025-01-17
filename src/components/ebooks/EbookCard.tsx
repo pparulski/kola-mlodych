@@ -24,18 +24,26 @@ interface EbookCardProps {
 }
 
 export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps) {
+  const handleClick = () => {
+    window.open(ebook.file_url, '_blank');
+  };
+
   return (
     <Card className="w-[300px] h-[250px] flex flex-col group">
       <CardHeader>
         <CardTitle 
-          className="text-lg truncate relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left" 
+          className="text-lg truncate relative inline-block cursor-pointer after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left" 
           title={ebook.title}
+          onClick={handleClick}
         >
           {ebook.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <div className="relative w-full h-32 mb-2 overflow-hidden">
+        <div 
+          className="relative w-full h-32 mb-2 overflow-hidden cursor-pointer"
+          onClick={handleClick}
+        >
           {ebook.cover_url ? (
             <img
               src={ebook.cover_url}
@@ -48,9 +56,8 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
             </div>
           )}
         </div>
-        <div className="flex justify-between items-center text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground">
           <span>Rok publikacji: {ebook.publication_year || "N/A"}</span>
-          <span>Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}</span>
         </div>
       </CardContent>
       {adminMode && onDelete && (
