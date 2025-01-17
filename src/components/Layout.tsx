@@ -7,8 +7,10 @@ export function Layout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col md:pl-[256px]">
+        <div className="fixed top-0 left-0 h-full z-40">
+          <AppSidebar />
+        </div>
+        <div className="flex-1 flex flex-col">
           <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10">
             <a 
               href="https://ozzip.pl/dolacz-do-nas" 
