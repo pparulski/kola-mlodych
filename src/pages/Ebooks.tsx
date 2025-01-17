@@ -72,30 +72,16 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
 
   const handleUploadSuccess = async (title: string, file_url: string) => {
     try {
-      // Call the edge function to generate the cover
-      const response = await fetch('/api/generate-pdf-cover', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pdfUrl: file_url }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate cover');
-      }
-
-      const { coverUrl } = await response.json();
-
+      console.log("Saving ebook metadata:", { title, file_url });
       const { error } = await supabase.from("ebooks").insert({
         title,
         file_url,
-        cover_url: coverUrl,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
       if (error) throw error;
       
+      toast.success("Ebook został dodany");
       fetchEbooks();
       setShowUpload(false);
     } catch (error) {
@@ -143,17 +129,9 @@ const Ebooks = ({ adminMode = false }: EbooksProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-              {ebook.cover_url ? (
-                <img
-                  src={ebook.cover_url}
-                  alt={`Cover of ${ebook.title}`}
-                  className="w-full h-32 object-contain mb-2"
-                />
-              ) : (
-                <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
-                  <BookOpen className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
+              <div className="w-full h-32 bg-muted flex items-center justify-center mb-2">
+                <BookOpen className="h-12 w-12 text-muted-foreground" />
+              </div>
               <p className="text-sm text-muted-foreground">
                 Dodano: {new Date(ebook.created_at).toLocaleDateString("pl-PL")}
               </p>
