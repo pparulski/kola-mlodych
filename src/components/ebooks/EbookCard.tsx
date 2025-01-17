@@ -60,7 +60,7 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
         )}
         {ebook.publication_year && (
           <p className="text-sm text-center dark:text-muted-foreground text-foreground">
-            Rok wydania: {ebook.publication_year}
+            Rok publikacji: {ebook.publication_year}
           </p>
         )}
       </CardContent>
