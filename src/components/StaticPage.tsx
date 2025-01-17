@@ -102,9 +102,9 @@ export function StaticPage() {
           {isAdmin && (
             <Button
               onClick={() => setIsEditing(true)}
-              variant="destructive"
+              variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 hover:text-accent"
             >
               <Pencil className="h-4 w-4" />
               Edytuj stronę

@@ -12,7 +12,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Newspaper, Users, Download, Book, Building2, Mail, LogOut, Activity } from "lucide-react";
+import { Newspaper, Users, Download, Book, Handshake, Mail, LogOut, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./ui/use-toast";
@@ -28,7 +28,7 @@ const publicMenuItems = [
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
   { 
     title: "Nasze działania",
-    icon: Activity,
+    icon: Flame,
     subItems: [
       { title: "Jowita", path: "/static/jowita" },
       { title: "Kamionka", path: "/static/kamionka" },
@@ -155,7 +155,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">
+                  <div className="px-3 py-2 text-sm font-semibold text-foreground">
                     Panel Admina
                   </div>
                 </SidebarMenuItem>
@@ -206,7 +206,7 @@ export function AppSidebar() {
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
             >
-              <Building2 className="w-4 h-4" />
+              <Handshake className="w-4 h-4" />
               <span>OZZ Inicjatywa Pracownicza</span>
             </a>
             <a

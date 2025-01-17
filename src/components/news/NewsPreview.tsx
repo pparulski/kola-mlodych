@@ -36,7 +36,7 @@ export function NewsPreview({ id, title, content, date, featured_image, previewL
           >
             <h2 className="text-2xl font-bold">{title}</h2>
           </Link>
-          <p className="text-sm text-muted-foreground">{date}</p>
+          <p className="text-sm text-foreground">{date}</p>
           <div 
             className="prose prose-sm max-w-none dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: previewContent }}
