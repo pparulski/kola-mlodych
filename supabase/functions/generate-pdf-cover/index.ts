@@ -38,24 +38,26 @@ serve(async (req) => {
 
     // Get the first page
     const firstPage = pages[0]
-    
-    // Convert the page to PNG format
-    const pngBytes = await firstPage.png({
-      width: 612, // Standard US Letter width in points
-      height: 792 // Standard US Letter height in points
-    })
-    
-    console.log('Cover PNG generated successfully')
+    const { width, height } = firstPage.getSize()
+
+    // Create a new PDF with just the first page
+    const coverDoc = await PDFDocument.create()
+    const [copiedPage] = await coverDoc.copyPages(pdfDoc, [0])
+    coverDoc.addPage(copiedPage)
+
+    // Save the cover as PDF
+    const coverBytes = await coverDoc.save()
+    console.log('Cover PDF generated successfully')
 
     // Generate a unique filename for the cover
-    const coverFileName = `${crypto.randomUUID()}-cover.png`
+    const coverFileName = `${crypto.randomUUID()}-cover.pdf`
 
-    // Upload the PNG to Supabase Storage
+    // Upload the cover to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('ebooks')
-      .upload(coverFileName, pngBytes, {
-        contentType: 'image/png',
+      .upload(coverFileName, coverBytes, {
+        contentType: 'application/pdf',
         upsert: false
       })
 
