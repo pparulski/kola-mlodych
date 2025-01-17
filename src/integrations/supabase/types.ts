@@ -87,6 +87,7 @@ export type Database = {
           featured_image: string | null
           id: string
           is_static_page: boolean | null
+          slug: string | null
           title: string
         }
         Insert: {
@@ -97,6 +98,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           is_static_page?: boolean | null
+          slug?: string | null
           title: string
         }
         Update: {
@@ -107,6 +109,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           is_static_page?: boolean | null
+          slug?: string | null
           title?: string
         }
         Relationships: []
