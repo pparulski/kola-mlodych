@@ -1,11 +1,12 @@
 import { NewsCard } from "@/components/NewsCard";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { NewsEditor } from "@/components/NewsEditor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { NewsAdminControls } from "@/components/news/NewsAdminControls";
 
 interface IndexProps {
   adminMode?: boolean;
@@ -78,10 +79,13 @@ const Index = ({ adminMode = false }: IndexProps) => {
       
       {showEditor && adminMode && (
         <div className="mb-8">
-          <NewsEditor existingNews={editingNews} onSuccess={() => {
-            setShowEditor(false);
-            setEditingNews(null);
-          }} />
+          <NewsEditor 
+            existingNews={editingNews} 
+            onSuccess={() => {
+              setShowEditor(false);
+              setEditingNews(null);
+            }} 
+          />
         </div>
       )}
 
@@ -90,25 +94,13 @@ const Index = ({ adminMode = false }: IndexProps) => {
           <div key={item.id} className="relative">
             <NewsCard 
               {...item} 
-              date={new Date(item.created_at).toLocaleDateString("pl-PL")}
+              date={item.created_at}
             />
             {adminMode && (
-              <div className="absolute top-4 right-4 flex gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleEdit(item)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+              <NewsAdminControls
+                onEdit={() => handleEdit(item)}
+                onDelete={() => handleDelete(item.id)}
+              />
             )}
           </div>
         ))}

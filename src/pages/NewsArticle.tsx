@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { NewsContent } from "@/components/news/NewsContent";
 
 const NewsArticle = () => {
   const { id } = useParams();
@@ -51,25 +52,12 @@ const NewsArticle = () => {
       </Button>
       
       <Card>
-        {article.featured_image && (
-          <div className="relative w-full h-[300px] overflow-hidden">
-            <img
-              src={article.featured_image}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold">{article.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {new Date(article.created_at).toLocaleDateString("pl-PL")}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+        <CardContent className="pt-6">
+          <NewsContent
+            title={article.title}
+            content={article.content}
+            date={article.created_at}
+            featured_image={article.featured_image}
           />
         </CardContent>
       </Card>
