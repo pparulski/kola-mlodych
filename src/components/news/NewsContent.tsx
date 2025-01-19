@@ -22,10 +22,10 @@ export function NewsContent({ title, content, date, featured_image }: NewsConten
           />
         </div>
       )}
-      <h1 className="text-3xl font-bold text-foreground">{title}</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-foreground">{title}</h1>
       <p className="text-sm text-foreground">{formattedDate}</p>
       <div 
-        className="prose prose-lg max-w-none dark:prose-invert text-foreground [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
+        className="prose prose-sm md:prose-lg max-w-none dark:prose-invert text-foreground [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>

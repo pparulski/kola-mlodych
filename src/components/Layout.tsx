@@ -1,8 +1,7 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { useSidebar } from "@/components/ui/sidebar";
 
 function LayoutContent() {
   const { setOpen } = useSidebar();
@@ -31,12 +30,12 @@ function LayoutContent() {
           <SidebarTrigger className="mb-4 md:hidden">
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto px-4">
             <Outlet />
           </div>
         </main>
       </div>
-      {/* Mobile overlay */}
+      {/* Mobile overlay with blur effect */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30 transition-opacity duration-200" 
         onClick={handleOverlayClick}
