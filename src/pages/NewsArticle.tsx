@@ -13,14 +13,25 @@ const NewsArticle = () => {
   const { data: article, isLoading } = useQuery({
     queryKey: ['news', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      console.log("Fetching article with ID or slug:", id);
+      let query = supabase
         .from('news')
-        .select('*')
+        .select('*');
+
+      // Try to find by slug first
+      const { data: slugData, error: slugError } = await query
+        .eq('slug', id)
+        .single();
+
+      if (slugData) return slugData;
+
+      // If not found by slug, try by ID
+      const { data: idData, error: idError } = await query
         .eq('id', id)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (idError) throw idError;
+      return idData;
     }
   });
 
