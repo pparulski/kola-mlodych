@@ -60,9 +60,9 @@ export function StaticPage() {
 
   if (isEditing && isAdmin) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <h1 className="text-3xl font-bold">{pageTitle}</h1>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">{pageTitle}</h1>
           <Button
             variant="outline"
             onClick={() => setIsEditing(false)}
@@ -96,9 +96,9 @@ export function StaticPage() {
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       
-      <div className="relative max-w-4xl mx-auto p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <h1 className="text-3xl font-bold">{pageTitle}</h1>
+      <div className="relative space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">{pageTitle}</h1>
           {isAdmin && (
             <Button
               onClick={() => setIsEditing(true)}
@@ -114,11 +114,11 @@ export function StaticPage() {
         
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert"
+            className="prose prose-lg max-w-none dark:prose-invert mt-4"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
-          <div className="text-center text-muted-foreground">
+          <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (
               <Button
                 onClick={() => setIsEditing(true)}
@@ -135,5 +135,4 @@ export function StaticPage() {
       </div>
     </div>
   );
-
 }

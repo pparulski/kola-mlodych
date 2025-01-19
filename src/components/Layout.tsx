@@ -25,10 +25,12 @@ function LayoutContent() {
           </a>
         </div>
         <main className="flex-1 p-4 md:p-6">
-          <SidebarTrigger className="mb-4 md:hidden" onClick={() => setOpen(!open)}>
-            <Menu className="h-6 w-6" />
-          </SidebarTrigger>
-          <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-4 mb-4">
+            <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
+              <Menu className="h-8 w-8" />
+            </SidebarTrigger>
+          </div>
+          <div className="max-w-4xl mx-auto">
             <Outlet />
           </div>
         </main>
