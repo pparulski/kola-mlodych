@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
 import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 interface NewsEditorProps {
@@ -20,7 +19,6 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,6 +64,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
       }
 
       if (existingNews) {
+        console.log('Updating existing article:', existingNews.id);
         const { error } = await supabase
           .from('news')
           .update({
@@ -80,6 +79,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
         if (error) throw error;
         toast.success("Artykuł został zaktualizowany");
       } else {
+        console.log('Creating new article');
         const { error } = await supabase.from('news').insert({
           title,
           content,
@@ -93,13 +93,12 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
         toast.success("Artykuł został zapisany");
       }
 
-      queryClient.invalidateQueries({ queryKey: ['news'] });
-      if (isStaticPage) {
-        queryClient.invalidateQueries({ queryKey: ['static-page'] });
+      if (!existingNews) {
+        setTitle("");
+        setContent("");
+        setFeaturedImage(null);
       }
-      setTitle("");
-      setContent("");
-      setFeaturedImage(null);
+      
       onSuccess?.();
     } catch (error) {
       console.error("Error saving article:", error);
