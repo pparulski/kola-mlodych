@@ -12,15 +12,8 @@ function LayoutContent() {
 
   return (
     <>
-      {/* Sidebar */}
       <AppSidebar />
-
-      {/* Main Content */}
-      <div 
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          open ? 'blur-sm' : ''
-        }`}
-      >
+      <div className="flex-1 flex flex-col">
         <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10">
           <a 
             href="https://ozzip.pl/dolacz-do-nas" 
@@ -41,7 +34,6 @@ function LayoutContent() {
         </main>
       </div>
 
-      {/* Mobile overlay */}
       {open && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
@@ -56,7 +48,7 @@ function LayoutContent() {
 export function Layout() {
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex w-full relative">
+      <div className="min-h-screen flex w-full">
         <LayoutContent />
       </div>
     </SidebarProvider>
