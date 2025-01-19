@@ -83,55 +83,57 @@ const Index = ({ adminMode = false }: IndexProps) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">Aktualności</h1>
-        {adminMode && (
-          <Button onClick={() => {
-            setEditingNews(null);
-            setShowEditor(!showEditor);
-          }}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {showEditor ? "Anuluj" : "Dodaj artykuł"}
-          </Button>
+    <>
+      <h1 className="text-3xl font-bold text-primary">Aktualności</h1>
+      <div className="mt-6">
+        <div className="flex justify-end mb-6">
+          {adminMode && (
+            <Button onClick={() => {
+              setEditingNews(null);
+              setShowEditor(!showEditor);
+            }}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {showEditor ? "Anuluj" : "Dodaj artykuł"}
+            </Button>
+          )}
+        </div>
+        
+        {showEditor && adminMode && (
+          <div className="mb-8">
+            <NewsEditor 
+              existingNews={editingNews} 
+              onSuccess={() => {
+                setShowEditor(false);
+                setEditingNews(null);
+              }} 
+            />
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {newsItems?.map((item) => (
+            <div key={item.id} className="relative">
+              <NewsCard 
+                {...item} 
+                date={item.created_at}
+              />
+              {adminMode && (
+                <NewsAdminControls
+                  onEdit={() => handleEdit(item)}
+                  onDelete={() => handleDelete(item.id)}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {(!newsItems || newsItems.length === 0) && (
+          <div className="text-center text-muted-foreground mt-8">
+            Brak aktualności
+          </div>
         )}
       </div>
-      
-      {showEditor && adminMode && (
-        <div className="mb-8">
-          <NewsEditor 
-            existingNews={editingNews} 
-            onSuccess={() => {
-              setShowEditor(false);
-              setEditingNews(null);
-            }} 
-          />
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {newsItems?.map((item) => (
-          <div key={item.id} className="relative">
-            <NewsCard 
-              {...item} 
-              date={item.created_at}
-            />
-            {adminMode && (
-              <NewsAdminControls
-                onEdit={() => handleEdit(item)}
-                onDelete={() => handleDelete(item.id)}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {(!newsItems || newsItems.length === 0) && (
-        <div className="text-center text-muted-foreground mt-8">
-          Brak aktualności
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 

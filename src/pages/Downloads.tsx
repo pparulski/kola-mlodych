@@ -124,73 +124,75 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-primary">Pliki do pobrania</h1>
-        {adminMode && (
-          <Button onClick={() => setShowUpload(!showUpload)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Anuluj" : "Dodaj plik"}
-          </Button>
+    <>
+      <h1 className="text-3xl font-bold text-primary">Pliki do pobrania</h1>
+      <div className="mt-6">
+        <div className="flex justify-end mb-6">
+          {adminMode && (
+            <Button onClick={() => setShowUpload(!showUpload)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {showUpload ? "Anuluj" : "Dodaj plik"}
+            </Button>
+          )}
+        </div>
+
+        {showUpload && adminMode && (
+          <div className="mb-8">
+            <FileUpload
+              bucket="downloads"
+              onSuccess={handleUploadSuccess}
+            />
+          </div>
+        )}
+
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-foreground">Nazwa pliku</TableHead>
+                <TableHead className="text-foreground hidden md:table-cell">Data dodania</TableHead>
+                <TableHead className="text-right text-foreground">Akcje</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {files.map((file) => (
+                <TableRow key={file.id}>
+                  <TableCell className="font-medium text-foreground">{file.name}</TableCell>
+                  <TableCell className="text-foreground hidden md:table-cell">
+                    {new Date(file.created_at).toLocaleDateString("pl-PL")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2 flex-wrap">
+                      <Button variant="outline" asChild size="sm">
+                        <a href={file.url} target="_blank" rel="noopener noreferrer">
+                          <Download className="mr-2 h-4 w-4" />
+                          <span className="hidden md:inline">Pobierz</span>
+                        </a>
+                      </Button>
+                      {adminMode && (
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDelete(file.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {files.length === 0 && (
+          <div className="text-center text-foreground mt-8">
+            Brak plików do pobrania
+          </div>
         )}
       </div>
-
-      {showUpload && adminMode && (
-        <div className="mb-8">
-          <FileUpload
-            bucket="downloads"
-            onSuccess={handleUploadSuccess}
-          />
-        </div>
-      )}
-
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-foreground">Nazwa pliku</TableHead>
-              <TableHead className="text-foreground hidden md:table-cell">Data dodania</TableHead>
-              <TableHead className="text-right text-foreground">Akcje</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {files.map((file) => (
-              <TableRow key={file.id}>
-                <TableCell className="font-medium text-foreground">{file.name}</TableCell>
-                <TableCell className="text-foreground hidden md:table-cell">
-                  {new Date(file.created_at).toLocaleDateString("pl-PL")}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2 flex-wrap">
-                    <Button variant="outline" asChild size="sm">
-                      <a href={file.url} target="_blank" rel="noopener noreferrer">
-                        <Download className="mr-2 h-4 w-4" />
-                        <span className="hidden md:inline">Pobierz</span>
-                      </a>
-                    </Button>
-                    {adminMode && (
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(file.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {files.length === 0 && (
-        <div className="text-center text-foreground mt-8">
-          Brak plików do pobrania
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 

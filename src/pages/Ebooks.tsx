@@ -142,37 +142,39 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">Publikacje</h1>
-        {adminMode && (
-          <Button onClick={() => setShowUpload(!showUpload)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Anuluj" : "Dodaj publikację"}
-          </Button>
+    <>
+      <h1 className="text-3xl font-bold text-primary">Publikacje</h1>
+      <div className="mt-6">
+        <div className="flex justify-end mb-6">
+          {adminMode && (
+            <Button onClick={() => setShowUpload(!showUpload)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {showUpload ? "Anuluj" : "Dodaj publikację"}
+            </Button>
+          )}
+        </div>
+
+        {showUpload && adminMode && (
+          <EbookUpload onUploadSuccess={handleUploadSuccess} />
+        )}
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {ebooks.map((ebook) => (
+            <EbookCard
+              key={ebook.id}
+              ebook={ebook}
+              onDelete={handleDelete}
+              adminMode={adminMode}
+            />
+          ))}
+        </div>
+
+        {ebooks.length === 0 && (
+          <div className="text-center text-muted-foreground mt-8">
+            Brak publikacji
+          </div>
         )}
       </div>
-
-      {showUpload && adminMode && (
-        <EbookUpload onUploadSuccess={handleUploadSuccess} />
-      )}
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {ebooks.map((ebook) => (
-          <EbookCard
-            key={ebook.id}
-            ebook={ebook}
-            onDelete={handleDelete}
-            adminMode={adminMode}
-          />
-        ))}
-      </div>
-
-      {ebooks.length === 0 && (
-        <div className="text-center text-muted-foreground mt-8">
-          Brak publikacji
-        </div>
-      )}
-    </div>
+    </>
   );
 }
