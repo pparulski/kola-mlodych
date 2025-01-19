@@ -4,9 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsContent } from "@/components/news/NewsContent";
 import { StaticPage } from "@/components/StaticPage";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function NewsDetails() {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   // If we're on a static page route, render the StaticPage component
   if (slug) {
@@ -30,7 +34,7 @@ export function NewsDetails() {
       if (error) throw error;
       return data;
     },
-    enabled: !!id, // Only run the query if we have an ID
+    enabled: !!id,
   });
 
   if (isLoading) {
@@ -50,17 +54,27 @@ export function NewsDetails() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-8">
-      <Card>
-        <CardContent className="pt-6">
-          <NewsContent
-            title={news.title}
-            content={news.content}
-            date={news.created_at}
-            featured_image={news.featured_image}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate(-1)}
+        className="h-10"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Wróć
+      </Button>
+      <div className="max-w-4xl mx-auto mt-6">
+        <Card>
+          <CardContent className="pt-6">
+            <NewsContent
+              title={news.title}
+              content={news.content}
+              date={news.created_at}
+              featured_image={news.featured_image}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
