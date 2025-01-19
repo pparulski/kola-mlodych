@@ -34,7 +34,7 @@ export function NewsPreview({
     : "";
 
   return (
-    <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border">
+    <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (
         <img
           src={featured_image}
@@ -48,14 +48,14 @@ export function NewsPreview({
             to={slug ? `/static/${slug}` : `/news/${id}`}
             className="no-underline"
           >
-            <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors">{title}</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
           {formattedDate && (
             <p className="text-sm text-muted-foreground">{formattedDate}</p>
           )}
         </div>
         <div 
-          className="prose prose-sm md:prose-base max-w-none dark:prose-invert"
+          className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
           dangerouslySetInnerHTML={{ __html: previewContent }}
         />
         <div className="pt-4">

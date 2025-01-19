@@ -3,7 +3,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   useSidebar,
@@ -37,8 +36,10 @@ export function AppSidebar() {
     checkAdminStatus();
   }, []);
 
+  // Handler for menu item clicks
   const handleMenuClick = () => {
     if (isMobile) {
+      console.log("Closing sidebar on mobile after menu click");
       setOpen(false);
     }
   };
