@@ -14,24 +14,33 @@ const NewsArticle = () => {
     queryKey: ['news', id],
     queryFn: async () => {
       console.log("Fetching article with ID or slug:", id);
-      let query = supabase
+      
+      // First try to find by ID (for backward compatibility)
+      const { data: idData, error: idError } = await supabase
         .from('news')
-        .select('*');
-
-      // Try to find by slug first
-      const { data: slugData, error: slugError } = await query
-        .eq('slug', id)
-        .single();
-
-      if (slugData) return slugData;
-
-      // If not found by slug, try by ID
-      const { data: idData, error: idError } = await query
+        .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (idError) throw idError;
-      return idData;
+      if (idData) {
+        console.log("Found article by ID:", idData);
+        return idData;
+      }
+
+      // If not found by ID, try by slug
+      const { data: slugData, error: slugError } = await supabase
+        .from('news')
+        .select('*')
+        .eq('slug', id)
+        .maybeSingle();
+
+      if (slugData) {
+        console.log("Found article by slug:", slugData);
+        return slugData;
+      }
+
+      // If neither found, throw error
+      throw new Error('Article not found');
     }
   });
 
