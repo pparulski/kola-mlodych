@@ -51,7 +51,6 @@ const NewsArticle = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Wróć
         </Button>
-        <h1 className="text-2xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">{article.title}</h1>
       </div>
       
       <Card className="mt-4">

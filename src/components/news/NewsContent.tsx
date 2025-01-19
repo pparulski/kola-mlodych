@@ -12,7 +12,7 @@ export function NewsContent({ title, content, date, featured_image }: NewsConten
   const formattedDate = format(new Date(date), "d MMMM yyyy", { locale: pl });
 
   return (
-    <article className="space-y-4 w-full max-w-4xl mx-auto px-4 overflow-hidden">
+    <article className="space-y-4 w-full max-w-4xl mx-auto overflow-hidden">
       {featured_image && (
         <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
           <img
