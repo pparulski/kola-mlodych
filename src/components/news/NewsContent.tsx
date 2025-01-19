@@ -12,7 +12,7 @@ export function NewsContent({ title, content, date, featured_image }: NewsConten
   const formattedDate = format(new Date(date), "d MMMM yyyy", { locale: pl });
 
   return (
-    <div className="space-y-4 w-full max-w-4xl mx-auto px-4">
+    <article className="space-y-4 w-full max-w-4xl mx-auto px-4">
       {featured_image && (
         <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
           <img
@@ -25,9 +25,9 @@ export function NewsContent({ title, content, date, featured_image }: NewsConten
       <h1 className="text-2xl md:text-3xl font-bold text-foreground">{title}</h1>
       <p className="text-sm text-foreground">{formattedDate}</p>
       <div 
-        className="prose prose-sm md:prose-lg max-w-none dark:prose-invert text-foreground [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
+        className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
         dangerouslySetInnerHTML={{ __html: content }}
       />
-    </div>
+    </article>
   );
 }
