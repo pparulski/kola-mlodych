@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Facebook, Instagram } from "lucide-react";
 
 const Map = () => {
@@ -19,11 +20,7 @@ const Map = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <div className="flex items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">
-          Koła Młodych
-        </h1>
-      </div>
+      <h1 className="text-3xl font-bold mb-6">Koła Młodych</h1>
       
       {isLoading ? (
         <div>Ładowanie...</div>
