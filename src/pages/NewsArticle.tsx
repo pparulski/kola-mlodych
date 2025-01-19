@@ -56,6 +56,7 @@ const NewsArticle = () => {
         <Card>
           <CardContent className="p-4 md:p-6">
             <NewsContent
+              title={article.title}
               content={article.content}
               date={article.created_at}
               featured_image={article.featured_image}
