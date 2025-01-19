@@ -26,45 +26,44 @@ const NewsArticle = () => {
 
   if (isLoading) {
     return (
-      <>
-        <h1 className="text-3xl font-bold text-primary">Ładowanie...</h1>
-      </>
+      <div className="space-y-4">
+        <h1 className="text-2xl text-[rgb(128_0_32_/_var(--tw-text-opacity))]">Ładowanie...</h1>
+      </div>
     );
   }
 
   if (!article) {
     return (
-      <>
-        <h1 className="text-3xl font-bold text-primary">Artykuł nie został znaleziony</h1>
-      </>
+      <div className="space-y-4">
+        <h1 className="text-2xl text-[rgb(128_0_32_/_var(--tw-text-opacity))]">Artykuł nie został znaleziony</h1>
+      </div>
     );
   }
 
   return (
-    <>
-      <h1 className="text-3xl font-bold text-primary">{article.title}</h1>
-      <div className="mt-6">
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
         <Button 
           variant="outline" 
-          className="mb-4"
+          className="h-8"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Wróć
         </Button>
-        
-        <Card>
-          <CardContent className="p-4 md:p-6">
-            <NewsContent
-              title={article.title}
-              content={article.content}
-              date={article.created_at}
-              featured_image={article.featured_image}
-            />
-          </CardContent>
-        </Card>
       </div>
-    </>
+      
+      <Card className="mt-4">
+        <CardContent className="p-4 md:p-6">
+          <NewsContent
+            title={article.title}
+            content={article.content}
+            date={article.created_at}
+            featured_image={article.featured_image}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

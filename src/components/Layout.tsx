@@ -25,13 +25,13 @@ function LayoutContent() {
           </a>
         </div>
         <main className="flex-1 p-4 md:p-6">
-          <div className="container">
-            <div className="flex items-center gap-4 mb-6">
-              <SidebarTrigger className="md:hidden h-10 w-10" onClick={() => setOpen(!open)}>
-                <Menu className="h-10 w-10" />
-              </SidebarTrigger>
-              <Outlet />
-            </div>
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
+              <Menu className="h-8 w-8" />
+            </SidebarTrigger>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <Outlet />
           </div>
         </main>
       </div>
