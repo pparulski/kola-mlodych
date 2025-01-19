@@ -6,6 +6,7 @@ import { FileUpload } from "./FileUpload";
 import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface NewsEditorProps {
   existingNews?: any;
@@ -20,6 +21,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (existingNews) {
@@ -38,7 +40,15 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
 
   const handleSubmit = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error("Session error:", sessionError);
+        toast.error("Sesja wygasła. Zaloguj się ponownie.");
+        navigate("/auth");
+        return;
+      }
+
       const generatedSlug = defaultSlug || generateSlug(title);
       
       // Delete old featured image if it exists and we're uploading a new one
@@ -74,7 +84,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
           title,
           content,
           featured_image: featuredImage,
-          created_by: user?.id,
+          created_by: session.user.id,
           is_static_page: isStaticPage || false,
           slug: generatedSlug,
         });
