@@ -10,6 +10,7 @@ interface NewsPreviewProps {
   date?: string;
   featured_image?: string;
   slug?: string;
+  is_static_page?: boolean;
 }
 
 export function NewsPreview({
@@ -19,6 +20,7 @@ export function NewsPreview({
   date,
   featured_image,
   slug,
+  is_static_page,
 }: NewsPreviewProps) {
   const previewContent = content.length > 300 
     ? content.substring(0, 300) + "..."
@@ -33,6 +35,12 @@ export function NewsPreview({
       })()
     : "";
 
+  const linkPath = is_static_page 
+    ? `/static/${slug}` 
+    : slug 
+      ? `/news/${slug}` 
+      : `/news/${id}`;
+
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (
@@ -45,7 +53,7 @@ export function NewsPreview({
       <div className="space-y-4 md:space-y-6">
         <div className="space-y-2">
           <Link
-            to={slug ? `/static/${slug}` : `/news/${id}`}
+            to={linkPath}
             className="no-underline"
           >
             <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
@@ -60,7 +68,7 @@ export function NewsPreview({
         />
         <div className="pt-4">
           <Link
-            to={slug ? `/static/${slug}` : `/news/${id}`}
+            to={linkPath}
             className="inline-flex items-center text-primary hover:text-accent transition-colors no-underline"
           >
             Czytaj więcej <ArrowRight className="ml-1 h-4 w-4" />
