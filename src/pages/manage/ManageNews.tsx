@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsEditor } from "@/components/NewsEditor";
 import { NewsAdminControls } from "@/components/news/NewsAdminControls";
@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 export function ManageNews() {
   const [editingNews, setEditingNews] = useState<any>(null);
-  const queryClient = useQueryClient();
 
   const { data: news, isLoading } = useQuery({
     queryKey: ['news'],
@@ -25,18 +24,12 @@ export function ManageNews() {
 
   const handleDelete = async (id: string) => {
     try {
-      console.log('Deleting article with ID:', id);
       const { error } = await supabase
         .from('news')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        console.error("Error deleting article:", error);
-        throw error;
-      }
-      
-      await queryClient.invalidateQueries({ queryKey: ['news'] });
+      if (error) throw error;
       toast.success("Article deleted successfully");
     } catch (error) {
       console.error("Error deleting article:", error);
@@ -57,22 +50,13 @@ export function ManageNews() {
           <h2 className="text-xl mb-4">Edit Article</h2>
           <NewsEditor 
             existingNews={editingNews} 
-            onSuccess={() => {
-              setEditingNews(null);
-              queryClient.invalidateQueries({ queryKey: ['news'] });
-            }} 
+            onSuccess={() => setEditingNews(null)} 
           />
-          <button
-            onClick={() => setEditingNews(null)}
-            className="mt-4 px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-          >
-            Cancel Editing
-          </button>
         </div>
       ) : (
         <div>
           <h2 className="text-xl mb-4">Add New Article</h2>
-          <NewsEditor onSuccess={() => queryClient.invalidateQueries({ queryKey: ['news'] })} />
+          <NewsEditor onSuccess={() => setEditingNews(null)} />
         </div>
       )}
 
@@ -81,9 +65,6 @@ export function ManageNews() {
         {news?.map((article: any) => (
           <div key={article.id} className="relative border p-4 rounded-lg">
             <h3 className="text-lg font-semibold">{article.title}</h3>
-            <p className="text-sm text-gray-500">
-              Created: {new Date(article.created_at).toLocaleDateString()}
-            </p>
             <NewsAdminControls 
               onEdit={() => setEditingNews(article)}
               onDelete={() => handleDelete(article.id)}

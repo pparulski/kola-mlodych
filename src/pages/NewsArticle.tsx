@@ -13,38 +13,14 @@ const NewsArticle = () => {
   const { data: article, isLoading } = useQuery({
     queryKey: ['news', id],
     queryFn: async () => {
-      if (!id) throw new Error('Article ID or slug is required');
-      console.log("Fetching article with parameter:", id);
-
-      // First try to find by slug
-      const { data: slugData, error: slugError } = await supabase
+      const { data, error } = await supabase
         .from('news')
         .select('*')
-        .eq('slug', id)
-        .maybeSingle();
+        .eq('id', id)
+        .single();
 
-      if (slugData) {
-        console.log("Found article by slug:", slugData);
-        return slugData;
-      }
-
-      // If not found by slug and the id looks like a UUID, try by ID
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (uuidRegex.test(id)) {
-        const { data: idData, error: idError } = await supabase
-          .from('news')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (idData) {
-          console.log("Found article by ID:", idData);
-          return idData;
-        }
-      }
-
-      // If neither found, throw error
-      throw new Error('Article not found');
+      if (error) throw error;
+      return data;
     }
   });
 

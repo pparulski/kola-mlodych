@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
 import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NewsEditorProps {
   existingNews?: any;
@@ -19,7 +19,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (existingNews) {
@@ -29,25 +29,9 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
     }
   }, [existingNews]);
 
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9\-]/g, '');
-  };
-
   const handleSubmit = async () => {
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error("Session error:", sessionError);
-        toast.error("Sesja wygasła. Zaloguj się ponownie.");
-        navigate("/auth");
-        return;
-      }
-
-      const generatedSlug = defaultSlug || generateSlug(title);
+      const { data: { user } } = await supabase.auth.getUser();
       
       // Delete old featured image if it exists and we're uploading a new one
       if (existingNews?.featured_image && featuredImage !== existingNews.featured_image) {
@@ -64,7 +48,6 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
       }
 
       if (existingNews) {
-        console.log('Updating existing article:', existingNews.id);
         const { error } = await supabase
           .from('news')
           .update({
@@ -72,33 +55,33 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
             content,
             featured_image: featuredImage,
             is_static_page: isStaticPage || false,
-            slug: generatedSlug,
+            slug: defaultSlug,
           })
           .eq('id', existingNews.id);
 
         if (error) throw error;
         toast.success("Artykuł został zaktualizowany");
       } else {
-        console.log('Creating new article');
         const { error } = await supabase.from('news').insert({
           title,
           content,
           featured_image: featuredImage,
-          created_by: session.user.id,
+          created_by: user?.id,
           is_static_page: isStaticPage || false,
-          slug: generatedSlug,
+          slug: defaultSlug,
         });
 
         if (error) throw error;
         toast.success("Artykuł został zapisany");
       }
 
-      if (!existingNews) {
-        setTitle("");
-        setContent("");
-        setFeaturedImage(null);
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      if (isStaticPage) {
+        queryClient.invalidateQueries({ queryKey: ['static-page'] });
       }
-      
+      setTitle("");
+      setContent("");
+      setFeaturedImage(null);
       onSuccess?.();
     } catch (error) {
       console.error("Error saving article:", error);
