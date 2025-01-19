@@ -6,7 +6,6 @@ import { Menu } from "lucide-react";
 function LayoutContent() {
   const { open, setOpen } = useSidebar();
 
-  // Handle overlay click to close sidebar
   const handleOverlayClick = () => {
     setOpen(false);
   };
@@ -18,7 +17,7 @@ function LayoutContent() {
 
       {/* Main Content */}
       <div 
-        className={`flex-1 flex flex-col transition-all duration-300 ${
+        className={`flex-1 flex flex-col md:pl-64 transition-all duration-300 ${
           open ? 'blur-sm' : ''
         }`}
       >
