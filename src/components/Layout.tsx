@@ -33,7 +33,7 @@ function LayoutContent() {
           </a>
         </div>
         <main className="flex-1 p-4 md:p-6">
-          <SidebarTrigger className="mb-4 md:hidden">
+          <SidebarTrigger className="mb-4 md:hidden" onClick={() => setOpen(!open)}>
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
           <div className="max-w-4xl mx-auto px-4">
@@ -56,7 +56,7 @@ function LayoutContent() {
 
 export function Layout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full relative">
         <LayoutContent />
       </div>
