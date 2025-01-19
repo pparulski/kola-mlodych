@@ -48,7 +48,7 @@ function LayoutContent() {
 export function Layout() {
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex w-full">
+      <div className="flex w-full">
         <LayoutContent />
       </div>
     </SidebarProvider>
