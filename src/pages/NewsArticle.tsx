@@ -13,15 +13,23 @@ const NewsArticle = () => {
   const { data: article, isLoading } = useQuery({
     queryKey: ['news', id],
     queryFn: async () => {
+      console.log('Fetching news article with ID:', id);
+      if (!id) throw new Error('News ID is required');
+      
       const { data, error } = await supabase
         .from('news')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching article:', error);
+        throw error;
+      }
+      
       return data;
-    }
+    },
+    enabled: !!id, // Only run the query if we have an ID
   });
 
   if (isLoading) {
