@@ -52,24 +52,17 @@ export function StaticPage() {
     );
   }
 
-  const pageTitle = {
-    'jowita': 'Jowita',
-    'kamionka': 'Kamionka',
-    'stolowki': 'Stołówki',
-  }[slug || ''] || 'Strona statyczna';
-
   if (isEditing && isAdmin) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">{pageTitle}</h1>
+        {isAdmin && (
           <Button
             variant="outline"
             onClick={() => setIsEditing(false)}
           >
             Anuluj edycję
           </Button>
-        </div>
+        )}
         <NewsEditor
           existingNews={page}
           onSuccess={() => {
@@ -97,20 +90,17 @@ export function StaticPage() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       
       <div className="relative space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-[rgb(128_0_32_/_var(--tw-text-opacity))]">{pageTitle}</h1>
-          {isAdmin && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="outline"
-              size="sm"
-              className="gap-2 hover:text-primary-foreground hover:bg-primary"
-            >
-              <Pencil className="h-4 w-4" />
-              Edytuj stronę
-            </Button>
-          )}
-        </div>
+        {isAdmin && (
+          <Button
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            size="sm"
+            className="gap-2 hover:text-primary-foreground hover:bg-primary"
+          >
+            <Pencil className="h-4 w-4" />
+            Edytuj stronę
+          </Button>
+        )}
         
         {page ? (
           <div 
