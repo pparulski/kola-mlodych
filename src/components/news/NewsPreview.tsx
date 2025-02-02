@@ -51,7 +51,7 @@ export function NewsPreview({
             <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
           {formattedDate && (
-            <p className="text-sm text-muted-foreground">{formattedDate}</p>
+            <p className="text-sm text-foreground">{formattedDate}</p>
           )}
         </div>
         <div 

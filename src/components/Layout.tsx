@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 
 function getPageTitle(pathname: string): string {
@@ -16,7 +16,8 @@ function getPageTitle(pathname: string): string {
     '/stolowki': 'Stołówki',
     '/static/jowita': 'Jowita',
     '/static/kamionka': 'Kamionka',
-    '/static/stolowki': 'Stołówki'
+    '/static/stolowki': 'Stołówki',
+    '/static/dolacz-do-nas': 'Dołącz do nas'
   };
 
   return titles[pathname] || 'Aktualności';
@@ -34,16 +35,12 @@ function LayoutContent() {
     <>
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full">
-        <div className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10">
-          <a 
-            href="https://ozzip.pl/dolacz-do-nas" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:underline flex items-center justify-center gap-2"
-          >
-            <span>Dołącz do nas!</span>
-          </a>
-        </div>
+        <Link 
+          to="/static/dolacz-do-nas"
+          className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10 hover:bg-accent transition-colors"
+        >
+          <span>Dołącz do nas!</span>
+        </Link>
         <main className="flex-1 p-4 md:p-6">
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center gap-4">
