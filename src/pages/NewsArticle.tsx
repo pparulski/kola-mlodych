@@ -98,7 +98,7 @@ const NewsArticle = () => {
           <img
             src={article.featured_image}
             alt=""
-            className="w-full h-48 object-cover rounded-md"
+            className="w-full h-48 md:h-64 object-cover rounded-md"
           />
         )}
         <div className="space-y-4 md:space-y-6">
@@ -107,7 +107,7 @@ const NewsArticle = () => {
               {article.title}
             </h2>
             {formattedDate && (
-              <p className="text-sm text-muted-foreground">{formattedDate}</p>
+              <p className="text-sm text-foreground">{formattedDate}</p>
             )}
           </div>
           <div 
