@@ -14,6 +14,7 @@ export default function Index() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log("Fetched news articles:", data);
       return data;
     },
   });

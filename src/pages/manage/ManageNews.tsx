@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsEditor } from "@/components/NewsEditor";
 import { NewsAdminControls } from "@/components/news/NewsAdminControls";
@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 export function ManageNews() {
   const [editingNews, setEditingNews] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   const { data: news, isLoading } = useQuery({
     queryKey: ['news'],
@@ -15,6 +16,7 @@ export function ManageNews() {
       const { data, error } = await supabase
         .from('news')
         .select('*')
+        .eq('is_static_page', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -30,10 +32,12 @@ export function ManageNews() {
         .eq('id', id);
 
       if (error) throw error;
-      toast.success("Article deleted successfully");
+      
+      await queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success("Artykuł został usunięty");
     } catch (error) {
       console.error("Error deleting article:", error);
-      toast.error("Failed to delete article");
+      toast.error("Nie udało się usunąć artykułu");
     }
   };
 
@@ -43,25 +47,32 @@ export function ManageNews() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-8">
-      <h1 className="text-3xl font-bold">Manage News</h1>
+      <h1 className="text-3xl font-bold">Zarządzaj aktualnościami</h1>
       
       {editingNews ? (
         <div>
-          <h2 className="text-xl mb-4">Edit Article</h2>
+          <h2 className="text-xl mb-4">Edytuj artykuł</h2>
           <NewsEditor 
             existingNews={editingNews} 
-            onSuccess={() => setEditingNews(null)} 
+            onSuccess={() => {
+              setEditingNews(null);
+              queryClient.invalidateQueries({ queryKey: ['news'] });
+            }} 
           />
         </div>
       ) : (
         <div>
-          <h2 className="text-xl mb-4">Add New Article</h2>
-          <NewsEditor onSuccess={() => setEditingNews(null)} />
+          <h2 className="text-xl mb-4">Dodaj nowy artykuł</h2>
+          <NewsEditor 
+            onSuccess={() => {
+              queryClient.invalidateQueries({ queryKey: ['news'] });
+            }} 
+          />
         </div>
       )}
 
       <div className="space-y-4">
-        <h2 className="text-xl">All Articles</h2>
+        <h2 className="text-xl">Wszystkie artykuły</h2>
         {news?.map((article: any) => (
           <div key={article.id} className="relative border p-4 rounded-lg">
             <h3 className="text-lg font-semibold">{article.title}</h3>

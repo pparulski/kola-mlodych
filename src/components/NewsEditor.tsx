@@ -48,6 +48,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
       }
 
       if (existingNews) {
+        console.log("Updating existing news:", existingNews.id);
         const { error } = await supabase
           .from('news')
           .update({
@@ -60,8 +61,10 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
           .eq('id', existingNews.id);
 
         if (error) throw error;
+        console.log("News updated successfully");
         toast.success("Artykuł został zaktualizowany");
       } else {
+        console.log("Creating new news");
         const { error } = await supabase.from('news').insert({
           title,
           content,
@@ -72,6 +75,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
         });
 
         if (error) throw error;
+        console.log("News created successfully");
         toast.success("Artykuł został zapisany");
       }
 
@@ -79,9 +83,11 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
       if (isStaticPage) {
         queryClient.invalidateQueries({ queryKey: ['static-page'] });
       }
-      setTitle("");
-      setContent("");
-      setFeaturedImage(null);
+      if (!existingNews) {
+        setTitle("");
+        setContent("");
+        setFeaturedImage(null);
+      }
       onSuccess?.();
     } catch (error) {
       console.error("Error saving article:", error);
@@ -146,6 +152,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
             "bold italic forecolor | alignleft aligncenter " +
             "alignright alignjustify | bullist numlist outdent indent | " +
             "removeformat | help",
+          content_style: "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; }",
         }}
         value={content}
         onEditorChange={setContent}

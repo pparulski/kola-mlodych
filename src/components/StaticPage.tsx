@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { NewsEditor } from "./NewsEditor";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 export function StaticPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -44,6 +46,23 @@ export function StaticPage() {
     }
   });
 
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', page.id);
+
+      if (error) throw error;
+      
+      toast.success("Strona została usunięta");
+      navigate('/');
+    } catch (error) {
+      console.error("Error deleting page:", error);
+      toast.error("Nie udało się usunąć strony");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -67,6 +86,7 @@ export function StaticPage() {
           existingNews={page}
           onSuccess={() => {
             setIsEditing(false);
+            queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
             toast.success("Strona została zaktualizowana");
           }}
           isStaticPage={true}
@@ -91,15 +111,26 @@ export function StaticPage() {
       
       <div className="relative space-y-4">
         {isAdmin && (
-          <Button
-            onClick={() => setIsEditing(true)}
-            variant="outline"
-            size="sm"
-            className="gap-2 hover:text-primary-foreground hover:bg-primary"
-          >
-            <Pencil className="h-4 w-4" />
-            Edytuj stronę
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsEditing(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2 hover:text-primary-foreground hover:bg-primary"
+            >
+              <Pencil className="h-4 w-4" />
+              Edytuj stronę
+            </Button>
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              size="sm"
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Usuń stronę
+            </Button>
+          </div>
         )}
         
         {page ? (
