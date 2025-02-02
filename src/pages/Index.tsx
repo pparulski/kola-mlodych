@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 
+interface IndexProps {
+  adminMode?: boolean;
+}
+
 export default function Index({ adminMode = false }: IndexProps) {
   const [editingNews, setEditingNews] = useState<any>(null);
   const [showEditor, setShowEditor] = useState(false);
