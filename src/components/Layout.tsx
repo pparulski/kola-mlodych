@@ -7,13 +7,16 @@ function getPageTitle(pathname: string): string {
   // Map routes to their respective titles
   const titles: { [key: string]: string } = {
     '/': 'Aktualności',
-    '/map': 'Koła Młodych',
-    '/downloads': 'Do pobrania',
+    '/kola-mlodych': 'Lista Kół Młodych',
+    '/downloads': 'Pliki do pobrania',
     '/ebooks': 'Publikacje',
     '/auth': 'Logowanie',
     '/jowita': 'Jowita',
     '/kamionka': 'Kamionka',
-    '/stolowki': 'Stołówki'
+    '/stolowki': 'Stołówki',
+    '/static/jowita': 'Jowita',
+    '/static/kamionka': 'Kamionka',
+    '/static/stolowki': 'Stołówki'
   };
 
   return titles[pathname] || 'Aktualności';

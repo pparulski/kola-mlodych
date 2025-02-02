@@ -124,16 +124,13 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-primary">Pliki do pobrania</h1>
-        {adminMode && (
-          <Button onClick={() => setShowUpload(!showUpload)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Anuluj" : "Dodaj plik"}
-          </Button>
-        )}
-      </div>
+    <div className="space-y-6">
+      {adminMode && (
+        <Button onClick={() => setShowUpload(!showUpload)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          {showUpload ? "Anuluj" : "Dodaj plik"}
+        </Button>
+      )}
 
       {showUpload && adminMode && (
         <div className="mb-8">
@@ -186,7 +183,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
       </div>
 
       {files.length === 0 && (
-        <div className="text-center text-foreground mt-8">
+        <div className="text-center text-muted-foreground mt-8">
           Brak plików do pobrania
         </div>
       )}

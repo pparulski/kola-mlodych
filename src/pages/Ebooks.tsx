@@ -142,16 +142,13 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">Publikacje</h1>
-        {adminMode && (
-          <Button onClick={() => setShowUpload(!showUpload)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {showUpload ? "Anuluj" : "Dodaj publikację"}
-          </Button>
-        )}
-      </div>
+    <div className="space-y-6">
+      {adminMode && (
+        <Button onClick={() => setShowUpload(!showUpload)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          {showUpload ? "Anuluj" : "Dodaj publikację"}
+        </Button>
+      )}
 
       {showUpload && adminMode && (
         <EbookUpload onUploadSuccess={handleUploadSuccess} />
