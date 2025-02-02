@@ -16,10 +16,11 @@ const NewsArticle = () => {
       if (!id) throw new Error('News ID is required');
       console.log('Fetching news article with ID:', id);
       
+      // Changed to use proper Supabase query construction
       const { data, error } = await supabase
         .from('news')
         .select()
-        .eq('id', id)
+        .match({ id })
         .maybeSingle();
 
       if (error) {
