@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NewsContent } from "@/components/news/NewsContent";
 
 const NewsArticle = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const { data: article, isLoading } = useQuery({
@@ -35,7 +35,7 @@ const NewsArticle = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl text-[rgb(128_0_32_/_var(--tw-text-opacity))]">Ładowanie...</h1>
+        <h1 className="text-2xl text-primary">Ładowanie...</h1>
       </div>
     );
   }
@@ -43,7 +43,15 @@ const NewsArticle = () => {
   if (!article) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl text-[rgb(128_0_32_/_var(--tw-text-opacity))]">Artykuł nie został znaleziony</h1>
+        <h1 className="text-2xl text-primary">Artykuł nie został znaleziony</h1>
+        <Button 
+          variant="outline" 
+          className="h-8"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Wróć
+        </Button>
       </div>
     );
   }
