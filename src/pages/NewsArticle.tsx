@@ -10,11 +10,11 @@ const NewsArticle = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: article, isLoading } = useQuery({
+  const { data: article, isLoading, error } = useQuery({
     queryKey: ['news', id],
     queryFn: async () => {
-      console.log('Fetching news article with ID:', id);
       if (!id) throw new Error('News ID is required');
+      console.log('Fetching news article with ID:', id);
       
       const { data, error } = await supabase
         .from('news')
@@ -27,23 +27,19 @@ const NewsArticle = () => {
         throw error;
       }
       
+      if (!data) {
+        throw new Error('Article not found');
+      }
+      
       return data;
     },
-    enabled: !!id, // Only run the query if we have an ID
+    enabled: Boolean(id), // Only run query if we have an ID
+    retry: false, // Don't retry on error
   });
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl text-primary">Ładowanie...</h1>
-      </div>
-    );
-  }
-
-  if (!article) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-2xl text-primary">Artykuł nie został znaleziony</h1>
         <Button 
           variant="outline" 
           className="h-8"
@@ -52,6 +48,27 @@ const NewsArticle = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Wróć
         </Button>
+        <div className="mt-4">Ładowanie...</div>
+      </div>
+    );
+  }
+
+  if (error || !article) {
+    return (
+      <div className="space-y-4">
+        <Button 
+          variant="outline" 
+          className="h-8"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Wróć
+        </Button>
+        <div className="mt-4">
+          {error instanceof Error 
+            ? error.message 
+            : "Artykuł nie został znaleziony"}
+        </div>
       </div>
     );
   }
