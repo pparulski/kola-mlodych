@@ -134,10 +134,13 @@ export function StaticPage() {
         )}
         
         {page ? (
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
+          <div className="space-y-6">
+            <h1 className="text-3xl font-bold text-foreground">{page.title}</h1>
+            <div 
+              className="prose prose-lg max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: page.content }}
+            />
+          </div>
         ) : (
           <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (
