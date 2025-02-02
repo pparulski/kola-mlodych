@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, isValid } from "date-fns";
-import { pl } from "date-fns/locale";
+import { NewsContent } from "@/components/news/NewsContent";
 
 const NewsArticle = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,16 +18,12 @@ const NewsArticle = () => {
       const { data, error } = await supabase
         .from('news')
         .select()
-        .match({ id })
-        .maybeSingle();
+        .match({ id, is_static_page: false })
+        .single();
 
       if (error) {
         console.error('Error fetching article:', error);
         throw error;
-      }
-      
-      if (!data) {
-        throw new Error('Article not found');
       }
       
       return data;
@@ -65,22 +60,11 @@ const NewsArticle = () => {
           Wróć
         </Button>
         <div className="mt-4">
-          {error instanceof Error 
-            ? error.message 
-            : "Artykuł nie został znaleziony"}
+          Artykuł nie został znaleziony
         </div>
       </div>
     );
   }
-
-  const formattedDate = article.created_at 
-    ? (() => {
-        const parsedDate = new Date(article.created_at);
-        return isValid(parsedDate) 
-          ? format(parsedDate, "d MMMM yyyy", { locale: pl })
-          : "";
-      })()
-    : "";
 
   return (
     <div className="space-y-4">
@@ -93,29 +77,12 @@ const NewsArticle = () => {
         Wróć
       </Button>
       
-      <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
-        {article.featured_image && (
-          <img
-            src={article.featured_image}
-            alt=""
-            className="w-full h-48 md:h-64 object-cover rounded-md"
-          />
-        )}
-        <div className="space-y-4 md:space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-bold text-primary break-words">
-              {article.title}
-            </h2>
-            {formattedDate && (
-              <p className="text-sm text-foreground">{formattedDate}</p>
-            )}
-          </div>
-          <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </div>
-      </article>
+      <NewsContent
+        title={article.title}
+        content={article.content}
+        date={article.created_at}
+        featured_image={article.featured_image}
+      />
     </div>
   );
 };
