@@ -84,9 +84,8 @@ const Index = ({ adminMode = false }: IndexProps) => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-primary">Aktualności</h1>
-        {adminMode && (
+      {adminMode && (
+        <div className="mb-6">
           <Button onClick={() => {
             setEditingNews(null);
             setShowEditor(!showEditor);
@@ -94,8 +93,8 @@ const Index = ({ adminMode = false }: IndexProps) => {
             <PlusCircle className="mr-2 h-4 w-4" />
             {showEditor ? "Anuluj" : "Dodaj artykuł"}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
       
       {showEditor && adminMode && (
         <div className="mb-8">
