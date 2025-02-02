@@ -42,7 +42,7 @@ function LayoutContent() {
           </a>
         </div>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-8">
             <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
               <Menu className="h-8 w-8" />
             </SidebarTrigger>

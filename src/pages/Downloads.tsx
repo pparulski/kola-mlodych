@@ -148,19 +148,19 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-foreground">Nazwa pliku</TableHead>
-              <TableHead className="text-foreground hidden md:table-cell">Data dodania</TableHead>
-              <TableHead className="text-right text-foreground">Akcje</TableHead>
+              <TableHead>Nazwa pliku</TableHead>
+              <TableHead>Data dodania</TableHead>
+              <TableHead>Akcje</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {files.map((file) => (
               <TableRow key={file.id}>
-                <TableCell className="font-medium text-foreground">{file.name}</TableCell>
-                <TableCell className="text-foreground hidden md:table-cell">
+                <TableCell>{file.name}</TableCell>
+                <TableCell>
                   {new Date(file.created_at).toLocaleDateString("pl-PL")}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell>
                   <div className="flex justify-end gap-2 flex-wrap">
                     <Button variant="outline" asChild size="sm">
                       <a href={file.url} target="_blank" rel="noopener noreferrer">
