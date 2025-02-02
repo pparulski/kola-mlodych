@@ -18,7 +18,7 @@ const NewsArticle = () => {
       
       const { data, error } = await supabase
         .from('news')
-        .select('*')
+        .select()
         .eq('id', id)
         .maybeSingle();
 
