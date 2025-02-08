@@ -146,9 +146,9 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         <Table>
           <TableHeader className="bg-secondary">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-black dark:text-white hover:bg-transparent">Nazwa pliku</TableHead>
-              <TableHead className="text-black dark:text-white hover:bg-transparent">Data dodania</TableHead>
-              <TableHead className="text-black dark:text-white hover:bg-transparent">Akcje</TableHead>
+              <TableHead className="text-white hover:bg-transparent">Nazwa pliku</TableHead>
+              <TableHead className="text-white hover:bg-transparent">Data dodania</TableHead>
+              <TableHead className="text-white hover:bg-transparent">Akcje</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-background">
