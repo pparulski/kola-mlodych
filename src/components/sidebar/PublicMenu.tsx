@@ -55,6 +55,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
       const { data, error } = await supabase
         .from('static_pages')
         .select('title, slug')
+        .neq('slug', 'dolacz-do-nas') // Exclude dolacz-do-nas from the submenu
         .order('title');
       
       if (error) throw error;
