@@ -33,6 +33,7 @@ export function StaticPage() {
   const { data: page, isLoading } = useQuery({
     queryKey: ['static-page', slug],
     queryFn: async () => {
+      if (!slug) return null;
       console.log("Fetching static page:", slug);
       const { data, error } = await supabase
         .from('static_pages')
@@ -44,13 +45,12 @@ export function StaticPage() {
 
       console.log("Static page data:", data);
       return data as StaticPageType;
-    }
+    },
+    enabled: !!slug
   });
 
   const handleDelete = async () => {
     try {
-      console.log("Attempting to delete page with ID:", page?.id);
-      
       if (!page?.id) {
         console.error("No page ID found");
         return;
@@ -66,9 +66,9 @@ export function StaticPage() {
         throw error;
       }
       
-      // Invalidate all static pages queries to refresh the sidebar
+      // Invalidate queries
       await queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-      // Invalidate the current page query
+      await queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       await queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
       
       toast.success("Strona została usunięta");
@@ -103,7 +103,7 @@ export function StaticPage() {
           onSuccess={() => {
             setIsEditing(false);
             queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
-            queryClient.invalidateQueries({ queryKey: ['static-page-title', `/${slug}`] });
+            queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
             toast.success("Strona została zaktualizowana");
           }}
           defaultSlug={slug}
@@ -126,6 +126,8 @@ export function StaticPage() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       
       <div className="relative space-y-4">
+        <h1 className="text-3xl font-bold mb-6">{page?.title}</h1>
+        
         {isAdmin && (
           <div className="flex gap-2">
             <Button

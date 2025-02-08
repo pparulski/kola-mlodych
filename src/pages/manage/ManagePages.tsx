@@ -19,7 +19,6 @@ export function ManagePages() {
       const { data, error } = await supabase
         .from('static_pages')
         .select('*')
-        .order('sidebar_position', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -29,6 +28,8 @@ export function ManagePages() {
 
   const deleteMutation = useMutation({
     mutationFn: async (pageId: string) => {
+      if (!pageId) throw new Error("Page ID is required");
+      
       const { error } = await supabase
         .from('static_pages')
         .delete()
@@ -38,9 +39,11 @@ export function ManagePages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       toast.success("Strona została usunięta");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error deleting page:", error);
       toast.error("Nie udało się usunąć strony");
     }
   });
@@ -50,33 +53,34 @@ export function ManagePages() {
       const currentPage = pages?.find(p => p.id === pageId);
       if (!currentPage || !currentPage.show_in_sidebar) return;
 
-      const currentPosition = currentPage.sidebar_position ?? 0;
-      const newPosition = direction === 'up' ? currentPosition - 1 : currentPosition + 1;
-
-      // Find the page to swap with
-      const pageToSwap = pages?.find(p => 
-        p.show_in_sidebar && p.sidebar_position === newPosition
-      );
-
-      if (!pageToSwap) return;
+      const sidebarPages = pages?.filter(p => p.show_in_sidebar) || [];
+      const currentIndex = sidebarPages.findIndex(p => p.id === pageId);
+      
+      if (currentIndex === -1) return;
+      
+      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      if (newIndex < 0 || newIndex >= sidebarPages.length) return;
+      
+      const pageToSwap = sidebarPages[newIndex];
 
       // Update both pages
       const { error: error1 } = await supabase
         .from('static_pages')
-        .update({ sidebar_position: newPosition })
+        .update({ sidebar_position: newIndex + 1 })
         .eq('id', pageId);
 
       if (error1) throw error1;
 
       const { error: error2 } = await supabase
         .from('static_pages')
-        .update({ sidebar_position: currentPosition })
+        .update({ sidebar_position: currentIndex + 1 })
         .eq('id', pageToSwap.id);
 
       if (error2) throw error2;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
     },
     onError: () => {
       toast.error("Nie udało się zmienić pozycji strony");
@@ -84,6 +88,11 @@ export function ManagePages() {
   });
 
   const handleDelete = async (pageId: string) => {
+    if (!pageId) {
+      toast.error("Nie można usunąć strony - brak ID");
+      return;
+    }
+
     if (window.confirm('Czy na pewno chcesz usunąć tę stronę?')) {
       deleteMutation.mutate(pageId);
     }
@@ -110,12 +119,16 @@ export function ManagePages() {
           onSuccess={() => {
             setIsCreating(false);
             setEditingPage(null);
+            queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+            queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
           }}
         />
       </div>
     );
   }
 
+  const visibleInSidebar = pages?.filter(page => page.show_in_sidebar) || [];
+  
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -141,7 +154,7 @@ export function ManagePages() {
                 </span>
                 {page.show_in_sidebar && (
                   <span className="text-sm text-muted-foreground">
-                    (Pozycja: {page.sidebar_position})
+                    (Pozycja: {visibleInSidebar.findIndex(p => p.id === page.id) + 1})
                   </span>
                 )}
               </div>
@@ -153,7 +166,7 @@ export function ManagePages() {
                     variant="outline"
                     size="icon"
                     onClick={() => updatePositionMutation.mutate({ pageId: page.id, direction: 'up' })}
-                    disabled={!page.sidebar_position || page.sidebar_position <= 1}
+                    disabled={visibleInSidebar.findIndex(p => p.id === page.id) === 0}
                   >
                     <ArrowUp className="h-4 w-4" />
                   </Button>
@@ -161,7 +174,7 @@ export function ManagePages() {
                     variant="outline"
                     size="icon"
                     onClick={() => updatePositionMutation.mutate({ pageId: page.id, direction: 'down' })}
-                    disabled={!page.sidebar_position || page.sidebar_position >= (pages?.length ?? 0)}
+                    disabled={visibleInSidebar.findIndex(p => p.id === page.id) === visibleInSidebar.length - 1}
                   >
                     <ArrowDown className="h-4 w-4" />
                   </Button>

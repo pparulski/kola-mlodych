@@ -11,7 +11,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Define interfaces for our menu items
 interface BaseMenuItem {
   title: string;
   icon: React.ComponentType<any>;
@@ -50,7 +49,7 @@ interface PublicMenuProps {
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Query for static pages that should appear in the sidebar
   const { data: staticPages } = useQuery({
-    queryKey: ['static-pages'],
+    queryKey: ['static-pages-sidebar'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('static_pages')
