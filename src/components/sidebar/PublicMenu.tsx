@@ -11,7 +11,32 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const staticMenuItems = [
+// Define interfaces for our menu items
+interface BaseMenuItem {
+  title: string;
+  icon: React.ComponentType<any>;
+}
+
+interface RegularMenuItem extends BaseMenuItem {
+  path: string;
+  subItems?: never;
+  isSpecial?: never;
+}
+
+interface SubMenuItem {
+  title: string;
+  path: string;
+}
+
+interface MenuItemWithSub extends BaseMenuItem {
+  subItems: SubMenuItem[];
+  isSpecial: boolean;
+  path?: never;
+}
+
+type MenuItem = RegularMenuItem | MenuItemWithSub;
+
+const staticMenuItems: RegularMenuItem[] = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
   { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
@@ -38,7 +63,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   });
 
   // Create the menu items array with static pages
-  const publicMenuItems = [
+  const publicMenuItems: MenuItem[] = [
     ...staticMenuItems,
     ...(staticPages?.length ? [{
       title: "Nasze działania",
@@ -55,7 +80,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     <>
       {publicMenuItems.map((item) => (
         <SidebarMenuItem key={item.title}>
-          {item.subItems ? (
+          {'subItems' in item ? (
             <>
               <SidebarMenuButton 
                 className={`font-medium ${
