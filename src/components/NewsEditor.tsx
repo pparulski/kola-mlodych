@@ -29,17 +29,9 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
     }
   }, [existingNews]);
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-  };
-
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const slug = isStaticPage ? defaultSlug : generateSlug(title);
       
       // Delete old featured image if it exists and we're uploading a new one
       if (existingNews?.featured_image && featuredImage !== existingNews.featured_image) {
@@ -64,7 +56,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
             content,
             featured_image: featuredImage,
             is_static_page: isStaticPage || false,
-            slug,
+            slug: defaultSlug,
           })
           .eq('id', existingNews.id);
 
@@ -79,7 +71,7 @@ export function NewsEditor({ existingNews, onSuccess, isStaticPage, defaultSlug 
           featured_image: featuredImage,
           created_by: user?.id,
           is_static_page: isStaticPage || false,
-          slug,
+          slug: defaultSlug,
         });
 
         if (error) throw error;

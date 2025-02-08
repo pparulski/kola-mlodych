@@ -135,7 +135,7 @@ export function StaticPage() {
         
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert [&>p]:mb-4 [&>p]:mt-0 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>h1]:text-3xl [&>h2]:text-2xl [&>h3]:text-xl [&>h4]:text-lg [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-4 [&>blockquote]:italic [&>hr]:my-8 [&>hr]:border-border"
+            className="prose prose-lg max-w-none dark:prose-invert mt-4"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
