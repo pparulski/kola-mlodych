@@ -8,22 +8,14 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton 
 } from "@/components/ui/sidebar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const publicMenuItems = [
+const staticMenuItems = [
   { title: "Aktualności", icon: Newspaper, path: "/" },
   { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
   { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
   { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
-  { 
-    title: "Nasze działania",
-    icon: Flame,
-    subItems: [
-      { title: "Jowita", path: "/static/jowita" },
-      { title: "Kamionka", path: "/static/kamionka" },
-      { title: "Stołówki", path: "/static/stolowki" },
-    ],
-    isSpecial: true
-  },
 ];
 
 interface PublicMenuProps {
@@ -31,6 +23,34 @@ interface PublicMenuProps {
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
+  // Query for static pages
+  const { data: staticPages } = useQuery({
+    queryKey: ['static-pages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('static_pages')
+        .select('title, slug')
+        .order('title');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Create the menu items array with static pages
+  const publicMenuItems = [
+    ...staticMenuItems,
+    ...(staticPages?.length ? [{
+      title: "Nasze działania",
+      icon: Flame,
+      subItems: staticPages.map(page => ({
+        title: page.title,
+        path: `/static/${page.slug}`
+      })),
+      isSpecial: true
+    }] : [])
+  ];
+
   return (
     <>
       {publicMenuItems.map((item) => (
