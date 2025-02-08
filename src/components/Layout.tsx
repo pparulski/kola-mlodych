@@ -14,13 +14,6 @@ function getPageTitle(pathname: string, staticPageTitle?: string): string {
     '/downloads': 'Pliki do pobrania',
     '/ebooks': 'Publikacje',
     '/auth': 'Logowanie',
-    '/jowita': 'Jowita',
-    '/kamionka': 'Kamionka',
-    '/stolowki': 'Stołówki',
-    '/static/jowita': 'Jowita',
-    '/static/kamionka': 'Kamionka',
-    '/static/stolowki': 'Stołówki',
-    '/static/dolacz-do-nas': 'Dołącz do nas'
   };
 
   // If we're on a static page route and have a title from the database, use that

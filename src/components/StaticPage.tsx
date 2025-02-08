@@ -103,6 +103,7 @@ export function StaticPage() {
           onSuccess={() => {
             setIsEditing(false);
             queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
+            queryClient.invalidateQueries({ queryKey: ['static-page-title', `/static/${slug}`] });
             toast.success("Strona została zaktualizowana");
           }}
           defaultSlug={slug}
@@ -152,11 +153,9 @@ export function StaticPage() {
         
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>h1]:mb-6 [&>h1]:text-3xl [&>h1]:font-bold [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
-          >
-            <h1>{page.title}</h1>
-            <div dangerouslySetInnerHTML={{ __html: page.content }} />
-          </div>
+            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
         ) : (
           <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (
