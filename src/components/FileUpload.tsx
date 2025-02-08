@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
@@ -6,7 +7,7 @@ import { toast } from "sonner";
 
 interface FileUploadProps {
   onSuccess: (name: string, url: string) => void;
-  bucket: "downloads" | "ebooks" | "news_images";
+  bucket: "downloads" | "ebooks" | "news_images" | "static_pages_images";
   acceptedFileTypes?: string;
 }
 

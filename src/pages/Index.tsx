@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -10,7 +11,6 @@ export default function Index() {
       const { data, error } = await supabase
         .from('news')
         .select('*')
-        .eq('is_static_page', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
