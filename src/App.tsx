@@ -10,6 +10,7 @@ import { AuthGuard } from "./components/AuthGuard";
 import { ManageNews } from "./pages/manage/ManageNews";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
+import { ManagePages } from "./pages/manage/ManagePages";
 import NewsDetails from "./pages/NewsDetails";
 import { StaticPage } from "./components/StaticPage";
 
@@ -29,6 +30,7 @@ function App() {
             <Route path="/manage/news" element={<ManageNews />} />
             <Route path="/manage/downloads" element={<ManageDownloads />} />
             <Route path="/manage/ebooks" element={<ManageEbooks />} />
+            <Route path="/manage/pages" element={<ManagePages />} />
           </Route>
         </Route>
       </Routes>
@@ -37,3 +39,4 @@ function App() {
 }
 
 export default App;
+
