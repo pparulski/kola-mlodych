@@ -2,9 +2,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { useState } from "react";
 import { StaticPageEditor } from "@/components/static/StaticPageEditor";
+import { StaticPageList } from "@/components/manage/StaticPageList";
 import type { StaticPage } from "@/types/staticPages";
 import { toast } from "sonner";
 
@@ -130,78 +130,13 @@ export function ManagePages() {
     );
   }
 
-  const visibleInSidebar = pages
-    ?.filter(page => page.show_in_sidebar)
-    .sort((a, b) => (a.sidebar_position || 0) - (b.sidebar_position || 0)) || [];
-  
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Zarządzaj stronami</h1>
-        <Button onClick={() => setIsCreating(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Dodaj nową stronę
-        </Button>
-      </div>
-
-      <div className="grid gap-4">
-        {pages?.map((page) => (
-          <div
-            key={page.id}
-            className="p-4 border rounded-lg flex justify-between items-center"
-          >
-            <div className="flex-1">
-              <h2 className="font-semibold">{page.title}</h2>
-              <p className="text-sm text-muted-foreground">/{page.slug}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-muted-foreground">
-                  {page.show_in_sidebar ? "Widoczna w menu" : "Ukryta w menu"}
-                </span>
-                {page.show_in_sidebar && (
-                  <span className="text-sm text-muted-foreground">
-                    (Pozycja: {visibleInSidebar.findIndex(p => p.id === page.id) + 1})
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {page.show_in_sidebar && (
-                <div className="flex gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updatePositionMutation.mutate({ pageId: page.id, direction: 'up' })}
-                    disabled={visibleInSidebar.findIndex(p => p.id === page.id) === 0}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updatePositionMutation.mutate({ pageId: page.id, direction: 'down' })}
-                    disabled={visibleInSidebar.findIndex(p => p.id === page.id) === visibleInSidebar.length - 1}
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-              <Button
-                variant="outline"
-                onClick={() => setEditingPage(page)}
-              >
-                Edytuj
-              </Button>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => handleDelete(page.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <StaticPageList
+      pages={pages || []}
+      onCreateNew={() => setIsCreating(true)}
+      onEdit={setEditingPage}
+      onDelete={handleDelete}
+      updatePositionMutation={updatePositionMutation}
+    />
   );
 }
