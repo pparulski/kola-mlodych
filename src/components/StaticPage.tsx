@@ -119,17 +119,19 @@ export function StaticPage() {
               className="gap-2 hover:text-primary-foreground hover:bg-primary"
             >
               <Pencil className="h-4 w-4" />
-              Edytuj stronę
+              {page ? "Edytuj stronę" : "Utwórz stronę"}
             </Button>
-            <Button
-              onClick={handleDelete}
-              variant="destructive"
-              size="sm"
-              className="gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Usuń stronę
-            </Button>
+            {page && (
+              <Button
+                onClick={handleDelete}
+                variant="destructive"
+                size="sm"
+                className="gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Usuń stronę
+              </Button>
+            )}
           </div>
         )}
         
@@ -141,13 +143,7 @@ export function StaticPage() {
         ) : (
           <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (
-              <Button
-                onClick={() => setIsEditing(true)}
-                variant="outline"
-                className="hover:text-primary-foreground hover:bg-primary"
-              >
-                Kliknij tutaj aby utworzyć stronę
-              </Button>
+              <p>Ta strona nie została jeszcze utworzona.</p>
             ) : (
               "Ta strona jest w trakcie tworzenia."
             )}
