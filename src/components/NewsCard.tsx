@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { NewsPreview } from "./news/NewsPreview";
@@ -7,6 +8,7 @@ interface NewsCardProps {
   title: string;
   date: string;
   content: string;
+  slug: string;
   featured_image?: string | null;
   previewLength?: number;
 }

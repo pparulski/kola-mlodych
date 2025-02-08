@@ -10,7 +10,7 @@ import { AuthGuard } from "./components/AuthGuard";
 import { ManageNews } from "./pages/manage/ManageNews";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
-import { NewsDetails } from "./pages/NewsDetails";
+import NewsDetails from "./pages/NewsDetails";
 import { StaticPage } from "./components/StaticPage";
 
 function App() {
