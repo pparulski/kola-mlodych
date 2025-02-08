@@ -5,8 +5,6 @@ import { StaticPageEditor } from "./static/StaticPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
-import { Pencil, Trash2 } from "lucide-react";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 
 export function StaticPage() {
@@ -48,36 +46,6 @@ export function StaticPage() {
     },
     enabled: !!slug
   });
-
-  const handleDelete = async () => {
-    try {
-      if (!page?.id) {
-        console.error("No page ID found");
-        return;
-      }
-
-      const { error } = await supabase
-        .from('static_pages')
-        .delete()
-        .eq('id', page.id);
-
-      if (error) {
-        console.error("Error deleting page:", error);
-        throw error;
-      }
-      
-      // Invalidate queries
-      await queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-      await queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
-      await queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
-      
-      toast.success("Strona została usunięta");
-      navigate('/');
-    } catch (error) {
-      console.error("Error deleting page:", error);
-      toast.error("Nie udało się usunąć strony");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -127,31 +95,6 @@ export function StaticPage() {
       
       <div className="relative space-y-4">
         <h1 className="text-3xl font-bold mb-6">{page?.title}</h1>
-        
-        {isAdmin && (
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="outline"
-              size="sm"
-              className="gap-2 hover:text-primary-foreground hover:bg-primary"
-            >
-              <Pencil className="h-4 w-4" />
-              {page ? "Edytuj stronę" : "Utwórz stronę"}
-            </Button>
-            {page && (
-              <Button
-                onClick={handleDelete}
-                variant="destructive"
-                size="sm"
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Usuń stronę
-              </Button>
-            )}
-          </div>
-        )}
         
         {page ? (
           <div 
