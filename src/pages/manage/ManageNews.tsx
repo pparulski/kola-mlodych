@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsEditor } from "@/components/NewsEditor";
 import { NewsAdminControls } from "@/components/news/NewsAdminControls";
 import { toast } from "sonner";
+import { NewsArticle } from "@/types/news";
 
 export function ManageNews() {
-  const [editingNews, setEditingNews] = useState<any>(null);
+  const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
   const queryClient = useQueryClient();
 
   const { data: news, isLoading } = useQuery({
@@ -16,11 +18,10 @@ export function ManageNews() {
       const { data, error } = await supabase
         .from('news')
         .select('*')
-        .eq('is_static_page', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as NewsArticle[];
     },
   });
 
@@ -73,7 +74,7 @@ export function ManageNews() {
 
       <div className="space-y-4">
         <h2 className="text-xl">Wszystkie artykuły</h2>
-        {news?.map((article: any) => (
+        {news?.map((article: NewsArticle) => (
           <div key={article.id} className="relative border p-4 rounded-lg">
             <h3 className="text-lg font-semibold">{article.title}</h3>
             <NewsAdminControls 
