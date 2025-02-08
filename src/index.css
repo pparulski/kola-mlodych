@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,6 +73,16 @@
 
   .dark article div {
     @apply bg-muted text-muted-foreground;
+  }
+
+  /* Header styles */
+  [data-header="header"] {
+    @apply bg-gray-100 text-black;
+  }
+
+  [data-header="header"] a,
+  [data-header="header"] button {
+    @apply text-black transition-none;
   }
 
   /* Footer links in light mode */
