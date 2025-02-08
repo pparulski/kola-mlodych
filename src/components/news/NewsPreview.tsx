@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 interface NewsPreviewProps {
   id: string;
+  slug: string;
   title: string;
   content: string;
   date?: string;
@@ -13,7 +14,7 @@ interface NewsPreviewProps {
 }
 
 export function NewsPreview({
-  id,
+  slug,
   title,
   content,
   date,
@@ -44,7 +45,7 @@ export function NewsPreview({
       <div className="space-y-4 md:space-y-6">
         <div className="space-y-2">
           <Link
-            to={`/news/${id}`}
+            to={`/news/${slug}`}
             className="no-underline"
           >
             <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
@@ -59,7 +60,7 @@ export function NewsPreview({
         />
         <div className="pt-4">
           <Link
-            to={`/news/${id}`}
+            to={`/news/${slug}`}
             className="inline-flex items-center text-primary hover:text-accent transition-colors no-underline"
           >
             Czytaj więcej <ArrowRight className="ml-1 h-4 w-4" />

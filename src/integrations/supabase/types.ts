@@ -86,7 +86,7 @@ export type Database = {
           date: string | null
           featured_image: string | null
           id: string
-          slug: string | null
+          slug: string
           title: string
         }
         Insert: {
@@ -96,7 +96,7 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
-          slug?: string | null
+          slug: string
           title: string
         }
         Update: {
@@ -106,7 +106,7 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
-          slug?: string | null
+          slug?: string
           title?: string
         }
         Relationships: []
@@ -182,6 +182,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_unique_slug: {
+        Args: {
+          title: string
+          attempt?: number
+        }
+        Returns: string
+      }
       is_admin: {
         Args: {
           user_id: string

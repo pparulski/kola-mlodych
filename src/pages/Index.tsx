@@ -29,6 +29,7 @@ export default function Index() {
         <NewsPreview
           key={article.id}
           id={article.id}
+          slug={article.slug}
           title={article.title}
           content={article.content}
           date={article.created_at}

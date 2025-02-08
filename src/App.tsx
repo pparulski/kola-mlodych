@@ -20,7 +20,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Index />} />
           <Route path="/kola-mlodych" element={<Map />} />
-          <Route path="/news/:id" element={<NewsDetails />} />
+          <Route path="/news/:slug" element={<NewsDetails />} />
           <Route path="/static/:slug" element={<StaticPage />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/ebooks" element={<Ebooks />} />
