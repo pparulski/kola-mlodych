@@ -1,18 +1,12 @@
+
 import { useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsContent } from "@/components/news/NewsContent";
-import { StaticPage } from "@/components/StaticPage";
+import { NewsArticle } from "@/types/news";
 
 export function NewsDetails() {
-  const { slug } = useParams();
-
-  // If we're on a static page route, render the StaticPage component
-  if (slug) {
-    return <StaticPage />;
-  }
-
   const { id } = useParams();
   console.log("Fetching news article with ID:", id);
 
@@ -28,7 +22,7 @@ export function NewsDetails() {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as NewsArticle;
     },
     enabled: !!id, // Only run the query if we have an ID
   });
