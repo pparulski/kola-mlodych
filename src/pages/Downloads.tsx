@@ -144,14 +144,14 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-secondary">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-black hover:bg-transparent">Nazwa pliku</TableHead>
-              <TableHead className="text-black hover:bg-transparent">Data dodania</TableHead>
-              <TableHead className="text-black hover:bg-transparent">Akcje</TableHead>
+              <TableHead className="text-black dark:text-white hover:bg-transparent">Nazwa pliku</TableHead>
+              <TableHead className="text-black dark:text-white hover:bg-transparent">Data dodania</TableHead>
+              <TableHead className="text-black dark:text-white hover:bg-transparent">Akcje</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="bg-background">
             {files.map((file) => (
               <TableRow key={file.id} className="hover:bg-transparent">
                 <TableCell>{file.name}</TableCell>
