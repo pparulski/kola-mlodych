@@ -42,7 +42,6 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
             title,
             content,
             featured_image: featuredImage,
-            slug: defaultSlug,
           })
           .eq('id', existingPage.id);
 
