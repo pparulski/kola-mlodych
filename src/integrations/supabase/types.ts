@@ -86,7 +86,6 @@ export type Database = {
           date: string | null
           featured_image: string | null
           id: string
-          is_static_page: boolean | null
           slug: string | null
           title: string
         }
@@ -97,7 +96,6 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
-          is_static_page?: boolean | null
           slug?: string | null
           title: string
         }
@@ -108,9 +106,41 @@ export type Database = {
           date?: string | null
           featured_image?: string | null
           id?: string
-          is_static_page?: boolean | null
           slug?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      static_pages: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          featured_image: string | null
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          featured_image?: string | null
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          featured_image?: string | null
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }

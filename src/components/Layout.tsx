@@ -1,10 +1,13 @@
+
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { Menu } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-function getPageTitle(pathname: string): string {
-  // Map routes to their respective titles
+function getPageTitle(pathname: string, staticPageTitle?: string): string {
+  // Default titles for known routes
   const titles: { [key: string]: string } = {
     '/': 'Aktualności',
     '/kola-mlodych': 'Lista Kół Młodych',
@@ -20,12 +23,35 @@ function getPageTitle(pathname: string): string {
     '/static/dolacz-do-nas': 'Dołącz do nas'
   };
 
+  // If we're on a static page route and have a title from the database, use that
+  if (pathname.startsWith('/static/') && staticPageTitle) {
+    return staticPageTitle;
+  }
+
   return titles[pathname] || 'Aktualności';
 }
 
 function LayoutContent() {
   const { open, setOpen } = useSidebar();
   const location = useLocation();
+
+  const { data: staticPage } = useQuery({
+    queryKey: ['static-page-title', location.pathname],
+    queryFn: async () => {
+      if (!location.pathname.startsWith('/static/')) return null;
+      
+      const slug = location.pathname.replace('/static/', '');
+      const { data, error } = await supabase
+        .from('static_pages')
+        .select('title')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: location.pathname.startsWith('/static/')
+  });
 
   const handleOverlayClick = () => {
     setOpen(false);
@@ -47,7 +73,9 @@ function LayoutContent() {
               <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
                 <Menu className="h-8 w-8" />
               </SidebarTrigger>
-              <h1 className="text-3xl font-bold text-primary">{getPageTitle(location.pathname)}</h1>
+              <h1 className="text-3xl font-bold text-primary">
+                {getPageTitle(location.pathname, staticPage?.title)}
+              </h1>
             </div>
           </div>
           <div className="max-w-4xl mx-auto">

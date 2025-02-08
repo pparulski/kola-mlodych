@@ -1,11 +1,13 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { NewsEditor } from "./NewsEditor";
+import { StaticPageEditor } from "./static/StaticPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import type { StaticPage as StaticPageType } from "@/types/staticPages";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -33,23 +35,22 @@ export function StaticPage() {
     queryFn: async () => {
       console.log("Fetching static page:", slug);
       const { data, error } = await supabase
-        .from('news')
+        .from('static_pages')
         .select('*')
-        .eq('is_static_page', true)
         .eq('slug', slug)
         .maybeSingle();
 
       if (error) throw error;
 
       console.log("Static page data:", data);
-      return data;
+      return data as StaticPageType;
     }
   });
 
   const handleDelete = async () => {
     try {
       const { error } = await supabase
-        .from('news')
+        .from('static_pages')
         .delete()
         .eq('id', page.id);
 
@@ -82,14 +83,13 @@ export function StaticPage() {
             Anuluj edycję
           </Button>
         )}
-        <NewsEditor
-          existingNews={page}
+        <StaticPageEditor
+          existingPage={page}
           onSuccess={() => {
             setIsEditing(false);
             queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
             toast.success("Strona została zaktualizowana");
           }}
-          isStaticPage={true}
           defaultSlug={slug}
         />
       </div>
@@ -135,7 +135,7 @@ export function StaticPage() {
         
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4"
+            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>h1]:mb-6 [&>h1]:text-3xl [&>h1]:font-bold [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (

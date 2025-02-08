@@ -1,19 +1,21 @@
 
 import { Editor } from "@tinymce/tinymce-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { FileUpload } from "./FileUpload";
+import { FileUpload } from "../FileUpload";
 import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { StaticPage } from "@/types/staticPages";
 
-interface NewsEditorProps {
-  existingNews?: any;
+interface StaticPageEditorProps {
+  existingPage?: StaticPage;
   onSuccess?: () => void;
+  defaultSlug?: string;
 }
 
-export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
+export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: StaticPageEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
@@ -21,62 +23,57 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (existingNews) {
-      setTitle(existingNews.title);
-      setContent(existingNews.content);
-      setFeaturedImage(existingNews.featured_image);
+    if (existingPage) {
+      setTitle(existingPage.title);
+      setContent(existingPage.content);
+      setFeaturedImage(existingPage.featured_image || null);
     }
-  }, [existingNews]);
+  }, [existingPage]);
 
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Create slug from title
-      const slug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      
-      if (existingNews) {
-        console.log("Updating existing news:", existingNews.id);
+      if (existingPage) {
+        console.log("Updating existing static page:", existingPage.id);
         const { error } = await supabase
-          .from('news')
+          .from('static_pages')
           .update({
             title,
             content,
             featured_image: featuredImage,
+            slug: defaultSlug,
           })
-          .eq('id', existingNews.id);
+          .eq('id', existingPage.id);
 
         if (error) throw error;
-        console.log("News updated successfully");
-        toast.success("Artykuł został zaktualizowany");
+        console.log("Static page updated successfully");
+        toast.success("Strona została zaktualizowana");
       } else {
-        console.log("Creating new news");
-        const { error } = await supabase.from('news').insert({
+        console.log("Creating new static page");
+        const { error } = await supabase.from('static_pages').insert({
           title,
           content,
           featured_image: featuredImage,
           created_by: user?.id,
-          slug,
+          slug: defaultSlug,
         });
 
         if (error) throw error;
-        console.log("News created successfully");
-        toast.success("Artykuł został zapisany");
+        console.log("Static page created successfully");
+        toast.success("Strona została zapisana");
       }
 
-      queryClient.invalidateQueries({ queryKey: ['news'] });
-      if (!existingNews) {
+      queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      if (!existingPage) {
         setTitle("");
         setContent("");
         setFeaturedImage(null);
       }
       onSuccess?.();
     } catch (error) {
-      console.error("Error saving article:", error);
-      toast.error("Nie udało się zapisać artykułu");
+      console.error("Error saving static page:", error);
+      toast.error("Nie udało się zapisać strony");
     }
   };
 
@@ -92,7 +89,7 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Tytuł artykułu..."
+        placeholder="Tytuł strony..."
         className="w-full p-2 border rounded text-black bg-white"
       />
 
@@ -116,7 +113,7 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
       {showImageUpload && (
         <div className="mb-4">
           <FileUpload
-            bucket="news_images"
+            bucket="static_pages_images"
             onSuccess={handleImageUpload}
             acceptedFileTypes="image/*"
           />
@@ -143,7 +140,7 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
         onEditorChange={setContent}
       />
       <Button onClick={handleSubmit} className="mt-4">
-        {existingNews ? "Zaktualizuj" : "Opublikuj"}
+        {existingPage ? "Zaktualizuj" : "Opublikuj"}
       </Button>
     </div>
   );
