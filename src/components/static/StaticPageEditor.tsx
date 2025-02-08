@@ -8,6 +8,9 @@ import { Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { StaticPage } from "@/types/staticPages";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 
 interface StaticPageEditorProps {
   existingPage?: StaticPage;
@@ -20,6 +23,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showInSidebar, setShowInSidebar] = useState(true);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -27,6 +31,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
       setTitle(existingPage.title);
       setContent(existingPage.content);
       setFeaturedImage(existingPage.featured_image || null);
+      setShowInSidebar(existingPage.show_in_sidebar ?? true);
     }
   }, [existingPage]);
 
@@ -42,6 +47,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
             title,
             content,
             featured_image: featuredImage,
+            show_in_sidebar: showInSidebar,
           })
           .eq('id', existingPage.id);
 
@@ -56,6 +62,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           featured_image: featuredImage,
           created_by: user?.id,
           slug: defaultSlug,
+          show_in_sidebar: showInSidebar,
         });
 
         if (error) throw error;
@@ -68,6 +75,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
         setTitle("");
         setContent("");
         setFeaturedImage(null);
+        setShowInSidebar(true);
       }
       onSuccess?.();
     } catch (error) {
@@ -118,6 +126,15 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           />
         </div>
       )}
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="show-in-sidebar"
+          checked={showInSidebar}
+          onCheckedChange={(checked) => setShowInSidebar(checked as boolean)}
+        />
+        <Label htmlFor="show-in-sidebar">Pokaż w menu bocznym</Label>
+      </div>
 
       <Editor
         apiKey="vasnexdz0vp8r14mwm4viwjkcvz47fqe7g9rwkdjbmafsxak"
