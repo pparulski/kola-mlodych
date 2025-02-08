@@ -1,5 +1,6 @@
+
 import { Link } from "react-router-dom";
-import { Newspaper, Book, Download, LogOut } from "lucide-react";
+import { Newspaper, Book, Download, LogOut, FileText } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
   { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
+  { title: "Zarządzaj stronami", icon: FileText, path: "/manage/pages" },
 ];
 
 interface AdminMenuProps {
