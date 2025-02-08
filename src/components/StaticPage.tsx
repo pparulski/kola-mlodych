@@ -94,9 +94,7 @@ export function StaticPage() {
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       
-      <div className="relative space-y-4">
-        <h1 className="text-3xl font-bold mb-6">{page?.title}</h1>
-        
+      <div className="relative space-y-4">        
         {page ? (
           <div 
             className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
