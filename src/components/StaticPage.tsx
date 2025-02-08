@@ -49,12 +49,27 @@ export function StaticPage() {
 
   const handleDelete = async () => {
     try {
+      console.log("Attempting to delete page with ID:", page?.id);
+      
+      if (!page?.id) {
+        console.error("No page ID found");
+        return;
+      }
+
       const { error } = await supabase
         .from('static_pages')
         .delete()
         .eq('id', page.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting page:", error);
+        throw error;
+      }
+      
+      // Invalidate all static pages queries to refresh the sidebar
+      await queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      // Invalidate the current page query
+      await queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
       
       toast.success("Strona została usunięta");
       navigate('/');
