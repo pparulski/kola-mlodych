@@ -53,9 +53,11 @@ export function ManagePages() {
       const currentPage = pages?.find(p => p.id === pageId);
       if (!currentPage || !currentPage.show_in_sidebar) return;
 
-      const sidebarPages = pages?.filter(p => p.show_in_sidebar) || [];
-      const currentIndex = sidebarPages.findIndex(p => p.id === pageId);
+      const sidebarPages = pages?.filter(p => p.show_in_sidebar).sort((a, b) => 
+        (a.sidebar_position || 0) - (b.sidebar_position || 0)
+      ) || [];
       
+      const currentIndex = sidebarPages.findIndex(p => p.id === pageId);
       if (currentIndex === -1) return;
       
       const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
@@ -63,17 +65,17 @@ export function ManagePages() {
       
       const pageToSwap = sidebarPages[newIndex];
 
-      // Update both pages
+      // Update positions for both pages
       const { error: error1 } = await supabase
         .from('static_pages')
-        .update({ sidebar_position: newIndex + 1 })
-        .eq('id', pageId);
+        .update({ sidebar_position: pageToSwap.sidebar_position })
+        .eq('id', currentPage.id);
 
       if (error1) throw error1;
 
       const { error: error2 } = await supabase
         .from('static_pages')
-        .update({ sidebar_position: currentIndex + 1 })
+        .update({ sidebar_position: currentPage.sidebar_position })
         .eq('id', pageToSwap.id);
 
       if (error2) throw error2;
@@ -81,6 +83,7 @@ export function ManagePages() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+      toast.success("Pozycja została zmieniona");
     },
     onError: () => {
       toast.error("Nie udało się zmienić pozycji strony");
@@ -127,7 +130,9 @@ export function ManagePages() {
     );
   }
 
-  const visibleInSidebar = pages?.filter(page => page.show_in_sidebar) || [];
+  const visibleInSidebar = pages
+    ?.filter(page => page.show_in_sidebar)
+    .sort((a, b) => (a.sidebar_position || 0) - (b.sidebar_position || 0)) || [];
   
   return (
     <div className="space-y-4">

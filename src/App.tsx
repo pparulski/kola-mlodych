@@ -22,7 +22,7 @@ function App() {
           <Route index element={<Index />} />
           <Route path="/kola-mlodych" element={<Map />} />
           <Route path="/news/:slug" element={<NewsDetails />} />
-          <Route path="/static/:slug" element={<StaticPage />} />
+          <Route path="/:slug" element={<StaticPage />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/ebooks" element={<Ebooks />} />
           <Route path="/auth" element={<Auth />} />
@@ -39,4 +39,3 @@ function App() {
 }
 
 export default App;
-
