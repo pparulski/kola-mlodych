@@ -57,7 +57,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
         .select('title, slug')
         .eq('show_in_sidebar', true)
         .neq('slug', 'dolacz-do-nas')
-        .order('sidebar_position', { nullsLast: true })
+        .order('sidebar_position', { ascending: true, nullsFirst: false })
         .order('title');
       
       if (error) throw error;
