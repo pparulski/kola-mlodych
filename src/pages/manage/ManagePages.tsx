@@ -79,6 +79,16 @@ export function ManagePages() {
         .eq('id', pageToSwap.id);
 
       if (error2) throw error2;
+
+      // Force a refetch to get the updated order
+      await queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      const { data: updatedPages } = await supabase
+        .from('static_pages')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      // Update the cache with the new data
+      queryClient.setQueryData(['static-pages'], updatedPages);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
