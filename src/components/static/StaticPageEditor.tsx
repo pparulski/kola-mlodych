@@ -10,7 +10,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { StaticPage } from "@/types/staticPages";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 
 interface StaticPageEditorProps {
   existingPage?: StaticPage;
@@ -39,7 +38,12 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (existingPage) {
+      if (!title.trim()) {
+        toast.error("Tytuł jest wymagany");
+        return;
+      }
+
+      if (existingPage?.id) {
         console.log("Updating existing static page:", existingPage.id);
         const { error } = await supabase
           .from('static_pages')
