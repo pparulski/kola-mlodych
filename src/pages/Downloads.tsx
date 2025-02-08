@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -144,15 +145,15 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
       <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Nazwa pliku</TableHead>
-              <TableHead>Data dodania</TableHead>
-              <TableHead>Akcje</TableHead>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-black hover:bg-transparent">Nazwa pliku</TableHead>
+              <TableHead className="text-black hover:bg-transparent">Data dodania</TableHead>
+              <TableHead className="text-black hover:bg-transparent">Akcje</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {files.map((file) => (
-              <TableRow key={file.id}>
+              <TableRow key={file.id} className="hover:bg-transparent">
                 <TableCell>{file.name}</TableCell>
                 <TableCell>
                   {new Date(file.created_at).toLocaleDateString("pl-PL")}
