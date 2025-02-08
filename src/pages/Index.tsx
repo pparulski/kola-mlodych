@@ -33,7 +33,6 @@ export default function Index() {
           content={article.content}
           date={article.created_at}
           featured_image={article.featured_image}
-          slug={article.slug}
         />
       ))}
     </div>
