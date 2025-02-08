@@ -5,6 +5,7 @@ import { StaticPageEditor } from "./static/StaticPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 
 export function StaticPage() {
