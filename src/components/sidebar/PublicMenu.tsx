@@ -48,14 +48,16 @@ interface PublicMenuProps {
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
-  // Query for static pages
+  // Query for static pages that should appear in the sidebar
   const { data: staticPages } = useQuery({
     queryKey: ['static-pages'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('static_pages')
         .select('title, slug')
-        .neq('slug', 'dolacz-do-nas') // Exclude dolacz-do-nas from the submenu
+        .eq('show_in_sidebar', true)
+        .neq('slug', 'dolacz-do-nas')
+        .order('sidebar_position', { nullsLast: true })
         .order('title');
       
       if (error) throw error;
@@ -71,7 +73,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
       icon: Flame,
       subItems: staticPages.map(page => ({
         title: page.title,
-        path: `/static/${page.slug}`
+        path: `/${page.slug}`
       })),
       isSpecial: true
     }] : [])

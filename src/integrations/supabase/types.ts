@@ -118,6 +118,9 @@ export type Database = {
           created_by: string | null
           featured_image: string | null
           id: string
+          position_type: Database["public"]["Enums"]["page_position"] | null
+          show_in_sidebar: boolean | null
+          sidebar_position: number | null
           slug: string
           title: string
           updated_at: string
@@ -128,6 +131,9 @@ export type Database = {
           created_by?: string | null
           featured_image?: string | null
           id?: string
+          position_type?: Database["public"]["Enums"]["page_position"] | null
+          show_in_sidebar?: boolean | null
+          sidebar_position?: number | null
           slug: string
           title: string
           updated_at?: string
@@ -138,6 +144,9 @@ export type Database = {
           created_by?: string | null
           featured_image?: string | null
           id?: string
+          position_type?: Database["public"]["Enums"]["page_position"] | null
+          show_in_sidebar?: boolean | null
+          sidebar_position?: number | null
           slug?: string
           title?: string
           updated_at?: string
@@ -201,7 +210,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      page_position: "top" | "sidebar" | "none"
     }
     CompositeTypes: {
       [_ in never]: never

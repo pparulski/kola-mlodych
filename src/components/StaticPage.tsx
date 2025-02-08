@@ -103,7 +103,7 @@ export function StaticPage() {
           onSuccess={() => {
             setIsEditing(false);
             queryClient.invalidateQueries({ queryKey: ['static-page', slug] });
-            queryClient.invalidateQueries({ queryKey: ['static-page-title', `/static/${slug}`] });
+            queryClient.invalidateQueries({ queryKey: ['static-page-title', `/${slug}`] });
             toast.success("Strona została zaktualizowana");
           }}
           defaultSlug={slug}

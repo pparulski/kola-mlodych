@@ -16,8 +16,8 @@ function getPageTitle(pathname: string, staticPageTitle?: string): string {
     '/auth': 'Logowanie',
   };
 
-  // If we're on a static page route and have a title from the database, use that
-  if (pathname.startsWith('/static/') && staticPageTitle) {
+  // If we have a static page title from the database, use that
+  if (staticPageTitle) {
     return staticPageTitle;
   }
 
@@ -31,9 +31,8 @@ function LayoutContent() {
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
     queryFn: async () => {
-      if (!location.pathname.startsWith('/static/')) return null;
-      
-      const slug = location.pathname.replace('/static/', '');
+      // Remove leading slash for the slug
+      const slug = location.pathname.substring(1);
       const { data, error } = await supabase
         .from('static_pages')
         .select('title')
@@ -43,7 +42,7 @@ function LayoutContent() {
       if (error) throw error;
       return data;
     },
-    enabled: location.pathname.startsWith('/static/')
+    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname)
   });
 
   const handleOverlayClick = () => {
@@ -55,7 +54,7 @@ function LayoutContent() {
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full">
         <Link 
-          to="/static/dolacz-do-nas"
+          to="/dolacz-do-nas"
           className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10 hover:bg-accent transition-colors"
         >
           <span>Dołącz do nas!</span>
