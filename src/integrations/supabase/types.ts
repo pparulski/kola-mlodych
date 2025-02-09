@@ -155,6 +155,7 @@ export type Database = {
       }
       unions: {
         Row: {
+          bio: string | null
           contact: string
           created_at: string
           facebook_url: string | null
@@ -165,6 +166,7 @@ export type Database = {
           year_created: number
         }
         Insert: {
+          bio?: string | null
           contact: string
           created_at?: string
           facebook_url?: string | null
@@ -175,6 +177,7 @@ export type Database = {
           year_created: number
         }
         Update: {
+          bio?: string | null
           contact?: string
           created_at?: string
           facebook_url?: string | null
