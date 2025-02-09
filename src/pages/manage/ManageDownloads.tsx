@@ -113,7 +113,7 @@ export function ManageDownloads() {
           </div>
 
           <Button onClick={handleSubmit} disabled={!name || !fileUrl}>
-            Wybierz plik
+            Wgraj plik
           </Button>
         </div>
       </div>
