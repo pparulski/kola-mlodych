@@ -118,6 +118,7 @@
 .union-name,
 .union-address,
 .union-contact,
+.union-bio,
 .social-icon {
   @apply text-foreground;
 }
