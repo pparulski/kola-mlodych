@@ -35,8 +35,8 @@ const Map = () => {
           >
             <div className={`flex ${isMobile ? 'flex-col' : 'flex-row gap-8'}`}>
               {/* Left section with logo, name, and contact info */}
-              <div className={`${isMobile ? 'w-full' : 'w-1/2'} flex flex-col`}>
-                <h3 className="font-bold text-lg mb-4">{union.name}</h3>
+              <div className={`${isMobile ? 'w-full' : 'w-1/2'} flex flex-col items-center`}>
+                <h3 className="font-bold text-lg mb-4 text-center">{union.name}</h3>
                 
                 {union.logo_url && (
                   <div className="mb-4 flex-shrink-0">
@@ -48,10 +48,10 @@ const Map = () => {
                   </div>
                 )}
 
-                <div className="mt-auto">
+                <div className="mt-auto text-center">
                   <p className="text-sm mb-4">Rok założenia: {union.year_created}</p>
                   
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col items-center gap-2">
                     {union.contact && (
                       <a 
                         href={`mailto:${union.contact}`}
