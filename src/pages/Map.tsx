@@ -87,9 +87,9 @@ const Map = () => {
               </div>
 
               {/* Right section with bio */}
-              <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2 flex items-center'}`}>
+              <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2 flex items-center transition-colors'}`}>
                 {union.bio && (
-                  <p className="text-sm text-muted-foreground transition-colors">
+                  <p className="text-sm text-muted-foreground">
                     {union.bio}
                   </p>
                 )}
