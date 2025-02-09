@@ -43,7 +43,13 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
         return;
       }
 
-      const updateData = {
+      const updateData: {
+        title: string;
+        content: string;
+        featured_image: string | null;
+        show_in_sidebar: boolean;
+        sidebar_position?: number | null;
+      } = {
         title,
         content,
         featured_image: featuredImage,
