@@ -51,12 +51,8 @@ export function ManagePages() {
 
   const updatePositionMutation = useMutation({
     mutationFn: async ({ pageId, direction }: { pageId: string; direction: 'up' | 'down' }) => {
-      const currentPage = pages?.find(p => p.id === pageId);
-      if (!currentPage || !currentPage.show_in_sidebar) return;
-
-      const sidebarPages = pages?.filter(p => p.show_in_sidebar).sort((a, b) => 
-        (a.sidebar_position || 0) - (b.sidebar_position || 0)
-      ) || [];
+      const sidebarPages = pages?.filter(p => p.show_in_sidebar)
+        .sort((a, b) => (a.sidebar_position || 0) - (b.sidebar_position || 0)) || [];
       
       const currentIndex = sidebarPages.findIndex(p => p.id === pageId);
       if (currentIndex === -1) return;
@@ -64,25 +60,22 @@ export function ManagePages() {
       const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
       if (newIndex < 0 || newIndex >= sidebarPages.length) return;
       
-      const pageToSwap = sidebarPages[newIndex];
-
-      // Update positions for both pages
-      const { error: error1 } = await supabase
-        .from('static_pages')
-        .update({ sidebar_position: pageToSwap.sidebar_position })
-        .eq('id', currentPage.id);
-
-      if (error1) throw error1;
-
-      const { error: error2 } = await supabase
-        .from('static_pages')
-        .update({ sidebar_position: currentPage.sidebar_position })
-        .eq('id', pageToSwap.id);
-
-      if (error2) throw error2;
+      // Reorder all pages to ensure consistent numbering
+      const reorderedPages = [...sidebarPages];
+      const [movedPage] = reorderedPages.splice(currentIndex, 1);
+      reorderedPages.splice(newIndex, 0, movedPage);
+      
+      // Update positions for all affected pages
+      for (let i = 0; i < reorderedPages.length; i++) {
+        const { error } = await supabase
+          .from('static_pages')
+          .update({ sidebar_position: i + 1 })
+          .eq('id', reorderedPages[i].id);
+        
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      // Invalidate and refetch both queries
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       toast.success("Pozycja została zmieniona");

@@ -43,16 +43,18 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
         return;
       }
 
+      const updateData = {
+        title,
+        content,
+        featured_image: featuredImage,
+        show_in_sidebar: showInSidebar,
+      };
+
       if (existingPage?.id) {
         console.log("Updating existing static page:", existingPage.id);
         const { error } = await supabase
           .from('static_pages')
-          .update({
-            title,
-            content,
-            featured_image: featuredImage,
-            show_in_sidebar: showInSidebar,
-          })
+          .update(updateData)
           .eq('id', existingPage.id);
 
         if (error) throw error;
@@ -60,14 +62,28 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
         toast.success("Strona została zaktualizowana");
       } else {
         console.log("Creating new static page");
-        const { error } = await supabase.from('static_pages').insert({
-          title,
-          content,
-          featured_image: featuredImage,
-          created_by: user?.id,
-          slug: defaultSlug,
-          show_in_sidebar: showInSidebar,
-        });
+        let sidebarPosition = null;
+        
+        if (showInSidebar) {
+          // Get the highest current position and add 1
+          const { data: maxPosition } = await supabase
+            .from('static_pages')
+            .select('sidebar_position')
+            .order('sidebar_position', { ascending: false })
+            .limit(1)
+            .single();
+          
+          sidebarPosition = (maxPosition?.sidebar_position || 0) + 1;
+        }
+
+        const { error } = await supabase
+          .from('static_pages')
+          .insert({
+            ...updateData,
+            created_by: user?.id,
+            slug: defaultSlug,
+            sidebar_position: sidebarPosition,
+          });
 
         if (error) throw error;
         console.log("Static page created successfully");
@@ -75,6 +91,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
       }
 
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       if (!existingPage) {
         setTitle("");
         setContent("");
@@ -187,4 +204,3 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
     </div>
   );
 }
-
