@@ -52,6 +52,23 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
 
       if (existingPage?.id) {
         console.log("Updating existing static page:", existingPage.id);
+        
+        // If we're updating visibility from false to true, we need to assign a new position
+        if (showInSidebar && !existingPage.show_in_sidebar) {
+          const { data: maxPosition } = await supabase
+            .from('static_pages')
+            .select('sidebar_position')
+            .eq('show_in_sidebar', true)
+            .order('sidebar_position', { ascending: false })
+            .limit(1)
+            .single();
+          
+          updateData.sidebar_position = (maxPosition?.sidebar_position || 0) + 1;
+        } else if (!showInSidebar) {
+          // If hiding from sidebar, remove position
+          updateData.sidebar_position = null;
+        }
+
         const { error } = await supabase
           .from('static_pages')
           .update(updateData)
@@ -69,6 +86,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           const { data: maxPosition } = await supabase
             .from('static_pages')
             .select('sidebar_position')
+            .eq('show_in_sidebar', true)
             .order('sidebar_position', { ascending: false })
             .limit(1)
             .single();

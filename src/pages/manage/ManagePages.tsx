@@ -16,14 +16,26 @@ export function ManagePages() {
   const { data: pages, isLoading } = useQuery({
     queryKey: ['static-pages'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all pages that are visible in sidebar, ordered by position
+      const { data: visiblePages, error: visibleError } = await supabase
         .from('static_pages')
         .select('*')
-        .order('sidebar_position', { ascending: true, nullsFirst: false })
+        .eq('show_in_sidebar', true)
+        .order('sidebar_position', { ascending: true });
+
+      if (visibleError) throw visibleError;
+
+      // Then get all pages that are not visible in sidebar
+      const { data: hiddenPages, error: hiddenError } = await supabase
+        .from('static_pages')
+        .select('*')
+        .eq('show_in_sidebar', false)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as StaticPage[];
+      if (hiddenError) throw hiddenError;
+
+      // Combine both arrays, with hidden pages at the end
+      return [...(visiblePages || []), ...(hiddenPages || [])] as StaticPage[];
     }
   });
 
