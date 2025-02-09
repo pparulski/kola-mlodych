@@ -74,7 +74,7 @@ export function ManageDownloads() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Wczytywanie...</div>;
   }
 
   return (
@@ -113,7 +113,7 @@ export function ManageDownloads() {
           </div>
 
           <Button onClick={handleSubmit} disabled={!name || !fileUrl}>
-            Add File
+            Wgraj plik
           </Button>
         </div>
       </div>
