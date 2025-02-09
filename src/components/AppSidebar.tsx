@@ -66,7 +66,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <div className="px-3 py-2 text-sm font-semibold text-foreground">
-                      Panel Admina
+                      Administracja
                     </div>
                   </SidebarMenuItem>
                   <AdminMenu onItemClick={handleMenuClick} />
