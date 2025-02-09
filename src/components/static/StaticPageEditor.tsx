@@ -22,7 +22,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [showInSidebar, setShowInSidebar] = useState(true);
+  const [showInSidebar, setShowInSidebar] = useState(existingPage?.show_in_sidebar ?? true);
   const queryClient = useQueryClient();
 
   useEffect(() => {

@@ -94,10 +94,19 @@ export function StaticPage() {
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       
-      <div className="relative space-y-4">        
+      <div className="relative space-y-4">
+        {isAdmin && (
+          <Button
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+          >
+            Edytuj stronę
+          </Button>
+        )}
+        
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6"
+            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
