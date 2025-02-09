@@ -75,7 +75,7 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
         disabled={isUploading}
       >
         <Upload className="mr-2 h-4 w-4" />
-        {isUploading ? "Uploading..." : "Upload File"}
+        {isUploading ? "Uploading..." : "Wgraj plik"}
       </Button>
     </div>
   );
