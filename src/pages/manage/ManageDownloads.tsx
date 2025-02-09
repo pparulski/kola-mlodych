@@ -95,7 +95,7 @@ export function ManageDownloads() {
           </div>
 
           <div>
-            <Label>File</Label>
+            <Label>Plik</Label>
             {!fileUrl ? (
               <FileUpload
                 bucket="downloads"
@@ -113,7 +113,7 @@ export function ManageDownloads() {
           </div>
 
           <Button onClick={handleSubmit} disabled={!name || !fileUrl}>
-            Wgraj plik
+            Wybierz plik
           </Button>
         </div>
       </div>
