@@ -24,7 +24,7 @@ export function ManageNews() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Wczytywanie...</div>;
   }
 
   return (
