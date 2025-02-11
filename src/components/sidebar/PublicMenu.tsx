@@ -1,12 +1,11 @@
-
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Newspaper, Users, Download, Book, Flame } from "lucide-react";
-import { 
-  SidebarMenuItem, 
+import {
+  SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton 
+  SidebarMenuSubButton
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,11 +57,14 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
         .neq('slug', 'dolacz-do-nas')
         .order('sidebar_position', { ascending: true, nullsFirst: false })
         .order('title');
-      
+
       if (error) throw error;
       return data;
     }
   });
+
+  // Use useLocation hook from react-router-dom
+  const location = useLocation();
 
   // Create the menu items array with static pages
   const publicMenuItems: MenuItem[] = [
@@ -78,33 +80,36 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     }] : [])
   ];
 
+    // Function to check if a path is the current one, or if the current path is a subpath
+  const isCurrentPath = (path: string) => {
+      return location.pathname === path || location.pathname.startsWith(path + "/");
+  };
+
+
   return (
     <>
       {publicMenuItems.map((item) => (
         <SidebarMenuItem key={item.title}>
           {'subItems' in item ? (
             <>
-              <SidebarMenuButton 
-                className={`font-medium ${
-                  item.isSpecial 
-                    ? 'relative overflow-hidden group hover:text-accent transition-colors' 
+              <SidebarMenuButton
+                className={`font-medium ${item.isSpecial
+                    ? 'relative overflow-hidden group hover:text-accent transition-colors'
                     : ''
-                }`}
+                  }`}
               >
                 {item.icon && (
-                  <item.icon 
-                    className={`w-6 h-6 ${
-                      item.isSpecial 
-                        ? 'relative z-10 text-orange-500 dark:text-orange-400 animate-pulse' 
+                  <item.icon
+                    className={`w-6 h-6 ${item.isSpecial
+                        ? 'relative z-10 text-orange-500 dark:text-orange-400 animate-pulse'
                         : ''
-                    }`} 
+                      }`}
                   />
                 )}
-                <span className={`${
-                  item.isSpecial 
-                    ? 'relative z-10 font-bold text-orange-600 dark:text-orange-400' 
+                <span className={`${item.isSpecial
+                    ? 'relative z-10 font-bold text-orange-600 dark:text-orange-400'
                     : ''
-                }`}>
+                  }`}>
                   {item.title}
                 </span>
                 {item.isSpecial && (
@@ -115,9 +120,10 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
                 {item.subItems.map((subItem) => (
                   <SidebarMenuSubItem key={subItem.title}>
                     <SidebarMenuSubButton asChild>
-                      <Link 
+                      <Link
                         to={subItem.path}
                         onClick={onItemClick}
+                        className={isCurrentPath(subItem.path) ? 'text-accent' : ''} // Apply class to Link
                       >
                         {subItem.title}
                       </Link>
@@ -128,9 +134,9 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
             </>
           ) : (
             <SidebarMenuButton asChild>
-              <Link 
+              <Link
                 to={item.path}
-                className="transition-colors hover:text-accent text-lg py-3"
+                className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath(item.path) ? 'text-accent' : ''}`} // Apply class to Link
                 onClick={onItemClick}
               >
                 {item.icon && <item.icon className="w-6 h-6" />}
