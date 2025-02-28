@@ -32,6 +32,26 @@ export function StaticPage() {
     checkAdminStatus();
   }, []);
 
+  // Fetch page data first
+  const { data: page, isLoading } = useQuery({
+    queryKey: ['static-page', slug],
+    queryFn: async () => {
+      if (!slug) return null;
+      console.log("Fetching static page:", slug);
+      const { data, error } = await supabase
+        .from('static_pages')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      console.log("Static page data:", data);
+      return data as StaticPageType;
+    },
+    enabled: !!slug
+  });
+
   // Fetch all available categories
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -64,25 +84,6 @@ export function StaticPage() {
       return data.map(item => item.categories) as Category[];
     },
     enabled: !!slug && !!page?.id,
-  });
-
-  const { data: page, isLoading } = useQuery({
-    queryKey: ['static-page', slug],
-    queryFn: async () => {
-      if (!slug) return null;
-      console.log("Fetching static page:", slug);
-      const { data, error } = await supabase
-        .from('static_pages')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      console.log("Static page data:", data);
-      return data as StaticPageType;
-    },
-    enabled: !!slug
   });
 
   if (isLoading) {

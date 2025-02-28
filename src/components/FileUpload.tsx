@@ -6,12 +6,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface FileUploadProps {
-  onSuccess: (name: string, url: string) => void;
-  bucket: "downloads" | "ebooks" | "news_images" | "static_pages_images";
+  onSuccess?: (name: string, url: string) => void;
+  bucket?: "downloads" | "ebooks" | "news_images" | "static_pages_images";
   acceptedFileTypes?: string;
+  currentValue?: string | null;
+  onUpload?: (url: string) => void;
 }
 
-export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadProps) {
+export function FileUpload({ 
+  onSuccess, 
+  bucket = "news_images", 
+  acceptedFileTypes, 
+  currentValue,
+  onUpload 
+}: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +59,15 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
 
       console.log("Public URL generated:", publicUrl);
       
-      onSuccess(file.name, publicUrl);
+      // Support both callback styles
+      if (onSuccess) {
+        onSuccess(file.name, publicUrl);
+      }
+      
+      if (onUpload) {
+        onUpload(publicUrl);
+      }
+      
       toast.success("File uploaded successfully");
     } catch (error) {
       console.error("Upload error:", error);
@@ -63,6 +79,13 @@ export function FileUpload({ onSuccess, bucket, acceptedFileTypes }: FileUploadP
 
   return (
     <div className="flex items-center gap-4">
+      {currentValue && (
+        <img 
+          src={currentValue} 
+          alt="Preview" 
+          className="h-20 w-20 object-cover rounded"
+        />
+      )}
       <input
         type="file"
         id="file"
