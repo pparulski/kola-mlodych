@@ -24,6 +24,27 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       downloads: {
         Row: {
           created_at: string
@@ -110,6 +131,78 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      news_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          news_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          news_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          news_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_categories_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      static_page_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          static_page_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          static_page_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          static_page_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "static_page_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "static_page_categories_static_page_id_fkey"
+            columns: ["static_page_id"]
+            isOneToOne: false
+            referencedRelation: "static_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       static_pages: {
         Row: {

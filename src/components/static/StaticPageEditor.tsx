@@ -9,6 +9,10 @@ import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { StaticPageImageUpload } from "./StaticPageImageUpload";
 import { StaticPageTinyMCE } from "./StaticPageTinyMCE";
+import { useQuery } from "@tanstack/react-query";
+import { Category } from "@/types/categories";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
 
 interface StaticPageEditorProps {
   existingPage?: StaticPage;
@@ -21,7 +25,41 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [showInSidebar, setShowInSidebar] = useState(existingPage?.show_in_sidebar ?? true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const queryClient = useQueryClient();
+
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data as Category[];
+    },
+  });
+
+  // Fetch existing page categories if editing
+  const { data: pageCategories } = useQuery({
+    queryKey: ['page-categories', existingPage?.id],
+    queryFn: async () => {
+      if (!existingPage?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('static_page_categories')
+        .select(`
+          category_id,
+          categories(id, slug)
+        `)
+        .eq('static_page_id', existingPage.id);
+
+      if (error) throw error;
+      return data.map(item => item.categories.slug) as string[];
+    },
+    enabled: !!existingPage?.id,
+  });
 
   useEffect(() => {
     if (existingPage) {
@@ -31,6 +69,20 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
       setShowInSidebar(existingPage.show_in_sidebar ?? true);
     }
   }, [existingPage]);
+
+  useEffect(() => {
+    if (pageCategories) {
+      setSelectedCategories(pageCategories);
+    }
+  }, [pageCategories]);
+
+  const toggleCategory = (slug: string) => {
+    if (selectedCategories.includes(slug)) {
+      setSelectedCategories(selectedCategories.filter(c => c !== slug));
+    } else {
+      setSelectedCategories([...selectedCategories, slug]);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -77,6 +129,31 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           .eq('id', existingPage.id);
 
         if (error) throw error;
+
+        // Update categories - first delete existing
+        await supabase
+          .from('static_page_categories')
+          .delete()
+          .eq('static_page_id', existingPage.id);
+
+        // Then add the new selected categories
+        if (selectedCategories.length > 0 && categories) {
+          const categoryRecords = categories
+            .filter(cat => selectedCategories.includes(cat.slug))
+            .map(cat => ({
+              static_page_id: existingPage.id,
+              category_id: cat.id
+            }));
+
+          if (categoryRecords.length > 0) {
+            const { error: catError } = await supabase
+              .from('static_page_categories')
+              .insert(categoryRecords);
+            
+            if (catError) throw catError;
+          }
+        }
+
         toast.success("Strona została zaktualizowana");
       } else {
         let sidebarPosition = null;
@@ -94,16 +171,37 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           sidebarPosition = (maxPosition?.sidebar_position || 0) + 1;
         }
 
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('static_pages')
           .insert({
             ...updateData,
             created_by: user?.id,
             slug: defaultSlug,
             sidebar_position: sidebarPosition,
-          });
+          })
+          .select();
 
         if (error) throw error;
+
+        // Add categories for the new page
+        if (selectedCategories.length > 0 && categories && data && data[0]) {
+          const pageId = data[0].id;
+          const categoryRecords = categories
+            .filter(cat => selectedCategories.includes(cat.slug))
+            .map(cat => ({
+              static_page_id: pageId,
+              category_id: cat.id
+            }));
+
+          if (categoryRecords.length > 0) {
+            const { error: catError } = await supabase
+              .from('static_page_categories')
+              .insert(categoryRecords);
+            
+            if (catError) throw catError;
+          }
+        }
+
         toast.success("Strona została zapisana");
       }
 
@@ -114,6 +212,7 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
         setContent("");
         setFeaturedImage(null);
         setShowInSidebar(true);
+        setSelectedCategories([]);
       }
       onSuccess?.();
     } catch (error) {
@@ -144,6 +243,25 @@ export function StaticPageEditor({ existingPage, onSuccess, defaultSlug }: Stati
           onCheckedChange={(checked) => setShowInSidebar(checked as boolean)}
         />
         <Label htmlFor="show-in-sidebar">Pokaż w menu bocznym</Label>
+      </div>
+
+      <div>
+        <Label>Kategorie</Label>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {categories?.map((category) => (
+            <Badge
+              key={category.id}
+              variant={selectedCategories.includes(category.slug) ? "default" : "outline"}
+              className="cursor-pointer flex items-center gap-1 px-3 py-1 text-sm"
+              onClick={() => toggleCategory(category.slug)}
+            >
+              {selectedCategories.includes(category.slug) && (
+                <Check className="h-3 w-3" />
+              )}
+              {category.name}
+            </Badge>
+          ))}
+        </div>
       </div>
 
       <StaticPageTinyMCE 

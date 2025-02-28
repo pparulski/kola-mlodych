@@ -7,12 +7,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
+import { CategoryFilter } from "@/components/categories/CategoryFilter";
+import { Category } from "@/types/categories";
 
 export function StaticPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -28,6 +31,40 @@ export function StaticPage() {
 
     checkAdminStatus();
   }, []);
+
+  // Fetch all available categories
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data as Category[];
+    },
+  });
+
+  // Fetch page categories
+  const { data: pageCategories } = useQuery({
+    queryKey: ['page-categories', slug],
+    queryFn: async () => {
+      if (!slug) return [];
+      
+      const { data, error } = await supabase
+        .from('static_page_categories')
+        .select(`
+          category_id,
+          categories(*)
+        `)
+        .eq('static_page_id', page?.id);
+
+      if (error) throw error;
+      return data.map(item => item.categories) as Category[];
+    },
+    enabled: !!slug && !!page?.id,
+  });
 
   const { data: page, isLoading } = useQuery({
     queryKey: ['static-page', slug],
@@ -105,10 +142,21 @@ export function StaticPage() {
         )}
         
         {page ? (
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
+          <>
+            <div 
+              className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
+              dangerouslySetInnerHTML={{ __html: page.content }}
+            />
+            
+            {categories && categories.length > 0 && pageCategories && (
+              <CategoryFilter
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                availableCategories={categories}
+                position="bottom"
+              />
+            )}
+          </>
         ) : (
           <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (
