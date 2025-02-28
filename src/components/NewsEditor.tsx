@@ -234,7 +234,7 @@ export function NewsEditor({ existingNews, onSuccess }: NewsEditorProps) {
         <FileUpload
           onUpload={(url) => setFeaturedImage(url)}
           currentValue={featuredImage}
-          accept="image/png, image/jpeg, image/webp"
+          acceptedFileTypes="image/*"
         />
       </div>
 
