@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -28,6 +29,7 @@ export default function Index() {
     },
   });
 
+  // Query for filtered news based on categories
   const { data: news, isLoading: newsLoading } = useQuery({
     queryKey: ['news', selectedCategories],
     queryFn: async () => {
@@ -59,6 +61,7 @@ export default function Index() {
     enabled: !categoriesLoading && selectedCategories.length > 0,
   });
 
+  // Query for all news when no categories are selected
   const { data: allNews, isLoading: allNewsLoading } = useQuery({
     queryKey: ['all-news'],
     queryFn: async () => {
@@ -78,6 +81,7 @@ export default function Index() {
   const isLoading = categoriesLoading || (selectedCategories.length > 0 ? newsLoading : allNewsLoading);
   const displayedNews = selectedCategories.length > 0 ? news : allNews;
 
+  // Search through all news regardless of category filtering or pagination
   const filteredNews = displayedNews?.filter(article => {
     if (!searchQuery.trim()) return true;
     
@@ -106,7 +110,7 @@ export default function Index() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Aktualności</h1>
         
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
