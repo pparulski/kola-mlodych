@@ -41,12 +41,6 @@ export function CategoryFilter({
           </Badge>
         ))}
       </div>
-      
-      {selectedCategories.length > 0 && (
-        <p className="text-sm text-muted-foreground mt-2">
-          Wyświetlanie elementów z kategoriami: {selectedCategories.map(getCategoryName).join(", ")}
-        </p>
-      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ export default function Index() {
   const location = useLocation();
   const { searchQuery, selectedCategories } = useOutletContext<IndexContext>();
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   
   // Reset page when search or categories change
   useEffect(() => {
@@ -37,73 +38,139 @@ export default function Index() {
     },
   });
 
-  // Query for filtered news based on categories
-  const { data: news, isLoading: newsLoading } = useQuery({
-    queryKey: ['news', selectedCategories],
-    queryFn: async () => {
-      console.log('Fetching news articles with categories:', selectedCategories);
+  // Get total count for pagination
+  useEffect(() => {
+    const fetchTotalCount = async () => {
+      let query = supabase.from('news').select('id', { count: 'exact' });
       
+      if (selectedCategories.length > 0) {
+        query = query.in('id', 
+          supabase
+            .from('news_categories')
+            .select('news_id')
+            .in('category_id', 
+              supabase
+                .from('categories')
+                .select('id')
+                .in('slug', selectedCategories)
+            )
+        );
+      }
+      
+      if (searchQuery?.trim()) {
+        const searchTerm = `%${searchQuery.toLowerCase()}%`;
+        query = query.or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`);
+      }
+      
+      const { count, error } = await query;
+      
+      if (error) {
+        console.error('Error fetching count:', error);
+        return;
+      }
+      
+      setTotalCount(count || 0);
+    };
+    
+    fetchTotalCount();
+  }, [selectedCategories, searchQuery]);
+
+  // Query for paginated news with filters
+  const { data: paginatedNews, isLoading: newsLoading } = useQuery({
+    queryKey: ['paginated-news', currentPage, selectedCategories, searchQuery],
+    queryFn: async () => {
+      console.log('Fetching paginated news articles for page:', currentPage);
+      
+      // Base query to get articles for current page
       let query = supabase
         .from('news')
         .select(`
           *,
-          news_categories!inner (
+          news_categories(
             category_id,
-            categories(slug)
+            categories(*)
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
       
+      // Add category filtering if needed
       if (selectedCategories.length > 0) {
-        query = query.in('news_categories.categories.slug', selectedCategories);
+        query = query.in('id', 
+          supabase
+            .from('news_categories')
+            .select('news_id')
+            .in('category_id', 
+              supabase
+                .from('categories')
+                .select('id')
+                .in('slug', selectedCategories)
+            )
+        );
+      }
+      
+      // Add search filtering if needed
+      if (searchQuery?.trim()) {
+        const searchTerm = `%${searchQuery.toLowerCase()}%`;
+        query = query.or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
-      console.log("Fetched news articles:", data);
+      console.log("Fetched paginated news articles:", data);
 
-      const uniqueNews = Array.from(new Map(data.map(item => [item.id, item])).values());
-      return uniqueNews;
+      return data || [];
     },
-    enabled: !categoriesLoading && selectedCategories.length > 0,
   });
 
-  // Query for all news when no categories are selected
-  const { data: allNews, isLoading: allNewsLoading } = useQuery({
-    queryKey: ['all-news'],
+  // When searching, query all news to allow searching outside current page
+  const { data: allNewsForSearch, isLoading: allNewsSearchLoading } = useQuery({
+    queryKey: ['all-news-search', searchQuery],
     queryFn: async () => {
-      console.log('Fetching all news articles');
+      // Only fetch all news when there's a search query
+      if (!searchQuery?.trim()) return null;
+      
+      console.log('Fetching all news for search: ', searchQuery);
       const { data, error } = await supabase
         .from('news')
-        .select('*')
+        .select('id, title, content, created_at, slug, featured_image')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      console.log("Fetched all news articles:", data);
       return data;
     },
-    enabled: selectedCategories.length === 0,
+    enabled: !!searchQuery?.trim(),
   });
 
-  const isLoading = categoriesLoading || (selectedCategories.length > 0 ? newsLoading : allNewsLoading);
-  const displayedNews = selectedCategories.length > 0 ? news : allNews;
-
-  // Search through all news regardless of category filtering or pagination
-  const filteredNews = displayedNews?.filter(article => {
-    if (!searchQuery?.trim()) return true;
+  // Process search results if needed
+  const processedSearchResults = (() => {
+    if (!searchQuery?.trim() || !allNewsForSearch) return null;
     
     const query = searchQuery.toLowerCase();
-    return (
-      article.title.toLowerCase().includes(query) ||
+    return allNewsForSearch.filter(article => 
+      article.title.toLowerCase().includes(query) || 
       article.content.toLowerCase().includes(query)
     );
-  });
+  })();
 
-  const totalArticles = filteredNews?.length || 0;
-  const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
-  const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-  const paginatedNews = filteredNews?.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
+  const isLoading = categoriesLoading || newsLoading || (searchQuery?.trim() && allNewsSearchLoading);
+  
+  // Use search results when searching, otherwise use paginated results
+  const displayedNews = processedSearchResults || paginatedNews;
+  
+  // Calculate total pages based on total count or search results
+  const totalPages = processedSearchResults 
+    ? Math.ceil(processedSearchResults.length / ARTICLES_PER_PAGE)
+    : Math.ceil(totalCount / ARTICLES_PER_PAGE);
+  
+  // Get the current page items
+  const currentPageItems = processedSearchResults
+    ? processedSearchResults.slice(
+        (currentPage - 1) * ARTICLES_PER_PAGE, 
+        currentPage * ARTICLES_PER_PAGE
+      )
+    : displayedNews;
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -119,12 +186,12 @@ export default function Index() {
   return (
     <div>
       <div className="space-y-6">
-        {paginatedNews?.length === 0 ? (
+        {(!currentPageItems || currentPageItems.length === 0) ? (
           <div className="text-center p-8 bg-card rounded-lg border-2 border-border">
             <p>Nie znaleziono artykułów spełniających kryteria.</p>
           </div>
         ) : (
-          paginatedNews?.map((article) => (
+          currentPageItems.map((article) => (
             <NewsPreview
               key={article.id}
               id={article.id}
