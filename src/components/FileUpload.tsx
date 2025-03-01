@@ -41,10 +41,13 @@ export function FileUpload({
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
+      // Sanitize the filename by removing non-ASCII characters
+      const sanitizedFilename = file.name.replace(/[^\x00-\x7F]/g, '');
+      
       // Upload file to storage using original filename
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(file.name, file, { upsert: true });
+        .upload(sanitizedFilename, file, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -55,13 +58,13 @@ export function FileUpload({
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(file.name);
+        .getPublicUrl(sanitizedFilename);
 
       console.log("Public URL generated:", publicUrl);
       
       // Support both callback styles
       if (onSuccess) {
-        onSuccess(file.name, publicUrl);
+        onSuccess(sanitizedFilename, publicUrl);
       }
       
       if (onUpload) {

@@ -1,13 +1,19 @@
 
 import * as React from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CategoryFilterButton } from "./CategoryFilterButton";
-import { CategoryFilterMultiSelect } from "./CategoryFilterMultiSelect";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { SlidersHorizontal } from "lucide-react";
 import { Category } from "@/types/categories";
 
 interface CategoryFilterDropdownProps {
   selectedCategories: string[];
-  setSelectedCategories: (categories: string[]) => void;
+  setSelectedCategories: (value: string[]) => void;
   availableCategories: Category[];
 }
 
@@ -16,26 +22,52 @@ export function CategoryFilterDropdown({
   setSelectedCategories,
   availableCategories,
 }: CategoryFilterDropdownProps) {
-  const [open, setOpen] = React.useState(false);
+  const handleCategoryClick = (slug: string) => {
+    if (selectedCategories.includes(slug)) {
+      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+    } else {
+      setSelectedCategories([...selectedCategories, slug]);
+    }
+  };
+
+  const handleClearCategories = () => {
+    setSelectedCategories([]);
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <div>
-          <CategoryFilterButton
-            isOpen={open}
-            onClick={() => setOpen(!open)}
-            count={selectedCategories.length}
-          />
-        </div>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-4" align="start">
-        <CategoryFilterMultiSelect
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          availableCategories={availableCategories}
-        />
-      </PopoverContent>
-    </Popover>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="h-9 px-4 lg:px-6">
+          <SlidersHorizontal className="mr-2 h-4 w-4" />
+          <span>Kategorie</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuGroup>
+          {availableCategories.map((category) => (
+            <DropdownMenuItem
+              key={category.id}
+              onClick={() => handleCategoryClick(category.slug)}
+              className="cursor-pointer flex items-center justify-between"
+            >
+              <span>{category.name}</span>
+              {selectedCategories.includes(category.slug) && (
+                <span className="text-primary text-sm">✓</span>
+              )}
+            </DropdownMenuItem>
+          ))}
+          {selectedCategories.length > 0 && (
+            <>
+              <DropdownMenuItem
+                onClick={handleClearCategories}
+                className="cursor-pointer text-destructive border-t mt-2 pt-2"
+              >
+                Wyczyść filtry
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

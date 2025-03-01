@@ -32,10 +32,10 @@ export function CategoryFilter({
         />
         
         {selectedCategories.map((slug) => (
-          <Badge key={slug} variant="secondary" className="flex items-center gap-1">
+          <Badge key={slug} variant="secondary" className="flex items-center gap-1 text-sm px-3 py-1.5">
             {getCategoryName(slug)}
             <X 
-              className="h-3 w-3 cursor-pointer hover:text-destructive" 
+              className="h-3 w-3 cursor-pointer hover:text-destructive ml-1" 
               onClick={() => handleRemoveCategory(slug)}
             />
           </Badge>

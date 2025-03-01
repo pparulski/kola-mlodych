@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -63,7 +62,6 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
       const { data: { user } } = await supabase.auth.getUser();
       
       if (existingNews) {
-        // Update existing news
         const { error } = await supabase
           .from('news')
           .update({
@@ -75,13 +73,11 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
 
         if (error) throw error;
 
-        // Update categories - first delete existing
         await supabase
           .from('news_categories')
           .delete()
           .eq('news_id', existingNews.id);
 
-        // Then add the new selected categories
         if (selectedCategories.length > 0 && categories) {
           const categoryRecords = categories
             .filter(cat => selectedCategories.includes(cat.slug))
@@ -101,7 +97,6 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
 
         toast.success("Artykuł został zaktualizowany");
       } else {
-        // Create new news
         const slug = await generateSlug(title);
         const { data, error } = await supabase
           .from('news')
@@ -116,7 +111,6 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
 
         if (error) throw error;
 
-        // Add categories for the new article
         if (selectedCategories.length > 0 && categories && data && data[0]) {
           const newsId = data[0].id;
           const categoryRecords = categories
@@ -138,7 +132,6 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
         toast.success("Artykuł został dodany");
       }
 
-      // Reset form fields for adding a new article
       if (!existingNews) {
         setTitle("");
         setContent("");
@@ -146,11 +139,9 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
         setSelectedCategories([]);
       }
 
-      // Invalidate queries to refresh the news list
       queryClient.invalidateQueries({ queryKey: ['news'] });
       queryClient.invalidateQueries({ queryKey: ['all-news'] });
       
-      // Call the success callback
       onSuccess?.();
     } catch (error) {
       console.error("Error submitting news:", error);
@@ -191,7 +182,7 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
       <div>
         <Label htmlFor="content">Treść</Label>
         <Editor
-          apiKey="qagffr3pkuv17a8on1afax661irst1hbr4e6tbv888sz91jc"
+          apiKey="vasnexdz0vp8r14mwm4viwjkcvz47fqe7g9rwkdjbmafsxak"
           value={content}
           onEditorChange={(newContent) => setContent(newContent)}
           init={{
