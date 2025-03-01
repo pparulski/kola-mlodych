@@ -34,7 +34,6 @@ export function usePageSubmit(
         content: string;
         featured_image: string | null;
         show_in_sidebar: boolean;
-        sidebar_position?: number | null;
       } = {
         title,
         content,
@@ -43,22 +42,6 @@ export function usePageSubmit(
       };
 
       if (existingPage?.id) {
-        // If we're updating visibility from false to true, we need to assign a new position
-        if (showInSidebar && !existingPage.show_in_sidebar) {
-          const { data: maxPosition } = await supabase
-            .from('static_pages')
-            .select('sidebar_position')
-            .eq('show_in_sidebar', true)
-            .order('sidebar_position', { ascending: false })
-            .limit(1)
-            .single();
-          
-          updateData.sidebar_position = (maxPosition?.sidebar_position || 0) + 1;
-        } else if (!showInSidebar) {
-          // If hiding from sidebar, remove position
-          updateData.sidebar_position = null;
-        }
-
         const { error } = await supabase
           .from('static_pages')
           .update(updateData)
@@ -68,28 +51,12 @@ export function usePageSubmit(
 
         toast.success("Strona została zaktualizowana");
       } else {
-        let sidebarPosition = null;
-        
-        if (showInSidebar) {
-          // Get the highest current position and add 1
-          const { data: maxPosition } = await supabase
-            .from('static_pages')
-            .select('sidebar_position')
-            .eq('show_in_sidebar', true)
-            .order('sidebar_position', { ascending: false })
-            .limit(1)
-            .single();
-          
-          sidebarPosition = (maxPosition?.sidebar_position || 0) + 1;
-        }
-
         const { data, error } = await supabase
           .from('static_pages')
           .insert({
             ...updateData,
             created_by: user?.id,
             slug: defaultSlug,
-            sidebar_position: sidebarPosition,
           })
           .select();
 
@@ -100,6 +67,8 @@ export function usePageSubmit(
 
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      
       if (!existingPage) {
         setTitle("");
         setContent("");

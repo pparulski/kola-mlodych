@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Home, Map, BookOpen, Download, File } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
@@ -28,56 +29,29 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     },
   });
 
+  const defaultMenuItems = [
+    { path: "/", icon: Home, title: "Aktualności" },
+    { path: "/kola-mlodych", icon: Map, title: "Koła Młodych" },
+    { path: "/downloads", icon: Download, title: "Pliki do pobrania" },
+    { path: "/ebooks", icon: BookOpen, title: "Publikacje" },
+  ];
+
   return (
     <>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link 
-            to="/" 
-            onClick={onItemClick}
-            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
-          >
-            <Home className="w-6 h-6" />
-            <span className="flex-1">Aktualności</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link 
-            to="/kola-mlodych" 
-            onClick={onItemClick}
-            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
-          >
-            <Map className="w-6 h-6" />
-            <span className="flex-1">Koła Młodych</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link 
-            to="/downloads" 
-            onClick={onItemClick}
-            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
-          >
-            <Download className="w-6 h-6" />
-            <span className="flex-1">Pliki do pobrania</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link 
-            to="/ebooks" 
-            onClick={onItemClick}
-            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
-          >
-            <BookOpen className="w-6 h-6" />
-            <span className="flex-1">Publikacje</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      {defaultMenuItems.map((item) => (
+        <SidebarMenuItem key={item.path}>
+          <SidebarMenuButton asChild>
+            <Link 
+              to={item.path} 
+              onClick={onItemClick}
+              className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
+            >
+              <item.icon className="w-6 h-6" />
+              <span className="flex-1">{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
       
       {/* Static Pages */}
       {sidebarPages?.map((page) => (
