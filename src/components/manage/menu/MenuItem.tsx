@@ -4,6 +4,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
 import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
+import { LucideIcon } from "lucide-react";
 
 interface MenuItemProps {
   item: SidebarMenuItem;
@@ -23,6 +24,16 @@ export const getIconComponent = (iconName: string) => {
 };
 
 export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) {
+  // Render the icon component based on whether it's a string or a LucideIcon
+  const renderIcon = () => {
+    if (typeof item.icon === 'string') {
+      return getIconComponent(item.icon);
+    } else {
+      const IconComponent = item.icon as LucideIcon;
+      return <IconComponent className="h-5 w-5" />;
+    }
+  };
+
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>
       {(provided, snapshot) => (
@@ -36,7 +47,7 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
             <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="w-8 flex justify-center">
-            {getIconComponent(item.icon)}
+            {renderIcon()}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{item.title}</p>
