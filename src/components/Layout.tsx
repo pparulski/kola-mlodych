@@ -49,6 +49,12 @@ function LayoutContent() {
     enabled: location.pathname === '/',
   });
 
+  // Reset search and filters when location changes or page reloads
+  useEffect(() => {
+    setSearchQuery("");
+    setSelectedCategories([]);
+  }, [location.pathname]);
+
   // Pass search and filter values to the Index component through URL parameters
   useEffect(() => {
     if (location.pathname === '/') {
@@ -125,7 +131,7 @@ function LayoutContent() {
         </Link>
         <main className="flex-1 p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 self-start md:self-auto">
               <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
                 <Menu className="h-8 w-8" />
               </SidebarTrigger>
@@ -135,24 +141,26 @@ function LayoutContent() {
             </div>
             
             {location.pathname === '/' && (
-              <div className="flex flex-col md:flex-row gap-4 md:items-center w-full md:w-auto">
+              <div className="flex flex-wrap gap-4 w-full md:w-auto justify-between md:justify-end">
                 {categories && categories.length > 0 && (
-                  <CategoryFilter
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    availableCategories={categories}
-                    position="top"
-                  />
+                  <div className="order-1 md:order-1 self-end">
+                    <CategoryFilter
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      availableCategories={categories}
+                      position="top"
+                    />
+                  </div>
                 )}
                 
-                <div className="relative w-full md:w-auto">
+                <div className="relative w-full md:w-64 order-2 md:order-2">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
                     placeholder="Szukaj..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 w-full md:w-64"
+                    className="pl-8 w-full"
                   />
                 </div>
               </div>

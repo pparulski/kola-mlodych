@@ -93,6 +93,17 @@
   .dark .sidebar-footer a {
     @apply text-muted-foreground hover:text-accent;
   }
+  
+  /* Category badge styling */
+  .dark .badge[variant="secondary"],
+  .dark [class*="badge-secondary"] {
+    @apply bg-secondary/40 text-secondary-foreground;
+  }
+  
+  .badge[variant="default"],
+  [class*="badge-default"] {
+    @apply bg-primary border-0;
+  }
 }
 
 /* Mobile sidebar styles */
