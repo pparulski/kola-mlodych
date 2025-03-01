@@ -152,10 +152,13 @@ function LayoutContent() {
         <main className="flex-1 p-4 md:p-6">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2 md:gap-4">
-              <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
+              <SidebarTrigger 
+                className="md:hidden h-8 w-8 pl-0 border-t border-r border-b rounded-r-md" 
+                onClick={() => setOpen(!open)}
+              >
                 <Menu className="h-8 w-8" />
               </SidebarTrigger>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">
+              <h1 className="text-3xl md:text-4xl font-bold text-primary">
                 {pageTitle}
               </h1>
             </div>
