@@ -1,4 +1,5 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpenText, Trash2 } from "lucide-react";
 import {
@@ -34,13 +35,13 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
   };
 
   return (
-    <Card className="flex flex-col h-full bg-muted/10">
-      <CardHeader>
+    <div className="content-block flex flex-col h-full">
+      <CardHeader className="px-0 pt-0">
         <CardTitle className="text-lg font-semibold line-clamp-2 text-center">
           {ebook.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow">
+      <CardContent className="flex-grow px-0">
         {ebook.cover_url ? (
           <button
             onClick={handleOpenPdf}
@@ -59,12 +60,12 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
           </div>
         )}
         {ebook.publication_year && (
-          <p className="text-sm text-center dark:text-muted-foreground text-foreground">
+          <p className="text-sm text-center">
             Rok publikacji: {ebook.publication_year}
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between gap-2">
+      <CardFooter className="flex justify-between gap-2 px-0 pb-0">
         <Button asChild className="flex-1">
           <a href={ebook.file_url} target="_blank" rel="noopener noreferrer">
             <BookOpenText className="mr-2 h-4 w-4" />
@@ -95,6 +96,6 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
           </AlertDialog>
         )}
       </CardFooter>
-    </Card>
+    </div>
   );
 }

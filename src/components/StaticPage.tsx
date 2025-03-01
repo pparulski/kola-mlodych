@@ -1,5 +1,4 @@
 
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -51,12 +50,14 @@ export function StaticPage() {
       
       <div className="relative space-y-4">
         {page ? (
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
+          <div className="content-block">
+            <div 
+              className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
+              dangerouslySetInnerHTML={{ __html: page.content }}
+            />
+          </div>
         ) : (
-          <div className="text-center text-muted-foreground mt-4">
+          <div className="content-block text-center mt-4">
             <p>Ta strona jest w trakcie tworzenia.</p>
           </div>
         )}

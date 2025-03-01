@@ -55,7 +55,7 @@ export function NewsPreview({
   });
 
   return (
-    <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
+    <article className="content-block space-y-6 overflow-hidden">
       {featured_image && (
         <img
           src={featured_image}
