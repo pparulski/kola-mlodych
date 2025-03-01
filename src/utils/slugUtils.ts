@@ -12,12 +12,17 @@ export async function generateSlug(title: string): Promise<string> {
   } catch (error) {
     console.error("Error generating slug:", error);
     // Fallback to basic slug generation
-    return title
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]+/g, '')
-      .replace(/--+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '');
+    return slugify(title);
   }
+}
+
+// Simple slugify function for client-side slug generation
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 }
