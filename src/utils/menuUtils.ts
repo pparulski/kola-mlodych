@@ -1,6 +1,7 @@
 
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
+import { Home, Map, BookOpen, Download, File } from "lucide-react";
 
 /**
  * Converts static pages to menu items format
@@ -55,6 +56,19 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       type: MenuItemType.REGULAR
     }
   ];
+};
+
+/**
+ * Get icon component based on icon name
+ */
+export const getIconComponent = (iconName: string) => {
+  switch (iconName) {
+    case 'Home': return Home;
+    case 'Map': return Map;
+    case 'Download': return Download;
+    case 'BookOpen': return BookOpen;
+    default: return File;
+  }
 };
 
 /**
