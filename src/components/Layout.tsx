@@ -150,33 +150,30 @@ function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex items-center justify-between mb-8 relative">
-            {/* Sidebar trigger positioned at the left edge */}
-            <SidebarTrigger className="absolute left-0 top-1/2 -translate-y-1/2 z-10" />
-            
-            <div className="flex items-center gap-2 md:gap-4 pl-8 md:pl-0">
-              <h1 className="text-xl md:text-3xl font-bold text-primary truncate">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2 md:gap-4">
+              <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
+                <Menu className="h-8 w-8" />
+              </SidebarTrigger>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">
                 {pageTitle}
               </h1>
             </div>
             
             {location.pathname === '/' && (
-              <div className="flex items-center gap-2 md:gap-4 ml-auto">
+              <div className="flex items-center gap-2">
                 {/* Mobile search button */}
                 <Button
                   variant="outline"
                   size="icon"
-                  className="md:hidden relative"
+                  className="md:hidden"
                   onClick={toggleSearch}
                   aria-label={searchOpen ? "Close search" : "Open search"}
                 >
                   {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-                  {searchQuery && !searchOpen && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary text-[8px] text-white" />
-                  )}
                 </Button>
 
-                {/* Category filter - icon only on mobile */}
+                {/* Category filter - always visible but compact on mobile */}
                 {categories && categories.length > 0 && (
                   <div>
                     <CategoryFilter
