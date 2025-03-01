@@ -32,7 +32,7 @@ export function useMenuItems() {
   // Convert static pages and default menu items to the unified format
   useEffect(() => {
     if (!isLoadingPages && staticPagesData) {
-      // Define default menu items
+      // Define default items
       const defaultItems: SidebarMenuItem[] = [
         {
           id: 'home',
@@ -75,7 +75,7 @@ export function useMenuItems() {
         title: page.title,
         path: `/${page.slug}`,
         icon: 'File',
-        position: 5 + index,
+        position: page.sidebar_position || (5 + index),
         type: MenuItemType.STATIC_PAGE
       }));
 
@@ -91,23 +91,41 @@ export function useMenuItems() {
       // Update static pages positions
       const staticPageItems = items.filter(item => item.type === MenuItemType.STATIC_PAGE);
       
+      // Store all updated positions for later use
+      const updatedPositions: Record<string, number> = {};
+      
       // Process each static page update individually
-      for (let i = 0; i < staticPageItems.length; i++) {
-        const item = staticPageItems[i];
+      for (const item of staticPageItems) {
         if (!item.originalId) continue;
+        
+        // Find the position in the sorted array
+        const position = items.findIndex(i => i.id === item.id) + 1;
         
         const { error } = await supabase
           .from('static_pages')
-          .update({ sidebar_position: i + 1 })
+          .update({ sidebar_position: position })
           .eq('id', item.originalId);
         
         if (error) throw error;
+        
+        // Store the updated position
+        updatedPositions[item.id] = position;
       }
-
-      // We could also save the position of regular menu items to database if needed
+      
+      return { updatedPositions };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       toast.success("Kolejność menu została zaktualizowana");
+      
+      // Update the local state to reflect the new positions
+      setMenuItems(prev => {
+        return prev.map(item => ({
+          ...item,
+          position: result.updatedPositions[item.id] || item.position
+        })).sort((a, b) => a.position - b.position);
+      });
+      
+      // Refresh the data
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
     },
     onError: (error) => {
