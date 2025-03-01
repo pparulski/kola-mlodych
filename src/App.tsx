@@ -1,5 +1,5 @@
 
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,12 +13,16 @@ import { ManagePages } from "./pages/manage/ManagePages";
 import { ManageCategories } from "./pages/manage/ManageCategories";
 import { ManageMenu } from "./pages/manage/ManageMenu";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 // Fix imports to use default exports
 import NewsPage from "./pages/Index";
 import NewsArticlePage from "./pages/NewsArticle";
 import EbooksPage from "./pages/Ebooks";
 import DownloadsPage from "./pages/Downloads";
 import UnionsPage from "./pages/Map";
+
+// Lazy load the auth page
+const AuthPage = lazy(() => import("./pages/Auth"));
 
 function App() {
   const queryClient = new QueryClient();
@@ -91,7 +95,7 @@ function App() {
               },
               {
                 path: "/auth",
-                element: <div>Logowanie</div>,
+                element: <AuthPage />,
               },
             ])}
           />

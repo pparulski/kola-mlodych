@@ -26,8 +26,11 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
         .select('*')
         .order('position');
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error("Error fetching menu items:", error);
+        return [];
+      }
+      return data || [];
     }
   });
 
@@ -64,9 +67,36 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     return <div>Ładowanie menu...</div>;
   }
 
+  if (!menuItems || menuItems.length === 0) {
+    console.log("No menu items found");
+    // Fallback menu items if database is empty
+    return (
+      <>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            onClick={() => handleNavigation("/")}
+            className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath("/") ? 'text-accent' : ''}`}
+          >
+            <Newspaper className="w-6 h-6" />
+            <span>Aktualności</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            onClick={() => handleNavigation("/kola-mlodych")}
+            className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath("/kola-mlodych") ? 'text-accent' : ''}`}
+          >
+            <Users className="w-6 h-6" />
+            <span>Koła Młodych</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </>
+    );
+  }
+
   return (
     <>
-      {menuItems?.map((item) => (
+      {menuItems.map((item) => (
         <SidebarMenuItem key={item.id}>
           <SidebarMenuButton 
             asChild={false}
