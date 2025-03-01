@@ -2,7 +2,6 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { NewsContent } from "@/components/news/NewsContent";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
 import { format } from "date-fns";
