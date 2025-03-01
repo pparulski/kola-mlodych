@@ -40,7 +40,10 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{item.title}</p>
-            <p className="text-xs text-muted-foreground truncate">{item.path}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {item.path}
+              {item.position && <span className="ml-2 text-xs">(Pozycja: {item.position})</span>}
+            </p>
           </div>
           <div className="flex items-center gap-1 ml-auto mr-2">
             <Button

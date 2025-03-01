@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ export function useMenuItems() {
   // Convert static pages and default menu items to the unified format
   useEffect(() => {
     if (!isLoadingPages && staticPagesData) {
-      // Define default items
+      // Define default items with fixed positions
       const defaultItems: SidebarMenuItem[] = [
         {
           id: 'home',
@@ -96,6 +96,7 @@ export function useMenuItems() {
       const updatePromises = [];
       const updatedPositions: Record<string, number> = {};
       
+      // Give each item a sequential position (1-based)
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const position = i + 1; // 1-based position
@@ -145,8 +146,8 @@ export function useMenuItems() {
     }
   });
 
-  // Handle drag and drop
-  const handleDragEnd = (result: any) => {
+  // Handle drag and drop reordering
+  const handleDragEnd = useCallback((result: any) => {
     if (!result.destination) return;
     
     const items = Array.from(menuItems);
@@ -156,19 +157,19 @@ export function useMenuItems() {
     // Update positions of all items
     const updatedItems = items.map((item, index) => ({
       ...item,
-      position: index + 1
+      position: index + 1 // 1-based position
     }));
     
     console.log("Updated items after drag:", updatedItems);
     setMenuItems(updatedItems);
-  };
+  }, [menuItems]);
 
-  const handleSaveOrder = () => {
+  const handleSaveOrder = useCallback(() => {
     console.log("Saving menu order:", menuItems);
     updateOrderMutation.mutate([...menuItems]);
-  };
+  }, [menuItems, updateOrderMutation]);
 
-  const moveItem = (index: number, direction: 'up' | 'down') => {
+  const moveItem = useCallback((index: number, direction: 'up' | 'down') => {
     if ((direction === 'up' && index === 0) || 
         (direction === 'down' && index === menuItems.length - 1)) {
       return;
@@ -179,15 +180,15 @@ export function useMenuItems() {
     
     [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
     
-    // Update positions
+    // Update positions of all items
     const updatedItems = newItems.map((item, idx) => ({
       ...item,
-      position: idx + 1
+      position: idx + 1 // 1-based position
     }));
     
     console.log("Updated items after move:", updatedItems);
     setMenuItems(updatedItems);
-  };
+  }, [menuItems]);
 
   return {
     menuItems,
