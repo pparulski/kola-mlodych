@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -16,7 +15,6 @@ export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Fetch all available categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -30,7 +28,6 @@ export default function Index() {
     },
   });
 
-  // Fetch news articles, filtered by categories if any are selected
   const { data: news, isLoading: newsLoading } = useQuery({
     queryKey: ['news', selectedCategories],
     queryFn: async () => {
@@ -47,7 +44,6 @@ export default function Index() {
         `)
         .order('created_at', { ascending: false });
       
-      // If categories are selected, filter by them
       if (selectedCategories.length > 0) {
         query = query.in('news_categories.categories.slug', selectedCategories);
       }
@@ -57,14 +53,12 @@ export default function Index() {
       if (error) throw error;
       console.log("Fetched news articles:", data);
 
-      // Remove duplicates (since we're doing a JOIN)
       const uniqueNews = Array.from(new Map(data.map(item => [item.id, item])).values());
       return uniqueNews;
     },
-    enabled: !categoriesLoading && selectedCategories.length > 0, // Only run this query when categories are loaded
+    enabled: !categoriesLoading && selectedCategories.length > 0,
   });
 
-  // If no categories are selected, fetch all news
   const { data: allNews, isLoading: allNewsLoading } = useQuery({
     queryKey: ['all-news'],
     queryFn: async () => {
@@ -78,13 +72,12 @@ export default function Index() {
       console.log("Fetched all news articles:", data);
       return data;
     },
-    enabled: selectedCategories.length === 0, // Only run when no categories are selected
+    enabled: selectedCategories.length === 0,
   });
 
   const isLoading = categoriesLoading || (selectedCategories.length > 0 ? newsLoading : allNewsLoading);
   const displayedNews = selectedCategories.length > 0 ? news : allNews;
 
-  // Filter news by search query
   const filteredNews = displayedNews?.filter(article => {
     if (!searchQuery.trim()) return true;
     
@@ -95,7 +88,6 @@ export default function Index() {
     );
   });
 
-  // Calculate pagination
   const totalArticles = filteredNews?.length || 0;
   const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
   const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
@@ -114,10 +106,10 @@ export default function Index() {
 
   return (
     <div>
-      {/* Search and filter bar */}
-      <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <div className="flex flex-col md:flex-row md:items-center gap-2">
-          <span className="font-medium">Kategorie:</span>
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold">Aktualności</h1>
+        
+        <div className="flex flex-col md:flex-row gap-4 md:items-center">
           {categories && categories.length > 0 && (
             <CategoryFilter
               selectedCategories={selectedCategories}
@@ -126,21 +118,20 @@ export default function Index() {
               position="top"
             />
           )}
-        </div>
-        
-        <div className="relative w-full md:w-auto">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Szukaj..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 w-full md:w-64"
-          />
+          
+          <div className="relative w-full md:w-auto">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Szukaj..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 w-full md:w-64"
+            />
+          </div>
         </div>
       </div>
       
-      {/* News articles */}
       <div className="space-y-6">
         {paginatedNews?.length === 0 ? (
           <div className="text-center p-8 bg-card rounded-lg border-2 border-border">
@@ -161,7 +152,6 @@ export default function Index() {
         )}
       </div>
       
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-8 space-x-2">
           <Button

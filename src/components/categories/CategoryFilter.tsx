@@ -23,8 +23,8 @@ export function CategoryFilter({
   };
 
   return (
-    <div className={`my-4 ${position === "top" ? "mb-6" : "mt-6"}`}>
-      <div className="flex flex-wrap items-center gap-2 mb-2">
+    <div className={position === "top" ? "" : "mt-6"}>
+      <div className="flex flex-wrap items-center gap-2">
         <CategoryFilterDropdown
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
