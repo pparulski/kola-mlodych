@@ -1,108 +1,40 @@
 
-import { Suspense, lazy } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ThemeProvider } from "@/components/ui/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
-import { StaticPage } from "./components/StaticPage";
+import Index from "./pages/Index";
+import Map from "./pages/Map";
+import Downloads from "./pages/Downloads";
+import Ebooks from "./pages/Ebooks";
+import Auth from "./pages/Auth";
 import { AuthGuard } from "./components/AuthGuard";
 import { ManageNews } from "./pages/manage/ManageNews";
-import { ManageEbooks } from "./pages/manage/ManageEbooks";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
+import { ManageEbooks } from "./pages/manage/ManageEbooks";
 import { ManagePages } from "./pages/manage/ManagePages";
-import { ManageCategories } from "./pages/manage/ManageCategories";
-import { ManageMenu } from "./pages/manage/ManageMenu";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Fix imports to use default exports
-import NewsPage from "./pages/Index";
-import NewsArticlePage from "./pages/NewsArticle";
-import EbooksPage from "./pages/Ebooks";
-import DownloadsPage from "./pages/Downloads";
-import UnionsPage from "./pages/Map";
-
-// Lazy load the auth page
-const AuthPage = lazy(() => import("./pages/Auth"));
+import { NewsDetails } from "./pages/NewsDetails";
+import { StaticPage } from "./components/StaticPage";
 
 function App() {
-  const queryClient = new QueryClient();
-  
   return (
-    <ThemeProvider>
-      <Suspense fallback={<div>Loading...</div>}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider
-            router={createBrowserRouter([
-              {
-                path: "/",
-                element: <Layout />,
-                children: [
-                  {
-                    path: "/",
-                    element: <NewsPage />,
-                  },
-                  {
-                    path: "/artykul/:slug",
-                    element: <NewsArticlePage />,
-                  },
-                  {
-                    path: "/ebooks",
-                    element: <EbooksPage />,
-                  },
-                  {
-                    path: "/downloads",
-                    element: <DownloadsPage />,
-                  },
-                  {
-                    path: "/kola-mlodych",
-                    element: <UnionsPage />,
-                  },
-                  {
-                    path: "/:slug",
-                    element: <StaticPage />,
-                  },
-                  
-                  {
-                    element: <AuthGuard />,
-                    children: [
-                      {
-                        path: "manage/news",
-                        element: <ManageNews />
-                      },
-                      {
-                        path: "manage/ebooks",
-                        element: <ManageEbooks />
-                      },
-                      {
-                        path: "manage/downloads",
-                        element: <ManageDownloads />
-                      },
-                      {
-                        path: "manage/pages",
-                        element: <ManagePages />
-                      },
-                      {
-                        path: "manage/categories",
-                        element: <ManageCategories />
-                      },
-                      {
-                        path: "manage/menu",
-                        element: <ManageMenu />
-                      },
-                    ]
-                  },
-                ],
-              },
-              {
-                path: "/auth",
-                element: <AuthPage />,
-              },
-            ])}
-          />
-          <Toaster />
-        </QueryClientProvider>
-      </Suspense>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Index />} />
+          <Route path="/kola-mlodych" element={<Map />} />
+          <Route path="/news/:slug" element={<NewsDetails />} />
+          <Route path="/:slug" element={<StaticPage />} />
+          <Route path="/downloads" element={<Downloads />} />
+          <Route path="/ebooks" element={<Ebooks />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route element={<AuthGuard />}>
+            <Route path="/manage/news" element={<ManageNews />} />
+            <Route path="/manage/downloads" element={<ManageDownloads />} />
+            <Route path="/manage/ebooks" element={<ManageEbooks />} />
+            <Route path="/manage/pages" element={<ManagePages />} />
+          </Route>
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

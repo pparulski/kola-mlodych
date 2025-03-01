@@ -1,8 +1,6 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 
 export function AuthGuard() {
   const navigate = useNavigate();
@@ -24,14 +22,8 @@ export function AuthGuard() {
         const { data: isAdmin, error: adminCheckError } = await supabase
           .rpc('is_admin', { user_id: session.user.id });
 
-        if (adminCheckError) {
+        if (adminCheckError || !isAdmin) {
           console.error("Admin check failed:", adminCheckError);
-          navigate("/auth");
-          return;
-        }
-
-        if (!isAdmin) {
-          console.log("User is not an admin, redirecting to auth");
           navigate("/auth");
           return;
         }
@@ -51,17 +43,6 @@ export function AuthGuard() {
       console.log("Auth state changed:", event);
       if (event === 'SIGNED_OUT') {
         navigate("/auth");
-      } else if (event === 'SIGNED_IN' && session) {
-        // Re-check admin status on sign-in event
-        const { data: isAdmin } = await supabase.rpc('is_admin', { 
-          user_id: session.user.id 
-        });
-        
-        if (!isAdmin) {
-          navigate("/auth");
-        } else {
-          setIsLoading(false);
-        }
       }
     });
 
@@ -73,10 +54,7 @@ export function AuthGuard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <div className="text-lg">Ładowanie panelu administracyjnego...</div>
-        </div>
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }

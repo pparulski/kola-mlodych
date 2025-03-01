@@ -99,42 +99,6 @@ export type Database = {
         }
         Relationships: []
       }
-      menu_items: {
-        Row: {
-          category_slug: string | null
-          created_at: string
-          icon: string | null
-          id: string
-          path: string
-          position: number
-          resource_id: string | null
-          title: string
-          type: string
-        }
-        Insert: {
-          category_slug?: string | null
-          created_at?: string
-          icon?: string | null
-          id?: string
-          path: string
-          position: number
-          resource_id?: string | null
-          title: string
-          type?: string
-        }
-        Update: {
-          category_slug?: string | null
-          created_at?: string
-          icon?: string | null
-          id?: string
-          path?: string
-          position?: number
-          resource_id?: string | null
-          title?: string
-          type?: string
-        }
-        Relationships: []
-      }
       news: {
         Row: {
           content: string

@@ -1,111 +1,149 @@
-
-import { useNavigate } from "react-router-dom";
-import { Newspaper, Users, Book, Download } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Newspaper, Users, Download, Book, Flame } from "lucide-react";
 import {
   SidebarMenuItem,
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useLocation } from "react-router-dom";
+
+interface BaseMenuItem {
+  title: string;
+  icon: React.ComponentType<any>;
+}
+
+interface RegularMenuItem extends BaseMenuItem {
+  path: string;
+  subItems?: never;
+  isSpecial?: never;
+}
+
+interface SubMenuItem {
+  title: string;
+  path: string;
+}
+
+interface MenuItemWithSub extends BaseMenuItem {
+  subItems: SubMenuItem[];
+  isSpecial: boolean;
+  path?: never;
+}
+
+type MenuItem = RegularMenuItem | MenuItemWithSub;
+
+const staticMenuItems: RegularMenuItem[] = [
+  { title: "Aktualności", icon: Newspaper, path: "/" },
+  { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
+  { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
+  { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
+];
 
 interface PublicMenuProps {
   onItemClick: () => void;
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Query for menu items
-  const { data: menuItems, isLoading } = useQuery({
-    queryKey: ['menu-items-public'],
+  // Query for static pages that should appear in the sidebar
+  const { data: staticPages } = useQuery({
+    queryKey: ['static-pages-sidebar'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('menu_items')
-        .select('*')
-        .order('position');
+        .from('static_pages')
+        .select('title, slug')
+        .eq('show_in_sidebar', true)
+        .neq('slug', 'dolacz-do-nas')
+        .order('sidebar_position', { ascending: true, nullsFirst: false })
+        .order('title');
 
-      if (error) {
-        console.error("Error fetching menu items:", error);
-        return [];
-      }
-      return data || [];
+      if (error) throw error;
+      return data;
     }
   });
 
-  // Function to check if a path is the current one, or if the current path is a subpath
+  // Use useLocation hook from react-router-dom
+  const location = useLocation();
+
+  // Create the menu items array with static pages
+  const publicMenuItems: MenuItem[] = [
+    ...staticMenuItems,
+    ...(staticPages?.length ? [{
+      title: "Nasze działania",
+      icon: Flame,
+      subItems: staticPages.map(page => ({
+        title: page.title,
+        path: `/${page.slug}`
+      })),
+      isSpecial: true
+    }] : [])
+  ];
+
+    // Function to check if a path is the current one, or if the current path is a subpath
   const isCurrentPath = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + "/");
+      return location.pathname === path || location.pathname.startsWith(path + "/");
   };
 
-  // Get icon component based on icon name
-  const getIconComponent = (iconName?: string) => {
-    if (!iconName) return null;
-    
-    switch (iconName) {
-      case 'Newspaper': return <Newspaper className="w-6 h-6" />;
-      case 'Users': return <Users className="w-6 h-6" />;
-      case 'Book': return <Book className="w-6 h-6" />;
-      case 'Download': return <Download className="w-6 h-6" />;
-      default: return null;
-    }
-  };
-
-  // Handle navigation based on current route - reload if same route
-  const handleNavigation = (path: string) => {
-    if (isCurrentPath(path)) {
-      // Reload the page if clicking on the current route
-      window.location.reload();
-    } else {
-      navigate(path);
-    }
-    onItemClick();
-  };
-
-  if (isLoading) {
-    return <div>Ładowanie menu...</div>;
-  }
-
-  if (!menuItems || menuItems.length === 0) {
-    console.log("No menu items found");
-    // Fallback menu items if database is empty
-    return (
-      <>
-        <SidebarMenuItem>
-          <SidebarMenuButton 
-            onClick={() => handleNavigation("/")}
-            className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath("/") ? 'text-accent' : ''}`}
-          >
-            <Newspaper className="w-6 h-6" />
-            <span>Aktualności</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <SidebarMenuButton 
-            onClick={() => handleNavigation("/kola-mlodych")}
-            className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath("/kola-mlodych") ? 'text-accent' : ''}`}
-          >
-            <Users className="w-6 h-6" />
-            <span>Koła Młodych</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </>
-    );
-  }
 
   return (
     <>
-      {menuItems.map((item) => (
-        <SidebarMenuItem key={item.id}>
-          <SidebarMenuButton 
-            asChild={false}
-            onClick={() => handleNavigation(item.path)}
-            className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath(item.path) ? 'text-accent' : ''}`}
-          >
-            {getIconComponent(item.icon)}
-            <span>{item.title}</span>
-          </SidebarMenuButton>
+      {publicMenuItems.map((item) => (
+        <SidebarMenuItem key={item.title}>
+          {'subItems' in item ? (
+            <>
+              <SidebarMenuButton
+                className={`font-medium ${item.isSpecial
+                    ? 'relative overflow-hidden group hover:text-accent transition-colors'
+                    : ''
+                  }`}
+              >
+                {item.icon && (
+                  <item.icon
+                    className={`w-6 h-6 ${item.isSpecial
+                        ? 'relative z-10 text-orange-500 dark:text-orange-400 animate-pulse'
+                        : ''
+                      }`}
+                  />
+                )}
+                <span className={`${item.isSpecial
+                    ? 'relative z-10 font-bold text-orange-600 dark:text-orange-400'
+                    : ''
+                  }`}>
+                  {item.title}
+                </span>
+                {item.isSpecial && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-orange-500/10 dark:from-orange-500/20 dark:via-red-500/20 dark:to-orange-500/20 animate-pulse" />
+                )}
+              </SidebarMenuButton>
+              <SidebarMenuSub>
+                {item.subItems.map((subItem) => (
+                  <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubButton asChild>
+                      <Link
+                        to={subItem.path}
+                        onClick={onItemClick}
+                        className={isCurrentPath(subItem.path) ? 'text-accent' : ''} // Apply class to Link
+                      >
+                        {subItem.title}
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            </>
+          ) : (
+            <SidebarMenuButton asChild>
+              <Link
+                to={item.path}
+                className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath(item.path) ? 'text-accent' : ''}`} // Apply class to Link
+                onClick={onItemClick}
+              >
+                {item.icon && <item.icon className="w-6 h-6" />}
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          )}
         </SidebarMenuItem>
       ))}
     </>
