@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem, MenuItemFormData } from "@/types/menu";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { MenuItemForm } from "@/components/manage/menu/MenuItemForm";
 import { MenuItemList } from "@/components/manage/menu/MenuItemList";
 import { MenuItemDeleteDialog } from "@/components/manage/menu/MenuItemDeleteDialog";
@@ -34,16 +33,14 @@ export function MenuManagement() {
     }) => {
       const { formData, id, position } = data;
       
+      // Convert the menu item from our form data to the structure the database expects
       const menuItem = {
         title: formData.title,
         type: formData.type,
-        link: formData.link || null,
+        path: formData.link || "/", // Make sure path is provided as it's required
         icon: formData.icon || null,
-        parent_id: formData.parent_id || null,
-        page_id: formData.page_id || null,
-        category_id: formData.category_id || null,
-        is_public: formData.is_public,
-        is_admin: formData.is_admin,
+        resource_id: formData.page_id || null,
+        category_slug: formData.category_id || null,
         position: position || 0,
       };
 
@@ -105,16 +102,11 @@ export function MenuManagement() {
   const reorderMutation = useMutation({
     mutationFn: async (items: MenuItem[]) => {
       // Update positions of all items
-      const updates = items.map((item, index) => ({
-        id: item.id,
-        position: index,
-      }));
-
-      for (const update of updates) {
+      for (const item of items) {
         const { error } = await supabase
           .from("menu_items")
-          .update({ position: update.position })
-          .eq("id", update.id);
+          .update({ position: item.position })
+          .eq("id", item.id);
 
         if (error) throw error;
       }
@@ -149,10 +141,8 @@ export function MenuManagement() {
 
   return (
     <div>
-      <PageHeader
-        title="Zarządzanie menu"
-        description="Dodawaj, edytuj i usuwaj elementy menu"
-      />
+      <h1 className="text-2xl font-bold mb-4">Zarządzanie menu</h1>
+      <p className="text-gray-500 mb-6">Dodawaj, edytuj i usuwaj elementy menu</p>
 
       <div className="grid gap-8 md:grid-cols-2">
         <div>

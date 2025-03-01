@@ -64,10 +64,8 @@ export function CategoryManagement() {
 
   return (
     <div>
-      <PageHeader
-        title="Zarządzanie kategoriami"
-        description="Dodawaj, edytuj i usuwaj kategorie"
-      />
+      <h1 className="text-2xl font-bold mb-4">Zarządzanie kategoriami</h1>
+      <p className="text-gray-500 mb-6">Dodawaj, edytuj i usuwaj kategorie</p>
 
       <div className="grid gap-8 md:grid-cols-2">
         <div>

@@ -9,26 +9,33 @@ import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 
 interface PageHeaderProps {
-  pageTitle: string;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedCategories: string[];
-  setSelectedCategories: (categories: string[]) => void;
+  pageTitle?: string;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
+  selectedCategories?: string[];
+  setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
+  title?: string; // Add this for backward compatibility
+  description?: string; // Add this for backward compatibility
 }
 
 export function PageHeader({
   pageTitle,
-  searchQuery,
-  setSearchQuery,
-  selectedCategories,
-  setSelectedCategories,
-  categories
+  searchQuery = "",
+  setSearchQuery = () => {},
+  selectedCategories = [],
+  setSelectedCategories = () => {},
+  categories = [],
+  title, // Support for old prop
+  description // Support for old prop
 }: PageHeaderProps) {
   const { open, setOpen } = useSidebar();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use title prop as fallback for pageTitle
+  const displayTitle = pageTitle || title || "";
   
   // Focus the search input when opened
   useEffect(() => {
@@ -53,8 +60,9 @@ export function PageHeader({
           </SidebarTrigger>
           <div className="ml-10 md:ml-0">
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
-              {pageTitle}
+              {displayTitle}
             </h1>
+            {description && <p className="text-muted-foreground">{description}</p>}
           </div>
         </div>
         

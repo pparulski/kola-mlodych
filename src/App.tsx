@@ -11,7 +11,7 @@ import { ManageNews } from "./pages/manage/ManageNews";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
 import { ManagePages } from "./pages/manage/ManagePages";
-import { ManageCategories } from "./pages/manage/ManageCategories";
+import ManageCategories from "./pages/manage/ManageCategories";
 import { NewsDetails } from "./pages/NewsDetails";
 import { StaticPage } from "./components/StaticPage";
 
