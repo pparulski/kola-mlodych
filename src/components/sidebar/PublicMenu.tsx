@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { Home, Map, BookOpen, Download, File } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { StaticPage } from "@/types/staticPages";
 import { MenuItemType } from "@/types/sidebarMenu";
+import { fetchSidebarPages } from "@/services/menuService";
+import { staticPagesToMenuItems, getDefaultMenuItems, sortMenuItems } from "@/utils/menuUtils";
 
 interface PublicMenuProps {
   onItemClick: () => void;
@@ -15,49 +15,36 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Fetch all static pages visible in sidebar
   const { data: sidebarPages, isLoading: isPagesLoading } = useQuery({
     queryKey: ['static-pages-sidebar'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('static_pages')
-        .select('*')
-        .eq('show_in_sidebar', true)
-        .order('sidebar_position', { ascending: true });
-
-      if (error) {
-        console.error("Error fetching sidebar pages:", error);
-        return [];
-      }
-
-      return data as StaticPage[];
-    },
+    queryFn: fetchSidebarPages,
   });
 
-  // Define default menu items with their positions
-  const defaultMenuItems = [
-    { path: "/", icon: Home, title: "Aktualności", position: 1, type: MenuItemType.REGULAR },
-    { path: "/kola-mlodych", icon: Map, title: "Koła Młodych", position: 2, type: MenuItemType.REGULAR },
-    { path: "/downloads", icon: Download, title: "Pliki do pobrania", position: 3, type: MenuItemType.REGULAR },
-    { path: "/ebooks", icon: BookOpen, title: "Publikacje", position: 4, type: MenuItemType.REGULAR },
-  ];
-
   // Convert static pages to menu items format
-  const staticPageMenuItems = sidebarPages?.map(page => ({
-    path: `/${page.slug}`,
-    icon: File,
-    title: page.title,
-    position: page.sidebar_position || 100,
-    type: MenuItemType.STATIC_PAGE,
-    id: page.id
-  })) || [];
+  const staticPageMenuItems = sidebarPages ? staticPagesToMenuItems(sidebarPages) : [];
+
+  // Get default menu items
+  const defaultMenuItems = getDefaultMenuItems().map(item => ({
+    ...item,
+    icon: getIconComponent(item.icon)
+  }));
 
   // Combine both arrays and sort by position
-  const allMenuItems = [...defaultMenuItems, ...staticPageMenuItems].sort(
-    (a, b) => (a.position || 100) - (b.position || 100)
-  );
+  const allMenuItems = sortMenuItems([...defaultMenuItems, ...staticPageMenuItems]);
 
   console.log("Sidebar menu items (sorted):", allMenuItems);
 
   if (isPagesLoading) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;
+  }
+
+  // Helper function to get the icon component
+  function getIconComponent(iconName: string) {
+    switch (iconName) {
+      case 'Home': return Home;
+      case 'Map': return Map;
+      case 'Download': return Download;
+      case 'BookOpen': return BookOpen;
+      default: return File;
+    }
   }
 
   return (
