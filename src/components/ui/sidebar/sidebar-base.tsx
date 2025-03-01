@@ -2,6 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "./sidebar-context"
 import { Button } from "@/components/ui/button"
+import { ChevronRight } from "lucide-react"
 
 export const Sidebar = React.forwardRef<
   HTMLDivElement,
@@ -28,17 +29,27 @@ export const SidebarTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
 >(({ className, children, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, open } = useSidebar()
 
   return (
     <Button
       ref={ref}
       variant="ghost"
-      className={cn("p-0 hover:bg-transparent", className)}
+      className={cn(
+        "p-0 hover:bg-transparent relative md:hidden group",
+        "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-0 hover:before:opacity-100 transition-all",
+        className
+      )}
       onClick={toggleSidebar}
+      aria-label="Toggle sidebar"
       {...props}
     >
-      {children}
+      {children || (
+        <ChevronRight className={cn(
+          "h-5 w-5 transform transition-transform", 
+          open && "rotate-180"
+        )} />
+      )}
     </Button>
   )
 })
