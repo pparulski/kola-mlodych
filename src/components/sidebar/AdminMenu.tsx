@@ -1,16 +1,17 @@
 
 import { Link } from "react-router-dom";
-import { Newspaper, Book, Download, LogOut, FileText } from "lucide-react";
+import { Newspaper, Book, Download, LogOut, FileText, Tag } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
   { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
   { title: "Zarządzaj stronami", icon: FileText, path: "/manage/pages" },
+  { title: "Zarządzaj kategoriami", icon: Tag, path: "/manage/categories" },
 ];
 
 interface AdminMenuProps {
@@ -23,20 +24,13 @@ export function AdminMenu({ onItemClick }: AdminMenuProps) {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      toast({
-        title: "Wylogowano pomyślnie",
-        description: "Do zobaczenia!",
-      });
+      toast.success("Wylogowano pomyślnie");
       if (isMobile) {
         onItemClick();
       }
     } catch (error) {
       console.error("Logout error:", error);
-      toast({
-        title: "Błąd wylogowania",
-        description: "Spróbuj ponownie później",
-        variant: "destructive",
-      });
+      toast.error("Błąd wylogowania");
     }
   };
 

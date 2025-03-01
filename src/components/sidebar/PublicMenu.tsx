@@ -1,149 +1,118 @@
 import { Link, useLocation } from "react-router-dom";
-import { Newspaper, Users, Download, Book, Flame } from "lucide-react";
-import {
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton
-} from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-interface BaseMenuItem {
-  title: string;
-  icon: React.ComponentType<any>;
-}
-
-interface RegularMenuItem extends BaseMenuItem {
-  path: string;
-  subItems?: never;
-  isSpecial?: never;
-}
-
-interface SubMenuItem {
-  title: string;
-  path: string;
-}
-
-interface MenuItemWithSub extends BaseMenuItem {
-  subItems: SubMenuItem[];
-  isSpecial: boolean;
-  path?: never;
-}
-
-type MenuItem = RegularMenuItem | MenuItemWithSub;
-
-const staticMenuItems: RegularMenuItem[] = [
-  { title: "Aktualności", icon: Newspaper, path: "/" },
-  { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
-  { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
-  { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
-];
+import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { StaticPage } from "@/types/staticPages";
 
 interface PublicMenuProps {
   onItemClick: () => void;
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
-  // Query for static pages that should appear in the sidebar
-  const { data: staticPages } = useQuery({
+  const location = useLocation();
+  
+  // Query static pages that should be shown in the sidebar
+  const { data: sidebarPages } = useQuery({
     queryKey: ['static-pages-sidebar'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('static_pages')
-        .select('title, slug')
+        .select('*')
         .eq('show_in_sidebar', true)
-        .neq('slug', 'dolacz-do-nas')
-        .order('sidebar_position', { ascending: true, nullsFirst: false })
-        .order('title');
+        .order('sidebar_position');
 
       if (error) throw error;
-      return data;
-    }
+      return data as StaticPage[];
+    },
   });
 
-  // Use useLocation hook from react-router-dom
-  const location = useLocation();
-
-  // Create the menu items array with static pages
-  const publicMenuItems: MenuItem[] = [
-    ...staticMenuItems,
-    ...(staticPages?.length ? [{
-      title: "Nasze działania",
-      icon: Flame,
-      subItems: staticPages.map(page => ({
-        title: page.title,
-        path: `/${page.slug}`
-      })),
-      isSpecial: true
-    }] : [])
-  ];
-
-    // Function to check if a path is the current one, or if the current path is a subpath
-  const isCurrentPath = (path: string) => {
-      return location.pathname === path || location.pathname.startsWith(path + "/");
+  // Handle clicking on the current page - this will reload the page
+  const handleLinkClick = (path: string) => {
+    if (location.pathname === path) {
+      // If clicking on the current page, refresh the page
+      window.location.href = path;
+    } else {
+      // Otherwise just close the sidebar on mobile
+      onItemClick();
+    }
   };
-
-
+  
   return (
     <>
-      {publicMenuItems.map((item) => (
-        <SidebarMenuItem key={item.title}>
-          {'subItems' in item ? (
-            <>
-              <SidebarMenuButton
-                className={`font-medium ${item.isSpecial
-                    ? 'relative overflow-hidden group hover:text-accent transition-colors'
-                    : ''
-                  }`}
-              >
-                {item.icon && (
-                  <item.icon
-                    className={`w-6 h-6 ${item.isSpecial
-                        ? 'relative z-10 text-orange-500 dark:text-orange-400 animate-pulse'
-                        : ''
-                      }`}
-                  />
-                )}
-                <span className={`${item.isSpecial
-                    ? 'relative z-10 font-bold text-orange-600 dark:text-orange-400'
-                    : ''
-                  }`}>
-                  {item.title}
-                </span>
-                {item.isSpecial && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-orange-500/10 dark:from-orange-500/20 dark:via-red-500/20 dark:to-orange-500/20 animate-pulse" />
-                )}
-              </SidebarMenuButton>
-              <SidebarMenuSub>
-                {item.subItems.map((subItem) => (
-                  <SidebarMenuSubItem key={subItem.title}>
-                    <SidebarMenuSubButton asChild>
-                      <Link
-                        to={subItem.path}
-                        onClick={onItemClick}
-                        className={isCurrentPath(subItem.path) ? 'text-accent' : ''} // Apply class to Link
-                      >
-                        {subItem.title}
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            </>
-          ) : (
-            <SidebarMenuButton asChild>
-              <Link
-                to={item.path}
-                className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath(item.path) ? 'text-accent' : ''}`} // Apply class to Link
-                onClick={onItemClick}
-              >
-                {item.icon && <item.icon className="w-6 h-6" />}
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={location.pathname === '/'}
+        >
+          <Link 
+            to="/" 
+            className="transition-colors hover:text-accent text-lg py-3"
+            onClick={() => handleLinkClick('/')}
+          >
+            <span>Aktualności</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild
+          isActive={location.pathname === '/kola-mlodych'}
+        >
+          <Link 
+            to="/kola-mlodych" 
+            className="transition-colors hover:text-accent text-lg py-3"
+            onClick={() => handleLinkClick('/kola-mlodych')}
+          >
+            <span>Koła Młodych</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild
+          isActive={location.pathname === '/ebooks'}
+        >
+          <Link 
+            to="/ebooks" 
+            className="transition-colors hover:text-accent text-lg py-3"
+            onClick={() => handleLinkClick('/ebooks')}
+          >
+            <span>Publikacje</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild
+          isActive={location.pathname === '/downloads'}
+        >
+          <Link 
+            to="/downloads" 
+            className="transition-colors hover:text-accent text-lg py-3"
+            onClick={() => handleLinkClick('/downloads')}
+          >
+            <span>Materiały do pobrania</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      {sidebarPages?.map((page) => (
+        <SidebarMenuItem key={page.id}>
+          <SidebarMenuButton 
+            asChild
+            isActive={location.pathname === `/${page.slug}`}
+          >
+            <Link 
+              to={`/${page.slug}`} 
+              className="transition-colors hover:text-accent text-lg py-3"
+              onClick={() => handleLinkClick(`/${page.slug}`)}
+            >
+              <span>{page.title}</span>
+            </Link>
+          </SidebarMenuButton>
         </SidebarMenuItem>
       ))}
     </>

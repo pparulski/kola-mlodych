@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 import { StaticPage } from "@/types/staticPages";
 import { StaticPageImageUpload } from "./StaticPageImageUpload";
 import { StaticPageTinyMCE } from "./StaticPageTinyMCE";
-import { StaticPageCategorySelector } from "./StaticPageCategorySelector";
 import { StaticPageSidebarOption } from "./StaticPageSidebarOption";
-import { usePageCategories } from "@/hooks/usePageCategories";
 import { usePageSubmit } from "@/hooks/usePageSubmit";
 
 interface StaticPageEditorProps {
@@ -32,12 +30,6 @@ export function StaticPageEditor({
     handleSubmit
   } = usePageSubmit(existingPage, onSuccess, defaultSlug);
 
-  const {
-    categories,
-    selectedCategories,
-    toggleCategory
-  } = usePageCategories(existingPage?.id);
-
   return (
     <div className="space-y-4">
       <input
@@ -58,19 +50,13 @@ export function StaticPageEditor({
         setShowInSidebar={setShowInSidebar}
       />
 
-      <StaticPageCategorySelector
-        categories={categories}
-        selectedCategories={selectedCategories}
-        toggleCategory={toggleCategory}
-      />
-
       <StaticPageTinyMCE 
         content={content}
         onEditorChange={setContent}
       />
 
       <Button 
-        onClick={() => handleSubmit(selectedCategories)} 
+        onClick={() => handleSubmit([])} 
         className="mt-4"
       >
         {existingPage ? "Zaktualizuj" : "Opublikuj"}

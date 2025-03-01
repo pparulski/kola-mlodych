@@ -66,14 +66,15 @@ export function usePageSubmit(
 
         if (error) throw error;
 
-        // Update categories - first delete existing
-        await supabase
-          .from('static_page_categories')
-          .delete()
-          .eq('static_page_id', existingPage.id);
-
-        // Then add the new selected categories
+        // Only update categories if we have any selected
         if (selectedCategories.length > 0) {
+          // Update categories - first delete existing
+          await supabase
+            .from('static_page_categories')
+            .delete()
+            .eq('static_page_id', existingPage.id);
+
+          // Then add the new selected categories
           const { data: categories } = await supabase
             .from('categories')
             .select('*');
@@ -125,7 +126,7 @@ export function usePageSubmit(
 
         if (error) throw error;
 
-        // Add categories for the new page
+        // Only add categories if we have any selected
         if (selectedCategories.length > 0 && data && data[0]) {
           const { data: categories } = await supabase
             .from('categories')

@@ -11,6 +11,7 @@ import { ManageNews } from "./pages/manage/ManageNews";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
 import { ManagePages } from "./pages/manage/ManagePages";
+import { ManageCategories } from "./pages/manage/ManageCategories";
 import { NewsDetails } from "./pages/NewsDetails";
 import { StaticPage } from "./components/StaticPage";
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="/manage/downloads" element={<ManageDownloads />} />
             <Route path="/manage/ebooks" element={<ManageEbooks />} />
             <Route path="/manage/pages" element={<ManagePages />} />
+            <Route path="/manage/categories" element={<ManageCategories />} />
           </Route>
         </Route>
       </Routes>
