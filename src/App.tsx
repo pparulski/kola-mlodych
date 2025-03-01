@@ -1,24 +1,23 @@
+
 import { Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Layout } from "./components/Layout";
-import { NewsPage } from "./pages/NewsPage";
-import { NewsArticlePage } from "./pages/NewsArticlePage";
-import { EbooksPage } from "./pages/EbooksPage";
-import { DownloadsPage } from "./pages/DownloadsPage";
-import { UnionsPage } from "./pages/UnionsPage";
 import { StaticPage } from "./components/StaticPage";
 import { AuthGuard } from "./components/AuthGuard";
 import { ManageNews } from "./pages/manage/ManageNews";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
 import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManagePages } from "./pages/manage/ManagePages";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Add these imports for the new pages
 import { ManageCategories } from "./pages/manage/ManageCategories";
 import { ManageMenu } from "./pages/manage/ManageMenu";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NewsPage } from "./pages/Index";
+import { NewsArticlePage } from "./pages/NewsArticle";
+import { EbooksPage } from "./pages/Ebooks";
+import { DownloadsPage } from "./pages/Downloads";
+import { UnionsPage } from "./pages/Map";
 
 function App() {
   const queryClient = new QueryClient();
@@ -58,59 +57,39 @@ function App() {
                     element: <StaticPage />,
                   },
                   
-                  // Add these routes
                   {
-                    path: "manage/news",
-                    element: (
-                      <AuthGuard>
-                        <ManageNews />
-                      </AuthGuard>
-                    ),
-                  },
-                  {
-                    path: "manage/ebooks",
-                    element: (
-                      <AuthGuard>
-                        <ManageEbooks />
-                      </AuthGuard>
-                    ),
-                  },
-                  {
-                    path: "manage/downloads",
-                    element: (
-                      <AuthGuard>
-                        <ManageDownloads />
-                      </AuthGuard>
-                    ),
-                  },
-                  {
-                    path: "manage/pages",
-                    element: (
-                      <AuthGuard>
-                        <ManagePages />
-                      </AuthGuard>
-                    ),
-                  },
-                  {
-                    path: "manage/categories",
-                    element: (
-                      <AuthGuard>
-                        <ManageCategories />
-                      </AuthGuard>
-                    ),
-                  },
-                  {
-                    path: "manage/menu",
-                    element: (
-                      <AuthGuard>
-                        <ManageMenu />
-                      </AuthGuard>
-                    ),
+                    element: <AuthGuard />,
+                    children: [
+                      {
+                        path: "manage/news",
+                        element: <ManageNews />
+                      },
+                      {
+                        path: "manage/ebooks",
+                        element: <ManageEbooks />
+                      },
+                      {
+                        path: "manage/downloads",
+                        element: <ManageDownloads />
+                      },
+                      {
+                        path: "manage/pages",
+                        element: <ManagePages />
+                      },
+                      {
+                        path: "manage/categories",
+                        element: <ManageCategories />
+                      },
+                      {
+                        path: "manage/menu",
+                        element: <ManageMenu />
+                      },
+                    ]
                   },
                 ],
               },
               {
-                path: "/logowanie",
+                path: "/auth",
                 element: <div>Logowanie</div>,
               },
             ])}

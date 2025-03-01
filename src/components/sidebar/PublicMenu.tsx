@@ -1,15 +1,13 @@
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Newspaper, Users, Download, Book, Flame } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Newspaper, Users, Book, Download } from "lucide-react";
 import {
   SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton
+  SidebarMenuButton
 } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocation } from "react-router-dom";
 
 interface PublicMenuProps {
   onItemClick: () => void;
@@ -19,17 +17,14 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Query for static pages that should appear in the sidebar
-  const { data: staticPages } = useQuery({
-    queryKey: ['static-pages-sidebar'],
+  // Query for menu items
+  const { data: menuItems, isLoading } = useQuery({
+    queryKey: ['menu-items-public'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('static_pages')
-        .select('title, slug, sidebar_position')
-        .eq('show_in_sidebar', true)
-        .neq('slug', 'dolacz-do-nas')
-        .order('sidebar_position', { ascending: true, nullsFirst: false })
-        .order('title');
+        .from('menu_items')
+        .select('*')
+        .order('position');
 
       if (error) throw error;
       return data;
@@ -41,7 +36,20 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     return location.pathname === path || location.pathname.startsWith(path + "/");
   };
 
-  // Handle navigation based on current route
+  // Get icon component based on icon name
+  const getIconComponent = (iconName?: string) => {
+    if (!iconName) return null;
+    
+    switch (iconName) {
+      case 'Newspaper': return <Newspaper className="w-6 h-6" />;
+      case 'Users': return <Users className="w-6 h-6" />;
+      case 'Book': return <Book className="w-6 h-6" />;
+      case 'Download': return <Download className="w-6 h-6" />;
+      default: return null;
+    }
+  };
+
+  // Handle navigation based on current route - reload if same route
   const handleNavigation = (path: string) => {
     if (isCurrentPath(path)) {
       // Reload the page if clicking on the current route
@@ -52,29 +60,20 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     onItemClick();
   };
 
-  // Create menu items
-  const menuItems = [
-    { title: "Aktualności", icon: Newspaper, path: "/" },
-    { title: "Lista Kół Młodych", icon: Users, path: "/kola-mlodych" },
-    { title: "Nasze publikacje", icon: Book, path: "/ebooks" },
-    { title: "Pliki do pobrania", icon: Download, path: "/downloads" },
-    ...(staticPages?.map(page => ({
-      title: page.title,
-      icon: null,
-      path: `/${page.slug}`
-    })) || [])
-  ];
+  if (isLoading) {
+    return <div>Ładowanie menu...</div>;
+  }
 
   return (
     <>
-      {menuItems.map((item) => (
-        <SidebarMenuItem key={item.title}>
+      {menuItems?.map((item) => (
+        <SidebarMenuItem key={item.id}>
           <SidebarMenuButton 
             asChild={false}
             onClick={() => handleNavigation(item.path)}
             className={`transition-colors hover:text-accent text-lg py-3 ${isCurrentPath(item.path) ? 'text-accent' : ''}`}
           >
-            {item.icon && <item.icon className="w-6 h-6" />}
+            {getIconComponent(item.icon)}
             <span>{item.title}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>

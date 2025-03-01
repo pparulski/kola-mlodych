@@ -108,7 +108,7 @@ export function MenuManagement() {
       // Check if we have any items
       const { data, error } = await supabase
         .from('menu_items')
-        .select('count(*)');
+        .select('count');
       
       if (error) {
         console.error("Error checking menu items:", error);
@@ -116,7 +116,7 @@ export function MenuManagement() {
       }
       
       // If no menu items exist, add the defaults
-      const count = parseInt((data[0]?.count as any) || "0");
+      const count = parseInt(data[0]?.count as string || "0");
       if (count === 0) {
         for (let i = 0; i < defaultItems.length; i++) {
           await supabase

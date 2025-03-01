@@ -50,13 +50,13 @@ export function CategoryManagement() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('news_categories')
-        .select('category_id, count(*)');
+        .select('category_id, count');
       
       if (error) throw error;
       
       const usage: Record<string, number> = {};
       data.forEach(item => {
-        usage[item.category_id] = parseInt(item.count as any);
+        usage[item.category_id] = parseInt(item.count as string);
       });
       
       return usage;
@@ -139,6 +139,7 @@ export function CategoryManagement() {
   // Create filtered feed mutation
   const createFilteredFeedMutation = useMutation({
     mutationFn: async ({ name, categorySlugs }: { name: string, categorySlugs: string[] }) => {
+      // Get the highest position
       const { data: menuItems, error: menuError } = await supabase
         .from('menu_items')
         .select('position')
