@@ -46,7 +46,7 @@ export function PageHeader({
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2 md:gap-4">
           <SidebarTrigger 
-            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0" 
+            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-transform duration-300 ease-in-out hover:translate-x-1 hover:scale-105 active:scale-95 hover:bg-accent/10" 
             onClick={() => setOpen(!open)}
           >
             <Menu className="h-4 w-4" />
