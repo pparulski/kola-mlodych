@@ -46,10 +46,10 @@ export function PageHeader({
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2 md:gap-4">
           <SidebarTrigger 
-            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-transform duration-300 ease-in-out hover:translate-x-1 hover:bg-accent/10" 
+            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12 hover:bg-accent/10" 
             onClick={() => setOpen(!open)}
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-4 w-4 absolute right-3" />
           </SidebarTrigger>
           <div className="ml-10 md:ml-0">
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
@@ -73,7 +73,20 @@ export function PageHeader({
 
             {/* Category filter - always visible but compact on mobile */}
             {categories && categories.length > 0 && (
-              <div>
+              <div className="hidden md:block">
+                <CategoryFilter
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  availableCategories={categories}
+                  position="top"
+                  compactOnMobile={false}
+                />
+              </div>
+            )}
+            
+            {/* Mobile category filter - compact version */}
+            {categories && categories.length > 0 && (
+              <div className="block md:hidden">
                 <CategoryFilter
                   selectedCategories={selectedCategories}
                   setSelectedCategories={setSelectedCategories}
