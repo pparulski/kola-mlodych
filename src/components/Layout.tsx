@@ -150,11 +150,11 @@ function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2 md:gap-4">
-              <SidebarTrigger 
-                className="md:hidden h-8 w-10 ml-[-0.75rem] pl-2 flex items-center justify-start border-r border-r-muted/30 rounded-none" 
-              />
+          <div className="flex items-center justify-between mb-8 relative">
+            {/* Sidebar trigger positioned at the left edge */}
+            <SidebarTrigger className="absolute left-0 top-1/2 -translate-y-1/2 z-10" />
+            
+            <div className="flex items-center gap-2 md:gap-4 pl-8 md:pl-0">
               <h1 className="text-xl md:text-3xl font-bold text-primary truncate">
                 {pageTitle}
               </h1>

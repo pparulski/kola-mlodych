@@ -1,8 +1,9 @@
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "./sidebar-context"
 import { Button } from "@/components/ui/button"
-import { ChevronRight } from "lucide-react"
+import { PanelLeft } from "lucide-react"
 
 export const Sidebar = React.forwardRef<
   HTMLDivElement,
@@ -36,18 +37,21 @@ export const SidebarTrigger = React.forwardRef<
       ref={ref}
       variant="ghost"
       className={cn(
-        "p-0 hover:bg-transparent relative md:hidden group",
-        "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-0 hover:before:opacity-100 transition-all",
+        "p-0 md:hidden group",
+        // Edge indicator and styling
+        "absolute left-0 bg-gradient-to-r from-primary/5 to-transparent",
+        "rounded-r-md rounded-l-none border-l-0 h-10 w-8",
+        "hover:bg-primary/10 active:bg-primary/20",
         className
       )}
       onClick={toggleSidebar}
-      aria-label="Toggle sidebar"
+      aria-label="Open sidebar menu"
       {...props}
     >
       {children || (
-        <ChevronRight className={cn(
-          "h-5 w-5 transform transition-transform", 
-          open && "rotate-180"
+        <PanelLeft className={cn(
+          "h-5 w-5 text-primary",
+          open ? "opacity-80" : "opacity-100"
         )} />
       )}
     </Button>
