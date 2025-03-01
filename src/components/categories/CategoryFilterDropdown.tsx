@@ -15,12 +15,14 @@ interface CategoryFilterDropdownProps {
   selectedCategories: string[];
   setSelectedCategories: (value: string[]) => void;
   availableCategories: Category[];
+  compactOnMobile?: boolean;
 }
 
 export function CategoryFilterDropdown({
   selectedCategories,
   setSelectedCategories,
   availableCategories,
+  compactOnMobile = false,
 }: CategoryFilterDropdownProps) {
   const handleCategoryClick = (slug: string) => {
     if (selectedCategories.includes(slug)) {
@@ -34,13 +36,42 @@ export function CategoryFilterDropdown({
     setSelectedCategories([]);
   };
 
+  // Counter for selected items
+  const selectedCount = selectedCategories.length;
+  const hasSelectedItems = selectedCount > 0;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 px-4 lg:px-6">
-          <SlidersHorizontal className="mr-2 h-4 w-4" />
-          <span>Kategorie</span>
-        </Button>
+        {compactOnMobile ? (
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="relative md:hidden"
+            aria-label="Filtry kategorii"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {hasSelectedItems && (
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                {selectedCount}
+              </span>
+            )}
+          </Button>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-9 px-4 lg:px-6 hidden md:flex"
+          >
+            <SlidersHorizontal className="mr-2 h-4 w-4" />
+            <span>Kategorie</span>
+            {hasSelectedItems && (
+              <span className="ml-1.5 bg-primary/20 text-primary text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {selectedCount}
+              </span>
+            )}
+          </Button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48">
         <DropdownMenuGroup>
