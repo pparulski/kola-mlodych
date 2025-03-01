@@ -20,7 +20,7 @@ export function usePageSubmit(
   );
   const queryClient = useQueryClient();
 
-  const handleSubmit = async (selectedCategories: string[]) => {
+  const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -66,36 +66,6 @@ export function usePageSubmit(
 
         if (error) throw error;
 
-        // Update categories - first delete existing
-        await supabase
-          .from('static_page_categories')
-          .delete()
-          .eq('static_page_id', existingPage.id);
-
-        // Then add the new selected categories
-        if (selectedCategories.length > 0) {
-          const { data: categories } = await supabase
-            .from('categories')
-            .select('*');
-            
-          if (categories) {
-            const categoryRecords = categories
-              .filter(cat => selectedCategories.includes(cat.slug))
-              .map(cat => ({
-                static_page_id: existingPage.id,
-                category_id: cat.id
-              }));
-
-            if (categoryRecords.length > 0) {
-              const { error: catError } = await supabase
-                .from('static_page_categories')
-                .insert(categoryRecords);
-              
-              if (catError) throw catError;
-            }
-          }
-        }
-
         toast.success("Strona została zaktualizowana");
       } else {
         let sidebarPosition = null;
@@ -125,42 +95,19 @@ export function usePageSubmit(
 
         if (error) throw error;
 
-        // Add categories for the new page
-        if (selectedCategories.length > 0 && data && data[0]) {
-          const { data: categories } = await supabase
-            .from('categories')
-            .select('*');
-            
-          if (categories) {
-            const pageId = data[0].id;
-            const categoryRecords = categories
-              .filter(cat => selectedCategories.includes(cat.slug))
-              .map(cat => ({
-                static_page_id: pageId,
-                category_id: cat.id
-              }));
-
-            if (categoryRecords.length > 0) {
-              const { error: catError } = await supabase
-                .from('static_page_categories')
-                .insert(categoryRecords);
-              
-              if (catError) throw catError;
-            }
-          }
-        }
-
         toast.success("Strona została zapisana");
       }
 
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+      
       if (!existingPage) {
         setTitle("");
         setContent("");
         setFeaturedImage(null);
         setShowInSidebar(true);
       }
+      
       onSuccess?.();
     } catch (error) {
       console.error("Error saving static page:", error);

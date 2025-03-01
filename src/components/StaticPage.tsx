@@ -7,8 +7,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
-import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
-import { Category } from "@/types/categories";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -31,7 +29,7 @@ export function StaticPage() {
     checkAdminStatus();
   }, []);
 
-  // Fetch page data first
+  // Fetch page data
   const { data: page, isLoading } = useQuery({
     queryKey: ['static-page', slug],
     queryFn: async () => {
@@ -49,25 +47,6 @@ export function StaticPage() {
       return data as StaticPageType;
     },
     enabled: !!slug
-  });
-
-  // Fetch page categories
-  const { data: pageCategories } = useQuery({
-    queryKey: ['page-categories-display', page?.id],
-    queryFn: async () => {
-      if (!page?.id) return [];
-      
-      const { data, error } = await supabase
-        .from('static_page_categories')
-        .select(`
-          categories(*)
-        `)
-        .eq('static_page_id', page.id);
-
-      if (error) throw error;
-      return data.map(item => item.categories) as Category[];
-    },
-    enabled: !!page?.id,
   });
 
   if (isLoading) {
@@ -127,16 +106,10 @@ export function StaticPage() {
         )}
         
         {page ? (
-          <>
-            {pageCategories && pageCategories.length > 0 && (
-              <CategoryBadgeList categories={pageCategories} />
-            )}
-            
-            <div 
-              className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
-              dangerouslySetInnerHTML={{ __html: page.content }}
-            />
-          </>
+          <div 
+            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
         ) : (
           <div className="text-center text-muted-foreground mt-4">
             {isAdmin ? (

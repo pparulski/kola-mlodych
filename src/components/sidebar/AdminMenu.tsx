@@ -1,6 +1,6 @@
 
-import { Link } from "react-router-dom";
-import { Newspaper, Book, Download, LogOut, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Newspaper, Book, Download, LogOut, FileText, Tag, Menu } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,8 @@ const adminMenuItems = [
   { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
   { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
   { title: "Zarządzaj stronami", icon: FileText, path: "/manage/pages" },
+  { title: "Zarządzaj kategoriami", icon: Tag, path: "/manage/categories" },
+  { title: "Zarządzaj menu", icon: Menu, path: "/manage/menu" },
 ];
 
 interface AdminMenuProps {
@@ -19,6 +21,7 @@ interface AdminMenuProps {
 
 export function AdminMenu({ onItemClick }: AdminMenuProps) {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -40,19 +43,21 @@ export function AdminMenu({ onItemClick }: AdminMenuProps) {
     }
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    onItemClick();
+  };
+
   return (
     <>
       {adminMenuItems.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild>
-            <Link 
-              to={item.path}
-              className="transition-colors hover:text-accent text-lg py-3"
-              onClick={onItemClick}
-            >
-              <item.icon className="w-6 h-6" />
-              <span>{item.title}</span>
-            </Link>
+          <SidebarMenuButton
+            onClick={() => handleNavigation(item.path)}
+            className="transition-colors hover:text-accent text-lg py-3"
+          >
+            <item.icon className="w-6 h-6" />
+            <span>{item.title}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}

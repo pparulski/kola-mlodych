@@ -1,40 +1,124 @@
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import { Layout } from "./components/Layout";
-import Index from "./pages/Index";
-import Map from "./pages/Map";
-import Downloads from "./pages/Downloads";
-import Ebooks from "./pages/Ebooks";
-import Auth from "./pages/Auth";
+import { NewsPage } from "./pages/NewsPage";
+import { NewsArticlePage } from "./pages/NewsArticlePage";
+import { EbooksPage } from "./pages/EbooksPage";
+import { DownloadsPage } from "./pages/DownloadsPage";
+import { UnionsPage } from "./pages/UnionsPage";
+import { StaticPage } from "./components/StaticPage";
 import { AuthGuard } from "./components/AuthGuard";
 import { ManageNews } from "./pages/manage/ManageNews";
-import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManageEbooks } from "./pages/manage/ManageEbooks";
+import { ManageDownloads } from "./pages/manage/ManageDownloads";
 import { ManagePages } from "./pages/manage/ManagePages";
-import { NewsDetails } from "./pages/NewsDetails";
-import { StaticPage } from "./components/StaticPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Add these imports for the new pages
+import { ManageCategories } from "./pages/manage/ManageCategories";
+import { ManageMenu } from "./pages/manage/ManageMenu";
 
 function App() {
+  const queryClient = new QueryClient();
+  
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Index />} />
-          <Route path="/kola-mlodych" element={<Map />} />
-          <Route path="/news/:slug" element={<NewsDetails />} />
-          <Route path="/:slug" element={<StaticPage />} />
-          <Route path="/downloads" element={<Downloads />} />
-          <Route path="/ebooks" element={<Ebooks />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route element={<AuthGuard />}>
-            <Route path="/manage/news" element={<ManageNews />} />
-            <Route path="/manage/downloads" element={<ManageDownloads />} />
-            <Route path="/manage/ebooks" element={<ManageEbooks />} />
-            <Route path="/manage/pages" element={<ManagePages />} />
-          </Route>
-        </Route>
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Suspense fallback={<div>Loading...</div>}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider
+            router={createBrowserRouter([
+              {
+                path: "/",
+                element: <Layout />,
+                children: [
+                  {
+                    path: "/",
+                    element: <NewsPage />,
+                  },
+                  {
+                    path: "/artykul/:slug",
+                    element: <NewsArticlePage />,
+                  },
+                  {
+                    path: "/ebooks",
+                    element: <EbooksPage />,
+                  },
+                  {
+                    path: "/downloads",
+                    element: <DownloadsPage />,
+                  },
+                  {
+                    path: "/kola-mlodych",
+                    element: <UnionsPage />,
+                  },
+                  {
+                    path: "/:slug",
+                    element: <StaticPage />,
+                  },
+                  
+                  // Add these routes
+                  {
+                    path: "manage/news",
+                    element: (
+                      <AuthGuard>
+                        <ManageNews />
+                      </AuthGuard>
+                    ),
+                  },
+                  {
+                    path: "manage/ebooks",
+                    element: (
+                      <AuthGuard>
+                        <ManageEbooks />
+                      </AuthGuard>
+                    ),
+                  },
+                  {
+                    path: "manage/downloads",
+                    element: (
+                      <AuthGuard>
+                        <ManageDownloads />
+                      </AuthGuard>
+                    ),
+                  },
+                  {
+                    path: "manage/pages",
+                    element: (
+                      <AuthGuard>
+                        <ManagePages />
+                      </AuthGuard>
+                    ),
+                  },
+                  {
+                    path: "manage/categories",
+                    element: (
+                      <AuthGuard>
+                        <ManageCategories />
+                      </AuthGuard>
+                    ),
+                  },
+                  {
+                    path: "manage/menu",
+                    element: (
+                      <AuthGuard>
+                        <ManageMenu />
+                      </AuthGuard>
+                    ),
+                  },
+                ],
+              },
+              {
+                path: "/logowanie",
+                element: <div>Logowanie</div>,
+              },
+            ])}
+          />
+          <Toaster />
+        </QueryClientProvider>
+      </Suspense>
+    </ThemeProvider>
   );
 }
 
