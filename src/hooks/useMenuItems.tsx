@@ -69,13 +69,13 @@ export function useMenuItems() {
       ];
 
       // Convert static pages to menu items format
-      const staticPagesItems: SidebarMenuItem[] = staticPagesData.map((page, index) => ({
+      const staticPagesItems: SidebarMenuItem[] = staticPagesData.map((page) => ({
         id: `page-${page.id}`,
         originalId: page.id,
         title: page.title,
         path: `/${page.slug}`,
         icon: 'File',
-        position: page.sidebar_position || (5 + index),
+        position: page.sidebar_position || 999, // Use actual position or a high number to ensure it's at the end
         type: MenuItemType.STATIC_PAGE
       }));
 
@@ -94,22 +94,26 @@ export function useMenuItems() {
       // Store all updated positions for later use
       const updatedPositions: Record<string, number> = {};
       
-      // Process each static page update individually
-      for (const item of staticPageItems) {
-        if (!item.originalId) continue;
+      // Now we update positions for each item
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const position = i + 1; // 1-based position index
         
-        // Find the position in the sorted array
-        const position = items.findIndex(i => i.id === item.id) + 1;
-        
-        const { error } = await supabase
-          .from('static_pages')
-          .update({ sidebar_position: position })
-          .eq('id', item.originalId);
-        
-        if (error) throw error;
-        
-        // Store the updated position
+        // Store position for all items
         updatedPositions[item.id] = position;
+        
+        // Only update database for static pages
+        if (item.type === MenuItemType.STATIC_PAGE && item.originalId) {
+          const { error } = await supabase
+            .from('static_pages')
+            .update({ sidebar_position: position })
+            .eq('id', item.originalId);
+          
+          if (error) {
+            console.error("Error updating position for item:", item, error);
+            throw error;
+          }
+        }
       }
       
       return { updatedPositions };
@@ -142,7 +146,7 @@ export function useMenuItems() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
     
-    // Update positions
+    // Update positions of all items
     const updatedItems = items.map((item, index) => ({
       ...item,
       position: index + 1
