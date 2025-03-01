@@ -74,11 +74,11 @@ export function NewsPreview({
           
           <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <p className="text-sm text-foreground">{formattedDate}</p>
+              <p className="text-sm text-foreground my-0">{formattedDate}</p>
             )}
             
             {articleCategories && articleCategories.length > 0 && (
-              <CategoryBadgeList categories={articleCategories} />
+              <CategoryBadgeList categories={articleCategories} className="m-0 inline-flex" />
             )}
           </div>
         </div>

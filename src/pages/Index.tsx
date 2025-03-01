@@ -6,13 +6,15 @@ import { useState } from "react";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const ARTICLES_PER_PAGE = 8;
 
 export default function Index() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Fetch all available categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -82,11 +84,22 @@ export default function Index() {
   const isLoading = categoriesLoading || (selectedCategories.length > 0 ? newsLoading : allNewsLoading);
   const displayedNews = selectedCategories.length > 0 ? news : allNews;
 
+  // Filter news by search query
+  const filteredNews = displayedNews?.filter(article => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      article.title.toLowerCase().includes(query) ||
+      article.content.toLowerCase().includes(query)
+    );
+  });
+
   // Calculate pagination
-  const totalArticles = displayedNews?.length || 0;
+  const totalArticles = filteredNews?.length || 0;
   const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
   const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-  const paginatedNews = displayedNews?.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
+  const paginatedNews = filteredNews?.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -100,18 +113,53 @@ export default function Index() {
   }
 
   return (
-    <div className="space-y-6">
-      {paginatedNews?.map((article) => (
-        <NewsPreview
-          key={article.id}
-          id={article.id}
-          slug={article.slug}
-          title={article.title}
-          content={article.content}
-          date={article.created_at}
-          featured_image={article.featured_image}
-        />
-      ))}
+    <div>
+      {/* Search and filter bar */}
+      <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          <span className="font-medium">Kategorie:</span>
+          {categories && categories.length > 0 && (
+            <CategoryFilter
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              availableCategories={categories}
+              position="top"
+            />
+          )}
+        </div>
+        
+        <div className="relative w-full md:w-auto">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Szukaj..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 w-full md:w-64"
+          />
+        </div>
+      </div>
+      
+      {/* News articles */}
+      <div className="space-y-6">
+        {paginatedNews?.length === 0 ? (
+          <div className="text-center p-8 bg-card rounded-lg border-2 border-border">
+            <p>Nie znaleziono artykułów spełniających kryteria.</p>
+          </div>
+        ) : (
+          paginatedNews?.map((article) => (
+            <NewsPreview
+              key={article.id}
+              id={article.id}
+              slug={article.slug}
+              title={article.title}
+              content={article.content}
+              date={article.created_at}
+              featured_image={article.featured_image}
+            />
+          ))
+        )}
+      </div>
       
       {/* Pagination */}
       {totalPages > 1 && (
@@ -152,16 +200,6 @@ export default function Index() {
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
-      )}
-      
-      {/* Category filter - only show on news feed page */}
-      {categories && categories.length > 0 && (
-        <CategoryFilter
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          availableCategories={categories}
-          position="bottom"
-        />
       )}
     </div>
   );

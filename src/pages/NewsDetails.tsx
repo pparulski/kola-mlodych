@@ -56,26 +56,26 @@ export function NewsDetails() {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
-        {article.featured_image && (
-          <img
-            src={article.featured_image}
-            alt=""
-            className="w-full h-48 object-cover rounded-md"
-          />
-        )}
-        
         <div className="space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <p className="text-sm text-foreground">{formattedDate}</p>
+              <p className="text-sm text-foreground my-0">{formattedDate}</p>
             )}
             
             {articleCategories && articleCategories.length > 0 && (
-              <CategoryBadgeList categories={articleCategories} />
+              <CategoryBadgeList categories={articleCategories} className="m-0 inline-flex" />
             )}
           </div>
+          
+          {article.featured_image && (
+            <img
+              src={article.featured_image}
+              alt=""
+              className="w-full h-auto object-cover rounded-md"
+            />
+          )}
           
           <div 
             className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
