@@ -60,8 +60,9 @@ export function NewsDetails() {
       
       <NewsContent 
         content={article.content} 
-        featuredImage={article.featured_image}
+        featured_image={article.featured_image}
         date={article.created_at}
+        title={article.title}
       />
     </div>
   );
