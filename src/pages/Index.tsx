@@ -44,17 +44,29 @@ export default function Index() {
       let query = supabase.from('news').select('id', { count: 'exact' });
       
       if (selectedCategories.length > 0) {
-        query = query.in('id', 
-          supabase
+        const { data: categoryIds } = await supabase
+          .from('categories')
+          .select('id')
+          .in('slug', selectedCategories);
+        
+        if (categoryIds && categoryIds.length > 0) {
+          const { data: newsIds } = await supabase
             .from('news_categories')
             .select('news_id')
-            .in('category_id', 
-              supabase
-                .from('categories')
-                .select('id')
-                .in('slug', selectedCategories)
-            )
-        );
+            .in('category_id', categoryIds.map(cat => cat.id));
+          
+          if (newsIds && newsIds.length > 0) {
+            query = query.in('id', newsIds.map(item => item.news_id));
+          } else {
+            // No news with selected categories
+            setTotalCount(0);
+            return;
+          }
+        } else {
+          // No matching categories
+          setTotalCount(0);
+          return;
+        }
       }
       
       if (searchQuery?.trim()) {
@@ -96,17 +108,27 @@ export default function Index() {
       
       // Add category filtering if needed
       if (selectedCategories.length > 0) {
-        query = query.in('id', 
-          supabase
+        const { data: categoryIds } = await supabase
+          .from('categories')
+          .select('id')
+          .in('slug', selectedCategories);
+        
+        if (categoryIds && categoryIds.length > 0) {
+          const { data: newsIds } = await supabase
             .from('news_categories')
             .select('news_id')
-            .in('category_id', 
-              supabase
-                .from('categories')
-                .select('id')
-                .in('slug', selectedCategories)
-            )
-        );
+            .in('category_id', categoryIds.map(cat => cat.id));
+          
+          if (newsIds && newsIds.length > 0) {
+            query = query.in('id', newsIds.map(item => item.news_id));
+          } else {
+            // No news with selected categories, return empty array
+            return [];
+          }
+        } else {
+          // No matching categories, return empty array
+          return [];
+        }
       }
       
       // Add search filtering if needed
