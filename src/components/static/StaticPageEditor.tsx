@@ -1,6 +1,6 @@
 
 import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { StaticPage } from "@/types/staticPages";
 import { StaticPageImageUpload } from "./StaticPageImageUpload";
 import { StaticPageTinyMCE } from "./StaticPageTinyMCE";

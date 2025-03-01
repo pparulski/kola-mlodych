@@ -66,37 +66,6 @@ export function usePageSubmit(
 
         if (error) throw error;
 
-        // Only update categories if we have any selected
-        if (selectedCategories.length > 0) {
-          // Update categories - first delete existing
-          await supabase
-            .from('static_page_categories')
-            .delete()
-            .eq('static_page_id', existingPage.id);
-
-          // Then add the new selected categories
-          const { data: categories } = await supabase
-            .from('categories')
-            .select('*');
-            
-          if (categories) {
-            const categoryRecords = categories
-              .filter(cat => selectedCategories.includes(cat.slug))
-              .map(cat => ({
-                static_page_id: existingPage.id,
-                category_id: cat.id
-              }));
-
-            if (categoryRecords.length > 0) {
-              const { error: catError } = await supabase
-                .from('static_page_categories')
-                .insert(categoryRecords);
-              
-              if (catError) throw catError;
-            }
-          }
-        }
-
         toast.success("Strona została zaktualizowana");
       } else {
         let sidebarPosition = null;
@@ -125,31 +94,6 @@ export function usePageSubmit(
           .select();
 
         if (error) throw error;
-
-        // Only add categories if we have any selected
-        if (selectedCategories.length > 0 && data && data[0]) {
-          const { data: categories } = await supabase
-            .from('categories')
-            .select('*');
-            
-          if (categories) {
-            const pageId = data[0].id;
-            const categoryRecords = categories
-              .filter(cat => selectedCategories.includes(cat.slug))
-              .map(cat => ({
-                static_page_id: pageId,
-                category_id: cat.id
-              }));
-
-            if (categoryRecords.length > 0) {
-              const { error: catError } = await supabase
-                .from('static_page_categories')
-                .insert(categoryRecords);
-              
-              if (catError) throw catError;
-            }
-          }
-        }
 
         toast.success("Strona została zapisana");
       }

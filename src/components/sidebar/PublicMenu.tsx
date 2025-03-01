@@ -1,17 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Home, Map, BookOpen, Download, File } from "lucide-react";
+import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { StaticPage } from "@/types/staticPages";
+import type { StaticPage } from "@/types/staticPages";
 
 interface PublicMenuProps {
   onItemClick: () => void;
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
-  const location = useLocation();
-  
-  // Query static pages that should be shown in the sidebar
   const { data: sidebarPages } = useQuery({
     queryKey: ['static-pages-sidebar'],
     queryFn: async () => {
@@ -19,98 +17,79 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
         .from('static_pages')
         .select('*')
         .eq('show_in_sidebar', true)
-        .order('sidebar_position');
+        .order('sidebar_position', { ascending: true, nullsFirst: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching sidebar pages:", error);
+        return [];
+      }
+
       return data as StaticPage[];
     },
   });
 
-  // Handle clicking on the current page - this will reload the page
-  const handleLinkClick = (path: string) => {
-    if (location.pathname === path) {
-      // If clicking on the current page, refresh the page
-      window.location.href = path;
-    } else {
-      // Otherwise just close the sidebar on mobile
-      onItemClick();
-    }
-  };
-  
   return (
     <>
       <SidebarMenuItem>
-        <SidebarMenuButton 
-          asChild 
-          isActive={location.pathname === '/'}
-        >
+        <SidebarMenuButton asChild>
           <Link 
             to="/" 
-            className="transition-colors hover:text-accent text-lg py-3"
-            onClick={() => handleLinkClick('/')}
+            onClick={onItemClick}
+            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
           >
-            <span>Aktualności</span>
+            <Home className="w-6 h-6" />
+            <span className="flex-1">Aktualności</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
-      
       <SidebarMenuItem>
-        <SidebarMenuButton 
-          asChild
-          isActive={location.pathname === '/kola-mlodych'}
-        >
+        <SidebarMenuButton asChild>
           <Link 
             to="/kola-mlodych" 
-            className="transition-colors hover:text-accent text-lg py-3"
-            onClick={() => handleLinkClick('/kola-mlodych')}
+            onClick={onItemClick}
+            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
           >
-            <span>Koła Młodych</span>
+            <Map className="w-6 h-6" />
+            <span className="flex-1">Koła Młodych</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
-      
       <SidebarMenuItem>
-        <SidebarMenuButton 
-          asChild
-          isActive={location.pathname === '/ebooks'}
-        >
-          <Link 
-            to="/ebooks" 
-            className="transition-colors hover:text-accent text-lg py-3"
-            onClick={() => handleLinkClick('/ebooks')}
-          >
-            <span>Publikacje</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      
-      <SidebarMenuItem>
-        <SidebarMenuButton 
-          asChild
-          isActive={location.pathname === '/downloads'}
-        >
+        <SidebarMenuButton asChild>
           <Link 
             to="/downloads" 
-            className="transition-colors hover:text-accent text-lg py-3"
-            onClick={() => handleLinkClick('/downloads')}
+            onClick={onItemClick}
+            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
           >
-            <span>Materiały do pobrania</span>
+            <Download className="w-6 h-6" />
+            <span className="flex-1">Pliki do pobrania</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild>
+          <Link 
+            to="/ebooks" 
+            onClick={onItemClick}
+            className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
+          >
+            <BookOpen className="w-6 h-6" />
+            <span className="flex-1">Publikacje</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
       
+      {/* Static Pages */}
       {sidebarPages?.map((page) => (
         <SidebarMenuItem key={page.id}>
-          <SidebarMenuButton 
-            asChild
-            isActive={location.pathname === `/${page.slug}`}
-          >
+          <SidebarMenuButton asChild>
             <Link 
               to={`/${page.slug}`} 
-              className="transition-colors hover:text-accent text-lg py-3"
-              onClick={() => handleLinkClick(`/${page.slug}`)}
+              onClick={onItemClick}
+              className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
             >
-              <span>{page.title}</span>
+              <File className="w-6 h-6" />
+              <span className="flex-1">{page.title}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

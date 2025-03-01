@@ -5,6 +5,7 @@ import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const adminMenuItems = [
   { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
@@ -20,11 +21,21 @@ interface AdminMenuProps {
 
 export function AdminMenu({ onItemClick }: AdminMenuProps) {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Logout error:", error);
+        toast.error("Błąd wylogowania");
+        return;
+      }
+      
       toast.success("Wylogowano pomyślnie");
+      navigate("/auth");
+      
       if (isMobile) {
         onItemClick();
       }
@@ -41,21 +52,18 @@ export function AdminMenu({ onItemClick }: AdminMenuProps) {
           <SidebarMenuButton asChild>
             <Link 
               to={item.path}
-              className="transition-colors hover:text-accent text-lg py-3"
+              className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
               onClick={onItemClick}
             >
               <item.icon className="w-6 h-6" />
-              <span>{item.title}</span>
+              <span className="flex-1">{item.title}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}
       <SidebarMenuItem>
         <SidebarMenuButton
-          onClick={() => {
-            handleLogout();
-            onItemClick();
-          }}
+          onClick={handleLogout}
           className="transition-colors hover:text-accent text-lg py-3 w-full flex items-center gap-2"
         >
           <LogOut className="w-6 h-6" />
