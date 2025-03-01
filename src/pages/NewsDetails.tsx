@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { NewsContent } from "@/components/news/NewsContent";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -50,20 +52,38 @@ export function NewsDetails() {
     return <div>Article not found</div>;
   }
 
+  const formattedDate = article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "";
+
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-      
-      {articleCategories && articleCategories.length > 0 && (
-        <CategoryBadgeList categories={articleCategories} className="mb-4" />
-      )}
-      
-      <NewsContent 
-        content={article.content} 
-        featured_image={article.featured_image}
-        date={article.created_at}
-        title={article.title}
-      />
+      <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
+        {article.featured_image && (
+          <img
+            src={article.featured_image}
+            alt=""
+            className="w-full h-48 object-cover rounded-md"
+          />
+        )}
+        
+        <div className="space-y-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {formattedDate && (
+              <p className="text-sm text-foreground">{formattedDate}</p>
+            )}
+            
+            {articleCategories && articleCategories.length > 0 && (
+              <CategoryBadgeList categories={articleCategories} />
+            )}
+          </div>
+          
+          <div 
+            className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
+        </div>
+      </article>
     </div>
   );
 }

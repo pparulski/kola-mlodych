@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
+import { Category } from "@/types/categories";
 
 interface NewsPreviewProps {
   id: string;
@@ -14,6 +18,7 @@ interface NewsPreviewProps {
 }
 
 export function NewsPreview({
+  id,
   slug,
   title,
   content,
@@ -33,6 +38,22 @@ export function NewsPreview({
       })()
     : "";
 
+  // Fetch article categories
+  const { data: articleCategories } = useQuery({
+    queryKey: ['news-preview-categories', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('news_categories')
+        .select(`
+          categories(*)
+        `)
+        .eq('news_id', id);
+
+      if (error) throw error;
+      return data.map(item => item.categories) as Category[];
+    },
+  });
+
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (
@@ -50,9 +71,16 @@ export function NewsPreview({
           >
             <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
-          {formattedDate && (
-            <p className="text-sm text-foreground">{formattedDate}</p>
-          )}
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {formattedDate && (
+              <p className="text-sm text-foreground">{formattedDate}</p>
+            )}
+            
+            {articleCategories && articleCategories.length > 0 && (
+              <CategoryBadgeList categories={articleCategories} />
+            )}
+          </div>
         </div>
         <div 
           className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
