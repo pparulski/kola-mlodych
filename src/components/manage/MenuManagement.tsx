@@ -1,25 +1,60 @@
 
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ArrowUp, ArrowDown, Trash2, Edit } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MenuItem } from "@/types/menu";
-import { Button } from "@/components/ui/button";
-import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
-export function MenuManagement() {
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+import type { MenuItem } from "@/types/menu";
+
+export const MenuManagement = () => {
   const queryClient = useQueryClient();
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newItem, setNewItem] = useState<{
+    title: string;
+    path: string;
+    icon: string;
+  }>({
+    title: "",
+    path: "",
+    icon: "",
+  });
+  
+  // Icons available for menu items
+  const availableIcons = [
+    { name: "Newspaper", label: "Aktualności" },
+    { name: "Book", label: "Publikacje" },
+    { name: "Download", label: "Pliki" },
+    { name: "Users", label: "Koła Młodych" },
+  ];
 
   // Fetch menu items
   const { data: menuItems, isLoading } = useQuery({
@@ -35,47 +70,116 @@ export function MenuManagement() {
     }
   });
 
-  // Update position mutation
-  const updatePositionMutation = useMutation({
-    mutationFn: async ({ itemId, direction }: { itemId: string, direction: 'up' | 'down' }) => {
-      if (!menuItems) return;
+  // Fetch static pages for reference
+  const { data: staticPages } = useQuery({
+    queryKey: ['static-pages-for-menu'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('static_pages')
+        .select('*');
       
-      const currentIndex = menuItems.findIndex(item => item.id === itemId);
-      if (currentIndex === -1) return;
-      
-      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      if (newIndex < 0 || newIndex >= menuItems.length) return;
-      
-      const targetItem = menuItems[newIndex];
-      
-      // Swap positions
-      await supabase
-        .from('menu_items')
-        .update({ position: -1 }) // Temporary position
-        .eq('id', itemId);
-      
-      await supabase
-        .from('menu_items')
-        .update({ position: menuItems[currentIndex].position })
-        .eq('id', targetItem.id);
-      
-      await supabase
-        .from('menu_items')
-        .update({ position: targetItem.position })
-        .eq('id', itemId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
-      toast.success("Pozycja została zaktualizowana");
-    },
-    onError: (error) => {
-      console.error("Error updating position:", error);
-      toast.error("Nie udało się zaktualizować pozycji");
+      if (error) throw error;
+      return data;
     }
   });
 
-  // Delete menu item mutation
-  const deleteMenuItemMutation = useMutation({
+  // Fetch categories for reference
+  const { data: categories } = useQuery({
+    queryKey: ['categories-for-menu'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Add new menu item
+  const addMutation = useMutation({
+    mutationFn: async (item: typeof newItem) => {
+      if (!item.title.trim() || !item.path.trim()) {
+        throw new Error("Tytuł i ścieżka są wymagane");
+      }
+
+      // Get the highest position
+      const { data: positionData, error: positionError } = await supabase
+        .from('menu_items')
+        .select('position')
+        .order('position', { ascending: false })
+        .limit(1);
+      
+      if (positionError) throw positionError;
+      
+      const nextPosition = positionData && positionData.length > 0 
+        ? positionData[0].position + 1 
+        : 1;
+
+      const { data, error } = await supabase
+        .from('menu_items')
+        .insert([{ 
+          ...item, 
+          position: nextPosition,
+          type: 'custom'
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      setNewItem({
+        title: "",
+        path: "",
+        icon: "",
+      });
+      setIsAddDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      toast.success("Element menu został dodany");
+    },
+    onError: (error) => {
+      console.error("Error adding menu item:", error);
+      toast.error("Nie udało się dodać elementu menu");
+    }
+  });
+
+  // Update menu item
+  const updateMutation = useMutation({
+    mutationFn: async (item: MenuItem) => {
+      if (!item.title.trim() || !item.path.trim()) {
+        throw new Error("Tytuł i ścieżka są wymagane");
+      }
+      
+      const { data, error } = await supabase
+        .from('menu_items')
+        .update({
+          title: item.title,
+          path: item.path,
+          icon: item.icon
+        })
+        .eq('id', item.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      setEditingItem(null);
+      setIsEditDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      toast.success("Element menu został zaktualizowany");
+    },
+    onError: (error) => {
+      console.error("Error updating menu item:", error);
+      toast.error("Nie udało się zaktualizować elementu menu");
+    }
+  });
+
+  // Delete menu item
+  const deleteMutation = useMutation({
     mutationFn: async (itemId: string) => {
       const { error } = await supabase
         .from('menu_items')
@@ -83,9 +187,10 @@ export function MenuManagement() {
         .eq('id', itemId);
       
       if (error) throw error;
+      
+      return itemId;
     },
     onSuccess: () => {
-      setConfirmDelete(null);
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
       toast.success("Element menu został usunięty");
     },
@@ -95,149 +200,296 @@ export function MenuManagement() {
     }
   });
 
-  // On first load, ensure default menu items exist
-  useEffect(() => {
-    const setupDefaultMenuItems = async () => {
-      const defaultItems = [
-        { title: "Aktualności", path: "/", type: "default", icon: "Newspaper" },
-        { title: "Lista Kół Młodych", path: "/kola-mlodych", type: "default", icon: "Users" },
-        { title: "Nasze publikacje", path: "/ebooks", type: "default", icon: "Book" },
-        { title: "Pliki do pobrania", path: "/downloads", type: "default", icon: "Download" }
+  // Move menu item
+  const moveMutation = useMutation({
+    mutationFn: async ({ id, direction }: { id: string; direction: 'up' | 'down' }) => {
+      if (!menuItems) throw new Error("Brak elementów menu");
+      
+      const currentIndex = menuItems.findIndex(item => item.id === id);
+      if (currentIndex === -1) throw new Error("Element nie znaleziony");
+      
+      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= menuItems.length) {
+        throw new Error("Nie można przesunąć elementu dalej");
+      }
+      
+      const currentItem = menuItems[currentIndex];
+      const targetItem = menuItems[targetIndex];
+      
+      // Swap positions
+      const updates = [
+        { id: currentItem.id, position: targetItem.position },
+        { id: targetItem.id, position: currentItem.position }
       ];
       
-      // Check if we have any items
-      const { data, error } = await supabase
-        .from('menu_items')
-        .select('count');
-      
-      if (error) {
-        console.error("Error checking menu items:", error);
-        return;
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('menu_items')
+          .update({ position: update.position })
+          .eq('id', update.id);
+        
+        if (error) throw error;
       }
       
-      // If no menu items exist, add the defaults
-      const count = parseInt(data[0]?.count as string || "0");
-      if (count === 0) {
-        for (let i = 0; i < defaultItems.length; i++) {
-          await supabase
-            .from('menu_items')
-            .insert({
-              ...defaultItems[i],
-              position: i + 1
-            });
-        }
-        
-        // Add static pages
-        const { data: pages, error: pagesError } = await supabase
-          .from('static_pages')
-          .select('id, title, slug, sidebar_position')
-          .eq('show_in_sidebar', true)
-          .order('sidebar_position');
-        
-        if (!pagesError && pages) {
-          for (let i = 0; i < pages.length; i++) {
-            await supabase
-              .from('menu_items')
-              .insert({
-                title: pages[i].title,
-                path: `/${pages[i].slug}`,
-                position: defaultItems.length + i + 1,
-                type: 'static_page',
-                resource_id: pages[i].id
-              });
-          }
-        }
-        
-        queryClient.invalidateQueries({ queryKey: ['menu-items'] });
-      }
-    };
-    
-    setupDefaultMenuItems();
-  }, [queryClient]);
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      toast.success("Pozycja elementu została zmieniona");
+    },
+    onError: (error) => {
+      console.error("Error moving menu item:", error);
+      toast.error("Nie udało się zmienić pozycji elementu");
+    }
+  });
 
-  // Get type label
-  const getTypeLabel = (type: string) => {
+  const handleAddItem = () => {
+    addMutation.mutate(newItem);
+  };
+
+  const handleUpdateItem = () => {
+    if (editingItem) {
+      updateMutation.mutate(editingItem);
+    }
+  };
+
+  const handleDeleteItem = (item: MenuItem) => {
+    if (window.confirm(`Czy na pewno chcesz usunąć element "${item.title}" z menu?`)) {
+      deleteMutation.mutate(item.id);
+    }
+  };
+
+  const handleMoveItem = (id: string, direction: 'up' | 'down') => {
+    moveMutation.mutate({ id, direction });
+  };
+
+  // Get the type display name
+  const getTypeDisplayName = (type: string) => {
     switch (type) {
-      case 'default': return 'Element domyślny';
       case 'static_page': return 'Strona statyczna';
-      case 'filtered_feed': return 'Kanał tematyczny';
+      case 'category_feed': return 'Feed kategorii';
+      case 'default': return 'Domyślny';
+      case 'custom': return 'Niestandardowy';
       default: return type;
     }
   };
 
+  // Get additional info for items
+  const getItemInfo = (item: MenuItem) => {
+    if (item.type === 'static_page' && item.resource_id) {
+      const page = staticPages?.find(p => p.id === item.resource_id);
+      return page ? `Strona: ${page.title}` : 'Strona nieznana';
+    }
+    
+    if (item.type === 'category_feed' && item.category_slug) {
+      const categoryIds = item.category_slug.split(',');
+      const categoryNames = categoryIds
+        .map(id => categories?.find(c => c.id === id)?.name)
+        .filter(Boolean);
+      
+      return categoryNames.length > 0 
+        ? `Kategorie: ${categoryNames.join(', ')}` 
+        : 'Brak kategorii';
+    }
+    
+    return '';
+  };
+
   if (isLoading) {
-    return <div>Ładowanie menu...</div>;
+    return <div>Ładowanie...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Zarządzaj menu</h1>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Zarządzanie menu</h2>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          Dodaj nowy element
+        </Button>
       </div>
-
-      <div className="space-y-4">
-        {menuItems?.map((item, index) => (
-          <div key={item.id} className="p-4 border rounded-lg flex items-center justify-between">
-            <div className="flex-1">
-              <div className="font-medium">{item.title}</div>
-              <div className="text-sm text-muted-foreground">
-                {getTypeLabel(item.type)} • Ścieżka: {item.path}
-                {item.category_slug && ` • Kategorie: ${item.category_slug}`}
-              </div>
+      
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Pozycja</TableHead>
+              <TableHead>Tytuł</TableHead>
+              <TableHead>Ścieżka</TableHead>
+              <TableHead>Typ</TableHead>
+              <TableHead>Informacje</TableHead>
+              <TableHead>Akcje</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {menuItems?.map((item, index) => (
+              <TableRow key={item.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{item.title}</TableCell>
+                <TableCell>{item.path}</TableCell>
+                <TableCell>{getTypeDisplayName(item.type)}</TableCell>
+                <TableCell className="max-w-xs truncate">{getItemInfo(item)}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      disabled={index === 0}
+                      onClick={() => handleMoveItem(item.id, 'up')}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      disabled={index === (menuItems?.length || 0) - 1}
+                      onClick={() => handleMoveItem(item.id, 'down')}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setEditingItem(item);
+                        setIsEditDialogOpen(true);
+                      }}
+                      disabled={item.type !== 'custom' && item.type !== 'default'}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="icon"
+                      onClick={() => handleDeleteItem(item)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edytuj element menu</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="title" className="font-medium">Tytuł</label>
+              <Input
+                id="title"
+                placeholder="Tytuł elementu menu"
+                value={editingItem?.title || ""}
+                onChange={(e) => setEditingItem(prev => 
+                  prev ? { ...prev, title: e.target.value } : null
+                )}
+              />
             </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => updatePositionMutation.mutate({ itemId: item.id, direction: 'up' })}
-                disabled={index === 0}
+            <div className="space-y-2">
+              <label htmlFor="path" className="font-medium">Ścieżka</label>
+              <Input
+                id="path"
+                placeholder="np. /kontakt"
+                value={editingItem?.path || ""}
+                onChange={(e) => setEditingItem(prev => 
+                  prev ? { ...prev, path: e.target.value } : null
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="icon" className="font-medium">Ikona</label>
+              <Select 
+                value={editingItem?.icon || ""} 
+                onValueChange={(value) => setEditingItem(prev => 
+                  prev ? { ...prev, icon: value } : null
+                )}
               >
-                <ArrowUp className="w-4 h-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => updatePositionMutation.mutate({ itemId: item.id, direction: 'down' })}
-                disabled={index === menuItems.length - 1}
-              >
-                <ArrowDown className="w-4 h-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => setConfirmDelete(item.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+                <SelectTrigger>
+                  <SelectValue placeholder="Wybierz ikonę" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Brak ikony</SelectItem>
+                  {availableIcons.map(icon => (
+                    <SelectItem key={icon.name} value={icon.name}>
+                      {icon.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        ))}
-      </div>
-
-      <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Czy na pewno chcesz usunąć ten element menu?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Usunięcie tego elementu spowoduje, że strona nie będzie dostępna z menu bocznego. Sama strona nie zostanie usunięta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anuluj</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (confirmDelete) {
-                  deleteMenuItemMutation.mutate(confirmDelete);
-                }
-              }}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogClose>
+            <Button onClick={handleUpdateItem}>Zapisz</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Dodaj nowy element menu</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="new-title" className="font-medium">Tytuł</label>
+              <Input
+                id="new-title"
+                placeholder="Tytuł elementu menu"
+                value={newItem.title}
+                onChange={(e) => setNewItem(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="new-path" className="font-medium">Ścieżka</label>
+              <Input
+                id="new-path"
+                placeholder="np. /kontakt"
+                value={newItem.path}
+                onChange={(e) => setNewItem(prev => ({ ...prev, path: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="new-icon" className="font-medium">Ikona</label>
+              <Select 
+                value={newItem.icon} 
+                onValueChange={(value) => setNewItem(prev => ({ ...prev, icon: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Wybierz ikonę" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Brak ikony</SelectItem>
+                  {availableIcons.map(icon => (
+                    <SelectItem key={icon.name} value={icon.name}>
+                      {icon.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogClose>
+            <Button 
+              onClick={handleAddItem}
+              disabled={!newItem.title.trim() || !newItem.path.trim()}
             >
-              Usuń
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              Dodaj
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
+};

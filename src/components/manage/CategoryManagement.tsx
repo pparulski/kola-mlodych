@@ -1,37 +1,45 @@
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Category } from "@/types/categories";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Edit, Plus, Save, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import type { Category } from "@/types/categories";
+import { 
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { slugify } from "@/utils/slugUtils";
 
-export function CategoryManagement() {
-  const [newCategoryName, setNewCategoryName] = useState("");
+export const CategoryManagement = () => {
+  const queryClient = useQueryClient();
+  const [newCategory, setNewCategory] = useState("");
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [editName, setEditName] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [feedName, setFeedName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [showFeedNameInput, setShowFeedNameInput] = useState(false);
-  
-  const queryClient = useQueryClient();
+  const [showFeedDialog, setShowFeedDialog] = useState(false);
+  const [categoryArticlesCount, setCategoryArticlesCount] = useState<Record<string, number>>({});
 
   // Fetch categories
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,41 +52,48 @@ export function CategoryManagement() {
     }
   });
 
-  // Fetch category usage in news
-  const { data: categoryUsage } = useQuery({
-    queryKey: ['category-usage'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('news_categories')
-        .select('category_id, count');
+  // Count articles per category
+  useEffect(() => {
+    const fetchCategoriesCount = async () => {
+      if (!categories?.length) return;
       
-      if (error) throw error;
+      const counts: Record<string, number> = {};
       
-      const usage: Record<string, number> = {};
-      data.forEach(item => {
-        usage[item.category_id] = parseInt(item.count as string);
-      });
+      for (const category of categories) {
+        const { count, error } = await supabase
+          .from('news_categories')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id);
+        
+        if (!error) {
+          counts[category.id] = count || 0;
+        }
+      }
       
-      return usage;
-    }
-  });
+      setCategoryArticlesCount(counts);
+    };
+    
+    fetchCategoriesCount();
+  }, [categories]);
 
-  // Add category mutation
-  const addCategoryMutation = useMutation({
+  // Add new category
+  const addMutation = useMutation({
     mutationFn: async (name: string) => {
-      const slug = name.toLowerCase().replace(/\s+/g, '-');
+      if (!name.trim()) throw new Error("Nazwa kategorii nie może być pusta");
       
-      const { error } = await supabase
+      const slug = slugify(name);
+      
+      const { data, error } = await supabase
         .from('categories')
-        .insert({
-          name,
-          slug
-        });
+        .insert([{ name, slug }])
+        .select()
+        .single();
       
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      setNewCategoryName("");
+      setNewCategory("");
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success("Kategoria została dodana");
     },
@@ -88,23 +103,26 @@ export function CategoryManagement() {
     }
   });
 
-  // Update category mutation
-  const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: string, name: string }) => {
-      const slug = name.toLowerCase().replace(/\s+/g, '-');
+  // Update category
+  const updateMutation = useMutation({
+    mutationFn: async (category: Category) => {
+      if (!category.name.trim()) throw new Error("Nazwa kategorii nie może być pusta");
       
-      const { error } = await supabase
+      const slug = slugify(category.name);
+      
+      const { data, error } = await supabase
         .from('categories')
-        .update({
-          name,
-          slug
-        })
-        .eq('id', id);
+        .update({ name: category.name, slug })
+        .eq('id', category.id)
+        .select()
+        .single();
       
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       setEditingCategory(null);
+      setIsEditDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success("Kategoria została zaktualizowana");
     },
@@ -114,291 +132,304 @@ export function CategoryManagement() {
     }
   });
 
-  // Delete category mutation
-  const deleteCategoryMutation = useMutation({
-    mutationFn: async (id: string) => {
+  // Delete category
+  const deleteMutation = useMutation({
+    mutationFn: async (categoryId: string) => {
+      setIsLoading(true);
+      
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', id);
+        .eq('id', categoryId);
       
       if (error) throw error;
+      
+      return categoryId;
     },
     onSuccess: () => {
-      setConfirmDelete(null);
+      setCategoryToDelete(null);
+      setIsDeleteDialogOpen(false);
+      setIsLoading(false);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['category-usage'] });
       toast.success("Kategoria została usunięta");
     },
     onError: (error) => {
+      setIsLoading(false);
       console.error("Error deleting category:", error);
       toast.error("Nie udało się usunąć kategorii");
     }
   });
 
-  // Create filtered feed mutation
-  const createFilteredFeedMutation = useMutation({
-    mutationFn: async ({ name, categorySlugs }: { name: string, categorySlugs: string[] }) => {
+  // Create feed from selected categories
+  const createFeedMutation = useMutation({
+    mutationFn: async ({ name, categoryIds }: { name: string, categoryIds: string[] }) => {
+      if (!name.trim()) throw new Error("Nazwa feedu nie może być pusta");
+      if (categoryIds.length === 0) throw new Error("Wybierz przynajmniej jedną kategorię");
+      
       // Get the highest position
-      const { data: menuItems, error: menuError } = await supabase
+      const { data: menuItems, error: fetchError } = await supabase
         .from('menu_items')
         .select('position')
         .order('position', { ascending: false })
         .limit(1);
       
-      if (menuError) throw menuError;
+      if (fetchError) throw fetchError;
       
-      const position = menuItems && menuItems.length > 0 ? menuItems[0].position + 1 : 1;
+      const nextPosition = menuItems && menuItems.length > 0 ? menuItems[0].position + 1 : 1;
       
-      const { error } = await supabase
+      // Get the slug of the first selected category to use in the path
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('categories')
+        .select('slug')
+        .in('id', categoryIds)
+        .limit(1);
+      
+      if (categoryError) throw categoryError;
+      
+      const categorySlug = categoryData && categoryData.length > 0 ? categoryData[0].slug : '';
+      
+      // Create menu item for the feed
+      const { error: insertError } = await supabase
         .from('menu_items')
         .insert({
           title: name,
-          path: `/feed/${categorySlugs.join(',')}`,
-          position,
-          type: 'filtered_feed',
-          category_slug: categorySlugs.join(',')
+          path: `/?category=${categorySlug}`,
+          position: nextPosition,
+          type: 'category_feed',
+          category_slug: categoryIds.join(',')
         });
       
-      if (error) throw error;
+      if (insertError) throw insertError;
     },
     onSuccess: () => {
-      setFeedName("");
       setSelectedCategories([]);
-      setShowFeedNameInput(false);
+      setFeedName("");
+      setShowFeedDialog(false);
+      toast.success("Feed został utworzony i dodany do menu");
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
-      toast.success("Kanał tematyczny został utworzony i dodany do menu");
     },
     onError: (error) => {
-      console.error("Error creating filtered feed:", error);
-      toast.error("Nie udało się utworzyć kanału tematycznego");
+      console.error("Error creating feed:", error);
+      toast.error("Nie udało się utworzyć feedu");
     }
   });
 
-  // Handle category toggle for filtered feed
-  const handleCategoryToggle = (slug: string) => {
-    if (selectedCategories.includes(slug)) {
-      setSelectedCategories(selectedCategories.filter(s => s !== slug));
+  const handleAddCategory = () => {
+    addMutation.mutate(newCategory);
+  };
+
+  const handleUpdateCategory = () => {
+    if (editingCategory) {
+      updateMutation.mutate(editingCategory);
+    }
+  };
+
+  const handleDeleteCategory = async (category: Category) => {
+    const count = categoryArticlesCount[category.id] || 0;
+    
+    if (count > 0) {
+      setCategoryToDelete(category);
+      setIsDeleteDialogOpen(true);
     } else {
-      setSelectedCategories([...selectedCategories, slug]);
+      if (window.confirm(`Czy na pewno chcesz usunąć kategorię "${category.name}"?`)) {
+        deleteMutation.mutate(category.id);
+      }
     }
   };
 
-  // Handle create filtered feed
-  const handleCreateFilteredFeed = () => {
+  const confirmDeleteCategory = () => {
+    if (categoryToDelete) {
+      deleteMutation.mutate(categoryToDelete.id);
+    }
+  };
+
+  const handleCreateFeed = () => {
     if (selectedCategories.length === 0) {
-      toast.error("Wybierz co najmniej jedną kategorię");
+      toast.error("Wybierz przynajmniej jedną kategorię");
       return;
     }
-    setShowFeedNameInput(true);
+    
+    setShowFeedDialog(true);
   };
 
-  // Handle save filtered feed
-  const handleSaveFilteredFeed = () => {
-    if (!feedName) {
-      toast.error("Podaj nazwę dla kanału tematycznego");
-      return;
-    }
-    createFilteredFeedMutation.mutate({ 
-      name: feedName, 
-      categorySlugs: selectedCategories 
+  const confirmCreateFeed = () => {
+    createFeedMutation.mutate({
+      name: feedName,
+      categoryIds: selectedCategories
     });
   };
 
-  if (isLoading) {
-    return <div>Ładowanie kategorii...</div>;
-  }
+  const toggleCategorySelection = (id: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Zarządzaj kategoriami</h1>
+      <h2 className="text-2xl font-bold">Zarządzanie kategoriami</h2>
+      
+      <div className="flex items-center space-x-4">
+        <Input
+          placeholder="Nazwa nowej kategorii"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          className="max-w-md"
+        />
+        <Button onClick={handleAddCategory} disabled={!newCategory.trim()}>
+          Dodaj kategorię
+        </Button>
       </div>
-
-      <div className="grid gap-4">
-        <h2 className="text-xl font-semibold">Dodaj nową kategorię</h2>
-        <div className="flex gap-2">
-          <Input
-            type="text"
-            placeholder="Nazwa kategorii"
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-          />
-          <Button 
-            onClick={() => {
-              if (newCategoryName.trim()) {
-                addCategoryMutation.mutate(newCategoryName);
-              } else {
-                toast.error("Nazwa kategorii nie może być pusta");
-              }
-            }}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Dodaj
+      
+      {selectedCategories.length > 0 && (
+        <div className="flex items-center space-x-4">
+          <Button onClick={handleCreateFeed}>
+            Utwórz feed z wybranych kategorii ({selectedCategories.length})
           </Button>
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Istniejące kategorie</h2>
-        <div className="space-y-2">
-          {categories?.map((category) => (
-            <div key={category.id} className="p-4 border rounded-lg flex items-center justify-between">
-              {editingCategory?.id === category.id ? (
-                <div className="flex flex-1 items-center gap-2">
-                  <Input
-                    autoFocus
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
+      )}
+      
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">Feed</TableHead>
+              <TableHead>Nazwa</TableHead>
+              <TableHead>Slug</TableHead>
+              <TableHead>Liczba artykułów</TableHead>
+              <TableHead>Akcje</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {categories?.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>
+                  <Checkbox 
+                    checked={selectedCategories.includes(category.id)}
+                    onCheckedChange={() => toggleCategorySelection(category.id)}
                   />
-                  <div className="flex gap-1">
-                    <Button
+                </TableCell>
+                <TableCell>{category.name}</TableCell>
+                <TableCell>{category.slug}</TableCell>
+                <TableCell>{categoryArticlesCount[category.id] || 0}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
                       size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        if (editName.trim()) {
-                          updateCategoryMutation.mutate({
-                            id: category.id,
-                            name: editName
-                          });
-                        } else {
-                          toast.error("Nazwa kategorii nie może być pusta");
-                        }
-                      }}
-                    >
-                      <Save className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditingCategory(null)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-4 flex-1">
-                    <Checkbox
-                      id={`category-${category.id}`}
-                      checked={selectedCategories.includes(category.slug)}
-                      onCheckedChange={() => handleCategoryToggle(category.slug)}
-                    />
-                    <div>
-                      <div className="font-medium">{category.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Slug: {category.slug}
-                        {categoryUsage && categoryUsage[category.id] > 0 && 
-                          ` • Użyta w ${categoryUsage[category.id]} ${
-                            categoryUsage[category.id] === 1 ? 'artykule' : 
-                            categoryUsage[category.id] < 5 ? 'artykułach' : 'artykułach'
-                          }`
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
                       onClick={() => {
                         setEditingCategory(category);
-                        setEditName(category.name);
+                        setIsEditDialogOpen(true);
                       }}
                     >
-                      <Edit className="w-4 h-4" />
+                      Edytuj
                     </Button>
-                    <Button
+                    <Button 
+                      variant="destructive" 
                       size="sm"
-                      variant="destructive"
-                      onClick={() => {
-                        if (categoryUsage && categoryUsage[category.id] > 0) {
-                          setConfirmDelete(category.id);
-                        } else {
-                          deleteCategoryMutation.mutate(category.id);
-                        }
-                      }}
+                      onClick={() => handleDeleteCategory(category)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Usuń
                     </Button>
                   </div>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-
-      {selectedCategories.length > 0 && (
-        <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
-          <h2 className="text-lg font-semibold">Utwórz kanał tematyczny z zaznaczonych kategorii</h2>
-          <div className="flex items-center space-x-2">
-            <div className="flex-1">
-              {selectedCategories.map((slug) => {
-                const category = categories?.find(c => c.slug === slug);
-                return category ? (
-                  <span key={category.id} className="inline-block px-2 py-1 bg-primary/20 text-primary rounded mr-2 mb-2">
-                    {category.name}
-                  </span>
-                ) : null;
-              })}
-            </div>
-            {!showFeedNameInput && (
-              <Button onClick={handleCreateFilteredFeed}>
-                Utwórz kanał
-              </Button>
-            )}
+      
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edytuj kategorię</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Input
+              placeholder="Nazwa kategorii"
+              value={editingCategory?.name || ""}
+              onChange={(e) => setEditingCategory(prev => 
+                prev ? { ...prev, name: e.target.value } : null
+              )}
+            />
           </div>
-          
-          {showFeedNameInput && (
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="Nazwa kanału tematycznego"
-                value={feedName}
-                onChange={(e) => setFeedName(e.target.value)}
-              />
-              <Button
-                onClick={handleSaveFilteredFeed}
-                disabled={!feedName}
-              >
-                Zapisz
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowFeedNameInput(false)}
-              >
-                Anuluj
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
-      <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Czy na pewno chcesz usunąć tę kategorię?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Ta kategoria jest używana w artykułach. Jej usunięcie spowoduje odłączenie jej od wszystkich artykułów.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anuluj</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (confirmDelete) {
-                  deleteCategoryMutation.mutate(confirmDelete);
-                }
-              }}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogClose>
+            <Button onClick={handleUpdateCategory}>Zapisz</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Potwierdź usunięcie</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-red-500 font-semibold">
+              Uwaga! Ta kategoria jest używana w {categoryArticlesCount[categoryToDelete?.id || ""] || 0} artykułach.
+            </p>
+            <p className="mt-2">
+              Usunięcie tej kategorii spowoduje jej usunięcie ze wszystkich artykułów.
+              Czy na pewno chcesz usunąć kategorię "{categoryToDelete?.name}"?
+            </p>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogClose>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteCategory}
+              disabled={isLoading}
             >
-              Usuń
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {isLoading ? "Usuwanie..." : "Usuń"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Create Feed Dialog */}
+      <Dialog open={showFeedDialog} onOpenChange={setShowFeedDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Utwórz feed z wybranych kategorii</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <p>Wybrane kategorie: {selectedCategories.length}</p>
+              <ul className="list-disc ml-5 mt-2">
+                {categories
+                  ?.filter(c => selectedCategories.includes(c.id))
+                  .map(c => (
+                    <li key={c.id}>{c.name}</li>
+                  ))
+                }
+              </ul>
+            </div>
+            <Input
+              placeholder="Nazwa feedu (widoczna w menu)"
+              value={feedName}
+              onChange={(e) => setFeedName(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogClose>
+            <Button 
+              onClick={confirmCreateFeed}
+              disabled={!feedName.trim() || selectedCategories.length === 0}
+            >
+              Utwórz feed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
+};

@@ -13,11 +13,12 @@ import { ManagePages } from "./pages/manage/ManagePages";
 import { ManageCategories } from "./pages/manage/ManageCategories";
 import { ManageMenu } from "./pages/manage/ManageMenu";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NewsPage } from "./pages/Index";
-import { NewsArticlePage } from "./pages/NewsArticle";
-import { EbooksPage } from "./pages/Ebooks";
-import { DownloadsPage } from "./pages/Downloads";
-import { UnionsPage } from "./pages/Map";
+// Fix imports to use default exports
+import NewsPage from "./pages/Index";
+import NewsArticlePage from "./pages/NewsArticle";
+import EbooksPage from "./pages/Ebooks";
+import DownloadsPage from "./pages/Downloads";
+import UnionsPage from "./pages/Map";
 
 function App() {
   const queryClient = new QueryClient();
