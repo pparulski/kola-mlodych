@@ -3,7 +3,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "./sidebar-context"
 import { Button } from "@/components/ui/button"
-import { PanelLeft } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 export const Sidebar = React.forwardRef<
   HTMLDivElement,
@@ -40,7 +40,8 @@ export const SidebarTrigger = React.forwardRef<
         "p-0 md:hidden group",
         // Edge indicator and styling
         "absolute left-0 bg-gradient-to-r from-primary/5 to-transparent",
-        "rounded-r-md rounded-l-none border-l-0 h-10 w-8",
+        "rounded-r-md h-10 w-8",
+        "border border-l-0 border-primary/20",
         "hover:bg-primary/10 active:bg-primary/20",
         className
       )}
@@ -49,9 +50,9 @@ export const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {children || (
-        <PanelLeft className={cn(
-          "h-5 w-5 text-primary",
-          open ? "opacity-80" : "opacity-100"
+        <ChevronRight className={cn(
+          "h-5 w-5 text-primary transform transition-transform", 
+          open && "rotate-180"
         )} />
       )}
     </Button>
