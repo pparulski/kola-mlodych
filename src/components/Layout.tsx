@@ -130,20 +130,20 @@ function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-4 self-start md:self-auto">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-2 md:gap-4 self-start">
               <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
                 <Menu className="h-8 w-8" />
               </SidebarTrigger>
-              <h1 className="text-3xl font-bold text-primary">
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">
                 {pageTitle}
               </h1>
             </div>
             
             {location.pathname === '/' && (
-              <div className="flex flex-wrap gap-4 w-full md:w-auto justify-between md:justify-end">
+              <>
                 {categories && categories.length > 0 && (
-                  <div className="order-1 md:order-1 self-end">
+                  <div className="ml-auto">
                     <CategoryFilter
                       selectedCategories={selectedCategories}
                       setSelectedCategories={setSelectedCategories}
@@ -153,7 +153,7 @@ function LayoutContent() {
                   </div>
                 )}
                 
-                <div className="relative w-full md:w-64 order-2 md:order-2">
+                <div className="relative w-full mt-4 md:mt-0 md:w-64">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
@@ -163,7 +163,7 @@ function LayoutContent() {
                     className="pl-8 w-full"
                   />
                 </div>
-              </div>
+              </>
             )}
           </div>
           <div className="max-w-4xl mx-auto">
