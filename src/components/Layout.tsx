@@ -2,9 +2,13 @@
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Outlet, useLocation, Link } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { CategoryFilter } from "@/components/categories/CategoryFilter";
+import { useState, useEffect } from "react";
+import { Category } from "@/types/categories";
 
 function getPageTitle(pathname: string, staticPageTitle?: string): string {
   // Default titles for known routes
@@ -27,6 +31,64 @@ function getPageTitle(pathname: string, staticPageTitle?: string): string {
 function LayoutContent() {
   const { open, setOpen } = useSidebar();
   const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Only fetch categories on the homepage
+  const { data: categories } = useQuery({
+    queryKey: ['layout-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data as Category[];
+    },
+    enabled: location.pathname === '/',
+  });
+
+  // Pass search and filter values to the Index component through URL parameters
+  useEffect(() => {
+    if (location.pathname === '/') {
+      const params = new URLSearchParams(location.search);
+      
+      if (searchQuery) {
+        params.set('search', searchQuery);
+      } else {
+        params.delete('search');
+      }
+      
+      if (selectedCategories.length > 0) {
+        params.set('categories', selectedCategories.join(','));
+      } else {
+        params.delete('categories');
+      }
+      
+      const newSearch = params.toString();
+      const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
+      
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [searchQuery, selectedCategories, location.pathname]);
+
+  // Read URL parameters when the component mounts
+  useEffect(() => {
+    if (location.pathname === '/') {
+      const params = new URLSearchParams(location.search);
+      
+      const searchParam = params.get('search');
+      if (searchParam) {
+        setSearchQuery(searchParam);
+      }
+      
+      const categoriesParam = params.get('categories');
+      if (categoriesParam) {
+        setSelectedCategories(categoriesParam.split(','));
+      }
+    }
+  }, [location.pathname, location.search]);
 
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
@@ -49,6 +111,8 @@ function LayoutContent() {
     setOpen(false);
   };
 
+  const pageTitle = getPageTitle(location.pathname, staticPage?.title);
+
   return (
     <>
       <AppSidebar />
@@ -60,18 +124,42 @@ function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="md:hidden h-8 w-8" onClick={() => setOpen(!open)}>
                 <Menu className="h-8 w-8" />
               </SidebarTrigger>
               <h1 className="text-3xl font-bold text-primary">
-                {getPageTitle(location.pathname, staticPage?.title)}
+                {pageTitle}
               </h1>
             </div>
+            
+            {location.pathname === '/' && (
+              <div className="flex flex-col md:flex-row gap-4 md:items-center w-full md:w-auto">
+                {categories && categories.length > 0 && (
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    availableCategories={categories}
+                    position="top"
+                  />
+                )}
+                
+                <div className="relative w-full md:w-auto">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Szukaj..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 w-full md:w-64"
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <div className="max-w-4xl mx-auto">
-            <Outlet />
+            <Outlet context={{ searchQuery, selectedCategories }} />
           </div>
         </main>
       </div>

@@ -2,19 +2,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
-import { useState } from "react";
-import { CategoryFilter } from "@/components/categories/CategoryFilter";
-import { Category } from "@/types/categories";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useOutletContext, useLocation } from "react-router-dom";
 
 const ARTICLES_PER_PAGE = 8;
 
+interface IndexContext {
+  searchQuery: string;
+  selectedCategories: string[];
+}
+
 export default function Index() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const location = useLocation();
+  const { searchQuery, selectedCategories } = useOutletContext<IndexContext>();
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Reset page when search or categories change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategories]);
   
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
@@ -25,7 +33,7 @@ export default function Index() {
         .order('name');
 
       if (error) throw error;
-      return data as Category[];
+      return data;
     },
   });
 
@@ -83,7 +91,7 @@ export default function Index() {
 
   // Search through all news regardless of category filtering or pagination
   const filteredNews = displayedNews?.filter(article => {
-    if (!searchQuery.trim()) return true;
+    if (!searchQuery?.trim()) return true;
     
     const query = searchQuery.toLowerCase();
     return (
@@ -110,32 +118,6 @@ export default function Index() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Aktualności</h1>
-        
-        <div className="flex flex-col md:flex-row gap-4 md:items-center">
-          {categories && categories.length > 0 && (
-            <CategoryFilter
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              availableCategories={categories}
-              position="top"
-            />
-          )}
-          
-          <div className="relative w-full md:w-auto">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Szukaj..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-full md:w-64"
-            />
-          </div>
-        </div>
-      </div>
-      
       <div className="space-y-6">
         {paginatedNews?.length === 0 ? (
           <div className="text-center p-8 bg-card rounded-lg border-2 border-border">
