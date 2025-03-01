@@ -46,14 +46,16 @@ export function PageHeader({
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2 md:gap-4">
           <SidebarTrigger 
-            className="md:hidden h-8 w-8 pl-0 border-t border-r border-b rounded-r-md" 
+            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0" 
             onClick={() => setOpen(!open)}
           >
-            <Menu className="h-8 w-8" />
+            <Menu className="h-4 w-4" />
           </SidebarTrigger>
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
-            {pageTitle}
-          </h1>
+          <div className="ml-10 md:ml-0">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary">
+              {pageTitle}
+            </h1>
+          </div>
         </div>
         
         {location.pathname === '/' && (
