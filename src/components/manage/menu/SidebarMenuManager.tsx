@@ -102,18 +102,17 @@ export function SidebarMenuManager() {
   const updateOrderMutation = useMutation({
     mutationFn: async (items: SidebarMenuItem[]) => {
       // Update static pages positions
-      const staticPageUpdates = items
-        .filter(item => item.type === MenuItemType.STATIC_PAGE)
-        .map((item, index) => ({
-          id: item.originalId,
-          sidebar_position: index + 1
-        }));
-
-      if (staticPageUpdates.length > 0) {
+      const staticPageItems = items
+        .filter(item => item.type === MenuItemType.STATIC_PAGE);
+      
+      // Process each static page update individually
+      for (let i = 0; i < staticPageItems.length; i++) {
+        const item = staticPageItems[i];
         const { error } = await supabase
           .from('static_pages')
-          .upsert(staticPageUpdates, { onConflict: 'id' });
-
+          .update({ sidebar_position: i + 1 })
+          .eq('id', item.originalId);
+        
         if (error) throw error;
       }
 

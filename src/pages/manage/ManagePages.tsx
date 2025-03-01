@@ -61,49 +61,6 @@ export function ManagePages() {
     }
   });
 
-  const updatePositionMutation = useMutation({
-    mutationFn: async ({ pageId, direction }: { pageId: string; direction: 'up' | 'down' }) => {
-      // Get the current page and its position
-      const currentPage = pages?.find(p => p.id === pageId);
-      if (!currentPage || !currentPage.show_in_sidebar) return;
-
-      const sidebarPages = pages?.filter(p => p.show_in_sidebar)
-        .sort((a, b) => (a.sidebar_position || 0) - (b.sidebar_position || 0)) || [];
-      
-      const currentIndex = sidebarPages.findIndex(p => p.id === pageId);
-      if (currentIndex === -1) return;
-      
-      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      if (newIndex < 0 || newIndex >= sidebarPages.length) return;
-      
-      // Swap positions with adjacent page
-      const adjacentPage = sidebarPages[newIndex];
-      const tempPosition = currentPage.sidebar_position;
-      
-      const { error: error1 } = await supabase
-        .from('static_pages')
-        .update({ sidebar_position: adjacentPage.sidebar_position })
-        .eq('id', currentPage.id);
-      
-      if (error1) throw error1;
-      
-      const { error: error2 } = await supabase
-        .from('static_pages')
-        .update({ sidebar_position: tempPosition })
-        .eq('id', adjacentPage.id);
-      
-      if (error2) throw error2;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-      queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
-      toast.success("Pozycja została zmieniona");
-    },
-    onError: () => {
-      toast.error("Nie udało się zmienić pozycji strony");
-    }
-  });
-
   const handleDelete = async (pageId: string) => {
     if (!pageId) {
       toast.error("Nie można usunąć strony - brak ID");
@@ -150,7 +107,6 @@ export function ManagePages() {
       onCreateNew={() => setIsCreating(true)}
       onEdit={setEditingPage}
       onDelete={handleDelete}
-      updatePositionMutation={updatePositionMutation}
     />
   );
 }
