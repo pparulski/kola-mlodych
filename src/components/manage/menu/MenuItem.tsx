@@ -29,9 +29,10 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
         <li
           ref={provided.innerRef}
           {...provided.draggableProps}
+          {...provided.dragHandleProps}
           className={`p-3 flex items-center gap-3 ${snapshot.isDragging ? 'bg-accent' : ''}`}
         >
-          <div {...provided.dragHandleProps} className="cursor-grab">
+          <div className="cursor-grab">
             <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="w-8 flex justify-center">
@@ -41,7 +42,7 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
             <p className="font-medium truncate">{item.title}</p>
             <p className="text-xs text-muted-foreground truncate">{item.path}</p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 ml-auto mr-2">
             <Button
               variant="outline"
               size="icon"

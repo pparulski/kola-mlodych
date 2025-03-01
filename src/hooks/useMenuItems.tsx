@@ -18,7 +18,7 @@ export function useMenuItems() {
         .from('static_pages')
         .select('*')
         .eq('show_in_sidebar', true)
-        .order('sidebar_position', { ascending: true, nullsFirst: false });
+        .order('sidebar_position', { ascending: true });
 
       if (error) {
         console.error("Error fetching sidebar pages:", error);
@@ -75,12 +75,14 @@ export function useMenuItems() {
         title: page.title,
         path: `/${page.slug}`,
         icon: 'File',
-        position: page.sidebar_position || 999, // Use actual position or a high number to ensure it's at the end
+        position: page.sidebar_position || 100, // Use actual position or a high number
         type: MenuItemType.STATIC_PAGE
       }));
 
       // Combine and sort all menu items
       const allItems = [...defaultItems, ...staticPagesItems].sort((a, b) => a.position - b.position);
+      
+      console.log("Setting menu items:", allItems);
       setMenuItems(allItems);
     }
   }, [staticPagesData, isLoadingPages]);
@@ -88,48 +90,53 @@ export function useMenuItems() {
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
     mutationFn: async (items: SidebarMenuItem[]) => {
-      // Update static pages positions
-      const staticPageItems = items.filter(item => item.type === MenuItemType.STATIC_PAGE);
+      console.log("Updating menu order with items:", items);
       
-      // Store all updated positions for later use
+      // Create a batch of promises for all static page updates
+      const updatePromises = [];
       const updatedPositions: Record<string, number> = {};
       
-      // Now we update positions for each item
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        const position = i + 1; // 1-based position index
-        
-        // Store position for all items
+        const position = i + 1; // 1-based position
         updatedPositions[item.id] = position;
         
-        // Only update database for static pages
+        // Only update DB for static pages
         if (item.type === MenuItemType.STATIC_PAGE && item.originalId) {
-          const { error } = await supabase
+          console.log(`Updating position for ${item.title} to ${position}`);
+          
+          const updatePromise = supabase
             .from('static_pages')
             .update({ sidebar_position: position })
             .eq('id', item.originalId);
-          
-          if (error) {
-            console.error("Error updating position for item:", item, error);
-            throw error;
-          }
+            
+          updatePromises.push(updatePromise);
         }
       }
       
-      return { updatedPositions };
+      // Wait for all updates to complete
+      const results = await Promise.all(updatePromises);
+      
+      // Check for errors
+      const errors = results.filter(result => result.error);
+      if (errors.length > 0) {
+        console.error("Errors updating positions:", errors);
+        throw new Error("Failed to update some menu positions");
+      }
+      
+      return { updatedPositions, items };
     },
     onSuccess: (result) => {
+      console.log("Menu order updated successfully. New positions:", result.updatedPositions);
       toast.success("Kolejność menu została zaktualizowana");
       
-      // Update the local state to reflect the new positions
-      setMenuItems(prev => {
-        return prev.map(item => ({
-          ...item,
-          position: result.updatedPositions[item.id] || item.position
-        })).sort((a, b) => a.position - b.position);
-      });
+      // Update local state with the new order
+      setMenuItems(result.items.map(item => ({
+        ...item,
+        position: result.updatedPositions[item.id]
+      })));
       
-      // Refresh the data
+      // Refresh data from the server
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
     },
     onError: (error) => {
@@ -152,11 +159,13 @@ export function useMenuItems() {
       position: index + 1
     }));
     
+    console.log("Updated items after drag:", updatedItems);
     setMenuItems(updatedItems);
   };
 
   const handleSaveOrder = () => {
-    updateOrderMutation.mutate(menuItems);
+    console.log("Saving menu order:", menuItems);
+    updateOrderMutation.mutate([...menuItems]);
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
@@ -176,6 +185,7 @@ export function useMenuItems() {
       position: idx + 1
     }));
     
+    console.log("Updated items after move:", updatedItems);
     setMenuItems(updatedItems);
   };
 
