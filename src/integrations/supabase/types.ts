@@ -135,6 +135,30 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_positions: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          resource_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          position: number
+          resource_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          resource_id?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string

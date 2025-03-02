@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { SidebarMenuItem } from "@/types/sidebarMenu";
+import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { 
   fetchSidebarPages, 
   fetchMenuPositions,
@@ -12,7 +12,6 @@ import {
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems, 
-  ensureUniquePositions,
   assignSequentialPositions,
   applyCustomPositions
 } from "@/utils/menuUtils";

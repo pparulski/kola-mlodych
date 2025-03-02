@@ -29,6 +29,7 @@ export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
  */
 export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
   console.log("Fetching menu positions from database");
+  // Use the correct table name here
   const { data, error } = await supabase
     .from('menu_positions')
     .select('*')
@@ -109,7 +110,7 @@ export const updateAllMenuPositions = async (
     
     console.log("Upserting menu positions for regular items:", positionsData);
     
-    // Upsert menu positions
+    // Upsert menu positions - use the correct table name
     const { error } = await supabase
       .from('menu_positions')
       .upsert(positionsData, { 
