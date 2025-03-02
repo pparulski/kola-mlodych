@@ -19,7 +19,7 @@ interface MenuItemFormProps {
 
 export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormProps) {
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<MenuItemType>("default");
+  const [type, setType] = useState<MenuItemType>(MenuItemType.DEFAULT);
   const [link, setLink] = useState("");
   const [icon, setIcon] = useState("");
   const [pageId, setPageId] = useState<string | undefined>(undefined);
@@ -59,7 +59,7 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
   useEffect(() => {
     if (editingItem) {
       setTitle(editingItem.title || "");
-      setType(editingItem.type || "default");
+      setType(editingItem.type || MenuItemType.DEFAULT);
       setLink(editingItem.link || "");
       setIcon(editingItem.icon || "");
       setPageId(editingItem.page_id || undefined);
@@ -69,7 +69,7 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
     } else {
       // Reset form for new item
       setTitle("");
-      setType("default");
+      setType(MenuItemType.DEFAULT);
       setLink("");
       setIcon("");
       setPageId(undefined);
@@ -90,12 +90,12 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
     };
 
     // Add appropriate fields based on menu item type
-    if (type === "default" || type === "custom") {
+    if (type === MenuItemType.DEFAULT || type === MenuItemType.CUSTOM) {
       formData.link = link.trim();
       formData.icon = icon.trim();
-    } else if (type === "static_page") {
+    } else if (type === MenuItemType.STATIC_PAGE) {
       formData.page_id = pageId;
-    } else if (type === "filtered_feed" || type === "category_feed") {
+    } else if (type === MenuItemType.FILTERED_FEED || type === MenuItemType.CATEGORY_FEED) {
       formData.category_id = categoryId;
     }
 
@@ -130,16 +130,16 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
                 <SelectValue placeholder="Wybierz typ" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="default">Standardowy (link)</SelectItem>
-                <SelectItem value="static_page">Strona statyczna</SelectItem>
-                <SelectItem value="filtered_feed">Feed z kategorią</SelectItem>
-                <SelectItem value="category_feed">Kategoria</SelectItem>
-                <SelectItem value="custom">Niestandardowy</SelectItem>
+                <SelectItem value={MenuItemType.DEFAULT}>Standardowy (link)</SelectItem>
+                <SelectItem value={MenuItemType.STATIC_PAGE}>Strona statyczna</SelectItem>
+                <SelectItem value={MenuItemType.FILTERED_FEED}>Feed z kategorią</SelectItem>
+                <SelectItem value={MenuItemType.CATEGORY_FEED}>Kategoria</SelectItem>
+                <SelectItem value={MenuItemType.CUSTOM}>Niestandardowy</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {(type === "default" || type === "custom") && (
+          {(type === MenuItemType.DEFAULT || type === MenuItemType.CUSTOM) && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="link">Link</Label>
@@ -163,7 +163,7 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
             </>
           )}
 
-          {type === "static_page" && (
+          {type === MenuItemType.STATIC_PAGE && (
             <div className="space-y-2">
               <Label htmlFor="page_id">Strona</Label>
               <Select
@@ -184,7 +184,7 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
             </div>
           )}
 
-          {(type === "filtered_feed" || type === "category_feed") && (
+          {(type === MenuItemType.FILTERED_FEED || type === MenuItemType.CATEGORY_FEED) && (
             <div className="space-y-2">
               <Label htmlFor="category_id">Kategoria</Label>
               <Select
