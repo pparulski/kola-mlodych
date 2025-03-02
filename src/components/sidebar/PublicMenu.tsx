@@ -8,7 +8,8 @@ import {
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems,
-  getIconComponent 
+  getIconComponent,
+  ensureUniquePositions
 } from "@/utils/menuUtils";
 import { LucideIcon } from "lucide-react";
 
@@ -29,8 +30,10 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Get default menu items
   const defaultMenuItems = getDefaultMenuItems();
 
-  // Combine both arrays and sort by position
-  const allMenuItems = sortMenuItems([...defaultMenuItems, ...staticPageMenuItems]);
+  // Combine, ensure unique positions, and sort by position
+  const combinedItems = [...defaultMenuItems, ...staticPageMenuItems];
+  const itemsWithUniquePositions = ensureUniquePositions(combinedItems);
+  const allMenuItems = sortMenuItems(itemsWithUniquePositions);
 
   console.log("Sidebar menu items (sorted):", allMenuItems);
 

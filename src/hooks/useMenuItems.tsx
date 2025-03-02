@@ -4,7 +4,12 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
 import { fetchSidebarPages, updateStaticPagesPositions } from "@/services/menuService";
-import { staticPagesToMenuItems, getDefaultMenuItems, sortMenuItems } from "@/utils/menuUtils";
+import { 
+  staticPagesToMenuItems, 
+  getDefaultMenuItems, 
+  sortMenuItems, 
+  ensureUniquePositions 
+} from "@/utils/menuUtils";
 import { useMenuReordering } from "@/hooks/useMenuReordering";
 
 export function useMenuItems() {
@@ -27,8 +32,12 @@ export function useMenuItems() {
       // Convert static pages to menu items format
       const staticPagesItems = staticPagesToMenuItems(staticPagesData);
 
-      // Combine and sort all menu items
-      const allItems = sortMenuItems([...defaultItems, ...staticPagesItems]);
+      // Combine and ensure unique positions
+      const combinedItems = [...defaultItems, ...staticPagesItems];
+      const itemsWithUniquePositions = ensureUniquePositions(combinedItems);
+      
+      // Sort after ensuring unique positions
+      const allItems = sortMenuItems(itemsWithUniquePositions);
       
       console.log("Setting menu items:", allItems);
       setMenuItems(allItems);
@@ -38,17 +47,19 @@ export function useMenuItems() {
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
     mutationFn: async (items: SidebarMenuItem[]) => {
-      console.log("Updating menu order with items:", items);
+      // Ensure unique positions before saving
+      const itemsWithUniquePositions = ensureUniquePositions(items);
+      console.log("Updating menu order with items:", itemsWithUniquePositions);
       
       // Update database
-      const { success, errors } = await updateStaticPagesPositions(items);
+      const { success, errors } = await updateStaticPagesPositions(itemsWithUniquePositions);
       
       if (!success) {
         console.error("Errors updating positions:", errors);
         throw new Error("Failed to update some menu positions");
       }
       
-      return { items };
+      return { items: itemsWithUniquePositions };
     },
     onSuccess: (result) => {
       console.log("Menu order updated successfully. New order:", result.items);
