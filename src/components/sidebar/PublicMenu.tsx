@@ -9,7 +9,7 @@ import {
   getDefaultMenuItems, 
   sortMenuItems,
   getIconComponent,
-  ensureUniquePositions
+  assignSequentialPositions
 } from "@/utils/menuUtils";
 import { LucideIcon } from "lucide-react";
 
@@ -30,12 +30,12 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Get default menu items
   const defaultMenuItems = getDefaultMenuItems();
 
-  // Combine, ensure unique positions, and sort by position
+  // Combine, sort by current positions, then assign sequential positions
   const combinedItems = [...defaultMenuItems, ...staticPageMenuItems];
-  const itemsWithUniquePositions = ensureUniquePositions(combinedItems);
-  const allMenuItems = sortMenuItems(itemsWithUniquePositions);
+  const sortedItems = sortMenuItems(combinedItems);
+  const allMenuItems = assignSequentialPositions(sortedItems);
 
-  console.log("Sidebar menu items (sorted):", allMenuItems);
+  console.log("Sidebar menu items (sorted and sequential):", allMenuItems);
 
   if (isPagesLoading) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;

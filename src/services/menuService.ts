@@ -37,7 +37,7 @@ export const updateStaticPagesPositions = async (
   // Only update DB for static pages
   for (const item of items) {
     if (item.type === MenuItemType.STATIC_PAGE && item.originalId) {
-      console.log(`Updating position for ${item.title} to ${item.position}`);
+      console.log(`Updating position for ${item.title} (ID: ${item.originalId}) to ${item.position}`);
       
       const updatePromise = supabase
         .from('static_pages')

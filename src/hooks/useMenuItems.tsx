@@ -8,7 +8,8 @@ import {
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems, 
-  ensureUniquePositions 
+  ensureUniquePositions,
+  assignSequentialPositions
 } from "@/utils/menuUtils";
 import { useMenuReordering } from "@/hooks/useMenuReordering";
 
@@ -32,34 +33,38 @@ export function useMenuItems() {
       // Convert static pages to menu items format
       const staticPagesItems = staticPagesToMenuItems(staticPagesData);
 
-      // Combine and ensure unique positions
+      // Combine all items first
       const combinedItems = [...defaultItems, ...staticPagesItems];
-      const itemsWithUniquePositions = ensureUniquePositions(combinedItems);
       
-      // Sort after ensuring unique positions
-      const allItems = sortMenuItems(itemsWithUniquePositions);
+      // Now sort them by position (this preserves any custom ordering from the database)
+      const sortedItems = sortMenuItems(combinedItems);
       
-      console.log("Setting menu items:", allItems);
-      setMenuItems(allItems);
+      // After sorting, ensure positions are sequential and unique (1, 2, 3, ...)
+      // This ensures a clean position sequence without any conflicts
+      const itemsWithUniquePositions = assignSequentialPositions(sortedItems);
+      
+      console.log("Setting menu items with sequential positions:", itemsWithUniquePositions);
+      setMenuItems(itemsWithUniquePositions);
     }
   }, [staticPagesData, isLoadingPages]);
 
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
     mutationFn: async (items: SidebarMenuItem[]) => {
-      // Ensure unique positions before saving
-      const itemsWithUniquePositions = ensureUniquePositions(items);
-      console.log("Updating menu order with items:", itemsWithUniquePositions);
+      // Before saving, ensure positions are sequential (1, 2, 3, ...)
+      // This provides a clean slate for position values
+      const sequentialItems = assignSequentialPositions(items);
+      console.log("Updating menu order with sequential items:", sequentialItems);
       
       // Update database
-      const { success, errors } = await updateStaticPagesPositions(itemsWithUniquePositions);
+      const { success, errors } = await updateStaticPagesPositions(sequentialItems);
       
       if (!success) {
         console.error("Errors updating positions:", errors);
         throw new Error("Failed to update some menu positions");
       }
       
-      return { items: itemsWithUniquePositions };
+      return { items: sequentialItems };
     },
     onSuccess: (result) => {
       console.log("Menu order updated successfully. New order:", result.items);
