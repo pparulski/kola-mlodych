@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
-import { fetchSidebarPages } from "@/services/menuService";
+import { fetchSidebarPages, fetchMenuPositions } from "@/services/menuService";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems,
   getIconComponent,
-  assignSequentialPositions
+  assignSequentialPositions,
+  applyCustomPositions
 } from "@/utils/menuUtils";
 import { LucideIcon } from "lucide-react";
 
@@ -24,20 +25,31 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     queryFn: fetchSidebarPages,
   });
 
+  // Fetch menu positions for regular menu items
+  const { data: menuPositions, isLoading: isPositionsLoading } = useQuery({
+    queryKey: ['menu-positions'],
+    queryFn: fetchMenuPositions,
+  });
+
   // Convert static pages to menu items format
   const staticPageMenuItems = sidebarPages ? staticPagesToMenuItems(sidebarPages) : [];
 
   // Get default menu items
   const defaultMenuItems = getDefaultMenuItems();
 
+  // Apply custom positions from database if available
+  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems];
+  if (menuPositions && menuPositions.length > 0) {
+    combinedItems = applyCustomPositions(combinedItems, menuPositions);
+  }
+
   // Combine, sort by current positions, then assign sequential positions
-  const combinedItems = [...defaultMenuItems, ...staticPageMenuItems];
   const sortedItems = sortMenuItems(combinedItems);
   const allMenuItems = assignSequentialPositions(sortedItems);
 
   console.log("Sidebar menu items (sorted and sequential):", allMenuItems);
 
-  if (isPagesLoading) {
+  if (isPagesLoading || isPositionsLoading) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;
   }
 

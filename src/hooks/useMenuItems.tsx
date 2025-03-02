@@ -3,13 +3,18 @@ import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
-import { fetchSidebarPages, updateStaticPagesPositions } from "@/services/menuService";
+import { 
+  fetchSidebarPages, 
+  fetchMenuPositions,
+  updateAllMenuPositions 
+} from "@/services/menuService";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems, 
   ensureUniquePositions,
-  assignSequentialPositions
+  assignSequentialPositions,
+  applyCustomPositions
 } from "@/utils/menuUtils";
 import { useMenuReordering } from "@/hooks/useMenuReordering";
 
@@ -24,9 +29,15 @@ export function useMenuItems() {
     queryFn: fetchSidebarPages,
   });
 
+  // Fetch custom positions for regular menu items
+  const { data: menuPositionsData, isLoading: isLoadingPositions } = useQuery({
+    queryKey: ['menu-positions'],
+    queryFn: fetchMenuPositions,
+  });
+
   // Convert static pages and default menu items to the unified format
   useEffect(() => {
-    if (!isLoadingPages && staticPagesData) {
+    if (!isLoadingPages && !isLoadingPositions && staticPagesData) {
       // Get default menu items
       const defaultItems = getDefaultMenuItems();
       
@@ -34,7 +45,12 @@ export function useMenuItems() {
       const staticPagesItems = staticPagesToMenuItems(staticPagesData);
 
       // Combine all items first
-      const combinedItems = [...defaultItems, ...staticPagesItems];
+      let combinedItems = [...defaultItems, ...staticPagesItems];
+      
+      // Apply custom positions from the database
+      if (menuPositionsData && menuPositionsData.length > 0) {
+        combinedItems = applyCustomPositions(combinedItems, menuPositionsData);
+      }
       
       // Now sort them by position (this preserves any custom ordering from the database)
       const sortedItems = sortMenuItems(combinedItems);
@@ -46,7 +62,7 @@ export function useMenuItems() {
       console.log("Setting menu items with sequential positions:", itemsWithUniquePositions);
       setMenuItems(itemsWithUniquePositions);
     }
-  }, [staticPagesData, isLoadingPages]);
+  }, [staticPagesData, menuPositionsData, isLoadingPages, isLoadingPositions]);
 
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
@@ -56,8 +72,8 @@ export function useMenuItems() {
       const sequentialItems = assignSequentialPositions(items);
       console.log("Updating menu order with sequential items:", sequentialItems);
       
-      // Update database
-      const { success, errors } = await updateStaticPagesPositions(sequentialItems);
+      // Update database for both static pages and regular menu items
+      const { success, errors } = await updateAllMenuPositions(sequentialItems);
       
       if (!success) {
         console.error("Errors updating positions:", errors);
@@ -72,6 +88,7 @@ export function useMenuItems() {
       
       // Refresh data from the server
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
     },
     onError: (error) => {
       console.error("Error updating menu order:", error);
@@ -86,7 +103,7 @@ export function useMenuItems() {
 
   return {
     menuItems,
-    isLoadingPages,
+    isLoadingPages: isLoadingPages || isLoadingPositions,
     updateOrderMutation,
     handleDragEnd,
     handleSaveOrder,

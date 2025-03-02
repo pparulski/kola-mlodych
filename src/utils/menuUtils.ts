@@ -1,6 +1,7 @@
 
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
+import { MenuPosition } from "@/types/menu";
 import { Home, Map, BookOpen, Download, File } from "lucide-react";
 
 /**
@@ -79,13 +80,35 @@ export const sortMenuItems = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
 };
 
 /**
- * Updates positions for all menu items (1-based) ensuring they are unique
+ * Updates positions for all menu items (1-based) ensuring they are sequential
  */
 export const assignSequentialPositions = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
   return items.map((item, index) => ({
     ...item,
     position: index + 1 // 1-based position
   }));
+};
+
+/**
+ * Apply custom positions from the database to menu items
+ */
+export const applyCustomPositions = (
+  items: SidebarMenuItem[], 
+  positions: MenuPosition[]
+): SidebarMenuItem[] => {
+  return items.map(item => {
+    // Find corresponding position in database
+    const customPosition = positions.find(p => p.id === item.id);
+    
+    if (customPosition) {
+      return {
+        ...item,
+        position: customPosition.position
+      };
+    }
+    
+    return item;
+  });
 };
 
 /**

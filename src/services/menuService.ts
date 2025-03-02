@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
+import { MenuPosition } from "@/types/menu";
 
 /**
  * Fetches static pages that should appear in sidebar
@@ -24,7 +25,26 @@ export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
 };
 
 /**
- * Updates the positions of static pages in the database
+ * Fetches positions for regular menu items
+ */
+export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
+  console.log("Fetching menu positions from database");
+  const { data, error } = await supabase
+    .from('menu_positions')
+    .select('*')
+    .order('position', { ascending: true });
+
+  if (error) {
+    console.error("Error fetching menu positions:", error);
+    return [];
+  }
+
+  console.log("Fetched menu positions:", data);
+  return data as MenuPosition[];
+};
+
+/**
+ * Updates the positions of all menu items in the database
  */
 export const updateStaticPagesPositions = async (
   items: SidebarMenuItem[]
@@ -63,4 +83,48 @@ export const updateStaticPagesPositions = async (
     success: errors.length === 0,
     errors: errors.map(result => result.error)
   };
+};
+
+/**
+ * Updates positions for both static pages and regular menu items
+ */
+export const updateAllMenuPositions = async (
+  items: SidebarMenuItem[]
+): Promise<{ success: boolean; errors: any[] }> => {
+  console.log("Updating all menu positions:", items);
+  
+  // First, update static pages
+  const staticPagesResult = await updateStaticPagesPositions(items);
+  
+  // Then, upsert menu positions for regular menu items
+  const regularItems = items.filter(item => item.type === MenuItemType.REGULAR);
+  
+  if (regularItems.length > 0) {
+    // Prepare data for upsert
+    const positionsData = regularItems.map(item => ({
+      id: item.id,
+      type: item.type,
+      position: item.position
+    }));
+    
+    console.log("Upserting menu positions for regular items:", positionsData);
+    
+    // Upsert menu positions
+    const { error } = await supabase
+      .from('menu_positions')
+      .upsert(positionsData, { 
+        onConflict: 'id',
+        ignoreDuplicates: false
+      });
+    
+    if (error) {
+      console.error("Error updating menu positions:", error);
+      return { 
+        success: false, 
+        errors: [...(staticPagesResult.errors || []), error]
+      };
+    }
+  }
+  
+  return staticPagesResult;
 };
