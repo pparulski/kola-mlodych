@@ -1,5 +1,6 @@
 
-// Update the FilterComponentProps to include the new compactOnMobile prop
+import { ReactNode } from "react";
+
 export interface Category {
   id: string;
   name: string;
@@ -14,6 +15,6 @@ export interface FilterComponentProps {
   selectedCategories: string[];
   setSelectedCategories: (categories: string[]) => void;
   availableCategories: Category[];
-  position?: 'top' | 'bottom';
-  compactOnMobile?: boolean;
+  position?: "top" | "bottom";
+  children?: ReactNode;
 }
