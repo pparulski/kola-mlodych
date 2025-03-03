@@ -168,11 +168,11 @@ article,
   @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all;
 }
 
-/* News card hover effect */
-.news-card:hover,
-.ebook-card:hover,
-.download-item:hover {
-  @apply shadow-md;
+/* Remove hover effect from content boxes */
+.news-card,
+.ebook-card,
+.download-item {
+  @apply hover:shadow-sm;
 }
 
 /* Add subtle border to content boxes */
@@ -181,4 +181,14 @@ article,
 .ebook-card,
 .download-item {
   @apply border border-gray-200 dark:border-gray-800;
+}
+
+/* Remove hover color change on sidebar trigger in light theme */
+:root:not(.dark) .md\:hidden[data-sidebar="sidebar-trigger"] {
+  @apply hover:bg-transparent hover:text-foreground;
+}
+
+/* Prevent color change on hover for sidebar trigger */
+.md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
+  @apply text-foreground;
 }

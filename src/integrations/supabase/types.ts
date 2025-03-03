@@ -29,18 +29,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          show_in_menu: boolean | null
           slug: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          show_in_menu?: boolean | null
           slug: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          show_in_menu?: boolean | null
           slug?: string
         }
         Relationships: []

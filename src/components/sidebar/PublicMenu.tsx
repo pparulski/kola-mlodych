@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
@@ -19,6 +19,8 @@ interface PublicMenuProps {
 }
 
 export function PublicMenu({ onItemClick }: PublicMenuProps) {
+  const location = useLocation();
+  
   // Fetch all static pages visible in sidebar
   const { data: sidebarPages, isLoading: isPagesLoading } = useQuery({
     queryKey: ['static-pages-sidebar'],
@@ -53,6 +55,18 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;
   }
 
+  // Helper function to check if a menu item matches the current route
+  const isItemActive = (itemPath: string) => {
+    // For the homepage, only match exactly '/'
+    if (itemPath === '/') {
+      return location.pathname === '/';
+    }
+    
+    // For other paths, we check if the current location starts with the item path
+    // This helps with nested routes
+    return location.pathname.startsWith(itemPath);
+  };
+
   return (
     <>
       {allMenuItems.map((item) => {
@@ -61,9 +75,14 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
           ? getIconComponent(item.icon as string) 
           : (item.icon as LucideIcon);
           
+        const isActive = isItemActive(item.path);
+        
         return (
           <SidebarMenuItem key={item.path}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive}
+            >
               <Link 
                 to={item.path} 
                 onClick={onItemClick}

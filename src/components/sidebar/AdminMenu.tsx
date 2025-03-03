@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Newspaper, Book, Download, LogOut, FileText, Tag, Menu } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,6 +23,7 @@ interface AdminMenuProps {
 export function AdminMenu({ onItemClick }: AdminMenuProps) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -48,20 +49,27 @@ export function AdminMenu({ onItemClick }: AdminMenuProps) {
 
   return (
     <>
-      {adminMenuItems.map((item) => (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild>
-            <Link 
-              to={item.path}
-              className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
-              onClick={onItemClick}
+      {adminMenuItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        
+        return (
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton 
+              asChild
+              isActive={isActive}
             >
-              <item.icon className="w-6 h-6" />
-              <span className="flex-1">{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+              <Link 
+                to={item.path}
+                className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
+                onClick={onItemClick}
+              >
+                <item.icon className="w-6 h-6" />
+                <span className="flex-1">{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
       <SidebarMenuItem>
         <SidebarMenuButton
           onClick={handleLogout}
