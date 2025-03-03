@@ -15,11 +15,13 @@ import Downloads from "@/pages/Downloads";
 import Ebooks from "@/pages/Ebooks";
 import { ManageDownloads } from "@/pages/manage/ManageDownloads";
 import { ManageEbooks } from "@/pages/manage/ManageEbooks";
+import ErrorPage from "@/pages/ErrorPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/",
