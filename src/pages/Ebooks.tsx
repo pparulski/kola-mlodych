@@ -50,14 +50,17 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
   const handleDelete = async (id: string) => {
     try {
+      // Find the ebook to get its URLs before deletion
       const ebookToDelete = ebooks.find(ebook => ebook.id === id);
       if (!ebookToDelete) return;
 
+      // Extract filenames from URLs
       const pdfFilename = ebookToDelete.file_url.split('/').pop();
       const coverFilename = ebookToDelete.cover_url?.split('/').pop();
 
       console.log("Deleting publication files:", { pdfFilename, coverFilename });
 
+      // Delete the PDF file from storage
       if (pdfFilename) {
         const { error: pdfDeleteError } = await supabase.storage
           .from('ebooks')
@@ -69,6 +72,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         }
       }
 
+      // Delete the cover image if it exists
       if (coverFilename) {
         const { error: coverDeleteError } = await supabase.storage
           .from('ebooks')
@@ -80,6 +84,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         }
       }
 
+      // Delete the database record
       const { error: dbDeleteError } = await supabase
         .from("ebooks")
         .delete()

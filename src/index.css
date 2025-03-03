@@ -73,13 +73,10 @@
     @apply bg-transparent text-foreground border-border;
   }
 
-  /* Make all text boxes inside gray containers transparent */
-  .bg-\[rgb\(174\,174\,183\)\] input,
-  .bg-\[rgb\(174\,174\,183\)\] textarea,
-  .bg-\[rgb\(174\,174\,183\)\] .prose,
-  .dark .bg-\[rgb\(51\,51\,51\)\] input,
-  .dark .bg-\[rgb\(51\,51\,51\)\] textarea,
-  .dark .bg-\[rgb\(51\,51\,51\)\] .prose {
+  /* Ensure text boxes inside content boxes have transparent backgrounds */
+  .bg-\[hsl\(var\(--content-box\)\)\] input,
+  .bg-\[hsl\(var\(--content-box\)\)\] textarea,
+  .bg-\[hsl\(var\(--content-box\)\)\] .prose {
     @apply bg-transparent;
   }
 
@@ -162,13 +159,20 @@ article,
   @apply w-full max-w-4xl mx-auto px-4;
 }
 
-/* Content box styling */
+/* Content box styling for light mode */
 .content-box,
 .news-card,
 .ebook-card,
 .download-item,
 .category-feed-item {
-  @apply bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all;
+  @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all;
+}
+
+/* News card hover effect */
+.news-card:hover,
+.ebook-card:hover,
+.download-item:hover {
+  @apply shadow-md;
 }
 
 /* Add subtle border to content boxes */

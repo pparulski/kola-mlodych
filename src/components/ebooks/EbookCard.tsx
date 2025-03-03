@@ -34,7 +34,7 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
   };
 
   return (
-    <Card className="flex flex-col h-full bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)]">
+    <Card className="flex flex-col h-full bg-muted/10">
       <CardHeader>
         <CardTitle className="text-lg font-semibold line-clamp-2 text-center">
           {ebook.title}

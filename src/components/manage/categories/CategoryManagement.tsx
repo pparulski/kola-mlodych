@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,14 +68,14 @@ export function CategoryManagement() {
       <p className="text-gray-500 mb-6">Dodawaj, edytuj i usuwaj kategorie</p>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)] p-4 rounded-lg">
+        <div>
           <CategoryForm 
             editingCategory={editingCategory} 
             onSuccess={handleCancelEdit} 
           />
         </div>
 
-        <div className="bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)] p-4 rounded-lg">
+        <div>
           <CategoryManagementList 
             onEdit={handleEditCategory} 
             onDelete={handleDeleteCategory} 
