@@ -4,6 +4,7 @@ import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
 import { fetchSidebarPages, fetchMenuPositions } from "@/services/menuService";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
@@ -25,12 +26,29 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   const { data: sidebarPages, isLoading: isPagesLoading } = useQuery({
     queryKey: ['static-pages-sidebar'],
     queryFn: fetchSidebarPages,
+    staleTime: 0, // Ensure we always get fresh data
   });
 
   // Fetch menu positions for regular menu items
   const { data: menuPositions, isLoading: isPositionsLoading } = useQuery({
     queryKey: ['menu-positions'],
     queryFn: fetchMenuPositions,
+    staleTime: 0, // Ensure we always get fresh data
+  });
+
+  // Fetch category menu items
+  const { data: categoryMenuItems, isLoading: isCategoryItemsLoading } = useQuery({
+    queryKey: ['menu-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('menu_items')
+        .select('*')
+        .eq('type', 'category_feed');
+        
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 0, // Ensure we always get fresh data
   });
 
   // Convert static pages to menu items format
@@ -39,8 +57,18 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Get default menu items
   const defaultMenuItems = getDefaultMenuItems();
 
+  // Convert category menu items to sidebar format
+  const categoryItems = categoryMenuItems ? categoryMenuItems.map(item => ({
+    id: `category-${item.resource_id}`,
+    title: item.title,
+    path: item.path,
+    icon: item.icon || 'BookOpen',
+    position: item.position,
+    type: MenuItemType.REGULAR
+  })) : [];
+
   // Apply custom positions from database if available
-  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems];
+  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryItems];
   if (menuPositions && menuPositions.length > 0) {
     combinedItems = applyCustomPositions(combinedItems, menuPositions);
   }
@@ -51,7 +79,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
 
   console.log("Sidebar menu items (sorted and sequential):", allMenuItems);
 
-  if (isPagesLoading || isPositionsLoading) {
+  if (isPagesLoading || isPositionsLoading || isCategoryItemsLoading) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;
   }
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
@@ -25,6 +25,7 @@ export function NewsPreview({
   date,
   featured_image,
 }: NewsPreviewProps) {
+  const queryClient = useQueryClient();
   const previewContent = content.length > 300 
     ? content.substring(0, 300) + "..."
     : content;
@@ -38,7 +39,7 @@ export function NewsPreview({
       })()
     : "";
 
-  // Fetch article categories
+  // Fetch article categories with staleTime: 0 to ensure fresh data
   const { data: articleCategories } = useQuery({
     queryKey: ['news-preview-categories', id],
     queryFn: async () => {
@@ -52,6 +53,7 @@ export function NewsPreview({
       if (error) throw error;
       return data.map(item => item.categories) as Category[];
     },
+    staleTime: 0,
   });
 
   return (

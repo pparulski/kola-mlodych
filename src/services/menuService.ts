@@ -45,6 +45,26 @@ export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
 };
 
 /**
+ * Fetches category menu items 
+ */
+export const fetchCategoryMenuItems = async () => {
+  console.log("Fetching category menu items from database");
+  const { data, error } = await supabase
+    .from('menu_items')
+    .select('*')
+    .eq('type', 'category_feed')
+    .order('position', { ascending: true });
+
+  if (error) {
+    console.error("Error fetching category menu items:", error);
+    return [];
+  }
+
+  console.log("Fetched category menu items:", data);
+  return data;
+};
+
+/**
  * Updates the positions of all menu items in the database
  */
 export const updateStaticPagesPositions = async (

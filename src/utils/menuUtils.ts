@@ -96,19 +96,21 @@ export const applyCustomPositions = (
   items: SidebarMenuItem[], 
   positions: MenuPosition[]
 ): SidebarMenuItem[] => {
-  return items.map(item => {
-    // Find corresponding position in database
-    const customPosition = positions.find(p => p.id === item.id);
-    
-    if (customPosition) {
-      return {
-        ...item,
-        position: customPosition.position
+  // Create a copy of items to avoid mutation
+  const itemsCopy = [...items];
+  
+  // Apply positions from database
+  positions.forEach(position => {
+    const itemIndex = itemsCopy.findIndex(item => item.id === position.id);
+    if (itemIndex !== -1) {
+      itemsCopy[itemIndex] = {
+        ...itemsCopy[itemIndex],
+        position: position.position
       };
     }
-    
-    return item;
   });
+  
+  return itemsCopy;
 };
 
 /**

@@ -29,6 +29,7 @@ export default function CategoryFeed() {
       return data as Category;
     },
     enabled: !!slug,
+    staleTime: 0, // Ensure we always get fresh data
   });
   
   useEffect(() => {
@@ -65,6 +66,7 @@ export default function CategoryFeed() {
         }) as NewsArticle[];
     },
     enabled: !!category,
+    staleTime: 0, // Ensure we always get fresh data
   });
   
   const isLoading = isCategoryLoading || isArticlesLoading;
