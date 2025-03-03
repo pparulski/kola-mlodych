@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   slug: string;
   created_at: string;
+  show_in_menu?: boolean;
 }
 
 export interface FilterComponentProps {

@@ -4,105 +4,285 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/categories";
 import { toast } from "sonner";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { slugify } from "@/utils/slugUtils";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Check, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+// Form schema validation
+const categoryFormSchema = z.object({
+  name: z.string().min(2, "Nazwa musi mieć co najmniej 2 znaki"),
+  slug: z.string().min(2, "Slug musi mieć co najmniej 2 znaki").regex(/^[a-z0-9-]+$/, "Slug może zawierać tylko małe litery, cyfry i myślniki"),
+  show_in_menu: z.boolean().optional().default(false),
+});
+
+// Form data type based on the schema
+type CategoryFormData = z.infer<typeof categoryFormSchema>;
 
 interface CategoryFormProps {
   editingCategory: Category | null;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) {
-  const [name, setName] = useState("");
   const queryClient = useQueryClient();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Initialize form with react-hook-form
+  const form = useForm<CategoryFormData>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      show_in_menu: false,
+    },
+  });
+  
+  // Update form values when editing category changes
   useEffect(() => {
     if (editingCategory) {
-      setName(editingCategory.name);
+      form.reset({
+        name: editingCategory.name,
+        slug: editingCategory.slug,
+        show_in_menu: editingCategory.show_in_menu || false,
+      });
     } else {
-      setName("");
+      form.reset({
+        name: "",
+        slug: "",
+        show_in_menu: false,
+      });
     }
-  }, [editingCategory]);
-
-  const upsertMutation = useMutation({
-    mutationFn: async (data: { name: string; slug: string; id?: string }) => {
-      if (data.id) {
+  }, [editingCategory, form]);
+  
+  // Handle form submission
+  const onSubmit = async (data: CategoryFormData) => {
+    setIsSubmitting(true);
+    
+    try {
+      console.log("Submitting category:", data);
+      
+      let result;
+      
+      if (editingCategory) {
         // Update existing category
-        const { error } = await supabase
-          .from('categories')
-          .update({ name: data.name, slug: data.slug })
-          .eq('id', data.id);
-
-        if (error) throw error;
+        result = await supabase
+          .from("categories")
+          .update({
+            name: data.name,
+            slug: data.slug,
+            show_in_menu: data.show_in_menu,
+          })
+          .eq("id", editingCategory.id);
       } else {
-        // Create new category
-        const { error } = await supabase
-          .from('categories')
-          .insert({ name: data.name, slug: data.slug });
-
-        if (error) throw error;
+        // Insert new category
+        result = await supabase
+          .from("categories")
+          .insert({
+            name: data.name,
+            slug: data.slug,
+            show_in_menu: data.show_in_menu,
+          });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      setName("");
-      toast.success(editingCategory ? "Kategoria zaktualizowana" : "Kategoria dodana");
-      onSuccess?.();
-    },
-    onError: (error) => {
+      
+      if (result.error) throw result.error;
+      
+      // Handle menu item creation or deletion based on show_in_menu status
+      if (editingCategory) {
+        const isStatusChanged = editingCategory.show_in_menu !== data.show_in_menu;
+        
+        if (isStatusChanged) {
+          if (data.show_in_menu) {
+            // Create menu item for this category
+            await createCategoryMenuItem(data.name, data.slug, editingCategory.id);
+          } else {
+            // Delete menu item for this category
+            await deleteCategoryMenuItem(editingCategory.id);
+          }
+        }
+      } else if (data.show_in_menu) {
+        // Get the newly created category to get its ID
+        const { data: newCategory } = await supabase
+          .from("categories")
+          .select("*")
+          .eq("slug", data.slug)
+          .single();
+          
+        if (newCategory) {
+          // Create menu item for this category
+          await createCategoryMenuItem(data.name, data.slug, newCategory.id);
+        }
+      }
+      
+      toast.success(
+        editingCategory 
+          ? "Kategoria została zaktualizowana" 
+          : "Kategoria została utworzona"
+      );
+      
+      // Reset form and update UI
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+      onSuccess();
+    } catch (error) {
       console.error("Error saving category:", error);
-      toast.error("Nie udało się zapisać kategorii");
+      toast.error("Wystąpił błąd podczas zapisywania kategorii");
+    } finally {
+      setIsSubmitting(false);
     }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name.trim()) {
-      toast.error("Nazwa kategorii jest wymagana");
-      return;
+  };
+  
+  // Function to create a menu item for the category
+  const createCategoryMenuItem = async (name: string, slug: string, categoryId: string) => {
+    try {
+      // Get highest position for menu items
+      const { data: menuItems } = await supabase
+        .from("menu_items")
+        .select("position")
+        .order("position", { ascending: false })
+        .limit(1);
+      
+      const newPosition = menuItems && menuItems.length > 0 ? menuItems[0].position + 1 : 1;
+      
+      // Create new menu item
+      const result = await supabase
+        .from("menu_items")
+        .insert({
+          title: name,
+          path: `/category/${slug}`,
+          type: "category_feed",
+          icon: "BookOpen",
+          position: newPosition,
+          resource_id: categoryId,
+        });
+      
+      if (result.error) throw result.error;
+      
+    } catch (error) {
+      console.error("Error creating category menu item:", error);
+      throw error;
     }
-
-    const slug = slugify(name);
-    upsertMutation.mutate({
-      name: name.trim(),
-      slug,
-      id: editingCategory?.id
-    });
+  };
+  
+  // Function to delete a menu item for the category
+  const deleteCategoryMenuItem = async (categoryId: string) => {
+    try {
+      const result = await supabase
+        .from("menu_items")
+        .delete()
+        .eq("type", "category_feed")
+        .eq("resource_id", categoryId);
+      
+      if (result.error) throw result.error;
+      
+    } catch (error) {
+      console.error("Error deleting category menu item:", error);
+      throw error;
+    }
+  };
+  
+  // Generate slug from name
+  const generateSlug = (name: string) => {
+    const slug = name
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-');
+    
+    form.setValue("slug", slug);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{editingCategory ? "Edytuj kategorię" : "Dodaj nową kategorię"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Input
-              placeholder="Nazwa kategorii"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={upsertMutation.isPending}>
-              {upsertMutation.isPending ? "Zapisywanie..." : (editingCategory ? "Aktualizuj" : "Dodaj")}
-            </Button>
-            {editingCategory && (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">
+        {editingCategory ? "Edytuj kategorię" : "Dodaj nową kategorię"}
+      </h2>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nazwa</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    placeholder="Nazwa kategorii"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      // Only auto-generate slug if it's a new category or slug is empty
+                      if (!editingCategory || !form.getValues("slug")) {
+                        generateSlug(e.target.value);
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="slug-kategorii" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="show_in_menu"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Dodaj do menu</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Dodaj link do artykułów z tej kategorii w menu bocznym
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          
+          <div className="flex justify-end pt-4">
+            {!editingCategory && (
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => onSuccess?.()}
+                className="mr-2"
+                onClick={() => form.reset()}
               >
-                Anuluj
+                Wyczyść
               </Button>
             )}
+            
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {editingCategory ? "Zapisz zmiany" : "Dodaj kategorię"}
+            </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </Form>
+    </div>
   );
 }

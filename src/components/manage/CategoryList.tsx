@@ -1,7 +1,7 @@
 
 import { Category } from "@/types/categories";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface CategoryListProps {
@@ -24,9 +24,17 @@ export function CategoryList({ categories, onEdit, onDelete }: CategoryListProps
             key={category.id} 
             className="flex items-center justify-between p-4 bg-card border rounded-lg"
           >
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{category.name}</span>
-              <Badge variant="outline">{category.slug}</Badge>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{category.name}</span>
+                <Badge variant="outline">{category.slug}</Badge>
+                {category.show_in_menu && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Menu className="h-3 w-3" />
+                    <span>W menu</span>
+                  </Badge>
+                )}
+              </div>
             </div>
             <div className="flex gap-2">
               <Button
