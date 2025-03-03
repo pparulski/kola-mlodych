@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,6 +25,7 @@
     --input: 240 5.9% 90%;
     --ring: 345 100% 25%;
     --radius: 0.5rem;
+    --content-box: 220 10% 97%;
   }
 
   .dark {
@@ -46,6 +48,7 @@
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 345 100% 25%;
+    --content-box: 0 0% 12%;
   }
 
   * {
@@ -151,4 +154,28 @@ article,
 .news-container,
 .static-page-container {
   @apply w-full max-w-4xl mx-auto px-4;
+}
+
+/* Content box styling for light mode */
+.content-box,
+.news-card,
+.ebook-card,
+.download-item,
+.category-feed-item {
+  @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all;
+}
+
+/* News card hover effect */
+.news-card:hover,
+.ebook-card:hover,
+.download-item:hover {
+  @apply shadow-md;
+}
+
+/* Add subtle border to content boxes */
+.content-box,
+.news-card,
+.ebook-card,
+.download-item {
+  @apply border border-gray-200 dark:border-gray-800;
 }

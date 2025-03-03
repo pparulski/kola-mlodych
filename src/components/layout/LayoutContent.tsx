@@ -78,10 +78,13 @@ export function LayoutContent() {
     }
   }, [location.pathname, location.search]);
 
+  // Determine if we're on a management page
+  const isManagementPage = location.pathname.includes('zarzadzanie');
+
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
     queryFn: async () => {
-      // Remove leading slash for the slug
+      // Extract slug from pathname (removing leading slash)
       const slug = location.pathname.substring(1);
       const { data, error } = await supabase
         .from('static_pages')
@@ -92,14 +95,14 @@ export function LayoutContent() {
       if (error) throw error;
       return data;
     },
-    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname)
+    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage
   });
 
   const handleOverlayClick = () => {
     setOpen(false);
   };
 
-  const pageTitle = getPageTitle(location.pathname, staticPage?.title);
+  const pageTitle = isManagementPage ? null : getPageTitle(location.pathname, staticPage?.title);
 
   return (
     <>
@@ -112,14 +115,16 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <PageHeader 
-            pageTitle={pageTitle}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            categories={categories}
-          />
+          {!isManagementPage && (
+            <PageHeader 
+              pageTitle={pageTitle}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              categories={categories}
+            />
+          )}
 
           {location.pathname === '/' && (
             <SelectedCategories 

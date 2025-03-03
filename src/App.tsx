@@ -16,6 +16,7 @@ import Ebooks from "@/pages/Ebooks";
 import { ManageDownloads } from "@/pages/manage/ManageDownloads";
 import { ManageEbooks } from "@/pages/manage/ManageEbooks";
 import ErrorPage from "@/pages/ErrorPage";
+import Map from "@/pages/Map";
 
 const router = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
         element: <ManagePages />,
       },
       {
-        path: "/strona/:slug",
+        path: "/:slug",
         element: <StaticPage />,
       },
       {
@@ -69,7 +70,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/kola-mlodych",
-        element: <StaticPage />,
+        element: <Map />,
       }
     ],
   },
