@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +15,6 @@ export function LayoutContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Only fetch categories on the homepage
   const { data: categories } = useQuery({
     queryKey: ['layout-categories'],
     queryFn: async () => {
@@ -31,13 +29,11 @@ export function LayoutContent() {
     enabled: location.pathname === '/',
   });
 
-  // Reset search and filters when location changes or page reloads
   useEffect(() => {
     setSearchQuery("");
     setSelectedCategories([]);
   }, [location.pathname]);
 
-  // Pass search and filter values to the Index component through URL parameters
   useEffect(() => {
     if (location.pathname === '/') {
       const params = new URLSearchParams(location.search);
@@ -61,7 +57,6 @@ export function LayoutContent() {
     }
   }, [searchQuery, selectedCategories, location.pathname]);
 
-  // Read URL parameters when the component mounts
   useEffect(() => {
     if (location.pathname === '/') {
       const params = new URLSearchParams(location.search);
@@ -78,13 +73,11 @@ export function LayoutContent() {
     }
   }, [location.pathname, location.search]);
 
-  // Determine if we're on a management page
   const isManagementPage = location.pathname.includes('zarzadzanie');
 
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
     queryFn: async () => {
-      // Extract slug from pathname (removing leading slash)
       const slug = location.pathname.substring(1);
       const { data, error } = await supabase
         .from('static_pages')
@@ -140,7 +133,6 @@ export function LayoutContent() {
         </main>
       </div>
 
-      {/* Overlay for mobile */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
