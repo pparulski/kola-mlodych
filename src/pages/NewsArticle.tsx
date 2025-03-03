@@ -119,7 +119,12 @@ export default function NewsArticle() {
         </div>
 
         <div className="bg-[hsl(var(--content-box))] p-6 rounded-lg">
-          <NewsContent content={article.content} />
+          <NewsContent 
+            content={article.content}
+            title={article.title}
+            date={article.date || undefined}
+            featured_image={article.featured_image || undefined}
+          />
         </div>
       </div>
     </div>
