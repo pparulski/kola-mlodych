@@ -10,6 +10,10 @@ export const categoryFormSchema = z.object({
 
 // Form data type based on the schema
 export type CategoryFormData = z.infer<typeof categoryFormSchema>;
+// For backward compatibility - alias for CategoryFormData
+export type CategoryFormValues = CategoryFormData;
+// For backward compatibility - alias for schema
+export const CategoryFormSchema = categoryFormSchema;
 
 /**
  * Generates a slug from a name

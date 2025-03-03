@@ -4,7 +4,7 @@ import { LayoutContent } from "./layout/LayoutContent";
 
 export function Layout() {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider>
       <div className="flex w-full">
         <LayoutContent />
       </div>

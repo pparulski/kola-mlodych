@@ -1,8 +1,7 @@
 
 import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { CategoryFormData } from "./CategoryFormSchema";
-import { generateSlugFromName } from "./CategoryFormSchema";
+import { CategoryFormData, generateSlugFromName } from "./CategoryFormSchema";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -10,11 +9,12 @@ import {
   FormItem, 
   FormLabel, 
   FormControl, 
-  FormMessage 
+  FormMessage,
+  useFormField 
 } from "@/components/ui/form";
 import { Category } from "@/types/categories";
 
-interface CategoryFormFieldsProps {
+export interface CategoryFormFieldsProps {
   form: UseFormReturn<CategoryFormData>;
   editingCategory: Category | null;
 }

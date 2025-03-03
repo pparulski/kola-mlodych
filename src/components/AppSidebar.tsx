@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AppSidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
-  const { open, setOpen } = useSidebar();
+  const { isOpen, setIsOpen } = useSidebar();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -39,14 +40,14 @@ export function AppSidebar() {
   const handleMenuClick = () => {
     if (isMobile) {
       console.log("Closing sidebar on mobile after menu click");
-      setOpen(false);
+      setIsOpen(false);
     }
   };
 
   return (
     <Sidebar 
       className={`fixed md:sticky top-0 h-dvh w-64 flex flex-col bg-background border-r transition-transform duration-300 z-40 ${
-        open ? 'translate-x-0' : '-translate-x-full'
+        isOpen ? 'translate-x-0' : '-translate-x-full'
       } md:translate-x-0`}
     >
       <ScrollArea className="flex-1">

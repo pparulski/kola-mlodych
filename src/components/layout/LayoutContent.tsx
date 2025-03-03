@@ -11,7 +11,7 @@ import { getPageTitle } from "@/utils/pageUtils";
 import { Category } from "@/types/categories";
 
 export function LayoutContent() {
-  const { open, setOpen } = useSidebar();
+  const { isOpen, setIsOpen } = useSidebar();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -99,7 +99,7 @@ export function LayoutContent() {
   });
 
   const handleOverlayClick = () => {
-    setOpen(false);
+    setIsOpen(false);
   };
 
   const pageTitle = isManagementPage ? null : getPageTitle(location.pathname, staticPage?.title);
@@ -141,7 +141,7 @@ export function LayoutContent() {
       </div>
 
       {/* Overlay for mobile */}
-      {open && (
+      {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
           onClick={handleOverlayClick}

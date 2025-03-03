@@ -127,7 +127,7 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="space-y-4">
-          <CategoryFormFields />
+          <CategoryFormFields form={form} editingCategory={editingCategory} />
         </div>
         
         <Button

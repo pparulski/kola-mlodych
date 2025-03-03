@@ -5,18 +5,50 @@ import { AlignLeft, X } from "lucide-react";
 interface SidebarContextProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  openMobile: boolean;
+  isMobile: boolean;
+  state: "open" | "closed" | "collapsed";
+  toggleSidebar: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextProps>({
   isOpen: false,
-  setIsOpen: () => {}
+  setIsOpen: () => {},
+  openMobile: false,
+  isMobile: false,
+  state: "open",
+  toggleSidebar: () => {}
 });
 
 export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const state = isOpen ? "open" : "closed";
+  const openMobile = isOpen && isMobile;
+
+  React.useEffect(() => {
+    // Check if screen is mobile size
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile(); // Check on initial render
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
+    <SidebarContext.Provider value={{ 
+      isOpen, 
+      setIsOpen, 
+      openMobile, 
+      isMobile, 
+      state, 
+      toggleSidebar 
+    }}>
       <div className="relative min-h-screen flex w-full">
         {children}
       </div>
