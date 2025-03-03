@@ -18,6 +18,7 @@ import { ManageEbooks } from "@/pages/manage/ManageEbooks";
 import ErrorPage from "@/pages/ErrorPage";
 import Map from "@/pages/Map";
 import NewsArticle from "@/pages/NewsArticle";
+import Auth from "@/pages/Auth";
 
 const router = createBrowserRouter([
   {
@@ -30,40 +31,24 @@ const router = createBrowserRouter([
         element: <Index />,
       },
       {
-        path: "/zarzadzanie-aktualnosciami",
+        path: "/manage/news",
         element: <ManageNews />,
       },
       {
-        path: "/zarzadzanie-kategoriami",
+        path: "/manage/categories",
         element: <ManageCategories />,
       },
       {
-        path: "/zarzadzanie-menu",
+        path: "/manage/menu",
         element: <ManageMenu />,
       },
       {
-        path: "/zarzadzanie-stronami",
+        path: "/manage/pages",
         element: <ManagePages />,
       },
       {
-        path: "/:slug",
-        element: <StaticPage />,
-      },
-      {
-        path: "/downloads",
-        element: <Downloads />,
-      },
-      {
-        path: "/ebooks",
-        element: <Ebooks />,
-      },
-      {
-        path: "/zarzadzanie-plikami",
-        element: <ManageDownloads />,
-      },
-      {
-        path: "/zarzadzanie-publikacjami",
-        element: <ManageEbooks />,
+        path: "/news/:slug",
+        element: <NewsArticle />,
       },
       {
         path: "/category/:slug",
@@ -74,9 +59,29 @@ const router = createBrowserRouter([
         element: <Map />,
       },
       {
-        path: "/news/:slug",
-        element: <NewsArticle />,
-      }
+        path: "/downloads",
+        element: <Downloads />,
+      },
+      {
+        path: "/ebooks",
+        element: <Ebooks />,
+      },
+      {
+        path: "/manage/downloads",
+        element: <ManageDownloads />,
+      },
+      {
+        path: "/manage/ebooks",
+        element: <ManageEbooks />,
+      },
+      {
+        path: "/auth",
+        element: <Auth />,
+      },
+      {
+        path: "/:slug",
+        element: <StaticPage />,
+      },
     ],
   },
 ]);
