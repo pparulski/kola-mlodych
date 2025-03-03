@@ -1,46 +1,46 @@
 
-import { useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { CategoryFormData, generateSlugFromName } from "./CategoryFormSchema";
+import { Control } from "react-hook-form";
+import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { CategoryFormValues, generateSlugFromName } from "./CategoryFormSchema";
 import { Switch } from "@/components/ui/switch";
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage,
-  useFormField 
-} from "@/components/ui/form";
 import { Category } from "@/types/categories";
 
 export interface CategoryFormFieldsProps {
-  form: UseFormReturn<CategoryFormData>;
-  editingCategory: Category | null;
+  form: {
+    control: Control<CategoryFormValues>;
+  };
+  editingCategory?: Category;
 }
 
 export function CategoryFormFields({ form, editingCategory }: CategoryFormFieldsProps) {
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nazwa</FormLabel>
+            <FormLabel>Nazwa kategorii</FormLabel>
             <FormControl>
-              <Input 
-                {...field} 
-                placeholder="Nazwa kategorii"
-                onChange={(e) => {
-                  field.onChange(e);
-                  // Only auto-generate slug if it's a new category or slug is empty
-                  if (!editingCategory || !form.getValues("slug")) {
-                    const slug = generateSlugFromName(e.target.value);
-                    form.setValue("slug", slug);
-                  }
-                }}
-              />
+              <Input {...field} placeholder="np. Wydarzenia" />
+            </FormControl>
+            <FormDescription>
+              Nazwa kategorii widoczna na stronie
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Opis (opcjonalny)</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Krótki opis kategorii" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -49,13 +49,29 @@ export function CategoryFormFields({ form, editingCategory }: CategoryFormFields
       
       <FormField
         control={form.control}
-        name="slug"
+        name="color"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Slug</FormLabel>
+            <FormLabel>Kolor</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="slug-kategorii" />
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="color" 
+                  {...field} 
+                  className="w-12 h-10 p-1" 
+                  defaultValue="#3B82F6"
+                />
+                <Input 
+                  type="text" 
+                  value={field.value} 
+                  onChange={field.onChange}
+                  className="flex-1" 
+                />
+              </div>
             </FormControl>
+            <FormDescription>
+              Kolor używany do oznaczenia kategorii
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -67,10 +83,10 @@ export function CategoryFormFields({ form, editingCategory }: CategoryFormFields
         render={({ field }) => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <FormLabel className="text-base">Dodaj do menu</FormLabel>
-              <div className="text-sm text-muted-foreground">
-                Dodaj link do artykułów z tej kategorii w menu bocznym
-              </div>
+              <FormLabel className="text-base">Pokaż w menu</FormLabel>
+              <FormDescription>
+                Czy kategoria powinna być widoczna w menu głównym?
+              </FormDescription>
             </div>
             <FormControl>
               <Switch
@@ -81,6 +97,6 @@ export function CategoryFormFields({ form, editingCategory }: CategoryFormFields
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/categories";
-import { CategoryFormSchema, CategoryFormValues } from "./CategoryFormSchema";
+import { categoryFormSchema, CategoryFormValues, generateSlugFromName } from "./CategoryFormSchema";
 import { CategoryFormFields } from "./CategoryFormFields";
 
 interface CategoryFormProps {
@@ -16,7 +17,7 @@ interface CategoryFormProps {
 
 export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(CategoryFormSchema),
+    resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: editingCategory?.name || "",
       description: editingCategory?.description || "",
@@ -27,8 +28,11 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
 
   const onSubmit = async (data: CategoryFormValues) => {
     try {
+      const slug = editingCategory?.slug || generateSlugFromName(data.name);
+      
       const updates = {
         name: data.name,
+        slug: slug,
         description: data.description,
         color: data.color,
         show_in_menu: data.show_in_menu,

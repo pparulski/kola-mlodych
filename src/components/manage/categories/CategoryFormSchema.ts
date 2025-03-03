@@ -10,5 +10,13 @@ export const categoryFormSchema = z.object({
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
-export const CategoryFormSchema = categoryFormSchema;
-export { CategoryFormValues }; // Add explicit export
+// Helper function to generate slug from name
+export const generateSlugFromName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};

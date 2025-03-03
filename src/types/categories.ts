@@ -6,6 +6,8 @@ export interface Category {
   slug: string;
   created_at: string;
   show_in_menu?: boolean;
+  description?: string;
+  color?: string;
 }
 
 export interface FilterComponentProps {

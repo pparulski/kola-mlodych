@@ -1,155 +1,115 @@
-
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/categories";
 import { CategoryForm } from "./CategoryForm";
-import { CategoryList } from "../CategoryList";
-import { toast } from "sonner";
 
 export function CategoryManagement() {
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined);
   const queryClient = useQueryClient();
-  
-  // Fetch all categories
-  const { data: categories, isLoading, refetch } = useQuery({
-    queryKey: ["categories"],
+
+  const { data: categories, isLoading, error } = useQuery({
+    queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-      
-      if (error) throw error;
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) {
+        toast.error(`Błąd podczas pobierania kategorii: ${error.message}`);
+        throw error;
+      }
       return data as Category[];
     },
   });
-  
-  // Delete a category
-  const handleDeleteCategory = async () => {
+
+  const handleDeleteCategory = async (categoryId: string) => {
     try {
-      if (!categoryToDelete) return;
-      
-      // First check if this category is used in any news_categories relationships
-      const { data: newsCategories, error: checkError } = await supabase
-        .from("news_categories")
-        .select("*")
-        .eq("category_id", categoryToDelete.id)
-        .limit(1);
-        
-      if (checkError) throw checkError;
-      
-      if (newsCategories && newsCategories.length > 0) {
-        toast.error("Nie można usunąć kategorii, która jest używana w artykułach");
-        closeDeleteDialog();
-        return;
-      }
-      
-      // Delete menu items if category was in menu
-      if (categoryToDelete.show_in_menu) {
-        // Delete from menu_items
-        const menuItemResult = await supabase
-          .from("menu_items")
-          .delete()
-          .eq("type", "category_feed")
-          .eq("resource_id", categoryToDelete.id);
-          
-        if (menuItemResult.error) throw menuItemResult.error;
-        
-        // Delete from menu_positions
-        const menuPositionResult = await supabase
-          .from("menu_positions")
-          .delete()
-          .eq("type", "category_feed")
-          .eq("resource_id", categoryToDelete.id);
-          
-        if (menuPositionResult.error) throw menuPositionResult.error;
-      }
-      
-      // Now delete the category
       const { error } = await supabase
-        .from("categories")
+        .from('categories')
         .delete()
-        .eq("id", categoryToDelete.id);
-      
-      if (error) throw error;
-      
-      toast.success("Kategoria została usunięta");
-      
-      // Invalidate queries to refresh data
-      await refetch();
-      queryClient.invalidateQueries({ queryKey: ["menu-items"] });
-      queryClient.invalidateQueries({ queryKey: ["menu-positions"] });
-      queryClient.invalidateQueries({ queryKey: ["static-pages-sidebar"] });
-      
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      toast.error("Wystąpił błąd podczas usuwania kategorii");
-    } finally {
-      closeDeleteDialog();
+        .eq('id', categoryId);
+
+      if (error) {
+        toast.error(`Błąd podczas usuwania kategorii: ${error.message}`);
+      } else {
+        toast.success('Kategoria usunięta pomyślnie!');
+        queryClient.invalidateQueries({ queryKey: ['categories'] });
+      }
+    } catch (error: any) {
+      toast.error(`Wystąpił błąd: ${error.message}`);
     }
   };
-  
-  const openDeleteDialog = (category: Category) => {
-    setCategoryToDelete(category);
-    setIsDeleteDialogOpen(true);
+
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setShowForm(true);
   };
-  
-  const closeDeleteDialog = () => {
-    setIsDeleteDialogOpen(false);
-    setCategoryToDelete(null);
+
+  const handleAddCategory = () => {
+    setEditingCategory(undefined);
+    setShowForm(true);
   };
-  
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingCategory(undefined);
+  };
+
   const handleFormSuccess = () => {
-    setEditingCategory(null);
-    refetch();
+    setShowForm(false);
+    setEditingCategory(undefined);
+    queryClient.invalidateQueries({ queryKey: ['categories'] });
   };
-  
+
+  if (isLoading) {
+    return <div>Ładowanie kategorii...</div>;
+  }
+
+  if (error) {
+    return <div>Błąd: {error.message}</div>;
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Zarządzaj kategoriami</h1>
-      
-      <div className="grid md:grid-cols-2 gap-8">
-        <div>
-          <CategoryForm 
-            editingCategory={editingCategory}
-            onSuccess={handleFormSuccess}
-          />
-        </div>
-        
-        <div>
-          {isLoading ? (
-            <p>Ładowanie kategorii...</p>
-          ) : (
-            <CategoryList
-              categories={categories || []}
-              onEdit={setEditingCategory}
-              onDelete={openDeleteDialog}
-            />
-          )}
-        </div>
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Zarządzanie kategoriami</h1>
+        <Button onClick={handleAddCategory}>Dodaj kategorię</Button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {categories?.map((category) => (
+          <div key={category.id} className="bg-card p-4 rounded-lg border shadow-sm">
+            <h3 className="text-lg font-semibold">{category.name}</h3>
+            <p className="text-sm text-muted-foreground">{category.description}</p>
+            <div className="mt-2 flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleEditCategory(category)}>
+                Edytuj
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDeleteCategory(category.id)}>
+                Usuń
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
       
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Czy na pewno chcesz usunąć tę kategorię?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Ta operacja jest nieodwracalna. Kategoria zostanie trwale usunięta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDeleteDialog}>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteCategory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Usuń
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {showForm && (
+        <div className="bg-card p-6 rounded-lg border shadow-sm">
+          <h2 className="text-xl font-bold mb-4">
+            {editingCategory ? 'Edytuj kategorię' : 'Dodaj nową kategorię'}
+          </h2>
+          <CategoryForm 
+            editingCategory={editingCategory} 
+            onSuccess={handleFormSuccess} 
+            onCancel={handleFormCancel}
+          />
+        </div>
+      )}
     </div>
   );
 }
