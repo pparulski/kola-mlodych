@@ -1,95 +1,155 @@
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/categories";
+import { CategoryForm } from "./CategoryForm";
+import { CategoryList } from "../CategoryList";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { CategoryForm } from "@/components/manage/CategoryForm";
-import { CategoryManagementList } from "@/components/manage/categories/CategoryManagementList";
-import { CategoryDeleteDialog } from "@/components/manage/categories/CategoryDeleteDialog";
 
 export function CategoryManagement() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
-  const [categoryUsageCount, setCategoryUsageCount] = useState(0);
-  const queryClient = useQueryClient();
-
-  const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCategory(null);
-  };
-
-  const handleDeleteCategory = async (category: Category) => {
-    // Check if the category is used in any news articles
-    const { count, error } = await supabase
-      .from("news_categories")
-      .select("*", { count: "exact", head: true })
-      .eq("category_id", category.id);
-
-    if (error) {
-      console.error("Error checking category usage:", error);
-      toast.error("Nie udało się sprawdzić czy kategoria jest używana");
-      return;
-    }
-
-    setCategoryUsageCount(count || 0);
-    setDeletingCategory(category);
-  };
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  
+  // Fetch all categories
+  const { data: categories, isLoading, refetch } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Kategoria usunięta");
-      setDeletingCategory(null);
-    },
-    onError: (error) => {
-      console.error("Error deleting category:", error);
-      toast.error("Nie udało się usunąć kategorii");
+      return data as Category[];
     },
   });
-
-  const handleConfirmDelete = () => {
-    if (deletingCategory) {
-      deleteMutation.mutate(deletingCategory.id);
+  
+  // Delete a category
+  const handleDeleteCategory = async () => {
+    try {
+      if (!categoryToDelete) return;
+      
+      // First check if this category is used in any news_categories relationships
+      const { data: newsCategories, error: checkError } = await supabase
+        .from("news_categories")
+        .select("*")
+        .eq("category_id", categoryToDelete.id)
+        .limit(1);
+        
+      if (checkError) throw checkError;
+      
+      if (newsCategories && newsCategories.length > 0) {
+        toast.error("Nie można usunąć kategorii, która jest używana w artykułach");
+        closeDeleteDialog();
+        return;
+      }
+      
+      // Delete menu items if category was in menu
+      if (categoryToDelete.show_in_menu) {
+        // Delete from menu_items
+        const menuItemResult = await supabase
+          .from("menu_items")
+          .delete()
+          .eq("type", "category_feed")
+          .eq("resource_id", categoryToDelete.id);
+          
+        if (menuItemResult.error) throw menuItemResult.error;
+        
+        // Delete from menu_positions
+        const menuPositionResult = await supabase
+          .from("menu_positions")
+          .delete()
+          .eq("type", "category_feed")
+          .eq("resource_id", categoryToDelete.id);
+          
+        if (menuPositionResult.error) throw menuPositionResult.error;
+      }
+      
+      // Now delete the category
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", categoryToDelete.id);
+      
+      if (error) throw error;
+      
+      toast.success("Kategoria została usunięta");
+      refetch();
+      
+      // Invalidate menu-related queries
+      const queryClient = refetch().then;
+      queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["menu-positions"] });
+      queryClient.invalidateQueries({ queryKey: ["static-pages-sidebar"] });
+      
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Wystąpił błąd podczas usuwania kategorii");
+    } finally {
+      closeDeleteDialog();
     }
   };
-
+  
+  const openDeleteDialog = (category: Category) => {
+    setCategoryToDelete(category);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+  
+  const handleFormSuccess = () => {
+    setEditingCategory(null);
+    refetch();
+  };
+  
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Zarządzanie kategoriami</h1>
-      <p className="text-gray-500 mb-6">Dodawaj, edytuj i usuwaj kategorie</p>
-
-      <div className="grid gap-8 md:grid-cols-2">
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Zarządzaj kategoriami</h1>
+      
+      <div className="grid md:grid-cols-2 gap-8">
         <div>
           <CategoryForm 
-            editingCategory={editingCategory} 
-            onSuccess={handleCancelEdit} 
+            editingCategory={editingCategory}
+            onSuccess={handleFormSuccess}
           />
         </div>
-
+        
         <div>
-          <CategoryManagementList 
-            onEdit={handleEditCategory} 
-            onDelete={handleDeleteCategory} 
-          />
+          {isLoading ? (
+            <p>Ładowanie kategorii...</p>
+          ) : (
+            <CategoryList
+              categories={categories || []}
+              onEdit={setEditingCategory}
+              onDelete={openDeleteDialog}
+            />
+          )}
         </div>
       </div>
-
-      <CategoryDeleteDialog
-        isOpen={!!deletingCategory}
-        onClose={() => setDeletingCategory(null)}
-        onConfirm={handleConfirmDelete}
-        category={deletingCategory}
-        usageCount={categoryUsageCount}
-      />
+      
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Czy na pewno chcesz usunąć tę kategorię?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ta operacja jest nieodwracalna. Kategoria zostanie trwale usunięta.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDeleteDialog}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCategory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
