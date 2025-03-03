@@ -66,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "/category/:slug",
         element: <CategoryFeed />,
+      },
+      {
+        path: "/kola-mlodych",
+        element: <StaticPage />,
       }
     ],
   },

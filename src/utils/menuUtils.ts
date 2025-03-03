@@ -12,7 +12,7 @@ export const staticPagesToMenuItems = (pages: StaticPage[]): SidebarMenuItem[] =
     id: `page-${page.id}`,
     originalId: page.id,
     title: page.title,
-    path: `/${page.slug}`,
+    path: `/strona/${page.slug}`,
     icon: 'File',
     position: page.sidebar_position || 100, // Use actual position or a default high number
     type: MenuItemType.STATIC_PAGE

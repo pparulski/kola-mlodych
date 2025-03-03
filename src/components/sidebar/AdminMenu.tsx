@@ -8,12 +8,12 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const adminMenuItems = [
-  { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/manage/news" },
-  { title: "Zarządzaj publikacjami", icon: Book, path: "/manage/ebooks" },
-  { title: "Zarządzaj plikami", icon: Download, path: "/manage/downloads" },
-  { title: "Zarządzaj stronami", icon: FileText, path: "/manage/pages" },
-  { title: "Zarządzaj kategoriami", icon: Tag, path: "/manage/categories" },
-  { title: "Zarządzaj menu", icon: Menu, path: "/manage/menu" },
+  { title: "Zarządzaj aktualnościami", icon: Newspaper, path: "/zarzadzanie-aktualnosciami" },
+  { title: "Zarządzaj publikacjami", icon: Book, path: "/zarzadzanie-publikacjami" },
+  { title: "Zarządzaj plikami", icon: Download, path: "/zarzadzanie-plikami" },
+  { title: "Zarządzaj stronami", icon: FileText, path: "/zarzadzanie-stronami" },
+  { title: "Zarządzaj kategoriami", icon: Tag, path: "/zarzadzanie-kategoriami" },
+  { title: "Zarządzaj menu", icon: Menu, path: "/zarzadzanie-menu" },
 ];
 
 interface AdminMenuProps {
