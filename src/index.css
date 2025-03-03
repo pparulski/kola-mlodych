@@ -70,11 +70,14 @@
 
   /* Style divs in articles */
   article div {
-    @apply bg-background text-foreground border-border;
+    @apply bg-transparent text-foreground border-border;
   }
 
-  .dark article div {
-    @apply bg-muted text-muted-foreground;
+  /* Ensure text boxes inside content boxes have transparent backgrounds */
+  .bg-\[hsl\(var\(--content-box\)\)\] input,
+  .bg-\[hsl\(var\(--content-box\)\)\] textarea,
+  .bg-\[hsl\(var\(--content-box\)\)\] .prose {
+    @apply bg-transparent;
   }
 
   /* Header styles */

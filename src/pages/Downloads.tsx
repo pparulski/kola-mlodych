@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -60,15 +59,12 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
 
   const handleDelete = async (id: string) => {
     try {
-      // Find the file to get its URL before deletion
       const fileToDelete = files.find(file => file.id === id);
       if (!fileToDelete) return;
 
-      // Extract filename from URL
       const filename = fileToDelete.url.split('/').pop();
       
       if (filename) {
-        // Delete the file from storage
         const { error: storageError } = await supabase.storage
           .from('downloads')
           .remove([filename]);
@@ -79,7 +75,6 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         }
       }
 
-      // Delete the database record
       const { error: dbError } = await supabase
         .from("downloads")
         .delete()
@@ -159,7 +154,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
                   {new Date(file.created_at).toLocaleDateString("pl-PL")}
                 </TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2 flex-wrap">
+                  <div className="flex md:justify-end justify-center gap-2 flex-wrap">
                     <Button variant="outline" asChild size="sm">
                       <a href={file.url} target="_blank" rel="noopener noreferrer">
                         <Download className="mr-2 h-4 w-4" />
