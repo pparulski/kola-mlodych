@@ -137,7 +137,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-lg border border-border bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)]">
         <Table>
           <TableHeader className="bg-secondary">
             <TableRow className="hover:bg-transparent">
@@ -146,7 +146,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
               <TableHead className="text-white hover:bg-transparent">Akcje</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="bg-background">
+          <TableBody className="bg-transparent">
             {files.map((file) => (
               <TableRow key={file.id} className="hover:bg-transparent">
                 <TableCell>{file.name}</TableCell>
@@ -155,7 +155,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
                 </TableCell>
                 <TableCell>
                   <div className="flex md:justify-end justify-center gap-2 flex-wrap">
-                    <Button variant="outline" asChild size="sm">
+                    <Button variant="outline" asChild size="sm" className="mx-auto md:mx-0">
                       <a href={file.url} target="_blank" rel="noopener noreferrer">
                         <Download className="mr-2 h-4 w-4" />
                         <span className="hidden md:inline">Pobierz</span>
@@ -166,6 +166,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
                         variant="destructive"
                         size="icon"
                         onClick={() => handleDelete(file.id)}
+                        className="mx-auto md:mx-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

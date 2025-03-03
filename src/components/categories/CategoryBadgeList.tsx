@@ -16,7 +16,7 @@ export function CategoryBadgeList({ categories, className = "" }: CategoryBadgeL
         <Badge 
           key={category.id} 
           variant="outline" 
-          className="bg-primary/20 hover:bg-primary/30 text-xs px-2 py-1 border-none font-medium"
+          className="bg-primary/20 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/20 text-xs px-2 py-1 border-none font-medium"
         >
           {category.name}
         </Badge>

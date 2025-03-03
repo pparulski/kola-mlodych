@@ -67,7 +67,7 @@ export function ManageEbooks() {
       <h1 className="text-3xl font-bold">Zarządzaj publikacjami</h1>
       
       <div>
-        <h2 className="text-xl mb-4">Dodaj nową publikację</h2>
+        <h2 className="text-xl mb-4">Dodaj nową publikację</h2>
         <EbookUpload onUploadSuccess={handleUploadSuccess} />
       </div>
 

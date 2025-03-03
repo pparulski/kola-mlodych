@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -31,7 +30,7 @@ const Map = () => {
         {unions?.map((union) => (
           <Card 
             key={union.id} 
-            className="p-6 hover:bg-accent/10 transition-colors"
+            className="p-6 bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)]"
           >
             <div className={`flex ${isMobile ? 'flex-col' : 'flex-row gap-8'}`}>
               {/* Left section with logo, name, and contact info */}
@@ -87,7 +86,7 @@ const Map = () => {
               </div>
 
               {/* Right section with bio */}
-              <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2 flex items-center transition-colors'}`}>
+              <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2 flex items-center'}`}>
                 {union.bio && (
                   <p className="text-sm text-muted-foreground">
                     {union.bio}

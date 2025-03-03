@@ -90,7 +90,7 @@ export default function NewsArticle() {
 
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-4xl">
-      <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
+      <div className="bg-[rgb(174,174,183)] dark:bg-[rgb(51,51,51)] rounded-lg overflow-hidden">
         {article.featured_image && (
           <div className="w-full relative">
             <img
