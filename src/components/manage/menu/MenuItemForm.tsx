@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Category } from "@/types/categories";
+import { DefaultMenuItemFields } from "./form/DefaultMenuItemFields";
+import { StaticPageMenuItemFields } from "./form/StaticPageMenuItemFields";
+import { CategoryMenuItemFields } from "./form/CategoryMenuItemFields";
+import { MenuItemTypeSelect } from "./form/MenuItemTypeSelect";
+import { MenuItemVisibilityOptions } from "./form/MenuItemVisibilityOptions";
 
 interface MenuItemFormProps {
   editingItem: MenuItem | null;
@@ -120,108 +123,42 @@ export function MenuItemForm({ editingItem, onSubmit, onCancel }: MenuItemFormPr
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="type">Typ</Label>
-            <Select
-              value={type}
-              onValueChange={(value) => setType(value as MenuItemType)}
-            >
-              <SelectTrigger id="type">
-                <SelectValue placeholder="Wybierz typ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={MenuItemType.DEFAULT}>Standardowy (link)</SelectItem>
-                <SelectItem value={MenuItemType.STATIC_PAGE}>Strona statyczna</SelectItem>
-                <SelectItem value={MenuItemType.FILTERED_FEED}>Feed z kategorią</SelectItem>
-                <SelectItem value={MenuItemType.CATEGORY_FEED}>Kategoria</SelectItem>
-                <SelectItem value={MenuItemType.CUSTOM}>Niestandardowy</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <MenuItemTypeSelect 
+            type={type} 
+            onTypeChange={setType} 
+          />
 
           {(type === MenuItemType.DEFAULT || type === MenuItemType.CUSTOM) && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="link">Link</Label>
-                <Input
-                  id="link"
-                  placeholder="URL"
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="icon">Ikona (opcjonalnie)</Label>
-                <Input
-                  id="icon"
-                  placeholder="Nazwa ikony z lucide-react"
-                  value={icon}
-                  onChange={(e) => setIcon(e.target.value)}
-                />
-              </div>
-            </>
+            <DefaultMenuItemFields
+              link={link}
+              setLink={setLink}
+              icon={icon}
+              setIcon={setIcon}
+            />
           )}
 
           {type === MenuItemType.STATIC_PAGE && (
-            <div className="space-y-2">
-              <Label htmlFor="page_id">Strona</Label>
-              <Select
-                value={pageId}
-                onValueChange={setPageId}
-              >
-                <SelectTrigger id="page_id">
-                  <SelectValue placeholder="Wybierz stronę" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pages?.map((page) => (
-                    <SelectItem key={page.id} value={page.id}>
-                      {page.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <StaticPageMenuItemFields
+              pageId={pageId}
+              setPageId={setPageId}
+              pages={pages}
+            />
           )}
 
           {(type === MenuItemType.FILTERED_FEED || type === MenuItemType.CATEGORY_FEED) && (
-            <div className="space-y-2">
-              <Label htmlFor="category_id">Kategoria</Label>
-              <Select
-                value={categoryId}
-                onValueChange={setCategoryId}
-              >
-                <SelectTrigger id="category_id">
-                  <SelectValue placeholder="Wybierz kategorię" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <CategoryMenuItemFields
+              categoryId={categoryId}
+              setCategoryId={setCategoryId}
+              categories={categories}
+            />
           )}
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="is_public"
-              checked={isPublic}
-              onCheckedChange={(checked) => setIsPublic(checked === true)}
-            />
-            <Label htmlFor="is_public">Pokaż w menu publicznym</Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="is_admin"
-              checked={isAdmin}
-              onCheckedChange={(checked) => setIsAdmin(checked === true)}
-            />
-            <Label htmlFor="is_admin">Pokaż w menu administratora</Label>
-          </div>
+          <MenuItemVisibilityOptions
+            isPublic={isPublic}
+            setIsPublic={setIsPublic}
+            isAdmin={isAdmin}
+            setIsAdmin={setIsAdmin}
+          />
 
           <div className="flex gap-2">
             <Button type="submit">
