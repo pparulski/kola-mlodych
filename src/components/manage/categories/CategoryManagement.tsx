@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ export function CategoryManagement() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const queryClient = useQueryClient();
   
   // Fetch all categories
   const { data: categories, isLoading, refetch } = useQuery({
@@ -78,10 +79,9 @@ export function CategoryManagement() {
       if (error) throw error;
       
       toast.success("Kategoria została usunięta");
-      refetch();
       
-      // Invalidate menu-related queries
-      const queryClient = refetch().then;
+      // Invalidate queries to refresh data
+      await refetch();
       queryClient.invalidateQueries({ queryKey: ["menu-items"] });
       queryClient.invalidateQueries({ queryKey: ["menu-positions"] });
       queryClient.invalidateQueries({ queryKey: ["static-pages-sidebar"] });
