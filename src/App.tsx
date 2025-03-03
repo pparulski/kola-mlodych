@@ -4,15 +4,15 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Home } from "@/pages/Index";
-import ManageNews from "@/pages/manage/ManageNews";
+import Index from "@/pages/Index";
+import { ManageNews } from "@/pages/manage/ManageNews";
 import ManageCategories from "@/pages/manage/ManageCategories";
 import { ManageMenu } from "@/pages/manage/ManageMenu";
-import ManagePages from "@/pages/manage/ManagePages";
+import { ManagePages } from "@/pages/manage/ManagePages";
 import { StaticPage } from "@/components/StaticPage";
 import CategoryFeed from "@/pages/CategoryFeed";
-import { DownloadsPage } from "@/pages/Downloads";
-import { EbooksPage } from "@/pages/Ebooks";
+import Downloads from "@/pages/Downloads";
+import Ebooks from "@/pages/Ebooks";
 import { ManageDownloads } from "@/pages/manage/ManageDownloads";
 import { ManageEbooks } from "@/pages/manage/ManageEbooks";
 
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: <Index />,
       },
       {
         path: "/zarzadzanie-aktualnosciami",
@@ -47,11 +47,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/downloads",
-        element: <DownloadsPage />,
+        element: <Downloads />,
       },
       {
         path: "/ebooks",
-        element: <EbooksPage />,
+        element: <Ebooks />,
       },
       {
         path: "/zarzadzanie-plikami",
