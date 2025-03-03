@@ -67,6 +67,7 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
       console.log("Submitting category:", data);
       
       let result;
+      let categoryId = editingCategory?.id;
       
       if (editingCategory) {
         // Update existing category
@@ -86,35 +87,28 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
             name: data.name,
             slug: data.slug,
             show_in_menu: data.show_in_menu,
-          });
+          })
+          .select();
+          
+        if (result.data && result.data.length > 0) {
+          categoryId = result.data[0].id;
+        }
       }
       
       if (result.error) throw result.error;
       
       // Handle menu item creation or deletion based on show_in_menu status
-      if (editingCategory) {
-        const isStatusChanged = editingCategory.show_in_menu !== data.show_in_menu;
+      if (categoryId) {
+        const isStatusChanged = editingCategory ? editingCategory.show_in_menu !== data.show_in_menu : data.show_in_menu;
         
         if (isStatusChanged) {
           if (data.show_in_menu) {
             // Create menu item for this category
-            await createCategoryMenuItem(data.name, data.slug, editingCategory.id);
-          } else {
+            await createCategoryMenuItem(data.name, data.slug, categoryId);
+          } else if (editingCategory) {
             // Delete menu item for this category
-            await deleteCategoryMenuItem(editingCategory.id);
+            await deleteCategoryMenuItem(categoryId);
           }
-        }
-      } else if (data.show_in_menu) {
-        // Get the newly created category to get its ID
-        const { data: newCategory } = await supabase
-          .from("categories")
-          .select("*")
-          .eq("slug", data.slug)
-          .single();
-          
-        if (newCategory) {
-          // Create menu item for this category
-          await createCategoryMenuItem(data.name, data.slug, newCategory.id);
         }
       }
       
@@ -128,6 +122,7 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
       form.reset();
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["menu-positions"] });
       onSuccess();
     } catch (error) {
       console.error("Error saving category:", error);
@@ -159,9 +154,20 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
           icon: "BookOpen",
           position: newPosition,
           resource_id: categoryId,
+          category_slug: slug
         });
       
       if (result.error) throw result.error;
+      
+      // After inserting the menu item, add an entry to menu_positions table
+      await supabase
+        .from("menu_positions")
+        .insert({
+          id: `category-${categoryId}`,
+          type: "category_feed",
+          position: newPosition,
+          resource_id: categoryId
+        });
       
     } catch (error) {
       console.error("Error creating category menu item:", error);
@@ -172,6 +178,7 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
   // Function to delete a menu item for the category
   const deleteCategoryMenuItem = async (categoryId: string) => {
     try {
+      // Delete from menu_items
       const result = await supabase
         .from("menu_items")
         .delete()
@@ -179,6 +186,13 @@ export function CategoryForm({ editingCategory, onSuccess }: CategoryFormProps) 
         .eq("resource_id", categoryId);
       
       if (result.error) throw result.error;
+      
+      // Also delete from menu_positions
+      await supabase
+        .from("menu_positions")
+        .delete()
+        .eq("type", "category_feed")
+        .eq("resource_id", categoryId);
       
     } catch (error) {
       console.error("Error deleting category menu item:", error);

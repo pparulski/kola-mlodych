@@ -87,7 +87,7 @@ export default function CategoryFeed() {
     return (
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold">Kategoria nie znaleziona</h1>
-        <p className="text-muted-foreground mt-4">
+        <p className="text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function CategoryFeed() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-10">
+        <div className="text-center py-10 bg-[hsl(var(--content-box))] rounded-lg">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.

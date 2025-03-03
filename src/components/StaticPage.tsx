@@ -52,11 +52,11 @@ export function StaticPage() {
       <div className="relative space-y-4">
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto bg-white/80 dark:bg-muted/20 backdrop-blur-sm p-5 rounded-lg shadow-sm"
+            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto bg-[hsl(var(--content-box))] backdrop-blur-sm p-5 rounded-lg shadow-sm"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
-          <div className="text-center text-muted-foreground mt-4 bg-white/80 dark:bg-muted/20 p-6 rounded-lg shadow-sm backdrop-blur-sm">
+          <div className="text-center text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg shadow-sm backdrop-blur-sm">
             <p>Ta strona jest w trakcie tworzenia.</p>
           </div>
         )}

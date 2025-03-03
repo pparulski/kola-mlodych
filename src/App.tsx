@@ -17,6 +17,7 @@ import { ManageDownloads } from "@/pages/manage/ManageDownloads";
 import { ManageEbooks } from "@/pages/manage/ManageEbooks";
 import ErrorPage from "@/pages/ErrorPage";
 import Map from "@/pages/Map";
+import NewsArticle from "@/pages/NewsArticle";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "/kola-mlodych",
         element: <Map />,
+      },
+      {
+        path: "/news/:slug",
+        element: <NewsArticle />,
       }
     ],
   },
