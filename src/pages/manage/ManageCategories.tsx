@@ -1,6 +1,8 @@
 
 import { CategoryManagement } from "@/components/manage/categories/CategoryManagement";
 
-export default function ManageCategories() {
+export function ManageCategories() {
   return <CategoryManagement />;
 }
+
+export default ManageCategories;
