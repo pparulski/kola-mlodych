@@ -104,7 +104,7 @@ export default function CategoryFeed() {
       />
       
       {articles && articles.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-6">
           {articles.map((article) => (
             <NewsPreview 
               key={article.id}

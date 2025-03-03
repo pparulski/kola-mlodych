@@ -21,7 +21,6 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
     defaultValues: {
       name: editingCategory?.name || "",
       description: editingCategory?.description || "",
-      color: editingCategory?.color || "#3B82F6",
       show_in_menu: editingCategory?.show_in_menu || false,
     },
   });
@@ -34,7 +33,6 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
         name: data.name,
         slug: slug,
         description: data.description,
-        color: data.color,
         show_in_menu: data.show_in_menu,
       };
 
@@ -48,7 +46,7 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
       } else {
         response = await supabase
           .from('categories')
-          .insert(updates);
+          .insert([{ ...updates }]);
       }
 
       if (response.error) {

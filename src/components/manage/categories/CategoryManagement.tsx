@@ -40,6 +40,7 @@ export function CategoryManagement() {
       } else {
         toast.success('Kategoria usunięta pomyślnie!');
         queryClient.invalidateQueries({ queryKey: ['categories'] });
+        queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
       }
     } catch (error: any) {
       toast.error(`Wystąpił błąd: ${error.message}`);
@@ -65,6 +66,7 @@ export function CategoryManagement() {
     setShowForm(false);
     setEditingCategory(undefined);
     queryClient.invalidateQueries({ queryKey: ['categories'] });
+    queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
   };
 
   if (isLoading) {
@@ -85,9 +87,16 @@ export function CategoryManagement() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories?.map((category) => (
           <div key={category.id} className="bg-card p-4 rounded-lg border shadow-sm">
-            <h3 className="text-lg font-semibold">{category.name}</h3>
-            <p className="text-sm text-muted-foreground">{category.description}</p>
-            <div className="mt-2 flex justify-end gap-2">
+            <div className="flex justify-between items-start">
+              <h3 className="text-lg font-semibold">{category.name}</h3>
+              {category.show_in_menu && (
+                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  Menu
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+            <div className="mt-4 flex justify-end gap-2">
               <Button variant="outline" size="sm" onClick={() => handleEditCategory(category)}>
                 Edytuj
               </Button>

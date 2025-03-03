@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
 import { fetchSidebarPages, fetchMenuPositions } from "@/services/menuService";
 import { supabase } from "@/integrations/supabase/client";
+import { Category } from "@/types/categories";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
@@ -36,19 +37,20 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     staleTime: 0, // Ensure we always get fresh data
   });
 
-  // Fetch category menu items
-  const { data: categoryMenuItems, isLoading: isCategoryItemsLoading } = useQuery({
-    queryKey: ['menu-items'],
+  // Fetch categories with show_in_menu=true
+  const { data: categories, isLoading: isCategoriesLoading } = useQuery({
+    queryKey: ['sidebar-categories'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('menu_items')
+        .from('categories')
         .select('*')
-        .eq('type', 'category_feed');
+        .eq('show_in_menu', true)
+        .order('name');
         
       if (error) throw error;
-      return data;
+      return data as Category[];
     },
-    staleTime: 0, // Ensure we always get fresh data
+    staleTime: 0,
   });
 
   // Convert static pages to menu items format
@@ -57,18 +59,18 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Get default menu items
   const defaultMenuItems = getDefaultMenuItems();
 
-  // Convert category menu items to sidebar format
-  const categoryItems = categoryMenuItems ? categoryMenuItems.map(item => ({
-    id: `category-${item.resource_id}`,
-    title: item.title,
-    path: item.path,
-    icon: item.icon || 'BookOpen',
-    position: item.position,
+  // Convert categories to menu items 
+  const categoryMenuItems = categories ? categories.map(cat => ({
+    id: `category-${cat.id}`,
+    title: cat.name,
+    path: `/category/${cat.slug}`,
+    icon: 'BookOpen',
+    position: 100, // Default high position, will be sorted later
     type: MenuItemType.REGULAR
   })) : [];
 
   // Apply custom positions from database if available
-  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryItems];
+  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryMenuItems];
   if (menuPositions && menuPositions.length > 0) {
     combinedItems = applyCustomPositions(combinedItems, menuPositions);
   }
@@ -77,9 +79,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   const sortedItems = sortMenuItems(combinedItems);
   const allMenuItems = assignSequentialPositions(sortedItems);
 
-  console.log("Sidebar menu items (sorted and sequential):", allMenuItems);
-
-  if (isPagesLoading || isPositionsLoading || isCategoryItemsLoading) {
+  if (isPagesLoading || isPositionsLoading || isCategoriesLoading) {
     return <div className="py-2 px-3">Ładowanie menu...</div>;
   }
 

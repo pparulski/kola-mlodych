@@ -2,7 +2,7 @@
 import { Control } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CategoryFormValues, generateSlugFromName } from "./CategoryFormSchema";
+import { CategoryFormValues } from "./CategoryFormSchema";
 import { Switch } from "@/components/ui/switch";
 import { Category } from "@/types/categories";
 
@@ -42,36 +42,6 @@ export function CategoryFormFields({ form, editingCategory }: CategoryFormFields
             <FormControl>
               <Input {...field} placeholder="Krótki opis kategorii" />
             </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      
-      <FormField
-        control={form.control}
-        name="color"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Kolor</FormLabel>
-            <FormControl>
-              <div className="flex items-center gap-2">
-                <Input 
-                  type="color" 
-                  {...field} 
-                  className="w-12 h-10 p-1" 
-                  defaultValue="#3B82F6"
-                />
-                <Input 
-                  type="text" 
-                  value={field.value} 
-                  onChange={field.onChange}
-                  className="flex-1" 
-                />
-              </div>
-            </FormControl>
-            <FormDescription>
-              Kolor używany do oznaczenia kategorii
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
