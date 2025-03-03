@@ -10,24 +10,24 @@ import { Category } from "@/types/categories";
 
 interface PageHeaderProps {
   pageTitle?: string;
+  title?: string; // For backward compatibility
+  description?: string; // For backward compatibility
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   selectedCategories?: string[];
   setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
-  title?: string; // Add this for backward compatibility
-  description?: string; // Add this for backward compatibility
 }
 
 export function PageHeader({
   pageTitle,
+  title, // Support for old prop
+  description, // Support for old prop
   searchQuery = "",
   setSearchQuery = () => {},
   selectedCategories = [],
   setSelectedCategories = () => {},
   categories = [],
-  title, // Support for old prop
-  description // Support for old prop
 }: PageHeaderProps) {
   const { open, setOpen } = useSidebar();
   const location = useLocation();

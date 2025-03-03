@@ -117,7 +117,7 @@ export function LayoutContent() {
         <main className="flex-1 p-4 md:p-6">
           {!isManagementPage && (
             <PageHeader 
-              pageTitle={pageTitle}
+              title={pageTitle}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               selectedCategories={selectedCategories}
