@@ -81,7 +81,8 @@ export function SidebarTrigger() {
       className={`
         fixed top-4 left-4 z-50 p-2 rounded-md
         transition-all duration-200
-        text-foreground 
+        text-foreground border border-border/50
+        hover:border-primary hover:text-primary
         focus:outline-none focus:ring-2 focus:ring-ring
         ${isOpen ? "translate-x-0" : "translate-x-0"}
       `}
