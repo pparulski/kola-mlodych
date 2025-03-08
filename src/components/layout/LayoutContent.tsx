@@ -141,7 +141,7 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex">
+          <div className="flex mb-4">
             <button 
               className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
               onClick={() => setIsOpen(!isOpen)}
@@ -163,14 +163,16 @@ export function LayoutContent() {
           </div>
 
           {location.pathname === '/' && (
-            <SelectedCategories 
-              selectedCategories={selectedCategories} 
-              setSelectedCategories={setSelectedCategories}
-              categories={categories}
-            />
+            <div className="mt-4">
+              <SelectedCategories 
+                selectedCategories={selectedCategories} 
+                setSelectedCategories={setSelectedCategories}
+                categories={categories}
+              />
+            </div>
           )}
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto mt-4">
             <Outlet context={{ searchQuery, selectedCategories }} />
           </div>
         </main>
