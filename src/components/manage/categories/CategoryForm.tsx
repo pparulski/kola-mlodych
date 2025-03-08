@@ -51,12 +51,14 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
 
       if (response.error) {
         toast.error(`Błąd: ${response.error.message}`);
+        console.error("Category save error:", response.error);
       } else {
         toast.success(`Kategoria ${editingCategory ? 'zaktualizowana' : 'dodana'} pomyślnie!`);
         onSuccess();
       }
     } catch (error: any) {
       toast.error(`Wystąpił błąd: ${error.message}`);
+      console.error("Category submit error:", error);
     }
   };
 

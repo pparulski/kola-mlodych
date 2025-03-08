@@ -65,6 +65,7 @@ export function CategoryManagement() {
   const handleFormSuccess = () => {
     setShowForm(false);
     setEditingCategory(undefined);
+    // Invalidate both categories and sidebar-categories queries to update the UI
     queryClient.invalidateQueries({ queryKey: ['categories'] });
     queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
   };
