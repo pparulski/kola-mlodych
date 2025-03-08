@@ -157,8 +157,8 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
                   <div className="flex md:justify-end justify-center gap-2 flex-wrap">
                     <Button variant="outline" asChild size="sm">
                       <a href={file.url} target="_blank" rel="noopener noreferrer">
-                        <Download className="mr-2 h-4 w-4" />
-                        <span className="hidden md:inline">Pobierz</span>
+                        <Download className="h-4 w-4" />
+                        <span className="hidden md:inline ml-2">Pobierz</span>
                       </a>
                     </Button>
                     {adminMode && (

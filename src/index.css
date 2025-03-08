@@ -179,3 +179,8 @@
 .md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
   @apply text-foreground;
 }
+
+/* Prevent background color change on hover for sidebar trigger */
+.md\:hidden[data-sidebar="sidebar-trigger"] {
+  @apply hover:bg-transparent;
+}
