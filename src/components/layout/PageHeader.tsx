@@ -114,8 +114,8 @@ export function PageHeader({
 
       {/* Mobile search bar - expandable */}
       {location.pathname === '/' && searchOpen && (
-        <div className="fixed top-[4.5rem] left-0 right-0 bg-background p-4 z-30 md:hidden">
-          <div className="relative">
+        <div className="fixed inset-x-0 top-[7rem] bg-background p-4 z-30 shadow-md md:hidden">
+          <div className="relative container mx-auto">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
