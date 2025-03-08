@@ -60,7 +60,7 @@ export function PageHeader({
   };
 
   return (
-    <>
+    <div className="flex flex-col w-full gap-4">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2 md:gap-4">
           <div>
@@ -125,9 +125,9 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Mobile search bar - moved to new row with full content width */}
+      {/* Mobile search bar - properly positioned below the header */}
       {location.pathname === '/' && searchOpen && isMobile && (
-        <div className="w-full max-w-4xl mx-auto mt-4">
+        <div className="w-full mb-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -141,6 +141,6 @@ export function PageHeader({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
