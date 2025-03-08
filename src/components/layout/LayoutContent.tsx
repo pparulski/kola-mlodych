@@ -142,12 +142,13 @@ export function LayoutContent() {
         </Link>
         <main className="flex-1 p-4 md:p-6">
           <div className="flex items-center mb-8">
-            <div 
-              className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12 cursor-pointer"
+            <button 
+              className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
               onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle sidebar"
             >
-              <Menu className="h-4 w-4 absolute right-3" />
-            </div>
+              <Menu className="h-5 w-5" />
+            </button>
             
             {!isManagementPage && (
               <PageHeader 

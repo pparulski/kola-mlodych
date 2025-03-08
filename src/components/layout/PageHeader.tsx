@@ -49,7 +49,7 @@ export function PageHeader({
   return (
     <>
       <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-2 md:gap-4 ml-10 md:ml-0">
+        <div className="flex items-center gap-2 md:gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
               {displayTitle}
@@ -114,16 +114,18 @@ export function PageHeader({
 
       {/* Mobile search bar - expandable */}
       {location.pathname === '/' && searchOpen && (
-        <div className="relative w-full mb-4 md:hidden">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Szukaj..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 w-full"
-            ref={searchInputRef}
-          />
+        <div className="fixed top-[4.5rem] left-0 right-0 bg-background p-4 z-30 md:hidden">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Szukaj..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 w-full"
+              ref={searchInputRef}
+            />
+          </div>
         </div>
       )}
     </>

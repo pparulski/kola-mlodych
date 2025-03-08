@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { AlignLeft, X } from "lucide-react";
 
 interface SidebarContextProps {
@@ -26,7 +26,7 @@ export const SidebarProvider = ({ children }: { children: React.ReactNode }) => 
   const state = isOpen ? "open" : "closed";
   const openMobile = isOpen && isMobile;
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Check if screen is mobile size
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -37,6 +37,22 @@ export const SidebarProvider = ({ children }: { children: React.ReactNode }) => 
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Effect to manage body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (openMobile) {
+      // Block scrolling on body when sidebar is open on mobile
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable scrolling when sidebar is closed
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup function to ensure scroll is re-enabled if component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [openMobile]);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 

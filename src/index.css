@@ -169,18 +169,32 @@
     @apply bg-background/95 backdrop-blur-lg;
   }
   
-  /* Consistent hover styling for sidebar trigger with other UI elements */
-  .md\:hidden[data-sidebar="sidebar-trigger"] {
-    @apply hover:bg-accent/10 hover:text-foreground;
+  /* Disable hover states on touch devices */
+  @media (hover: none) {
+    .sidebar-menu-button:hover,
+    [data-sidebar="menu-button"]:hover {
+      @apply bg-transparent text-foreground;
+    }
   }
   
-  /* Prevent color change on hover for sidebar trigger icon */
-  .md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
-    @apply text-foreground;
+  /* Active sidebar item styling should remain even on mobile */
+  [data-active="true"] {
+    @apply text-primary font-bold;
+  }
+  
+  /* Fix for hovering during scroll on mobile */
+  .md\:hidden[data-sidebar="sidebar"] [data-sidebar="menu-button"]:focus:not(:focus-visible) {
+    @apply bg-transparent text-foreground;
   }
 }
 
-/* Remove conflicting hover style override */
-/* .md\:hidden[data-sidebar="sidebar-trigger"] {
-  @apply hover:bg-transparent;
-} */
+/* Helper to fix hover issues on mobile touch devices */
+@media (hover: none) {
+  /* Disable all hover effects on elements inside sidebar on touch devices */
+  [data-sidebar="menu-button"]:hover,
+  [data-sidebar="sidebar"] button:hover,
+  [data-sidebar="sidebar"] a:hover {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+}
