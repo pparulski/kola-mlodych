@@ -9,6 +9,7 @@ import { PageHeader } from "./PageHeader";
 import { SelectedCategories } from "./SelectedCategories";
 import { getPageTitle } from "@/utils/pageUtils";
 import { Category } from "@/types/categories";
+import { Menu } from "lucide-react";
 
 export function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
@@ -140,16 +141,25 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          {!isManagementPage && (
-            <PageHeader 
-              pageTitle={pageTitle}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              categories={categories}
-            />
-          )}
+          <div className="flex items-center mb-8">
+            <div 
+              className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12 cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <Menu className="h-4 w-4 absolute right-3" />
+            </div>
+            
+            {!isManagementPage && (
+              <PageHeader 
+                pageTitle={pageTitle}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                categories={categories}
+              />
+            )}
+          </div>
 
           {location.pathname === '/' && (
             <SelectedCategories 

@@ -1,12 +1,11 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Menu, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
-import { useSidebar } from "@/components/ui/sidebar";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -29,7 +28,6 @@ export function PageHeader({
   setSelectedCategories = () => {},
   categories = [],
 }: PageHeaderProps) {
-  const { isOpen, setIsOpen } = useSidebar();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -48,22 +46,11 @@ export function PageHeader({
     setSearchOpen(!searchOpen);
   };
 
-  // Don't render the sidebar trigger on management pages
-  const isManagementPage = location.pathname.includes('/manage/');
-
   return (
     <>
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-2 md:gap-4">
-          {!isManagementPage && (
-            <div 
-              className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12 cursor-pointer"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <Menu className="h-4 w-4 absolute right-3" />
-            </div>
-          )}
-          <div className={`${!isManagementPage ? 'ml-10 md:ml-0' : ''}`}>
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-2 md:gap-4 ml-10 md:ml-0">
+          <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
               {displayTitle}
             </h1>

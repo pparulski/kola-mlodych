@@ -1,230 +1,248 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-
-// Function to get login attempts from localStorage with expiry check
-const getLoginAttempts = () => {
-  const storedData = localStorage.getItem('loginAttempts');
-  if (!storedData) return { count: 0, timestamp: Date.now(), blocked: false, blockUntil: 0 };
-  
-  const data = JSON.parse(storedData);
-  
-  // Check if the block time has expired
-  if (data.blocked && Date.now() > data.blockUntil) {
-    // Reset if the block time has passed
-    return { count: 0, timestamp: Date.now(), blocked: false, blockUntil: 0 };
-  }
-  
-  return data;
-};
-
-// Function to update login attempts
-const updateLoginAttempts = (success: boolean) => {
-  const currentData = getLoginAttempts();
-  
-  if (success) {
-    // Reset on successful login
-    localStorage.setItem('loginAttempts', JSON.stringify({
-      count: 0,
-      timestamp: Date.now(),
-      blocked: false,
-      blockUntil: 0
-    }));
-    return true;
-  } else {
-    // Increment count on failed login
-    const newCount = currentData.count + 1;
-    let blocked = currentData.blocked;
-    let blockUntil = currentData.blockUntil;
-    
-    // Apply blocking rules
-    if (newCount >= 10) {
-      // Block for 24 hours after 10 failed attempts
-      blocked = true;
-      blockUntil = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-    } else if (newCount >= 3) {
-      // Block for 10 minutes after 3 failed attempts
-      blocked = true;
-      blockUntil = Date.now() + 10 * 60 * 1000; // 10 minutes
-    }
-    
-    localStorage.setItem('loginAttempts', JSON.stringify({
-      count: newCount,
-      timestamp: Date.now(),
-      blocked,
-      blockUntil
-    }));
-    
-    return !blocked;
-  }
-};
-
-// Function to get remaining blocked time in minutes
-const getBlockedTimeRemaining = () => {
-  const currentData = getLoginAttempts();
-  if (!currentData.blocked) return 0;
-  
-  const remainingMs = Math.max(0, currentData.blockUntil - Date.now());
-  return Math.ceil(remainingMs / (60 * 1000)); // Convert to minutes
-};
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 export default function Auth() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [blockedTimeRemaining, setBlockedTimeRemaining] = useState(0);
   const navigate = useNavigate();
 
-  // Check login block status on component mount and periodically
+  // Check if user is already logged in
   useEffect(() => {
-    const checkBlockStatus = () => {
-      const loginAttempts = getLoginAttempts();
-      setIsBlocked(loginAttempts.blocked);
-      setBlockedTimeRemaining(getBlockedTimeRemaining());
-    };
-    
-    // Check initially
-    checkBlockStatus();
-    
-    // Check periodically (every minute)
-    const interval = setInterval(checkBlockStatus, 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate("/");
       }
     };
     
-    checkAuth();
+    checkSession();
   }, [navigate]);
-
-  const handleAuth = async (e: React.FormEvent) => {
+  
+  // Function to check login attempts
+  const checkLoginAttempts = async (ip: string) => {
+    // Get the current timestamp minus various durations
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    // Check attempts in the last 10 minutes
+    const { data: recentAttempts, error: recentError } = await supabase
+      .from('login_attempts')
+      .select('created_at')
+      .eq('ip_address', ip)
+      .gte('created_at', tenMinutesAgo.toISOString())
+      .order('created_at', { ascending: false });
+    
+    if (recentError) {
+      console.error('Error checking recent login attempts:', recentError);
+      return { blocked: false };
+    }
+    
+    // If 3 or more attempts in the last 10 minutes, block for 10 minutes
+    if (recentAttempts && recentAttempts.length >= 3) {
+      return { 
+        blocked: true, 
+        reason: "10 minutes", 
+        duration: "10 minut",
+        attemptsLeft: 0 
+      };
+    }
+    
+    // Check attempts in the last 24 hours
+    const { data: dayAttempts, error: dayError } = await supabase
+      .from('login_attempts')
+      .select('created_at')
+      .eq('ip_address', ip)
+      .gte('created_at', twentyFourHoursAgo.toISOString())
+      .order('created_at', { ascending: false });
+    
+    if (dayError) {
+      console.error('Error checking 24h login attempts:', dayError);
+      return { blocked: false };
+    }
+    
+    // If 10 or more attempts in the last 24 hours, block for 24 hours
+    if (dayAttempts && dayAttempts.length >= 10) {
+      return { 
+        blocked: true, 
+        reason: "24 hours", 
+        duration: "24 godzin",
+        attemptsLeft: 0 
+      };
+    }
+    
+    // Not blocked, return attempts left
+    return { 
+      blocked: false, 
+      attemptsLeft: recentAttempts ? 3 - recentAttempts.length : 3 
+    };
+  };
+  
+  // Function to record a login attempt
+  const recordLoginAttempt = async (ip: string, success: boolean) => {
+    const { error } = await supabase
+      .from('login_attempts')
+      .insert({
+        ip_address: ip,
+        success: success,
+        created_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Error recording login attempt:', error);
+    }
+  };
+  
+  // Query to get client IP address
+  const { data: ipData } = useQuery({
+    queryKey: ['client-ip'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+      } catch (error) {
+        console.error('Error fetching IP:', error);
+        return 'unknown';
+      }
+    }
+  });
+  
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Check if login is blocked
-    const loginAttempts = getLoginAttempts();
-    if (loginAttempts.blocked) {
-      const timeRemaining = getBlockedTimeRemaining();
-      const timeUnit = timeRemaining >= 60 ? 'godzin' : 'minut';
-      const timeValue = timeRemaining >= 60 ? Math.ceil(timeRemaining / 60) : timeRemaining;
-      
-      toast.error(`Za dużo nieudanych prób logowania. Spróbuj ponownie za ${timeValue} ${timeUnit}.`);
-      setIsBlocked(true);
-      setBlockedTimeRemaining(timeRemaining);
+    if (!email || !password) {
+      toast.error("Proszę wypełnić wszystkie pola");
       return;
     }
     
     setLoading(true);
     
     try {
-      // Login only
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      // Update login attempts (success)
-      updateLoginAttempts(true);
-      
-      toast.success('Zalogowano pomyślnie');
-      navigate('/');
-    } catch (error: any) {
-      console.error('Authentication error:', error);
-      
-      // Update login attempts (failure)
-      const canRetry = updateLoginAttempts(false);
-      
-      if (!canRetry) {
-        const attempts = getLoginAttempts();
-        const timeRemaining = getBlockedTimeRemaining();
-        const timeUnit = timeRemaining >= 60 ? 'godzin' : 'minut';
-        const timeValue = timeRemaining >= 60 ? Math.ceil(timeRemaining / 60) : timeRemaining;
+      // Check for rate limiting
+      if (ipData) {
+        const rateLimit = await checkLoginAttempts(ipData);
         
-        toast.error(`Za dużo nieudanych prób logowania. Spróbuj ponownie za ${timeValue} ${timeUnit}.`);
-        setIsBlocked(true);
-        setBlockedTimeRemaining(timeRemaining);
+        if (rateLimit.blocked) {
+          toast.error(`Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za ${rateLimit.duration}.`);
+          setLoading(false);
+          return;
+        }
+        
+        // Proceed with login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) {
+          await recordLoginAttempt(ipData, false);
+          
+          // Check again after recording this attempt
+          const updatedRateLimit = await checkLoginAttempts(ipData);
+          
+          if (updatedRateLimit.blocked) {
+            toast.error(`Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za ${updatedRateLimit.duration}.`);
+          } else {
+            toast.error(`Błąd logowania: ${error.message}. Pozostało prób: ${updatedRateLimit.attemptsLeft}`);
+          }
+        } else {
+          // Successful login
+          await recordLoginAttempt(ipData, true);
+          
+          // Check if user is admin
+          const { data: isAdmin } = await supabase
+            .rpc('is_admin', { user_id: data.user?.id });
+            
+          if (isAdmin) {
+            toast.success("Zalogowano pomyślnie");
+            navigate("/");
+          } else {
+            // Not an admin, sign out
+            await supabase.auth.signOut();
+            toast.error("Brak uprawnień administratora");
+          }
+        }
       } else {
-        const attempts = getLoginAttempts();
-        const attemptsLeft = attempts.count < 3 ? 3 - attempts.count : 10 - attempts.count;
-        toast.error(`${error.message || 'Wystąpił błąd. Spróbuj ponownie.'} Pozostało prób: ${attemptsLeft}`);
+        // Fallback if IP fetch failed
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) {
+          toast.error(`Błąd logowania: ${error.message}`);
+        } else {
+          // Check if user is admin
+          const { data: isAdmin } = await supabase
+            .rpc('is_admin', { user_id: data.user?.id });
+            
+          if (isAdmin) {
+            toast.success("Zalogowano pomyślnie");
+            navigate("/");
+          } else {
+            // Not an admin, sign out
+            await supabase.auth.signOut();
+            toast.error("Brak uprawnień administratora");
+          }
+        }
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error("Wystąpił błąd podczas logowania");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh]">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Logowanie</CardTitle>
-          <CardDescription>
-            Zaloguj się, aby zarządzać treścią strony.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleAuth}>
-          <CardContent className="space-y-4">
-            {isBlocked ? (
-              <div className="p-4 border border-red-300 bg-red-50 rounded-md text-red-800">
-                Za dużo nieudanych prób logowania. Spróbuj ponownie za {blockedTimeRemaining >= 60 
-                  ? `${Math.ceil(blockedTimeRemaining / 60)} godzin` 
-                  : `${blockedTimeRemaining} minut`}.
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="twoj@email.pl"
-                    required
-                    disabled={isBlocked}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Hasło</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="********"
-                    required
-                    disabled={isBlocked}
-                  />
-                </div>
-              </>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={loading || isBlocked}
-            >
-              {loading ? 'Przetwarzanie...' : 'Zaloguj się'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+    <div className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-lg mt-16">
+      <h1 className="text-2xl font-bold mb-6 text-center">Panel administratora</h1>
+      
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium">
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Twój email"
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-sm font-medium">
+            Hasło
+          </label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Twoje hasło"
+            required
+          />
+        </div>
+        
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading}
+        >
+          {loading ? "Logowanie..." : "Zaloguj się"}
+        </Button>
+      </form>
     </div>
   );
 }
