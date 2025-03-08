@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -42,12 +42,7 @@ export default function Auth() {
   
   // Function to check login attempts
   const checkLoginAttempts = async (ip: string) => {
-    // Get the current timestamp minus various durations
-    const now = new Date();
-    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    
-    // Use a stored procedure to check attempts
+    // Check attempts in the last 10 minutes
     const { data: recentAttempts, error: recentError } = await supabase
       .rpc('get_recent_login_attempts', { 
         ip_addr: ip,
@@ -60,7 +55,7 @@ export default function Auth() {
     }
     
     // If 3 or more attempts in the last 10 minutes, block for 10 minutes
-    if (recentAttempts && recentAttempts >= 3) {
+    if (recentAttempts && typeof recentAttempts === 'number' && recentAttempts >= 3) {
       return { 
         blocked: true, 
         reason: "10 minutes", 
@@ -82,7 +77,7 @@ export default function Auth() {
     }
     
     // If 10 or more attempts in the last 24 hours, block for 24 hours
-    if (dayAttempts && dayAttempts >= 10) {
+    if (dayAttempts && typeof dayAttempts === 'number' && dayAttempts >= 10) {
       return { 
         blocked: true, 
         reason: "24 hours", 
@@ -92,9 +87,11 @@ export default function Auth() {
     }
     
     // Not blocked, return attempts left
+    const attemptsLeft = recentAttempts && typeof recentAttempts === 'number' ? 3 - recentAttempts : 3;
+    
     return { 
       blocked: false, 
-      attemptsLeft: recentAttempts ? 3 - recentAttempts : 3 
+      attemptsLeft: attemptsLeft 
     };
   };
   

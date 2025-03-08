@@ -102,6 +102,27 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+          success?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+          success?: boolean
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           category_slug: string | null
