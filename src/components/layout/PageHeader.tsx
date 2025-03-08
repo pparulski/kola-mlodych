@@ -107,21 +107,25 @@ export function PageHeader({
                 />
               </div>
             )}
-            
-            {/* Desktop search bar - always visible */}
-            <div className="relative hidden md:block w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Szukaj..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 w-full"
-              />
-            </div>
           </div>
         )}
       </div>
+
+      {/* Desktop search bar - now on a new line below header with article-like width */}
+      {location.pathname === '/' && (
+        <div className="mt-4 w-full max-w-4xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Szukaj..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 w-full"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Mobile search bar - expandable below the header */}
       {location.pathname === '/' && searchOpen && (
