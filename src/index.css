@@ -169,18 +169,18 @@
     @apply bg-background/95 backdrop-blur-lg;
   }
   
-  /* Prevent color change on hover for sidebar trigger */
-  :root:not(.dark) .md\:hidden[data-sidebar="sidebar-trigger"] {
-    @apply hover:bg-transparent hover:text-foreground;
+  /* Consistent hover styling for sidebar trigger with other UI elements */
+  .md\:hidden[data-sidebar="sidebar-trigger"] {
+    @apply hover:bg-accent/10 hover:text-foreground;
+  }
+  
+  /* Prevent color change on hover for sidebar trigger icon */
+  .md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
+    @apply text-foreground;
   }
 }
 
-/* Prevent color change on hover for sidebar trigger icon */
-.md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
-  @apply text-foreground;
-}
-
-/* Prevent background color change on hover for sidebar trigger */
-.md\:hidden[data-sidebar="sidebar-trigger"] {
+/* Remove conflicting hover style override */
+/* .md\:hidden[data-sidebar="sidebar-trigger"] {
   @apply hover:bg-transparent;
-}
+} */

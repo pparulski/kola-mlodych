@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Menu, Search, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
@@ -52,7 +53,7 @@ export function PageHeader({
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2 md:gap-4">
           <SidebarTrigger 
-            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12 hover:bg-accent/10" 
+            className="md:hidden h-10 w-10 p-0 border-t border-r border-b rounded-r-md rounded-l-none absolute left-0 transition-all duration-300 ease-in-out hover:w-12" 
             onClick={() => setIsOpen(!isOpen)}
           >
             <Menu className="h-4 w-4 absolute right-3" />

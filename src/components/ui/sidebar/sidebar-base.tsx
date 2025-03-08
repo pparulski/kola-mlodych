@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "./sidebar-context"
@@ -34,7 +35,8 @@ export const SidebarTrigger = React.forwardRef<
     <Button
       ref={ref}
       variant="ghost"
-      className={cn("p-0 hover:bg-transparent", className)}
+      data-sidebar="sidebar-trigger"
+      className={cn("p-0 hover:bg-accent/10", className)}
       onClick={toggleSidebar}
       {...props}
     >
