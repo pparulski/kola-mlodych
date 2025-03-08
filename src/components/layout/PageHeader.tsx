@@ -42,6 +42,17 @@ export function PageHeader({
     }
   }, [searchOpen]);
   
+  // Reset search state when navigating away
+  useEffect(() => {
+    setSearchOpen(false);
+    
+    // Add meta viewport tag reset to prevent zoom issues on mobile
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+  }, [location.pathname]);
+  
   const toggleSearch = () => {
     setSearchOpen(!searchOpen);
   };
@@ -112,10 +123,10 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Mobile search bar - expandable */}
+      {/* Mobile search bar - expandable below the header */}
       {location.pathname === '/' && searchOpen && (
-        <div className="fixed inset-x-0 top-[7rem] bg-background p-4 z-30 shadow-md md:hidden">
-          <div className="relative container mx-auto">
+        <div className="mt-4 md:hidden w-full">
+          <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
