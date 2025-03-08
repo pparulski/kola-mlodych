@@ -96,7 +96,7 @@ export function LayoutContent() {
     }
   }, [location.pathname, location.search]);
 
-  const isManagementPage = location.pathname.includes('zarzadzanie');
+  const isManagementPage = location.pathname.includes('/manage/');
 
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
