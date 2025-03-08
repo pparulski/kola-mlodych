@@ -378,6 +378,20 @@ export type Database = {
         }
         Returns: string
       }
+      get_daily_login_attempts: {
+        Args: {
+          ip_addr: string
+          hours_ago: number
+        }
+        Returns: number
+      }
+      get_recent_login_attempts: {
+        Args: {
+          ip_addr: string
+          minutes_ago: number
+        }
+        Returns: number
+      }
       is_admin: {
         Args: {
           user_id: string
@@ -387,6 +401,13 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      record_login_attempt: {
+        Args: {
+          ip_addr: string
+          was_successful: boolean
+        }
+        Returns: undefined
       }
     }
     Enums: {
