@@ -125,7 +125,7 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Mobile search bar - properly positioned below the header */}
+      {/* Mobile search bar - positioned below the header with full width */}
       {location.pathname === '/' && searchOpen && isMobile && (
         <div className="w-full mb-2">
           <div className="relative">
