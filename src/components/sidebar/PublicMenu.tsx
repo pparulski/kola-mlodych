@@ -3,9 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
-import { fetchSidebarPages, fetchMenuPositions } from "@/services/menuService";
-import { supabase } from "@/integrations/supabase/client";
-import { Category } from "@/types/categories";
+import { fetchSidebarPages, fetchMenuPositions, fetchCategoryMenuItems } from "@/services/menuService";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
@@ -40,16 +38,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Fetch categories with show_in_menu=true
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['sidebar-categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('show_in_menu', true)
-        .order('name');
-        
-      if (error) throw error;
-      return data as Category[];
-    },
+    queryFn: fetchCategoryMenuItems,
     staleTime: 0,
   });
 
@@ -62,11 +51,12 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   // Convert categories to menu items 
   const categoryMenuItems = categories ? categories.map(cat => ({
     id: `category-${cat.id}`,
+    originalId: cat.id,
     title: cat.name,
     path: `/category/${cat.slug}`,
     icon: 'BookOpen',
     position: 100, // Default high position, will be sorted later
-    type: MenuItemType.REGULAR
+    type: MenuItemType.CATEGORY
   })) : [];
 
   // Apply custom positions from database if available

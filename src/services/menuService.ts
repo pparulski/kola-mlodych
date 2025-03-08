@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
 import { MenuPosition } from "@/types/menu";
+import { Category } from "@/types/categories";
 
 /**
  * Fetches static pages that should appear in sidebar
@@ -45,15 +46,15 @@ export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
 };
 
 /**
- * Fetches category menu items 
+ * Fetches categories marked to show in menu
  */
-export const fetchCategoryMenuItems = async () => {
+export const fetchCategoryMenuItems = async (): Promise<Category[]> => {
   console.log("Fetching category menu items from database");
   const { data, error } = await supabase
-    .from('menu_items')
+    .from('categories')
     .select('*')
-    .eq('type', 'category_feed')
-    .order('position', { ascending: true });
+    .eq('show_in_menu', true)
+    .order('name', { ascending: true });
 
   if (error) {
     console.error("Error fetching category menu items:", error);
@@ -61,7 +62,7 @@ export const fetchCategoryMenuItems = async () => {
   }
 
   console.log("Fetched category menu items:", data);
-  return data;
+  return data as Category[];
 };
 
 /**
@@ -117,20 +118,24 @@ export const updateAllMenuPositions = async (
   // First, update static pages
   const staticPagesResult = await updateStaticPagesPositions(items);
   
-  // Then, upsert menu positions for regular menu items
-  const regularItems = items.filter(item => item.type === MenuItemType.REGULAR);
+  // Then, prepare items for menu_positions table
+  // This includes both regular menu items and categories
+  const positionItems = items.filter(item => 
+    item.type === MenuItemType.REGULAR || item.type === MenuItemType.CATEGORY
+  );
   
-  if (regularItems.length > 0) {
+  if (positionItems.length > 0) {
     // Prepare data for upsert
-    const positionsData = regularItems.map(item => ({
+    const positionsData = positionItems.map(item => ({
       id: item.id,
       type: item.type,
-      position: item.position
+      position: item.position,
+      resource_id: item.type === MenuItemType.CATEGORY ? item.originalId : null
     }));
     
-    console.log("Upserting menu positions for regular items:", positionsData);
+    console.log("Upserting menu positions for items:", positionsData);
     
-    // Upsert menu positions - use the correct table name
+    // Upsert menu positions
     const { error } = await supabase
       .from('menu_positions')
       .upsert(positionsData, { 

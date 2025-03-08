@@ -34,6 +34,18 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
     }
   };
 
+  // Get the label text based on item type
+  const getTypeLabel = () => {
+    switch (item.type) {
+      case MenuItemType.STATIC_PAGE:
+        return 'Strona';
+      case MenuItemType.CATEGORY:
+        return 'Kategoria';
+      default:
+        return 'Menu';
+    }
+  };
+
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>
       {(provided, snapshot) => (
@@ -77,7 +89,7 @@ export function MenuItem({ item, index, moveItem, itemsLength }: MenuItemProps) 
             </Button>
           </div>
           <div className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-            {item.type === MenuItemType.STATIC_PAGE ? 'Strona' : 'Menu'}
+            {getTypeLabel()}
           </div>
         </li>
       )}

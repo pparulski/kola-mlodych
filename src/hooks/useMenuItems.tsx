@@ -6,6 +6,7 @@ import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { 
   fetchSidebarPages, 
   fetchMenuPositions,
+  fetchCategoryMenuItems,
   updateAllMenuPositions 
 } from "@/services/menuService";
 import { 
@@ -34,17 +35,34 @@ export function useMenuItems() {
     queryFn: fetchMenuPositions,
   });
 
+  // Fetch categories with show_in_menu=true
+  const { data: categoryMenuItemsData, isLoading: isLoadingCategoryItems } = useQuery({
+    queryKey: ['sidebar-categories'],
+    queryFn: fetchCategoryMenuItems,
+  });
+
   // Convert static pages and default menu items to the unified format
   useEffect(() => {
-    if (!isLoadingPages && !isLoadingPositions && staticPagesData) {
+    if (!isLoadingPages && !isLoadingPositions && !isLoadingCategoryItems && staticPagesData) {
       // Get default menu items
       const defaultItems = getDefaultMenuItems();
       
       // Convert static pages to menu items format
       const staticPagesItems = staticPagesToMenuItems(staticPagesData);
-
+      
+      // Get category menu items
+      const categoryItems = categoryMenuItemsData ? categoryMenuItemsData.map(category => ({
+        id: `category-${category.id}`,
+        originalId: category.id,
+        title: category.name,
+        path: `/category/${category.slug}`,
+        icon: 'BookOpen',
+        position: 100, // Default high position, will be sorted later
+        type: MenuItemType.CATEGORY
+      })) : [];
+      
       // Combine all items first
-      let combinedItems = [...defaultItems, ...staticPagesItems];
+      let combinedItems = [...defaultItems, ...staticPagesItems, ...categoryItems];
       
       // Apply custom positions from the database
       if (menuPositionsData && menuPositionsData.length > 0) {
@@ -61,7 +79,7 @@ export function useMenuItems() {
       console.log("Setting menu items with sequential positions:", itemsWithUniquePositions);
       setMenuItems(itemsWithUniquePositions);
     }
-  }, [staticPagesData, menuPositionsData, isLoadingPages, isLoadingPositions]);
+  }, [staticPagesData, menuPositionsData, categoryMenuItemsData, isLoadingPages, isLoadingPositions, isLoadingCategoryItems]);
 
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
@@ -88,6 +106,7 @@ export function useMenuItems() {
       // Refresh data from the server
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
     },
     onError: (error) => {
       console.error("Error updating menu order:", error);
@@ -102,7 +121,7 @@ export function useMenuItems() {
 
   return {
     menuItems,
-    isLoadingPages: isLoadingPages || isLoadingPositions,
+    isLoadingPages: isLoadingPages || isLoadingPositions || isLoadingCategoryItems,
     updateOrderMutation,
     handleDragEnd,
     handleSaveOrder,

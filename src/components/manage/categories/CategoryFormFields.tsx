@@ -35,6 +35,9 @@ export function CategoryFormFields({ form }: CategoryFormFieldsProps) {
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
             <div className="space-y-0.5">
               <FormLabel>Pokazuj w menu</FormLabel>
+              <p className="text-sm text-muted-foreground">
+                Kategoria będzie widoczna w menu bocznym i będzie można ją reordować w panelu zarządzania menu.
+              </p>
             </div>
             <FormControl>
               <Switch

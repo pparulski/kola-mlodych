@@ -4,7 +4,8 @@ import { LucideIcon } from "lucide-react";
 
 export enum MenuItemType {
   STATIC_PAGE = "static_page",
-  REGULAR = "regular"
+  REGULAR = "regular",
+  CATEGORY = "category"
 }
 
 export interface SidebarMenuItem {
@@ -14,7 +15,7 @@ export interface SidebarMenuItem {
   icon: string | LucideIcon;
   position: number;
   type: MenuItemType;
-  originalId?: string; // For static pages, store the original ID
+  originalId?: string; // For static pages and categories, store the original ID
 }
 
 export interface MenuOrderPayload {
