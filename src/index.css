@@ -152,6 +152,11 @@
   .bg-\[hsl\(var\(--content-box\)\)\] .prose {
     @apply bg-transparent;
   }
+  
+  /* Active sidebar item styling */
+  [data-active="true"] {
+    @apply text-primary font-bold;
+  }
 }
 
 /* Mobile sidebar styles */

@@ -72,7 +72,7 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 space-y-8">
+      <div className="max-w-4xl mx-auto p-4 space-y-8">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -86,7 +86,7 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-2xl font-bold">Kategoria nie znaleziona</h1>
         <p className="text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
@@ -96,7 +96,7 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="container mx-auto p-4 space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       {articles && articles.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
