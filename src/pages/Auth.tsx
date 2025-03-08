@@ -25,81 +25,6 @@ export default function Auth() {
     checkSession();
   }, [navigate]);
   
-  // Function to check login attempts
-  const checkLoginAttempts = async (ip: string) => {
-    // Get the current timestamp minus various durations
-    const now = new Date();
-    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    
-    // Check attempts in the last 10 minutes
-    const { data: recentAttempts, error: recentError } = await supabase
-      .from('login_attempts')
-      .select('created_at')
-      .eq('ip_address', ip)
-      .gte('created_at', tenMinutesAgo.toISOString())
-      .order('created_at', { ascending: false });
-    
-    if (recentError) {
-      console.error('Error checking recent login attempts:', recentError);
-      return { blocked: false };
-    }
-    
-    // If 3 or more attempts in the last 10 minutes, block for 10 minutes
-    if (recentAttempts && recentAttempts.length >= 3) {
-      return { 
-        blocked: true, 
-        reason: "10 minutes", 
-        duration: "10 minut",
-        attemptsLeft: 0 
-      };
-    }
-    
-    // Check attempts in the last 24 hours
-    const { data: dayAttempts, error: dayError } = await supabase
-      .from('login_attempts')
-      .select('created_at')
-      .eq('ip_address', ip)
-      .gte('created_at', twentyFourHoursAgo.toISOString())
-      .order('created_at', { ascending: false });
-    
-    if (dayError) {
-      console.error('Error checking 24h login attempts:', dayError);
-      return { blocked: false };
-    }
-    
-    // If 10 or more attempts in the last 24 hours, block for 24 hours
-    if (dayAttempts && dayAttempts.length >= 10) {
-      return { 
-        blocked: true, 
-        reason: "24 hours", 
-        duration: "24 godzin",
-        attemptsLeft: 0 
-      };
-    }
-    
-    // Not blocked, return attempts left
-    return { 
-      blocked: false, 
-      attemptsLeft: recentAttempts ? 3 - recentAttempts.length : 3 
-    };
-  };
-  
-  // Function to record a login attempt
-  const recordLoginAttempt = async (ip: string, success: boolean) => {
-    const { error } = await supabase
-      .from('login_attempts')
-      .insert({
-        ip_address: ip,
-        success: success,
-        created_at: new Date().toISOString()
-      });
-    
-    if (error) {
-      console.error('Error recording login attempt:', error);
-    }
-  };
-  
   // Query to get client IP address
   const { data: ipData } = useQuery({
     queryKey: ['client-ip'],
@@ -114,6 +39,77 @@ export default function Auth() {
       }
     }
   });
+  
+  // Function to check login attempts
+  const checkLoginAttempts = async (ip: string) => {
+    // Get the current timestamp minus various durations
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    // Use a stored procedure to check attempts
+    const { data: recentAttempts, error: recentError } = await supabase
+      .rpc('get_recent_login_attempts', { 
+        ip_addr: ip,
+        minutes_ago: 10
+      });
+    
+    if (recentError) {
+      console.error('Error checking recent login attempts:', recentError);
+      return { blocked: false };
+    }
+    
+    // If 3 or more attempts in the last 10 minutes, block for 10 minutes
+    if (recentAttempts && recentAttempts >= 3) {
+      return { 
+        blocked: true, 
+        reason: "10 minutes", 
+        duration: "10 minut",
+        attemptsLeft: 0 
+      };
+    }
+    
+    // Check attempts in the last 24 hours
+    const { data: dayAttempts, error: dayError } = await supabase
+      .rpc('get_daily_login_attempts', { 
+        ip_addr: ip,
+        hours_ago: 24
+      });
+    
+    if (dayError) {
+      console.error('Error checking 24h login attempts:', dayError);
+      return { blocked: false };
+    }
+    
+    // If 10 or more attempts in the last 24 hours, block for 24 hours
+    if (dayAttempts && dayAttempts >= 10) {
+      return { 
+        blocked: true, 
+        reason: "24 hours", 
+        duration: "24 godzin",
+        attemptsLeft: 0 
+      };
+    }
+    
+    // Not blocked, return attempts left
+    return { 
+      blocked: false, 
+      attemptsLeft: recentAttempts ? 3 - recentAttempts : 3 
+    };
+  };
+  
+  // Function to record a login attempt
+  const recordLoginAttempt = async (ip: string, success: boolean) => {
+    const { error } = await supabase
+      .rpc('record_login_attempt', { 
+        ip_addr: ip,
+        was_successful: success
+      });
+    
+    if (error) {
+      console.error('Error recording login attempt:', error);
+    }
+  };
   
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
