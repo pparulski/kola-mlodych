@@ -141,7 +141,7 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex items-center mb-8">
+          <div className="flex">
             <button 
               className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
               onClick={() => setIsOpen(!isOpen)}

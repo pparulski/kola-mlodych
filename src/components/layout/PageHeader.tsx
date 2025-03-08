@@ -127,7 +127,7 @@ export function PageHeader({
 
       {/* Mobile search bar - positioned below the header with full width */}
       {location.pathname === '/' && searchOpen && isMobile && (
-        <div className="w-full mb-2">
+        <div className="w-full mt-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
