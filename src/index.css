@@ -58,28 +58,59 @@
   body {
     @apply bg-background text-foreground;
   }
+}
 
-  /* Style links in articles */
+/* Typography styles */
+@layer components {
+  /* Links in articles */
   article a {
     @apply text-primary hover:text-accent no-underline;
   }
 
-  .dark article a {
-    @apply text-primary hover:text-accent;
+  /* Content containers */
+  .container,
+  article,
+  .article-content,
+  .downloads-container,
+  .news-container,
+  .static-page-container {
+    @apply w-full max-w-4xl mx-auto px-4;
   }
 
-  /* Style divs in articles */
-  article div {
-    @apply bg-transparent text-foreground border-border;
+  /* Content boxes */
+  .content-box,
+  .news-card,
+  .ebook-card,
+  .download-item,
+  .category-feed-item {
+    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all border border-gray-200 dark:border-gray-800;
   }
 
-  /* Ensure text boxes inside content boxes have transparent backgrounds */
-  .bg-\[hsl\(var\(--content-box\)\)\] input,
-  .bg-\[hsl\(var\(--content-box\)\)\] textarea,
-  .bg-\[hsl\(var\(--content-box\)\)\] .prose {
-    @apply bg-transparent;
+  /* Text elements */
+  .text-content,
+  .publication-year,
+  .admin-panel,
+  .news-title,
+  .news-date,
+  .news-content,
+  .download-name,
+  .download-date,
+  .union-name,
+  .union-address,
+  .union-contact,
+  .union-bio,
+  .social-icon {
+    @apply text-foreground;
   }
 
+  /* Category pill styling */
+  .category-pill {
+    @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
+  }
+}
+
+/* Theme-specific styles */
+@layer utilities {
   /* Header styles */
   [data-header="header"] {
     @apply bg-gray-100 text-black;
@@ -90,7 +121,7 @@
     @apply text-black transition-none;
   }
 
-  /* Footer links in light mode */
+  /* Footer links */
   .sidebar-footer a {
     @apply text-foreground hover:text-accent transition-colors;
   }
@@ -109,6 +140,18 @@
   [class*="badge-default"] {
     @apply bg-primary border-0;
   }
+
+  /* Dark mode badge counter */
+  .dark .badge-counter {
+    @apply bg-primary/30 text-primary-foreground;
+  }
+
+  /* Transparent backgrounds in content boxes */
+  .bg-\[hsl\(var\(--content-box\)\)\] input,
+  .bg-\[hsl\(var\(--content-box\)\)\] textarea,
+  .bg-\[hsl\(var\(--content-box\)\)\] .prose {
+    @apply bg-transparent;
+  }
 }
 
 /* Mobile sidebar styles */
@@ -120,75 +163,14 @@
   .dark [data-sidebar="sidebar"] {
     @apply bg-background/95 backdrop-blur-lg;
   }
+  
+  /* Prevent color change on hover for sidebar trigger */
+  :root:not(.dark) .md\:hidden[data-sidebar="sidebar-trigger"] {
+    @apply hover:bg-transparent hover:text-foreground;
+  }
 }
 
-/* Category pills for selected filters */
-.category-pill {
-  @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
-}
-
-/* Make sure badges and filter indicators are visible in dark mode */
-.dark .badge-counter {
-  @apply bg-primary/30 text-primary-foreground;
-}
-
-/* Ensure text is visible in light mode */
-.text-content,
-.publication-year,
-.admin-panel,
-.news-title,
-.news-date,
-.news-content,
-.download-name,
-.download-date,
-.union-name,
-.union-address,
-.union-contact,
-.union-bio,
-.social-icon {
-  @apply text-foreground;
-}
-
-/* Make content responsive */
-.container,
-article,
-.article-content,
-.downloads-container,
-.news-container,
-.static-page-container {
-  @apply w-full max-w-4xl mx-auto px-4;
-}
-
-/* Content box styling for light mode */
-.content-box,
-.news-card,
-.ebook-card,
-.download-item,
-.category-feed-item {
-  @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all;
-}
-
-/* Remove hover effect from content boxes */
-.news-card,
-.ebook-card,
-.download-item {
-  @apply hover:shadow-sm;
-}
-
-/* Add subtle border to content boxes */
-.content-box,
-.news-card,
-.ebook-card,
-.download-item {
-  @apply border border-gray-200 dark:border-gray-800;
-}
-
-/* Remove hover color change on sidebar trigger in light theme */
-:root:not(.dark) .md\:hidden[data-sidebar="sidebar-trigger"] {
-  @apply hover:bg-transparent hover:text-foreground;
-}
-
-/* Prevent color change on hover for sidebar trigger */
+/* Prevent color change on hover for sidebar trigger icon */
 .md\:hidden[data-sidebar="sidebar-trigger"]:hover > svg {
   @apply text-foreground;
 }
