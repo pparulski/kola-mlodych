@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +31,6 @@ export function LayoutContent() {
     enabled: location.pathname === '/',
   });
 
-  // For category pages, fetch the category name
   const isCategoryPage = location.pathname.startsWith('/category/');
   const categorySlug = isCategoryPage ? params.slug : null;
   
@@ -119,7 +117,6 @@ export function LayoutContent() {
     setIsOpen(false);
   };
 
-  // Get the appropriate page title
   let pageTitle: string | null = null;
   
   if (isManagementPage) {
@@ -141,25 +138,29 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="flex mb-4">
-            <button 
-              className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            
-            {!isManagementPage && (
-              <PageHeader 
-                pageTitle={pageTitle}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                categories={categories}
-              />
-            )}
+          <div className="mb-4">
+            <div className="flex">
+              <button 
+                className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              
+              {!isManagementPage && (
+                <div className="flex-1">
+                  <PageHeader 
+                    pageTitle={pageTitle}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    categories={categories}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {location.pathname === '/' && (

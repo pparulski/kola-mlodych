@@ -125,10 +125,11 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Mobile search bar - positioned below the header with full width */}
+      {/* Mobile search bar - separated completely from other elements for full width */}
       {location.pathname === '/' && searchOpen && isMobile && (
         <div className="w-full mt-4">
-          <div className="relative w-full">
+          {/* Using stretched container to ensure proper width */}
+          <div className="relative w-full block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
