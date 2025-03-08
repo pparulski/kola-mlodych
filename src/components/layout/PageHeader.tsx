@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
-import { useSidebar } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PageHeaderProps {
@@ -33,7 +32,6 @@ export function PageHeader({
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
   
   // Use title prop as fallback for pageTitle
@@ -65,17 +63,6 @@ export function PageHeader({
     <>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2 md:gap-4">
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="mr-2"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
               {displayTitle}
@@ -86,7 +73,7 @@ export function PageHeader({
         
         {location.pathname === '/' && (
           <div className="flex items-center gap-2">
-            {/* Mobile search button */}
+            {/* Mobile search toggle button */}
             <Button
               variant="outline"
               size="icon"
@@ -95,6 +82,16 @@ export function PageHeader({
               aria-label={searchOpen ? "Close search" : "Open search"}
             >
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
+
+            {/* Mobile menu button - placeholder, not functional */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden"
+              aria-label="Menu"
+            >
+              <Menu className="h-4 w-4" />
             </Button>
 
             {/* Category filter - always visible but compact on mobile */}
@@ -139,7 +136,7 @@ export function PageHeader({
       </div>
 
       {/* Mobile search bar - expandable below the header */}
-      {location.pathname === '/' && searchOpen && (
+      {location.pathname === '/' && searchOpen && isMobile && (
         <div className="mt-4 md:hidden w-full">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
