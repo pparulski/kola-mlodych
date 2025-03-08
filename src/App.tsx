@@ -19,6 +19,7 @@ import ErrorPage from "@/pages/ErrorPage";
 import Map from "@/pages/Map";
 import NewsArticle from "@/pages/NewsArticle";
 import Auth from "@/pages/Auth";
+import { AuthGuard } from "@/components/AuthGuard";
 
 const router = createBrowserRouter([
   {
@@ -30,21 +31,35 @@ const router = createBrowserRouter([
         path: "/",
         element: <Index />,
       },
+      // Protected management routes
       {
-        path: "/manage/news",
-        element: <ManageNews />,
-      },
-      {
-        path: "/manage/categories",
-        element: <ManageCategories />,
-      },
-      {
-        path: "/manage/menu",
-        element: <ManageMenu />,
-      },
-      {
-        path: "/manage/pages",
-        element: <ManagePages />,
+        element: <AuthGuard />,
+        children: [
+          {
+            path: "/manage/news",
+            element: <ManageNews />,
+          },
+          {
+            path: "/manage/categories",
+            element: <ManageCategories />,
+          },
+          {
+            path: "/manage/menu",
+            element: <ManageMenu />,
+          },
+          {
+            path: "/manage/pages",
+            element: <ManagePages />,
+          },
+          {
+            path: "/manage/downloads",
+            element: <ManageDownloads />,
+          },
+          {
+            path: "/manage/ebooks",
+            element: <ManageEbooks />,
+          },
+        ],
       },
       {
         path: "/news/:slug",
@@ -65,14 +80,6 @@ const router = createBrowserRouter([
       {
         path: "/ebooks",
         element: <Ebooks />,
-      },
-      {
-        path: "/manage/downloads",
-        element: <ManageDownloads />,
-      },
-      {
-        path: "/manage/ebooks",
-        element: <ManageEbooks />,
       },
       {
         path: "/auth",

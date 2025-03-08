@@ -1,19 +1,17 @@
 
-import { Control } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { UseFormReturn } from "react-hook-form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CategoryFormValues } from "./CategoryFormSchema";
 import { Switch } from "@/components/ui/switch";
 import { Category } from "@/types/categories";
+import { CategoryFormValues } from "./CategoryFormSchema";
 
-export interface CategoryFormFieldsProps {
-  form: {
-    control: Control<CategoryFormValues>;
-  };
+interface CategoryFormFieldsProps {
+  form: UseFormReturn<CategoryFormValues>;
   editingCategory?: Category;
 }
 
-export function CategoryFormFields({ form, editingCategory }: CategoryFormFieldsProps) {
+export function CategoryFormFields({ form }: CategoryFormFieldsProps) {
   return (
     <div className="space-y-4">
       <FormField
@@ -23,40 +21,20 @@ export function CategoryFormFields({ form, editingCategory }: CategoryFormFields
           <FormItem>
             <FormLabel>Nazwa kategorii</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="np. Wydarzenia" />
-            </FormControl>
-            <FormDescription>
-              Nazwa kategorii widoczna na stronie
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Opis (opcjonalny)</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Krótki opis kategorii" />
+              <Input placeholder="Wpisz nazwę kategorii" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-      
+
       <FormField
         control={form.control}
         name="show_in_menu"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
             <div className="space-y-0.5">
-              <FormLabel className="text-base">Pokaż w menu</FormLabel>
-              <FormDescription>
-                Czy kategoria powinna być widoczna w menu głównym?
-              </FormDescription>
+              <FormLabel>Pokazuj w menu</FormLabel>
             </div>
             <FormControl>
               <Switch

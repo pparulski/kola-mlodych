@@ -1,6 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export function AuthGuard() {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ export function AuthGuard() {
         
         if (!session) {
           console.log("No session found, redirecting to auth");
+          toast.error("Zaloguj się, aby uzyskać dostęp do panelu administracyjnego");
           navigate("/auth");
           return;
         }
@@ -24,7 +27,8 @@ export function AuthGuard() {
 
         if (adminCheckError || !isAdmin) {
           console.error("Admin check failed:", adminCheckError);
-          navigate("/auth");
+          toast.error("Brak uprawnień administratora");
+          navigate("/");
           return;
         }
 
@@ -32,6 +36,7 @@ export function AuthGuard() {
         setIsLoading(false);
       } catch (error) {
         console.error("Auth check failed:", error);
+        toast.error("Wystąpił błąd podczas weryfikacji uprawnień");
         navigate("/auth");
       }
     };
@@ -54,7 +59,7 @@ export function AuthGuard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">Ładowanie...</div>
       </div>
     );
   }

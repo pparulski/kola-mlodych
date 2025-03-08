@@ -12,7 +12,6 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,29 +31,16 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      if (isLogin) {
-        // Login
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast.success('Zalogowano pomyślnie');
-        navigate('/');
-      } else {
-        // Sign up
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast.success('Konto utworzone pomyślnie. Możesz się teraz zalogować.');
-        setIsLogin(true);
-      }
+      // Login only
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Zalogowano pomyślnie');
+      navigate('/');
     } catch (error: any) {
       console.error('Authentication error:', error);
       toast.error(error.message || 'Wystąpił błąd. Spróbuj ponownie.');
@@ -67,11 +53,9 @@ export default function Auth() {
     <div className="flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isLogin ? 'Logowanie' : 'Rejestracja'}</CardTitle>
+          <CardTitle>Logowanie</CardTitle>
           <CardDescription>
-            {isLogin 
-              ? 'Zaloguj się, aby zarządzać treścią strony.' 
-              : 'Utwórz konto, aby uzyskać dostęp do panelu administracyjnego.'}
+            Zaloguj się, aby zarządzać treścią strony.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleAuth}>
@@ -99,25 +83,13 @@ export default function Auth() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
+          <CardFooter>
             <Button 
               type="submit" 
               className="w-full" 
               disabled={loading}
             >
-              {loading 
-                ? 'Przetwarzanie...' 
-                : isLogin ? 'Zaloguj się' : 'Zarejestruj się'}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin 
-                ? 'Nie masz konta? Zarejestruj się' 
-                : 'Masz już konto? Zaloguj się'}
+              {loading ? 'Przetwarzanie...' : 'Zaloguj się'}
             </Button>
           </CardFooter>
         </form>

@@ -20,7 +20,6 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: editingCategory?.name || "",
-      description: editingCategory?.description || "",
       show_in_menu: editingCategory?.show_in_menu || false,
     },
   });
@@ -32,7 +31,6 @@ export function CategoryForm({ editingCategory, onSuccess, onCancel }: CategoryF
       const updates = {
         name: data.name,
         slug: slug,
-        description: data.description,
         show_in_menu: data.show_in_menu,
       };
 
