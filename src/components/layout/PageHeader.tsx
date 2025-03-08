@@ -1,11 +1,13 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Search, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
+import { useSidebar } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -31,6 +33,8 @@ export function PageHeader({
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
   
   // Use title prop as fallback for pageTitle
   const displayTitle = pageTitle || title || "";
@@ -61,6 +65,17 @@ export function PageHeader({
     <>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2 md:gap-4">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="mr-2"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
               {displayTitle}
