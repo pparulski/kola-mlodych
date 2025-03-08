@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Category } from "@/types/categories";
 import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -98,13 +97,8 @@ export default function CategoryFeed() {
   
   return (
     <div className="container mx-auto p-4 space-y-8">
-      <PageHeader 
-        title={categoryName} 
-        description={`Artykuły w kategorii: ${categoryName}`}
-      />
-      
       {articles && articles.length > 0 ? (
-        <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
             <NewsPreview 
               key={article.id}

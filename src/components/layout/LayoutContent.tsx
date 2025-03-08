@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -14,6 +15,7 @@ export function LayoutContent() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const params = useParams();
 
   const { data: categories } = useQuery({
     queryKey: ['layout-categories'],
@@ -27,6 +29,27 @@ export function LayoutContent() {
       return data as Category[];
     },
     enabled: location.pathname === '/',
+  });
+
+  // For category pages, fetch the category name
+  const isCategoryPage = location.pathname.startsWith('/category/');
+  const categorySlug = isCategoryPage ? params.slug : null;
+  
+  const { data: categoryData } = useQuery({
+    queryKey: ['category-title', categorySlug],
+    queryFn: async () => {
+      if (!categorySlug) return null;
+      
+      const { data, error } = await supabase
+        .from('categories')
+        .select('name')
+        .eq('slug', categorySlug)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!categorySlug,
   });
 
   useEffect(() => {
@@ -88,14 +111,23 @@ export function LayoutContent() {
       if (error) throw error;
       return data;
     },
-    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage
+    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage && !isCategoryPage
   });
 
   const handleOverlayClick = () => {
     setIsOpen(false);
   };
 
-  const pageTitle = isManagementPage ? null : getPageTitle(location.pathname, staticPage?.title);
+  // Get the appropriate page title
+  let pageTitle: string | null = null;
+  
+  if (isManagementPage) {
+    pageTitle = null; // Management pages handle their own titles
+  } else if (isCategoryPage && categoryData) {
+    pageTitle = `Artykuły w kategorii: ${categoryData.name}`;
+  } else {
+    pageTitle = getPageTitle(location.pathname, staticPage?.title);
+  }
 
   return (
     <>
