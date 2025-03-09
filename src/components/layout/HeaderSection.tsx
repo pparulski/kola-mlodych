@@ -30,16 +30,20 @@ export const HeaderSection = ({
 
   return (
     <div className="flex flex-col w-full mb-4">
-      <div className="flex w-full items-start">
-        <SidebarToggle toggleSidebar={toggleSidebar} />
-        <PageHeader 
-          pageTitle={pageTitle}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          categories={categories}
-        />
+      <div className="flex flex-row items-start w-full">
+        <div className="flex-none">
+          <SidebarToggle toggleSidebar={toggleSidebar} />
+        </div>
+        <div className="flex-1">
+          <PageHeader 
+            pageTitle={pageTitle}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            categories={categories}
+          />
+        </div>
       </div>
     </div>
   );

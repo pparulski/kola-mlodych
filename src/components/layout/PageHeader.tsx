@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -52,7 +53,7 @@ export function PageHeader({
   const isHomePage = location.pathname === '/';
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="w-full">
       <div className="flex items-center justify-between w-full mb-2">
         <PageTitle title={displayTitle} description={description} />
         
@@ -105,11 +106,12 @@ export function PageHeader({
       </div>
       
       {isHomePage && searchOpen && isMobile && (
-        <div className="w-full mt-1">
+        <div className="w-full">
           <SearchBar 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             inputRef={searchInputRef}
+            className="w-full"
           />
         </div>
       )}
