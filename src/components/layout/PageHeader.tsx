@@ -54,7 +54,7 @@ export function PageHeader({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between w-full mb-2">
+      <div className="flex items-center justify-between w-full">
         <PageTitle title={displayTitle} description={description} />
         
         {isHomePage && (
