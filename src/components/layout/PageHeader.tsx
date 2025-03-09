@@ -84,7 +84,7 @@ export function PageHeader({
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </Button>
 
-            {/* Category filter - always visible but compact on mobile */}
+            {/* Category filters */}
             {categories && categories.length > 0 && (
               <div className="hidden md:block">
                 <CategoryFilter
@@ -127,9 +127,8 @@ export function PageHeader({
 
       {/* Mobile search bar - separated completely from other elements for full width */}
       {location.pathname === '/' && searchOpen && isMobile && (
-        <div className="w-full mt-4">
-          {/* Using stretched container to ensure proper width */}
-          <div className="relative w-full block">
+        <div className="w-full mt-2 px-0">
+          <div className="relative w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -139,32 +140,35 @@ export function LayoutContent() {
         </Link>
         <main className="flex-1 p-4 md:p-6">
           <div className="mb-4">
-            <div className="flex">
-              <button 
-                className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              
-              {!isManagementPage && (
-                <div className="flex-1">
-                  <PageHeader 
-                    pageTitle={pageTitle}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    categories={categories}
-                  />
-                </div>
-              )}
+            {/* Separate the sidebar toggle from the PageHeader */}
+            <div className="flex flex-col">
+              <div className="flex mb-2">
+                <button 
+                  className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
+                  onClick={() => setIsOpen(!isOpen)}
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+                
+                {!isManagementPage && (
+                  <div className="flex-1">
+                    <PageHeader 
+                      pageTitle={pageTitle}
+                      searchQuery={searchQuery}
+                      setSearchQuery={setSearchQuery}
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      categories={categories}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {location.pathname === '/' && (
-            <div className="mt-4">
+            <div className="mt-2">
               <SelectedCategories 
                 selectedCategories={selectedCategories} 
                 setSelectedCategories={setSelectedCategories}
@@ -173,7 +177,7 @@ export function LayoutContent() {
             </div>
           )}
 
-          <div className="max-w-4xl mx-auto mt-4">
+          <div className="max-w-4xl mx-auto mt-2">
             <Outlet context={{ searchQuery, selectedCategories }} />
           </div>
         </main>
