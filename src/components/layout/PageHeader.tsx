@@ -61,8 +61,9 @@ export function PageHeader({
 
   return (
     <div className="flex flex-col w-full">
-      {/* Page title section */}
-      <div className="flex flex-wrap items-center justify-between w-full mb-2">
+      {/* Page title section with search and categories in one row */}
+      <div className="flex items-center justify-between w-full mb-2">
+        {/* Title */}
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-primary">
             {displayTitle}
@@ -71,7 +72,21 @@ export function PageHeader({
         </div>
         
         {location.pathname === '/' && (
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2">
+            {/* Desktop search bar - fixed width */}
+            {!isMobile && (
+              <div className="relative hidden md:block w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Szukaj..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 w-full"
+                />
+              </div>
+            )}
+            
             {/* Mobile search button */}
             <Button
               variant="outline"
@@ -112,22 +127,6 @@ export function PageHeader({
         )}
       </div>
       
-      {/* Desktop search bar - moved outside flex container for full width */}
-      {location.pathname === '/' && !isMobile && (
-        <div className="w-full">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Szukaj..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-full"
-            />
-          </div>
-        </div>
-      )}
-
       {/* Mobile search bar - only shown when search is open */}
       {location.pathname === '/' && searchOpen && isMobile && (
         <div className="w-full mt-1">
