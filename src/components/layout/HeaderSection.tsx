@@ -30,11 +30,11 @@ export const HeaderSection = ({
 
   return (
     <div className="w-full mb-4">
-      <div className="relative w-full">
-        <div className="absolute left-0 top-0 md:hidden">
+      <div className="flex items-center w-full">
+        <div className="md:hidden flex-none">
           <SidebarToggle toggleSidebar={toggleSidebar} />
         </div>
-        <div className="pl-12 md:pl-0 w-full">
+        <div className="flex-1 w-full">
           <PageHeader 
             pageTitle={pageTitle}
             searchQuery={searchQuery}
