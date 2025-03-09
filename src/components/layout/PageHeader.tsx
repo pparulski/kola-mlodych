@@ -1,12 +1,12 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Search, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SearchBar } from "@/components/search/SearchBar";
+import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
+import { PageTitle } from "@/components/layout/PageTitle";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -37,13 +37,6 @@ export function PageHeader({
   // Use title prop as fallback for pageTitle
   const displayTitle = pageTitle || title || "";
   
-  // Focus the search input when opened
-  useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
-  
   // Reset search state when navigating away
   useEffect(() => {
     setSearchOpen(false);
@@ -59,88 +52,68 @@ export function PageHeader({
     setSearchOpen(!searchOpen);
   };
 
+  const isHomePage = location.pathname === '/';
+
   return (
     <div className="flex flex-col w-full">
       {/* Page title section with search and categories in one row */}
       <div className="flex items-center justify-between w-full mb-2">
         {/* Title */}
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
-            {displayTitle}
-          </h1>
-          {description && <p className="text-muted-foreground">{description}</p>}
-        </div>
+        <PageTitle title={displayTitle} description={description} />
         
-        {location.pathname === '/' && (
+        {isHomePage && (
           <div className="flex items-center gap-2">
             {/* Desktop search bar - fixed width */}
             {!isMobile && (
               <div className="relative hidden md:block w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Szukaj..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 w-full"
+                <SearchBar 
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
                 />
               </div>
             )}
             
             {/* Mobile search button */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="md:hidden"
-              onClick={toggleSearch}
-              aria-label={searchOpen ? "Close search" : "Open search"}
-            >
-              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
+            <MobileSearchToggle isOpen={searchOpen} toggleSearch={toggleSearch} />
 
             {/* Category filters */}
             {categories && categories.length > 0 && (
-              <div className="hidden md:block">
-                <CategoryFilter
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
-                  position="top"
-                  compactOnMobile={false}
-                />
-              </div>
-            )}
-            
-            {/* Mobile category filter - compact version */}
-            {categories && categories.length > 0 && (
-              <div className="block md:hidden">
-                <CategoryFilter
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
-                  position="top"
-                  compactOnMobile={true}
-                />
-              </div>
+              <>
+                {/* Desktop category filter */}
+                <div className="hidden md:block">
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    availableCategories={categories}
+                    position="top"
+                    compactOnMobile={false}
+                  />
+                </div>
+                
+                {/* Mobile category filter - compact version */}
+                <div className="block md:hidden">
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    availableCategories={categories}
+                    position="top"
+                    compactOnMobile={true}
+                  />
+                </div>
+              </>
             )}
           </div>
         )}
       </div>
       
       {/* Mobile search bar - only shown when search is open */}
-      {location.pathname === '/' && searchOpen && isMobile && (
+      {isHomePage && searchOpen && isMobile && (
         <div className="w-full mt-1">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Szukaj..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-full"
-              ref={searchInputRef}
-            />
-          </div>
+          <SearchBar 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            inputRef={searchInputRef}
+          />
         </div>
       )}
     </div>
