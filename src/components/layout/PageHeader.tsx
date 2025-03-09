@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -35,14 +34,11 @@ export function PageHeader({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   
-  // Use title prop as fallback for pageTitle
   const displayTitle = pageTitle || title || "";
   
-  // Reset search state when navigating away
   useEffect(() => {
     setSearchOpen(false);
     
-    // Add meta viewport tag reset to prevent zoom issues on mobile
     const viewportMeta = document.querySelector('meta[name="viewport"]');
     if (viewportMeta) {
       viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
@@ -57,14 +53,11 @@ export function PageHeader({
 
   return (
     <div className="flex flex-col w-full">
-      {/* Page title section with search and categories in one row */}
       <div className="flex items-center justify-between w-full mb-2">
-        {/* Title */}
         <PageTitle title={displayTitle} description={description} />
         
         {isHomePage && (
           <div className="flex items-center gap-2">
-            {/* Desktop search bar - fixed width */}
             {!isMobile && (
               <div className="relative hidden md:block w-64">
                 <SearchBar 
@@ -74,7 +67,6 @@ export function PageHeader({
               </div>
             )}
             
-            {/* Mobile search button */}
             <Button
               variant="outline"
               size="icon"
@@ -85,10 +77,8 @@ export function PageHeader({
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </Button>
 
-            {/* Category filters */}
             {categories && categories.length > 0 && (
               <>
-                {/* Desktop category filter */}
                 <div className="hidden md:block">
                   <CategoryFilter
                     selectedCategories={selectedCategories}
@@ -99,7 +89,6 @@ export function PageHeader({
                   />
                 </div>
                 
-                {/* Mobile category filter - compact version */}
                 <div className="block md:hidden">
                   <CategoryFilter
                     selectedCategories={selectedCategories}
@@ -115,7 +104,6 @@ export function PageHeader({
         )}
       </div>
       
-      {/* Mobile search bar - only shown when search is open */}
       {isHomePage && searchOpen && isMobile && (
         <div className="w-full mt-1">
           <SearchBar 
