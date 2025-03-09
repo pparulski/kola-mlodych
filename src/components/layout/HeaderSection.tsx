@@ -29,12 +29,12 @@ export const HeaderSection = ({
   }
 
   return (
-    <div className="flex flex-col w-full mb-4">
-      <div className="flex items-start w-full">
-        <div className="md:hidden mr-3">
+    <div className="w-full mb-4">
+      <div className="relative w-full">
+        <div className="absolute left-0 top-0 md:hidden">
           <SidebarToggle toggleSidebar={toggleSidebar} />
         </div>
-        <div className="flex-grow w-full">
+        <div className="pl-12 md:pl-0 w-full">
           <PageHeader 
             pageTitle={pageTitle}
             searchQuery={searchQuery}
