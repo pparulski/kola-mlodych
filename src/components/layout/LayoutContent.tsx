@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { Outlet, useLocation, Link, useParams } from "react-router-dom";
+import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "../AppSidebar";
-import { PageHeader } from "./PageHeader";
-import { SelectedCategories } from "./SelectedCategories";
 import { getPageTitle } from "@/utils/pageUtils";
 import { Category } from "@/types/categories";
-import { Menu } from "lucide-react";
+import { HeaderSection } from "./HeaderSection";
+import { CategorySection } from "./CategorySection";
+import { SidebarOverlay } from "./SidebarOverlay";
+import { JoinBanner } from "./JoinBanner";
 
 export function LayoutContent() {
   // State and hooks
@@ -146,54 +147,27 @@ export function LayoutContent() {
     <>
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full">
-        {/* Join banner */}
-        <Link 
-          to="/dolacz-do-nas"
-          className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10 hover:bg-accent transition-colors"
-        >
-          <span>Dołącz do nas!</span>
-        </Link>
+        <JoinBanner />
 
         {/* Main content area */}
         <main className="flex-1 p-4 md:p-6">
-          {/* Header section with sidebar toggle and page header in one row */}
-          {!isManagementPage && (
-            <div className="flex items-start mb-4">
-              {/* Mobile sidebar toggle */}
-              <div className="md:hidden mr-3">
-                <button 
-                  className="flex items-center justify-center h-10 w-10"
-                  onClick={toggleSidebar}
-                  aria-label="Toggle sidebar"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-              </div>
-              
-              {/* Page header */}
-              <div className="flex-1">
-                <PageHeader 
-                  pageTitle={pageTitle}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  categories={categories}
-                />
-              </div>
-            </div>
-          )}
+          <HeaderSection 
+            isManagementPage={isManagementPage}
+            pageTitle={pageTitle}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            categories={categories}
+            toggleSidebar={toggleSidebar}
+          />
 
-          {/* Selected categories (home page only) */}
-          {isHomePage && (
-            <div className="mt-2">
-              <SelectedCategories 
-                selectedCategories={selectedCategories} 
-                setSelectedCategories={setSelectedCategories}
-                categories={categories}
-              />
-            </div>
-          )}
+          <CategorySection 
+            isHomePage={isHomePage}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            categories={categories}
+          />
 
           {/* Page content */}
           <div className="max-w-4xl mx-auto mt-2">
@@ -202,14 +176,7 @@ export function LayoutContent() {
         </main>
       </div>
 
-      {/* Mobile sidebar overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
-          onClick={handleOverlayClick}
-          aria-hidden="true"
-        />
-      )}
+      <SidebarOverlay isOpen={isOpen} handleOverlayClick={handleOverlayClick} />
     </>
   );
 }
