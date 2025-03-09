@@ -158,30 +158,30 @@ export function LayoutContent() {
         <main className="flex-1 p-4 md:p-6">
           {/* Header section */}
           <div className="mb-4">
-            <div className="flex items-center">
-              {/* Mobile sidebar toggle */}
+            {/* Mobile sidebar toggle - Separated from the header content */}
+            <div className="md:hidden mb-2">
               <button 
-                className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
+                className="flex items-center justify-center h-10 w-10"
                 onClick={toggleSidebar}
                 aria-label="Toggle sidebar"
               >
                 <Menu className="h-5 w-5" />
               </button>
-              
-              {/* Page header */}
-              {!isManagementPage && (
-                <div className="flex-1">
-                  <PageHeader 
-                    pageTitle={pageTitle}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    categories={categories}
-                  />
-                </div>
-              )}
             </div>
+            
+            {/* Page header - now in its own container without flex/items-center */}
+            {!isManagementPage && (
+              <div className="w-full">
+                <PageHeader 
+                  pageTitle={pageTitle}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  categories={categories}
+                />
+              </div>
+            )}
           </div>
 
           {/* Selected categories (home page only) */}
