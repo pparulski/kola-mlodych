@@ -12,12 +12,20 @@ import { Category } from "@/types/categories";
 import { Menu } from "lucide-react";
 
 export function LayoutContent() {
+  // State and hooks
   const { isOpen, setIsOpen } = useSidebar();
   const location = useLocation();
+  const params = useParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const params = useParams();
 
+  // Path-related variables
+  const isCategoryPage = location.pathname.startsWith('/category/');
+  const isManagementPage = location.pathname.includes('/manage/');
+  const categorySlug = isCategoryPage ? params.slug : null;
+  const isHomePage = location.pathname === '/';
+
+  // Fetch categories for home page
   const { data: categories } = useQuery({
     queryKey: ['layout-categories'],
     queryFn: async () => {
@@ -29,12 +37,10 @@ export function LayoutContent() {
       if (error) throw error;
       return data as Category[];
     },
-    enabled: location.pathname === '/',
+    enabled: isHomePage,
   });
-
-  const isCategoryPage = location.pathname.startsWith('/category/');
-  const categorySlug = isCategoryPage ? params.slug : null;
   
+  // Fetch category name for category pages
   const { data: categoryData } = useQuery({
     queryKey: ['category-title', categorySlug],
     queryFn: async () => {
@@ -52,13 +58,32 @@ export function LayoutContent() {
     enabled: !!categorySlug,
   });
 
+  // Fetch static page title
+  const { data: staticPage } = useQuery({
+    queryKey: ['static-page-title', location.pathname],
+    queryFn: async () => {
+      const slug = location.pathname.substring(1);
+      const { data, error } = await supabase
+        .from('static_pages')
+        .select('title')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage && !isCategoryPage
+  });
+
+  // Reset search state on navigation
   useEffect(() => {
     setSearchQuery("");
     setSelectedCategories([]);
   }, [location.pathname]);
 
+  // Update URL with search params for home page
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (isHomePage) {
       const params = new URLSearchParams(location.search);
       
       if (searchQuery) {
@@ -80,8 +105,9 @@ export function LayoutContent() {
     }
   }, [searchQuery, selectedCategories, location.pathname]);
 
+  // Initialize search from URL params
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (isHomePage) {
       const params = new URLSearchParams(location.search);
       
       const searchParam = params.get('search');
@@ -96,28 +122,7 @@ export function LayoutContent() {
     }
   }, [location.pathname, location.search]);
 
-  const isManagementPage = location.pathname.includes('/manage/');
-
-  const { data: staticPage } = useQuery({
-    queryKey: ['static-page-title', location.pathname],
-    queryFn: async () => {
-      const slug = location.pathname.substring(1);
-      const { data, error } = await supabase
-        .from('static_pages')
-        .select('title')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage && !isCategoryPage
-  });
-
-  const handleOverlayClick = () => {
-    setIsOpen(false);
-  };
-
+  // Determine page title
   let pageTitle: string | null = null;
   
   if (isManagementPage) {
@@ -128,46 +133,59 @@ export function LayoutContent() {
     pageTitle = getPageTitle(location.pathname, staticPage?.title);
   }
 
+  // Event handlers
+  const handleOverlayClick = () => {
+    setIsOpen(false);
+  };
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <>
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full">
+        {/* Join banner */}
         <Link 
           to="/dolacz-do-nas"
           className="bg-primary p-4 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10 hover:bg-accent transition-colors"
         >
           <span>Dołącz do nas!</span>
         </Link>
+
+        {/* Main content area */}
         <main className="flex-1 p-4 md:p-6">
+          {/* Header section */}
           <div className="mb-4">
-            {/* Separate the sidebar toggle from the PageHeader */}
-            <div className="flex flex-col">
-              <div className="flex mb-2">
-                <button 
-                  className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
-                  onClick={() => setIsOpen(!isOpen)}
-                  aria-label="Toggle sidebar"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-                
-                {!isManagementPage && (
-                  <div className="flex-1">
-                    <PageHeader 
-                      pageTitle={pageTitle}
-                      searchQuery={searchQuery}
-                      setSearchQuery={setSearchQuery}
-                      selectedCategories={selectedCategories}
-                      setSelectedCategories={setSelectedCategories}
-                      categories={categories}
-                    />
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center">
+              {/* Mobile sidebar toggle */}
+              <button 
+                className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
+                onClick={toggleSidebar}
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              
+              {/* Page header */}
+              {!isManagementPage && (
+                <div className="flex-1">
+                  <PageHeader 
+                    pageTitle={pageTitle}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    categories={categories}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
-          {location.pathname === '/' && (
+          {/* Selected categories (home page only) */}
+          {isHomePage && (
             <div className="mt-2">
               <SelectedCategories 
                 selectedCategories={selectedCategories} 
@@ -177,12 +195,14 @@ export function LayoutContent() {
             </div>
           )}
 
+          {/* Page content */}
           <div className="max-w-4xl mx-auto mt-2">
             <Outlet context={{ searchQuery, selectedCategories }} />
           </div>
         </main>
       </div>
 
+      {/* Mobile sidebar overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
