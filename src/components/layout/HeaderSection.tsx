@@ -31,7 +31,7 @@ export const HeaderSection = ({
   return (
     <div className="w-full mb-4">
       <div className="flex items-center w-full">
-        <div className="md:hidden flex-none">
+        <div className="md:hidden flex-none self-start sticky top-0">
           <SidebarToggle toggleSidebar={toggleSidebar} />
         </div>
         <div className="flex-1 w-full">
