@@ -125,11 +125,12 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Mobile search bar - completely separated and full width */}
+      {/* Mobile search bar - separated completely from other elements for full width */}
       {location.pathname === '/' && searchOpen && isMobile && (
-        <div className="w-full mt-2">
-          <div className="w-full">
-            <Search className="absolute left-6 top-[5.6rem] h-4 w-4 text-muted-foreground z-10" />
+        <div className="w-full mt-4">
+          {/* Using stretched container to ensure proper width */}
+          <div className="relative w-full block">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Szukaj..."

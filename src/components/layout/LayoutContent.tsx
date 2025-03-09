@@ -138,29 +138,33 @@ export function LayoutContent() {
           <span>Dołącz do nas!</span>
         </Link>
         <main className="flex-1 p-4 md:p-6">
-          <div className="mb-3">
-            <button 
-              className="md:hidden flex items-center justify-center h-10 w-10 mb-3"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            
-            {!isManagementPage && (
-              <PageHeader 
-                pageTitle={pageTitle}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                categories={categories}
-              />
-            )}
+          <div className="mb-4">
+            <div className="flex">
+              <button 
+                className="md:hidden flex items-center justify-center h-10 w-10 mr-2"
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              
+              {!isManagementPage && (
+                <div className="flex-1">
+                  <PageHeader 
+                    pageTitle={pageTitle}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    categories={categories}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {location.pathname === '/' && (
-            <div className="mt-3">
+            <div className="mt-4">
               <SelectedCategories 
                 selectedCategories={selectedCategories} 
                 setSelectedCategories={setSelectedCategories}
@@ -169,7 +173,7 @@ export function LayoutContent() {
             </div>
           )}
 
-          <div className="max-w-4xl mx-auto mt-3">
+          <div className="max-w-4xl mx-auto mt-4">
             <Outlet context={{ searchQuery, selectedCategories }} />
           </div>
         </main>
