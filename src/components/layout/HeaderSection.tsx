@@ -29,18 +29,20 @@ export const HeaderSection = ({
   }
 
   return (
-    <div className="flex items-start mb-4">
-      <SidebarToggle toggleSidebar={toggleSidebar} />
-      
-      <div className="flex-1">
-        <PageHeader 
-          pageTitle={pageTitle}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          categories={categories}
-        />
+    <div className="flex flex-col w-full mb-4">
+      <div className="flex items-start w-full">
+        <SidebarToggle toggleSidebar={toggleSidebar} />
+        
+        <div className="flex-1 w-full">
+          <PageHeader 
+            pageTitle={pageTitle}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            categories={categories}
+          />
+        </div>
       </div>
     </div>
   );
