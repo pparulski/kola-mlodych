@@ -16,28 +16,29 @@ interface CategoryFilterMultiSelectProps {
 export function CategoryFilterMultiSelect({
   selectedCategories,
   setSelectedCategories,
-  availableCategories,
+  availableCategories = [], // Default to empty array
 }: CategoryFilterMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
+  // Ensure we have valid arrays to prevent iteration errors
+  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
+  const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
+
   const handleSelect = (slug: string) => {
-    if (selectedCategories.includes(slug)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+    if (safeSelectedCategories.includes(slug)) {
+      setSelectedCategories(safeSelectedCategories.filter((c) => c !== slug));
     } else {
-      setSelectedCategories([...selectedCategories, slug]);
+      setSelectedCategories([...safeSelectedCategories, slug]);
     }
   };
 
   const handleRemove = (slug: string) => {
-    setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+    setSelectedCategories(safeSelectedCategories.filter((c) => c !== slug));
   };
 
   const clearCategories = () => {
     setSelectedCategories([]);
   };
-
-  // Make sure availableCategories is always an array to prevent "not iterable" error
-  const categories = Array.isArray(availableCategories) ? availableCategories : [];
 
   return (
     <div className="flex flex-col space-y-2">
@@ -52,7 +53,7 @@ export function CategoryFilterMultiSelect({
             <CommandInput placeholder="Szukaj kategorii..." />
             <CommandEmpty>Nie znaleziono kategorii.</CommandEmpty>
             <CommandGroup className="max-h-[300px] overflow-auto">
-              {categories.map((category) => (
+              {safeCategories.map((category) => (
                 <CommandItem
                   key={category.id}
                   value={category.name}
@@ -60,13 +61,13 @@ export function CategoryFilterMultiSelect({
                   className="flex items-center justify-between px-4"
                 >
                   <div className="flex-1">{category.name}</div>
-                  {selectedCategories.includes(category.slug) && (
+                  {safeSelectedCategories.includes(category.slug) && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </CommandItem>
               ))}
 
-              {selectedCategories.length > 0 && (
+              {safeSelectedCategories.length > 0 && (
                 <CommandItem
                   onSelect={clearCategories}
                   className="text-destructive mt-1 px-4"
@@ -79,10 +80,10 @@ export function CategoryFilterMultiSelect({
         </PopoverContent>
       </Popover>
 
-      {selectedCategories.length > 0 && (
+      {safeSelectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {selectedCategories.map((slug) => {
-            const category = categories.find((c) => c.slug === slug);
+          {safeSelectedCategories.map((slug) => {
+            const category = safeCategories.find((c) => c.slug === slug);
             return (
               <Badge key={slug} variant="secondary" className="gap-1 pl-2 pr-1 py-1">
                 {category?.name || slug}

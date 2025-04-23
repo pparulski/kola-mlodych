@@ -16,11 +16,15 @@ export function CategoryFilterDropdown({
   availableCategories,
   compactOnMobile = false
 }: CategoryFilterDropdownProps) {
+  // Ensure we pass arrays, not undefined
+  const safeCategories = availableCategories || [];
+  const safeSelectedCategories = selectedCategories || [];
+  
   return (
     <CategoryFilterMultiSelect
-      selectedCategories={selectedCategories}
+      selectedCategories={safeSelectedCategories}
       setSelectedCategories={setSelectedCategories}
-      availableCategories={availableCategories || []}
+      availableCategories={safeCategories}
     />
   );
 }

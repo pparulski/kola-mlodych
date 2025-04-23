@@ -7,7 +7,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SearchBar } from "@/components/search/SearchBar";
 import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
-import { SidebarToggle } from "./SidebarToggle";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -54,6 +53,10 @@ export function PageHeader({
 
   const isHomePage = location.pathname === '/';
 
+  // Ensure categories is always an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
+
   return (
     <div className="w-full">
       <div className="flex flex-col w-full">
@@ -69,11 +72,11 @@ export function PageHeader({
                 />
               </div>
               
-              {categories && categories.length > 0 && (
+              {safeCategories.length > 0 && (
                 <CategoryFilter
-                  selectedCategories={selectedCategories}
+                  selectedCategories={safeSelectedCategories}
                   setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
+                  availableCategories={safeCategories}
                   position="top"
                   compactOnMobile={false}
                 />
@@ -88,11 +91,11 @@ export function PageHeader({
                 toggleSearch={toggleSearch} 
               />
               
-              {categories && categories.length > 0 && (
+              {safeCategories.length > 0 && (
                 <CategoryFilter
-                  selectedCategories={selectedCategories}
+                  selectedCategories={safeSelectedCategories}
                   setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
+                  availableCategories={safeCategories}
                   position="top"
                   compactOnMobile={true}
                 />

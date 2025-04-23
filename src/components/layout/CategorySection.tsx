@@ -19,12 +19,16 @@ export const CategorySection = ({
     return null;
   }
 
+  // Ensure we have arrays, not undefined
+  const safeCategories = categories || [];
+  const safeSelectedCategories = selectedCategories || [];
+
   return (
     <div className="mt-2">
       <SelectedCategories 
-        selectedCategories={selectedCategories} 
+        selectedCategories={safeSelectedCategories} 
         setSelectedCategories={setSelectedCategories}
-        categories={categories}
+        categories={safeCategories}
       />
     </div>
   );

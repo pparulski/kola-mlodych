@@ -1,10 +1,17 @@
 
 import * as React from "react";
 import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
-import { Category, FilterComponentProps } from "@/types/categories";
+import { Category } from "@/types/categories";
 import { Badge } from "@/components/ui/badge";
-import { SlidersHorizontal, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+
+interface CategoryFilterProps {
+  selectedCategories: string[];
+  setSelectedCategories: (categories: string[]) => void;
+  availableCategories: Category[];
+  position?: "top" | "bottom";
+  compactOnMobile?: boolean;
+}
 
 export function CategoryFilter({
   selectedCategories,
@@ -12,15 +19,19 @@ export function CategoryFilter({
   availableCategories,
   position = "bottom",
   compactOnMobile = false
-}: FilterComponentProps & { compactOnMobile?: boolean }) {
+}: CategoryFilterProps) {
+  // Ensure we have arrays, not undefined
+  const safeCategories = availableCategories || [];
+  const safeSelectedCategories = selectedCategories || [];
+
   // Handle removing a single category
   const handleRemoveCategory = (slug: string) => {
-    setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+    setSelectedCategories(safeSelectedCategories.filter((c) => c !== slug));
   };
 
   // Get the name of a category by its slug
   const getCategoryName = (slug: string): string => {
-    const category = availableCategories.find((c) => c.slug === slug);
+    const category = safeCategories.find((c) => c.slug === slug);
     return category ? category.name : slug;
   };
 
@@ -30,9 +41,9 @@ export function CategoryFilter({
         {/* Mobile view - icon only */}
         {compactOnMobile && (
           <CategoryFilterDropdown
-            selectedCategories={selectedCategories}
+            selectedCategories={safeSelectedCategories}
             setSelectedCategories={setSelectedCategories}
-            availableCategories={availableCategories}
+            availableCategories={safeCategories}
             compactOnMobile={true}
           />
         )}
@@ -40,15 +51,15 @@ export function CategoryFilter({
         {/* Desktop view - full button */}
         {!compactOnMobile && (
           <CategoryFilterDropdown
-            selectedCategories={selectedCategories}
+            selectedCategories={safeSelectedCategories}
             setSelectedCategories={setSelectedCategories}
-            availableCategories={availableCategories}
+            availableCategories={safeCategories}
           />
         )}
         
         {/* Show selected categories badges only on desktop or when not compact */}
-        {(!compactOnMobile && selectedCategories.length > 0) && (
-          selectedCategories.map((slug) => (
+        {(!compactOnMobile && safeSelectedCategories.length > 0) && (
+          safeSelectedCategories.map((slug) => (
             <Badge key={slug} variant="secondary" className="flex items-center gap-1 text-sm px-3 py-1.5">
               {getCategoryName(slug)}
               <X 
