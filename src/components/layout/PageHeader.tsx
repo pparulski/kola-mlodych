@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -67,7 +68,7 @@ export function PageHeader({
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
           <div className="flex items-center gap-2">
-            <SidebarToggle toggleSidebar={toggleSidebar} />
+            {isMobile && <SidebarToggle toggleSidebar={toggleSidebar} />}
             <PageTitle title={displayTitle} description={description} />
           </div>
 
