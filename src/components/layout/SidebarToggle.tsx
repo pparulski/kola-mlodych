@@ -8,7 +8,7 @@ interface SidebarToggleProps {
 export const SidebarToggle = ({ toggleSidebar }: SidebarToggleProps) => {
   return (
     <button 
-      className="h-10 w-10 flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent"
+      className="h-10 w-10 flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-white"
       onClick={toggleSidebar}
       aria-label="Toggle sidebar"
     >
