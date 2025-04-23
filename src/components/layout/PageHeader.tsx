@@ -1,6 +1,5 @@
-
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,6 +8,8 @@ import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
 import { SidebarToggle } from "./SidebarToggle";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -36,6 +37,7 @@ export function PageHeader({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
   
   const displayTitle = pageTitle || title || "";
   
@@ -53,6 +55,12 @@ export function PageHeader({
   };
 
   const isHomePage = location.pathname === '/';
+  const shouldShowBackButton = location.pathname.includes('/news/') || 
+                             location.pathname.includes('/article/');
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="w-full">
@@ -62,46 +70,59 @@ export function PageHeader({
             <SidebarToggle toggleSidebar={toggleSidebar} />
             <PageTitle title={displayTitle} description={description} />
           </div>
-          
-          {isHomePage && (
-            <div className="hidden md:flex items-center gap-2">
-              <div className="relative w-64">
-                <SearchBar 
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                />
-              </div>
-              
-              {categories && categories.length > 0 && (
-                <CategoryFilter
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
-                  position="top"
-                  compactOnMobile={false}
-                />
-              )}
-            </div>
-          )}
 
-          {isHomePage && isMobile && (
-            <div className="flex items-center gap-2">
-              <MobileSearchToggle 
-                isOpen={searchOpen} 
-                toggleSearch={toggleSearch} 
-              />
-              
-              {categories && categories.length > 0 && (
-                <CategoryFilter
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  availableCategories={categories}
-                  position="top"
-                  compactOnMobile={true}
+          <div className="flex items-center gap-2">
+            {shouldShowBackButton && (
+              <Button 
+                variant="ghost" 
+                className="text-red-500 hover:text-red-600"
+                onClick={handleGoBack}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Wróć
+              </Button>
+            )}
+            
+            {isHomePage && !isMobile && (
+              <>
+                <div className="relative w-64">
+                  <SearchBar 
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
+                </div>
+                
+                {categories && categories.length > 0 && (
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    availableCategories={categories}
+                    position="top"
+                    compactOnMobile={false}
+                  />
+                )}
+              </>
+            )}
+
+            {isHomePage && isMobile && (
+              <>
+                <MobileSearchToggle 
+                  isOpen={searchOpen} 
+                  toggleSearch={toggleSearch} 
                 />
-              )}
-            </div>
-          )}
+                
+                {categories && categories.length > 0 && (
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    availableCategories={categories}
+                    position="top"
+                    compactOnMobile={true}
+                  />
+                )}
+              </>
+            )}
+          </div>
         </div>
         
         {isHomePage && searchOpen && isMobile && (

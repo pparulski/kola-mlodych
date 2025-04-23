@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isValid } from "date-fns";
@@ -9,12 +9,9 @@ import { NewsContent } from "@/components/news/NewsContent";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
 import { NewsArticle as NewsArticleType } from "@/types/news";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
 
   const { data: article, isLoading } = useQuery({
     queryKey: ["news-article", slug],
@@ -97,15 +94,6 @@ export default function NewsArticle() {
 
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-4xl">
-      <Button 
-        variant="ghost" 
-        className="text-red-500 hover:text-red-600 pl-0"
-        onClick={handleGoBack}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Wróć
-      </Button>
-
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
           <div className="w-full relative">
