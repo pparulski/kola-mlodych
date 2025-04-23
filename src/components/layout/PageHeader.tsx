@@ -72,13 +72,13 @@ export function PageHeader({
           </div>
 
           <div className="flex items-center gap-2">
-            {shouldShowBackButton && (
+            {(location.pathname.includes('/news/') || location.pathname.includes('/article/')) && (
               <Button 
-                variant="ghost" 
-                className="text-red-500 hover:text-red-600"
+                variant="outline"
                 onClick={handleGoBack}
+                className="gap-2"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Wróć
               </Button>
             )}

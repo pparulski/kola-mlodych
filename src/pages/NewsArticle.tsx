@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isValid } from "date-fns";
@@ -12,6 +12,7 @@ import { NewsArticle as NewsArticleType } from "@/types/news";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
 
   const { data: article, isLoading } = useQuery({
     queryKey: ["news-article", slug],
@@ -93,7 +94,7 @@ export default function NewsArticle() {
     : "";
 
   return (
-    <div className="container mx-auto px-4 space-y-8 max-w-4xl">
+    <div className="container mx-auto px-4 space-y-6 max-w-[100rem]">
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
           <div className="w-full relative">
