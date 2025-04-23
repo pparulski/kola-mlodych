@@ -1,30 +1,25 @@
-
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SlidersHorizontal } from "lucide-react";
+import { Check, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Category } from "@/types/categories";
+import { CategoryFilterButton } from "./CategoryFilterButton";
 
-interface CategoryFilterDropdownProps {
+interface CategoryFilterMultiSelectProps {
   selectedCategories: string[];
-  setSelectedCategories: (value: string[]) => void;
+  setSelectedCategories: (categories: string[]) => void;
   availableCategories: Category[];
-  compactOnMobile?: boolean;
 }
 
-export function CategoryFilterDropdown({
+export function CategoryFilterMultiSelect({
   selectedCategories,
   setSelectedCategories,
   availableCategories,
-  compactOnMobile = false,
-}: CategoryFilterDropdownProps) {
-  const handleCategoryClick = (slug: string) => {
+}: CategoryFilterMultiSelectProps) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleSelect = (slug: string) => {
     if (selectedCategories.includes(slug)) {
       setSelectedCategories(selectedCategories.filter((c) => c !== slug));
     } else {
@@ -32,73 +27,70 @@ export function CategoryFilterDropdown({
     }
   };
 
-  const handleClearCategories = () => {
+  const handleRemove = (slug: string) => {
+    setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+  };
+
+  const clearCategories = () => {
     setSelectedCategories([]);
   };
 
-  // Counter for selected items
-  const selectedCount = selectedCategories.length;
-  const hasSelectedItems = selectedCount > 0;
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {compactOnMobile ? (
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="relative md:hidden"
-            aria-label="Filtry kategorii"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            {hasSelectedItems && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {selectedCount}
-              </span>
-            )}
-          </Button>
-        ) : (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-9 px-4 lg:px-6 hidden md:flex"
-          >
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            <span>Kategorie</span>
-            {hasSelectedItems && (
-              <span className="ml-1.5 bg-primary/20 text-primary text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {selectedCount}
-              </span>
-            )}
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
-        <DropdownMenuGroup>
-          {availableCategories.map((category) => (
-            <DropdownMenuItem
-              key={category.id}
-              onClick={() => handleCategoryClick(category.slug)}
-              className="cursor-pointer flex items-center justify-between"
-            >
-              <span>{category.name}</span>
-              {selectedCategories.includes(category.slug) && (
-                <span className="text-primary text-sm">✓</span>
+    <div className="flex flex-col space-y-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <div>
+            <CategoryFilterButton onClick={() => setOpen(!open)} />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-fit min-w-[200px] p-0 rounded-md" align="start">
+          <Command>
+            <CommandInput placeholder="Szukaj kategorii..." />
+            <CommandEmpty>Nie znaleziono kategorii.</CommandEmpty>
+            <CommandGroup className="max-h-[300px] overflow-auto">
+              {availableCategories.map((category) => (
+                <CommandItem
+                  key={category.id}
+                  value={category.name}
+                  onSelect={() => handleSelect(category.slug)}
+                  className="flex items-center justify-between px-4"
+                >
+                  <div className="flex-1">{category.name}</div>
+                  {selectedCategories.includes(category.slug) && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </CommandItem>
+              ))}
+
+              {selectedCategories.length > 0 && (
+                <CommandItem
+                  onSelect={clearCategories}
+                  className="text-destructive mt-1 px-4"
+                >
+                  Wyczyść filtry
+                </CommandItem>
               )}
-            </DropdownMenuItem>
-          ))}
-          {selectedCategories.length > 0 && (
-            <>
-              <DropdownMenuItem
-                onClick={handleClearCategories}
-                className="cursor-pointer text-destructive border-t mt-2 pt-2"
-              >
-                Wyczyść filtry
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      {selectedCategories.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {selectedCategories.map((slug) => {
+            const category = availableCategories.find((c) => c.slug === slug);
+            return (
+              <Badge key={slug} variant="secondary" className="gap-1 pl-2 pr-1 py-1">
+                {category?.name}
+                <X
+                  className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground"
+                  onClick={() => handleRemove(slug)}
+                />
+              </Badge>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
