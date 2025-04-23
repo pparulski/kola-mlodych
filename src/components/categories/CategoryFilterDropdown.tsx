@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,8 +45,8 @@ export function CategoryFilterDropdown({
         {compactOnMobile ? (
           <Button 
             variant="outline" 
-            size="icon" 
-            className="relative md:hidden"
+            size="icon"
+            className="relative md:hidden h-10 w-10"
             aria-label="Filtry kategorii"
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -59,9 +58,8 @@ export function CategoryFilterDropdown({
           </Button>
         ) : (
           <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-9 px-4 lg:px-6 hidden md:flex"
+            variant="outline"
+            className="h-10 px-4 w-40 hidden md:flex"
           >
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             <span>Kategorie</span>
@@ -73,7 +71,7 @@ export function CategoryFilterDropdown({
           </Button>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
+      <DropdownMenuContent align="start" className="w-40">
         <DropdownMenuGroup>
           {availableCategories.map((category) => (
             <DropdownMenuItem
