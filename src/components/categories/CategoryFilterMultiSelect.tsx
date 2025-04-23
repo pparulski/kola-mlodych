@@ -20,7 +20,7 @@ export function CategoryFilterMultiSelect({
 }: CategoryFilterMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Create safe versions of arrays to prevent iteration errors
+  // Ensure arrays are valid (even if they come in as null or undefined)
   const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
   const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
 
@@ -39,6 +39,15 @@ export function CategoryFilterMultiSelect({
   const clearCategories = () => {
     setSelectedCategories([]);
   };
+
+  // Protect against undefined/null categories
+  if (!Array.isArray(safeCategories) || safeCategories.length === 0) {
+    return (
+      <div>
+        <CategoryFilterButton onClick={() => {}} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-2">
