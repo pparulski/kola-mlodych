@@ -64,10 +64,10 @@ export default function NewsArticle() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-12 w-3/4 max-w-2xl" />
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-80 w-full" />
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-3/4 max-w-2xl" />
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-60 w-full" />
       </div>
     );
   }
@@ -75,8 +75,8 @@ export default function NewsArticle() {
   if (!article) {
     return (
       <div>
-        <div className="p-8 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold mb-4">Artykuł nie został znaleziony</h1>
+        <div className="p-4 md:p-6 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
+          <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
           </p>
@@ -102,17 +102,17 @@ export default function NewsArticle() {
             <img
               src={article.featured_image}
               alt=""
-              className="w-full h-[300px] md:h-[400px] object-cover"
+              className="w-full h-[200px] md:h-[400px] object-cover"
             />
           </div>
         )}
 
-        <div className="p-6 space-y-6">
-          <h1 className="text-3xl md:text-4xl font-bold">{article.title}</h1>
+        <div className="p-3 md:p-6 space-y-4 md:space-y-6">
+          <h1 className="text-2xl md:text-4xl font-bold">{article.title}</h1>
           
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <span className="text-muted-foreground">{formattedDate}</span>
+              <span className="text-sm text-muted-foreground">{formattedDate}</span>
             )}
             
             {!isLoadingCategories && categories && categories.length > 0 && (

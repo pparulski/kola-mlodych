@@ -30,22 +30,22 @@ export function StaticPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
+      <div className="flex justify-center items-center min-h-[150px]">
         <div className="text-lg">Ładowanie...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen">
-      <div className="relative space-y-4">
+    <div className="relative">
+      <div className="relative">
         {page ? (
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert mt-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto bg-[hsl(var(--content-box))] p-5 rounded-lg shadow-sm"
+            className="prose prose-lg max-w-none dark:prose-invert [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
-          <div className="text-center text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg shadow-sm">
+          <div className="text-center text-muted-foreground mt-2 bg-[hsl(var(--content-box))] p-4 rounded-lg shadow-sm">
             <p>Ta strona jest w trakcie tworzenia.</p>
           </div>
         )}
