@@ -1,3 +1,4 @@
+
 import { Mail, Handshake } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/ui/theme-provider";
@@ -22,7 +23,7 @@ export function SidebarFooterContent() {
           className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
         >
           <Handshake className="w-4 h-4" />
-          <span>OZZ „Inicjatywa Pracownicza”</span>
+          <span>OZZ „Inicjatywa Pracownicza"</span>
         </a>
         <a
           href="mailto:mlodzi.ip@ozzip.pl"
@@ -33,7 +34,7 @@ export function SidebarFooterContent() {
         </a>
       </div>
       <div className="text-sm text-foreground">
-        OZZIP 2025
+        OZZ IP 2025
       </div>
     </div>
   );
