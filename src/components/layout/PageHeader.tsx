@@ -11,8 +11,8 @@ import { PageTitle } from "./PageTitle";
 
 interface PageHeaderProps {
   pageTitle?: string;
-  title?: string; // For backward compatibility
-  description?: string; // For backward compatibility
+  title?: string;
+  description?: string;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   selectedCategories?: string[];
@@ -22,8 +22,8 @@ interface PageHeaderProps {
 
 export function PageHeader({
   pageTitle,
-  title, // Support for old prop
-  description, // Support for old prop
+  title,
+  description,
   searchQuery = "",
   setSearchQuery = () => {},
   selectedCategories = [],
