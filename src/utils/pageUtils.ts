@@ -3,7 +3,7 @@ export function getPageTitle(pathname: string, staticPageTitle?: string): string
   // Default titles for known routes
   const titles: { [key: string]: string } = {
     '/': 'Aktualności',
-    '/kola-mlodych': 'Lista Kół Młodych',
+    '/struktury': 'Lista Struktur', // Updated from Kół Młodych
     '/downloads': 'Pliki do pobrania',
     '/ebooks': 'Publikacje',
     '/auth': 'Logowanie',

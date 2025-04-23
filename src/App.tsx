@@ -70,7 +70,7 @@ const router = createBrowserRouter([
         element: <CategoryFeed />,
       },
       {
-        path: "/kola-mlodych",
+        path: "/struktury", // Updated from /kola-mlodych
         element: <Map />,
       },
       {

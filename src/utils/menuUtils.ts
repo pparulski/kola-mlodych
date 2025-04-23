@@ -1,4 +1,3 @@
-
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
 import { MenuPosition } from "@/types/menu";
@@ -33,9 +32,9 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       type: MenuItemType.REGULAR
     },
     {
-      id: 'kola-mlodych',
-      title: 'Koła Młodych',
-      path: '/kola-mlodych',
+      id: 'struktury',
+      title: 'Struktury',
+      path: '/struktury',
       icon: 'Map',
       position: 2,
       type: MenuItemType.REGULAR
