@@ -140,10 +140,6 @@ export function LayoutContent() {
         <JoinBanner />
 
         <main className="flex-1 p-4 md:p-6 relative">
-          <div className="mb-4 md:hidden">
-            <SidebarToggle toggleSidebar={toggleSidebar} />
-          </div>
-
           {!isManagementPage && (
             <div className="w-full">
               <PageHeader 

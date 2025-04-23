@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -6,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SearchBar } from "@/components/search/SearchBar";
 import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
+import { SidebarToggle } from "./SidebarToggle";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -16,6 +18,7 @@ interface PageHeaderProps {
   selectedCategories?: string[];
   setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
+  toggleSidebar?: () => void;
 }
 
 export function PageHeader({
@@ -27,6 +30,7 @@ export function PageHeader({
   selectedCategories = [],
   setSelectedCategories = () => {},
   categories = [],
+  toggleSidebar,
 }: PageHeaderProps) {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -52,60 +56,62 @@ export function PageHeader({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between w-full mb-2">
-        <PageTitle title={displayTitle} description={description} />
-        
-        {isHomePage && (
-          <div className="hidden md:flex items-center gap-2">
-            <div className="relative w-64">
-              <SearchBar 
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
+      <div className="flex flex-col w-full">
+        <div className="flex items-center justify-between w-full mb-2">
+          <PageTitle title={displayTitle} description={description} />
+          
+          {isHomePage && (
+            <div className="hidden md:flex items-center gap-2">
+              <div className="relative w-64">
+                <SearchBar 
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                />
+              </div>
+              
+              {categories && categories.length > 0 && (
+                <CategoryFilter
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  availableCategories={categories}
+                  position="top"
+                  compactOnMobile={false}
+                />
+              )}
             </div>
-            
-            {categories && categories.length > 0 && (
-              <CategoryFilter
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                availableCategories={categories}
-                position="top"
-                compactOnMobile={false}
-              />
-            )}
-          </div>
-        )}
+          )}
 
-        {isHomePage && isMobile && (
-          <div className="flex items-center gap-2">
-            <MobileSearchToggle 
-              isOpen={searchOpen} 
-              toggleSearch={toggleSearch} 
-            />
-            
-            {categories && categories.length > 0 && (
-              <CategoryFilter
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                availableCategories={categories}
-                position="top"
-                compactOnMobile={true}
+          {isHomePage && isMobile && (
+            <div className="flex items-center gap-2">
+              <MobileSearchToggle 
+                isOpen={searchOpen} 
+                toggleSearch={toggleSearch} 
               />
-            )}
+              
+              {categories && categories.length > 0 && (
+                <CategoryFilter
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  availableCategories={categories}
+                  position="top"
+                  compactOnMobile={true}
+                />
+              )}
+            </div>
+          )}
+        </div>
+        
+        {isHomePage && searchOpen && isMobile && (
+          <div className="w-full mt-2">
+            <SearchBar 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              inputRef={searchInputRef}
+              className="w-full"
+            />
           </div>
         )}
       </div>
-      
-      {isHomePage && searchOpen && isMobile && (
-        <div className="w-full mt-4">
-          <SearchBar 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            inputRef={searchInputRef}
-            className="w-full"
-          />
-        </div>
-      )}
     </div>
   );
 }
