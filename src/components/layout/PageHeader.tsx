@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/search/SearchBar";
 import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
 import { SidebarToggle } from "./SidebarToggle";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -18,7 +19,6 @@ interface PageHeaderProps {
   selectedCategories?: string[];
   setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
-  toggleSidebar?: () => void;
 }
 
 export function PageHeader({
@@ -30,12 +30,12 @@ export function PageHeader({
   selectedCategories = [],
   setSelectedCategories = () => {},
   categories = [],
-  toggleSidebar,
 }: PageHeaderProps) {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const { toggleSidebar } = useSidebar();
   
   const displayTitle = pageTitle || title || "";
   
@@ -58,7 +58,10 @@ export function PageHeader({
     <div className="w-full">
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
-          <PageTitle title={displayTitle} description={description} />
+          <div className="flex items-center gap-2">
+            <SidebarToggle toggleSidebar={toggleSidebar} />
+            <PageTitle title={displayTitle} description={description} />
+          </div>
           
           {isHomePage && (
             <div className="hidden md:flex items-center gap-2">

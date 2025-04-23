@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarLogo } from "./sidebar/SidebarLogo";
 import { PublicMenu } from "./sidebar/PublicMenu";
 import { AdminMenu } from "./sidebar/AdminMenu";
@@ -21,7 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export function AppSidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const { isOpen, setIsOpen } = useSidebar();
-  const isMobile = useIsMobile();
+  const isMobile = window.innerWidth < 768;
 
   useEffect(() => {
     const checkAdminStatus = async () => {

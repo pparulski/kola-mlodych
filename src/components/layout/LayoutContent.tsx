@@ -10,7 +10,6 @@ import { CategorySection } from "./CategorySection";
 import { SidebarOverlay } from "./SidebarOverlay";
 import { JoinBanner } from "./JoinBanner";
 import { PageHeader } from "./PageHeader";
-import { SidebarToggle } from "./SidebarToggle";
 
 export function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
@@ -127,10 +126,6 @@ export function LayoutContent() {
 
   const handleOverlayClick = () => {
     setIsOpen(false);
-  };
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
   };
 
   return (
