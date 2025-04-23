@@ -13,20 +13,17 @@ import { PageHeader } from "./PageHeader";
 import { SidebarToggle } from "./SidebarToggle";
 
 export function LayoutContent() {
-  // State and hooks
   const { isOpen, setIsOpen } = useSidebar();
   const location = useLocation();
   const params = useParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Path-related variables
   const isCategoryPage = location.pathname.startsWith('/category/');
   const isManagementPage = location.pathname.includes('/manage/');
   const categorySlug = isCategoryPage ? params.slug : null;
   const isHomePage = location.pathname === '/';
 
-  // Fetch categories for home page
   const { data: categories } = useQuery({
     queryKey: ['layout-categories'],
     queryFn: async () => {
@@ -40,8 +37,7 @@ export function LayoutContent() {
     },
     enabled: isHomePage,
   });
-  
-  // Fetch category name for category pages
+
   const { data: categoryData } = useQuery({
     queryKey: ['category-title', categorySlug],
     queryFn: async () => {
@@ -59,7 +55,6 @@ export function LayoutContent() {
     enabled: !!categorySlug,
   });
 
-  // Fetch static page title
   const { data: staticPage } = useQuery({
     queryKey: ['static-page-title', location.pathname],
     queryFn: async () => {
@@ -76,13 +71,11 @@ export function LayoutContent() {
     enabled: !Object.keys(getPageTitle('', '')).includes(location.pathname) && !isManagementPage && !isCategoryPage
   });
 
-  // Reset search state on navigation
   useEffect(() => {
     setSearchQuery("");
     setSelectedCategories([]);
   }, [location.pathname]);
 
-  // Update URL with search params for home page
   useEffect(() => {
     if (isHomePage) {
       const params = new URLSearchParams(location.search);
@@ -106,7 +99,6 @@ export function LayoutContent() {
     }
   }, [searchQuery, selectedCategories, location.pathname]);
 
-  // Initialize search from URL params
   useEffect(() => {
     if (isHomePage) {
       const params = new URLSearchParams(location.search);
@@ -123,18 +115,16 @@ export function LayoutContent() {
     }
   }, [location.pathname, location.search]);
 
-  // Determine page title
   let pageTitle: string | null = null;
   
   if (isManagementPage) {
-    pageTitle = null; // Management pages handle their own titles
+    pageTitle = null;
   } else if (isCategoryPage && categoryData) {
     pageTitle = `Artykuły w kategorii: ${categoryData.name}`;
   } else {
     pageTitle = getPageTitle(location.pathname, staticPage?.title);
   }
 
-  // Event handlers
   const handleOverlayClick = () => {
     setIsOpen(false);
   };
@@ -149,15 +139,13 @@ export function LayoutContent() {
       <div className="flex-1 flex flex-col w-full">
         <JoinBanner />
 
-        {/* Main content area */}
         <main className="flex-1 p-4 md:p-6 relative">
-          {/* Sidebar toggle positioned absolutely to not interfere with layout flow */}
-          <div className="absolute top-4 left-4 z-20 md:hidden">
+          <div className="mb-4 md:hidden">
             <SidebarToggle toggleSidebar={toggleSidebar} />
           </div>
 
           {!isManagementPage && (
-            <div className="w-full pl-12 md:pl-0 mb-2">
+            <div className="w-full">
               <PageHeader 
                 pageTitle={pageTitle}
                 searchQuery={searchQuery}
@@ -176,7 +164,6 @@ export function LayoutContent() {
             categories={categories}
           />
 
-          {/* Page content */}
           <div className="max-w-4xl mx-auto mt-2">
             <Outlet context={{ searchQuery, selectedCategories }} />
           </div>

@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -57,50 +56,48 @@ export function PageHeader({
         <PageTitle title={displayTitle} description={description} />
         
         {isHomePage && (
-          <div className="flex items-center gap-2">
-            {!isMobile && (
-              <div className="relative hidden md:block w-64">
-                <SearchBar 
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                />
-              </div>
-            )}
+          <div className="hidden md:flex items-center gap-2">
+            <div className="relative w-64">
+              <SearchBar 
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
+            </div>
             
+            {categories && categories.length > 0 && (
+              <CategoryFilter
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                availableCategories={categories}
+                position="top"
+                compactOnMobile={false}
+              />
+            )}
+          </div>
+        )}
+
+        {isHomePage && isMobile && (
+          <div className="flex items-center gap-2">
             <MobileSearchToggle 
               isOpen={searchOpen} 
               toggleSearch={toggleSearch} 
             />
-
+            
             {categories && categories.length > 0 && (
-              <>
-                <div className="hidden md:block">
-                  <CategoryFilter
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    availableCategories={categories}
-                    position="top"
-                    compactOnMobile={false}
-                  />
-                </div>
-                
-                <div className="block md:hidden">
-                  <CategoryFilter
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    availableCategories={categories}
-                    position="top"
-                    compactOnMobile={true}
-                  />
-                </div>
-              </>
+              <CategoryFilter
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                availableCategories={categories}
+                position="top"
+                compactOnMobile={true}
+              />
             )}
           </div>
         )}
       </div>
       
       {isHomePage && searchOpen && isMobile && (
-        <div className="w-full">
+        <div className="w-full mt-4">
           <SearchBar 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
