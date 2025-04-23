@@ -7,10 +7,11 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "../AppSidebar";
 import { getPageTitle } from "@/utils/pageUtils";
 import { Category } from "@/types/categories";
-import { HeaderSection } from "./HeaderSection";
 import { CategorySection } from "./CategorySection";
 import { SidebarOverlay } from "./SidebarOverlay";
 import { JoinBanner } from "./JoinBanner";
+import { PageHeader } from "./PageHeader";
+import { SidebarToggle } from "./SidebarToggle";
 
 export function LayoutContent() {
   // State and hooks
@@ -150,17 +151,23 @@ export function LayoutContent() {
         <JoinBanner />
 
         {/* Main content area */}
-        <main className="flex-1 p-4 md:p-6">
-          <HeaderSection 
-            isManagementPage={isManagementPage}
-            pageTitle={pageTitle}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            categories={categories}
-            toggleSidebar={toggleSidebar}
-          />
+        <main className="flex-1 p-4 md:p-6 relative">
+          <div className="absolute top-4 left-4 z-20 md:hidden">
+            <SidebarToggle toggleSidebar={toggleSidebar} />
+          </div>
+
+          {!isManagementPage && (
+            <div className={`w-full pl-12 md:pl-0 mb-2`}>
+              <PageHeader 
+                pageTitle={pageTitle}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                categories={categories}
+              />
+            </div>
+          )}
 
           <CategorySection 
             isHomePage={isHomePage}
