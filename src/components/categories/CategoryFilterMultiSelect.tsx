@@ -14,40 +14,27 @@ interface CategoryFilterMultiSelectProps {
 }
 
 export function CategoryFilterMultiSelect({
-  selectedCategories = [], // Default to empty array
+  selectedCategories,
   setSelectedCategories,
-  availableCategories = [], // Default to empty array
+  availableCategories,
 }: CategoryFilterMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Ensure arrays are valid (even if they come in as null or undefined)
-  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
-  const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
-
   const handleSelect = (slug: string) => {
-    if (safeSelectedCategories.includes(slug)) {
-      setSelectedCategories(safeSelectedCategories.filter((c) => c !== slug));
+    if (selectedCategories.includes(slug)) {
+      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
     } else {
-      setSelectedCategories([...safeSelectedCategories, slug]);
+      setSelectedCategories([...selectedCategories, slug]);
     }
   };
 
   const handleRemove = (slug: string) => {
-    setSelectedCategories(safeSelectedCategories.filter((c) => c !== slug));
+    setSelectedCategories(selectedCategories.filter((c) => c !== slug));
   };
 
   const clearCategories = () => {
     setSelectedCategories([]);
   };
-
-  // Protect against undefined/null categories
-  if (!Array.isArray(safeCategories) || safeCategories.length === 0) {
-    return (
-      <div>
-        <CategoryFilterButton onClick={() => {}} />
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col space-y-2">
@@ -57,12 +44,12 @@ export function CategoryFilterMultiSelect({
             <CategoryFilterButton onClick={() => setOpen(!open)} />
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-fit min-w-[200px] p-0 rounded-md bg-background" align="start">
+        <PopoverContent className="w-[200px] p-0 rounded-md" align="start">
           <Command>
             <CommandInput placeholder="Szukaj kategorii..." />
             <CommandEmpty>Nie znaleziono kategorii.</CommandEmpty>
             <CommandGroup className="max-h-[300px] overflow-auto">
-              {safeCategories.map((category) => (
+              {availableCategories.map((category) => (
                 <CommandItem
                   key={category.id}
                   value={category.name}
@@ -70,13 +57,13 @@ export function CategoryFilterMultiSelect({
                   className="flex items-center justify-between px-4"
                 >
                   <div className="flex-1">{category.name}</div>
-                  {safeSelectedCategories.includes(category.slug) && (
+                  {selectedCategories.includes(category.slug) && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </CommandItem>
               ))}
 
-              {safeSelectedCategories.length > 0 && (
+              {selectedCategories.length > 0 && (
                 <CommandItem
                   onSelect={clearCategories}
                   className="text-destructive mt-1 px-4"
@@ -89,13 +76,13 @@ export function CategoryFilterMultiSelect({
         </PopoverContent>
       </Popover>
 
-      {safeSelectedCategories.length > 0 && (
+      {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {safeSelectedCategories.map((slug) => {
-            const category = safeCategories.find((c) => c.slug === slug);
+          {selectedCategories.map((slug) => {
+            const category = availableCategories.find((c) => c.slug === slug);
             return (
               <Badge key={slug} variant="secondary" className="gap-1 pl-2 pr-1 py-1">
-                {category?.name || slug}
+                {category?.name}
                 <X
                   className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground"
                   onClick={() => handleRemove(slug)}

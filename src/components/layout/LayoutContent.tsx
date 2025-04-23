@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +10,7 @@ import { CategorySection } from "./CategorySection";
 import { SidebarOverlay } from "./SidebarOverlay";
 import { JoinBanner } from "./JoinBanner";
 import { PageHeader } from "./PageHeader";
+import { SidebarToggle } from "./SidebarToggle";
 
 export function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
@@ -37,9 +37,6 @@ export function LayoutContent() {
     },
     enabled: isHomePage,
   });
-
-  // Ensure categories is always an array
-  const safeCategories = categories || [];
 
   const { data: categoryData } = useQuery({
     queryKey: ['category-title', categorySlug],
@@ -151,7 +148,7 @@ export function LayoutContent() {
                 setSearchQuery={setSearchQuery}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
-                categories={safeCategories}
+                categories={categories}
               />
             </div>
           )}
@@ -160,7 +157,7 @@ export function LayoutContent() {
             isHomePage={isHomePage}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
-            categories={safeCategories}
+            categories={categories}
           />
 
           <div className="max-w-4xl mx-auto mt-2">
