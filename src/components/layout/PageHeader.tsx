@@ -5,8 +5,7 @@ import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SearchBar } from "@/components/search/SearchBar";
-import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
+import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
 
 interface PageHeaderProps {
@@ -68,15 +67,10 @@ export function PageHeader({
               </div>
             )}
             
-            <Button
-              variant="outline"
-              size="icon"
-              className="md:hidden"
-              onClick={toggleSearch}
-              aria-label={searchOpen ? "Close search" : "Open search"}
-            >
-              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
+            <MobileSearchToggle 
+              isOpen={searchOpen} 
+              toggleSearch={toggleSearch} 
+            />
 
             {categories && categories.length > 0 && (
               <>

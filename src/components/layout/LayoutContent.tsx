@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -152,12 +151,13 @@ export function LayoutContent() {
 
         {/* Main content area */}
         <main className="flex-1 p-4 md:p-6 relative">
+          {/* Sidebar toggle positioned absolutely to not interfere with layout flow */}
           <div className="absolute top-4 left-4 z-20 md:hidden">
             <SidebarToggle toggleSidebar={toggleSidebar} />
           </div>
 
           {!isManagementPage && (
-            <div className={`w-full pl-12 md:pl-0 mb-2`}>
+            <div className="w-full pl-12 md:pl-0 mb-2">
               <PageHeader 
                 pageTitle={pageTitle}
                 searchQuery={searchQuery}
