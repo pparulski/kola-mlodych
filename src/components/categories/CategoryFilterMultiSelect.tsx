@@ -41,7 +41,7 @@ export function CategoryFilterMultiSelect({
   };
 
   // Protect against undefined/null categories
-  if (!safeCategories || safeCategories.length === 0) {
+  if (!Array.isArray(safeCategories) || safeCategories.length === 0) {
     return (
       <div>
         <CategoryFilterButton onClick={() => {}} />

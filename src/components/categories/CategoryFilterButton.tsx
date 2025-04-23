@@ -16,7 +16,7 @@ export function CategoryFilterButton({ onClick, className = "" }: CategoryFilter
       variant="outline" 
       size="sm" 
       onClick={onClick}
-      className={`flex items-center gap-1 ${isMobile ? 'w-10' : 'w-auto'} ${className}`}
+      className={`flex items-center gap-1 h-10 ${className}`}
     >
       <SlidersHorizontal className="h-4 w-4" />
       {!isMobile && <span>Kategorie</span>}
