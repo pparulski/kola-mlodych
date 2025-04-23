@@ -20,7 +20,7 @@ export function CategoryFilterDropdown({
     <CategoryFilterMultiSelect
       selectedCategories={selectedCategories}
       setSelectedCategories={setSelectedCategories}
-      availableCategories={availableCategories}
+      availableCategories={availableCategories || []}
     />
   );
 }

@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CategoryFilterButtonProps {
   onClick: () => void;
@@ -8,6 +9,8 @@ interface CategoryFilterButtonProps {
 }
 
 export function CategoryFilterButton({ onClick, className = "" }: CategoryFilterButtonProps) {
+  const isMobile = useIsMobile();
+  
   return (
     <Button 
       variant="outline" 
@@ -16,7 +19,7 @@ export function CategoryFilterButton({ onClick, className = "" }: CategoryFilter
       className={`flex items-center gap-1 h-10 ${className}`}
     >
       <SlidersHorizontal className="h-4 w-4" />
-      <span>Kategorie</span>
+      {!isMobile && <span>Kategorie</span>}
     </Button>
   );
 }
