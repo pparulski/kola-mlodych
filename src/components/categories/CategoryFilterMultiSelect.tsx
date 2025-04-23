@@ -14,13 +14,13 @@ interface CategoryFilterMultiSelectProps {
 }
 
 export function CategoryFilterMultiSelect({
-  selectedCategories,
+  selectedCategories = [], // Default to empty array
   setSelectedCategories,
   availableCategories = [], // Default to empty array
 }: CategoryFilterMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Ensure we have valid arrays to prevent iteration errors
+  // Create safe versions of arrays to prevent iteration errors
   const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
   const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
 
@@ -48,7 +48,7 @@ export function CategoryFilterMultiSelect({
             <CategoryFilterButton onClick={() => setOpen(!open)} />
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-fit min-w-[200px] p-0 rounded-md" align="start">
+        <PopoverContent className="w-fit min-w-[200px] p-0 rounded-md bg-background" align="start">
           <Command>
             <CommandInput placeholder="Szukaj kategorii..." />
             <CommandEmpty>Nie znaleziono kategorii.</CommandEmpty>

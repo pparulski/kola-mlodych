@@ -11,17 +11,17 @@ interface CategorySectionProps {
 
 export const CategorySection = ({
   isHomePage,
-  selectedCategories,
+  selectedCategories = [], // Default to empty array
   setSelectedCategories,
-  categories
+  categories = [] // Default to empty array
 }: CategorySectionProps) => {
   if (!isHomePage) {
     return null;
   }
 
   // Ensure we have arrays, not undefined
-  const safeCategories = categories || [];
-  const safeSelectedCategories = selectedCategories || [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
 
   return (
     <div className="mt-2">

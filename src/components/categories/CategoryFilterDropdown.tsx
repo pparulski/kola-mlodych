@@ -11,14 +11,14 @@ interface CategoryFilterDropdownProps {
 }
 
 export function CategoryFilterDropdown({
-  selectedCategories,
+  selectedCategories = [], // Default to empty array
   setSelectedCategories,
-  availableCategories,
+  availableCategories = [], // Default to empty array
   compactOnMobile = false
 }: CategoryFilterDropdownProps) {
   // Ensure we pass arrays, not undefined
-  const safeCategories = availableCategories || [];
-  const safeSelectedCategories = selectedCategories || [];
+  const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
+  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
   
   return (
     <CategoryFilterMultiSelect

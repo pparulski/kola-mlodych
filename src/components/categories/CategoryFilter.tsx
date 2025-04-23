@@ -14,15 +14,15 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({
-  selectedCategories,
+  selectedCategories = [], // Default to empty array
   setSelectedCategories,
-  availableCategories,
+  availableCategories = [], // Default to empty array
   position = "bottom",
   compactOnMobile = false
 }: CategoryFilterProps) {
   // Ensure we have arrays, not undefined
-  const safeCategories = availableCategories || [];
-  const safeSelectedCategories = selectedCategories || [];
+  const safeCategories = Array.isArray(availableCategories) ? availableCategories : [];
+  const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
 
   // Handle removing a single category
   const handleRemoveCategory = (slug: string) => {

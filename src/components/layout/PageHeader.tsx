@@ -53,7 +53,7 @@ export function PageHeader({
 
   const isHomePage = location.pathname === '/';
 
-  // Ensure categories is always an array
+  // Ensure arrays are valid
   const safeCategories = Array.isArray(categories) ? categories : [];
   const safeSelectedCategories = Array.isArray(selectedCategories) ? selectedCategories : [];
 
