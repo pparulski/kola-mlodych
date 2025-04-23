@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -63,7 +64,7 @@ export default function NewsArticle() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 space-y-8">
+      <div className="space-y-8">
         <Skeleton className="h-12 w-3/4 max-w-2xl" />
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-80 w-full" />
@@ -73,7 +74,7 @@ export default function NewsArticle() {
 
   if (!article) {
     return (
-      <div className="container mx-auto p-4">
+      <div>
         <div className="p-8 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
           <h1 className="text-2xl font-bold mb-4">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
@@ -94,7 +95,7 @@ export default function NewsArticle() {
     : "";
 
   return (
-    <div className="px-4">
+    <div>
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
           <div className="w-full relative">
@@ -106,7 +107,7 @@ export default function NewsArticle() {
           </div>
         )}
 
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="p-6 space-y-6">
           <h1 className="text-3xl md:text-4xl font-bold">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-3">

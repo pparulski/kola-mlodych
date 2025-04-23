@@ -24,12 +24,7 @@ export function SearchBar({
   const localInputRef = useRef<HTMLInputElement>(null);
   const activeRef = inputRef || localInputRef;
   
-  // Focus the search input when opened
-  useEffect(() => {
-    if (isOpen && activeRef.current) {
-      activeRef.current.focus();
-    }
-  }, [isOpen, activeRef]);
+  // Removed the auto-focus effect to prevent automatic focus on page load
 
   if (!isOpen) {
     return null;
