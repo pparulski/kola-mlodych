@@ -67,6 +67,22 @@ export function GalleryInitializer() {
     
     window.addEventListener('load', handleImageLoad);
     
+    // Fix for gallery position when viewing full article
+    const ensureGalleryVisibleFromTop = () => {
+      const galleryWrappers = document.querySelectorAll('.gallery-wrapper');
+      if (galleryWrappers.length > 0) {
+        // Make sure we're on a page that needs scrolling to top
+        const path = window.location.pathname;
+        if (path.startsWith('/news/')) {
+          window.scrollTo(0, 0);
+        }
+      }
+    };
+    
+    // Run this after galleries are initialized
+    setTimeout(ensureGalleryVisibleFromTop, 200);
+    setTimeout(ensureGalleryVisibleFromTop, 1000);
+    
     return () => {
       window.removeEventListener('load', handleImageLoad);
     };

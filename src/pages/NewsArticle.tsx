@@ -15,6 +15,11 @@ export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
+  // Ensure page scrolls to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const { data: article, isLoading } = useQuery({
     queryKey: ["news-article", slug],
     queryFn: async () => {
