@@ -29,8 +29,24 @@ export function usePageSubmit(
         return;
       }
 
+      console.log("Submitting page with title:", title);
+
       // Generate a slug from title if not provided
-      const slug = defaultSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      let slug = defaultSlug;
+      
+      if (!slug) {
+        if (existingPage?.slug) {
+          // Use existing slug for update
+          slug = existingPage.slug;
+          console.log("Using existing slug:", slug);
+        } else {
+          // Generate new slug for create
+          slug = title.toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-|-$/g, '');
+          console.log("Generated new slug:", slug);
+        }
+      }
 
       const updateData: {
         title: string;
@@ -53,6 +69,7 @@ export function usePageSubmit(
       console.log("Saving page data:", existingPage ? "Update" : "Create", updateData);
 
       if (existingPage?.id) {
+        console.log("Updating existing page with ID:", existingPage.id);
         const { error } = await supabase
           .from('static_pages')
           .update(updateData)
@@ -65,6 +82,7 @@ export function usePageSubmit(
 
         toast.success("Strona została zaktualizowana");
       } else {
+        console.log("Creating new page");
         const { data, error } = await supabase
           .from('static_pages')
           .insert({
@@ -97,7 +115,7 @@ export function usePageSubmit(
       onSuccess?.();
     } catch (error) {
       console.error("Error saving static page:", error);
-      toast.error("Nie udało się zapisać strony");
+      toast.error("Nie udało się zapisać strony: " + (error instanceof Error ? error.message : String(error)));
     }
   };
 

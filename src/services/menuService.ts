@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
@@ -10,25 +9,30 @@ import { Category } from "@/types/categories";
  */
 export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
   console.log("Fetching sidebar pages from database");
-  const { data, error } = await supabase
-    .from('static_pages')
-    .select('*')
-    .eq('show_in_sidebar', true)
-    .order('sidebar_position', { ascending: true, nullsFirst: false });
+  try {
+    const { data, error } = await supabase
+      .from('static_pages')
+      .select('*')
+      .eq('show_in_sidebar', true)
+      .order('sidebar_position', { ascending: true, nullsFirst: false });
 
-  if (error) {
-    console.error("Error fetching sidebar pages:", error);
+    if (error) {
+      console.error("Error fetching sidebar pages:", error);
+      return [];
+    }
+
+    console.log("Fetched sidebar pages:", data?.length || 0);
+    if (data && data.length > 0) {
+      console.log("First sidebar page:", data[0]);
+    } else {
+      console.log("No sidebar pages found");
+    }
+    
+    return data as StaticPage[];
+  } catch (error) {
+    console.error("Exception fetching sidebar pages:", error);
     return [];
   }
-
-  console.log("Fetched sidebar pages:", data?.length || 0);
-  if (data && data.length > 0) {
-    console.log("First sidebar page:", data[0]);
-  } else {
-    console.log("No sidebar pages found");
-  }
-  
-  return data as StaticPage[];
 };
 
 /**
@@ -36,19 +40,24 @@ export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
  */
 export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
   console.log("Fetching menu positions from database");
-  // Use the correct table name here
-  const { data, error } = await supabase
-    .from('menu_positions')
-    .select('*')
-    .order('position', { ascending: true });
+  try {
+    // Use the correct table name here
+    const { data, error } = await supabase
+      .from('menu_positions')
+      .select('*')
+      .order('position', { ascending: true });
 
-  if (error) {
-    console.error("Error fetching menu positions:", error);
+    if (error) {
+      console.error("Error fetching menu positions:", error);
+      return [];
+    }
+
+    console.log("Fetched menu positions:", data?.length || 0);
+    return data as MenuPosition[];
+  } catch (error) {
+    console.error("Exception fetching menu positions:", error);
     return [];
   }
-
-  console.log("Fetched menu positions:", data?.length || 0);
-  return data as MenuPosition[];
 };
 
 /**
@@ -56,19 +65,24 @@ export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
  */
 export const fetchCategoryMenuItems = async (): Promise<Category[]> => {
   console.log("Fetching category menu items from database");
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('show_in_menu', true)
-    .order('name', { ascending: true });
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('show_in_menu', true)
+      .order('name', { ascending: true });
 
-  if (error) {
-    console.error("Error fetching category menu items:", error);
+    if (error) {
+      console.error("Error fetching category menu items:", error);
+      return [];
+    }
+
+    console.log("Fetched category menu items:", data?.length || 0);
+    return data as Category[];
+  } catch (error) {
+    console.error("Exception fetching category menu items:", error);
     return [];
   }
-
-  console.log("Fetched category menu items:", data?.length || 0);
-  return data as Category[];
 };
 
 /**

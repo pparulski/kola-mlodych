@@ -5,29 +5,49 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 import { GalleryRenderer } from "./gallery/GalleryRenderer";
+import { toast } from "sonner";
 
 export function StaticPage() {
   const { slug } = useParams();
+
+  useEffect(() => {
+    console.log("StaticPage component mounted with slug:", slug);
+  }, [slug]);
 
   // Fetch page data
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['static-page', slug],
     queryFn: async () => {
-      if (!slug) return null;
-      console.log("Fetching static page:", slug);
-      const { data, error } = await supabase
-        .from('static_pages')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching static page:", error);
-        throw error;
+      if (!slug) {
+        console.log("No slug provided, returning null");
+        return null;
       }
+      
+      console.log("Fetching static page with slug:", slug);
+      try {
+        const { data, error } = await supabase
+          .from('static_pages')
+          .select('*')
+          .eq('slug', slug)
+          .maybeSingle();
 
-      console.log("Static page data:", data);
-      return data as StaticPageType;
+        if (error) {
+          console.error("Error fetching static page:", error);
+          throw error;
+        }
+
+        console.log("Static page data retrieved:", data ? "Found" : "Not found");
+        if (data) {
+          console.log("Page title:", data.title);
+          console.log("Content length:", data.content?.length || 0);
+        }
+        
+        return data as StaticPageType;
+      } catch (err) {
+        console.error("Exception in static page query:", err);
+        toast.error("Nie udało się załadować strony");
+        throw err;
+      }
     },
     enabled: !!slug,
     staleTime: 0 // Always get fresh data
@@ -60,7 +80,8 @@ export function StaticPage() {
           </div>
         ) : (
           <div className="text-center text-muted-foreground mt-2 bg-[hsl(var(--content-box))] p-4 rounded-lg shadow-sm">
-            <p>Ta strona jest w trakcie tworzenia.</p>
+            <p>Ta strona jest w trakcie tworzenia lub nie istnieje.</p>
+            <p className="text-sm mt-2">Slug: {slug}</p>
           </div>
         )}
       </div>
