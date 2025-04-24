@@ -5,6 +5,7 @@ import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 import { useCategories } from "@/hooks/useCategories";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IndexContentProps {
   searchQuery: string;
@@ -12,6 +13,7 @@ interface IndexContentProps {
 }
 
 export function IndexContent({ searchQuery, selectedCategories }: IndexContentProps) {
+  const queryClient = useQueryClient();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   
   const {
@@ -24,6 +26,10 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   } = useOptimizedNewsData(searchQuery, selectedCategories);
 
   const isLoading = categoriesLoading || newsLoading;
+  
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['optimized-news'] });
+  };
   
   if (isLoading) {
     return <LoadingIndicator />;
@@ -43,7 +49,10 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   
   return (
     <div>
-      <NewsList newsItems={currentPageItems || []} />
+      <NewsList 
+        newsItems={currentPageItems || []} 
+        onRefresh={handleRefresh} 
+      />
       {totalPages > 0 && (
         <NewsPagination 
           currentPage={currentPage} 

@@ -38,10 +38,10 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           total: data?.length || 0
         };
       } else {
-        // Use the news_preview view for regular browsing, always fetch with count
+        // Use the news_preview view for regular browsing
         query = supabase
           .from('news_preview')
-          .select('*', { count: 'exact' });
+          .select('*');
         
         // Filter by categories only if there are selected categories with actual values
         if (selectedCategories && selectedCategories.length > 0) {
@@ -52,36 +52,34 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           console.log('No category filters applied, fetching all articles');
         }
         
-        // First get total count for pagination
-        const { count, error: countError } = await query.count();
+        // Fetch all matches to calculate total count
+        const { data: countData, error: countError } = await query;
         
         if (countError) {
-          console.error('Count error:', countError);
+          console.error('Count query error:', countError);
           throw countError;
         }
         
-        console.log(`Found ${count} total articles`);
+        const totalCount = countData ? countData.length : 0;
+        console.log(`Found ${totalCount} total articles`);
         
-        // Then get paginated data
-        const { data, error } = await query
-          .order('date', { ascending: false, nullsFirst: false })
-          .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
-          
-        if (error) {
-          console.error('Data fetch error:', error);
-          throw error;
-        }
+        // Then get paginated data using client-side pagination
+        const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+        const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, totalCount);
+        const paginatedData = countData ? countData.slice(startIndex, endIndex) : [];
         
-        console.log(`Fetched ${data?.length || 0} articles for current page:`, data);
+        console.log(`Fetched ${paginatedData.length} articles for current page (${startIndex}-${endIndex})`);
         
         // Debug the actual data structure we're receiving
-        if (data && data.length > 0) {
-          console.log('First article sample:', data[0]);
+        if (paginatedData && paginatedData.length > 0) {
+          console.log('First article sample:', paginatedData[0]);
+        } else {
+          console.log('No articles in current page slice.');
         }
         
         return {
-          items: data || [],
-          total: count || 0
+          items: paginatedData || [],
+          total: totalCount
         };
       }
     },

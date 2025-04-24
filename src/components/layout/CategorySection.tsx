@@ -14,12 +14,7 @@ export const CategorySection = ({
   setSelectedCategories,
   categories
 }: CategorySectionProps) => {
-  // Don't render on non-home pages
-  if (!isHomePage) {
-    return null;
-  }
-
-  // The badge display is now handled elsewhere, so this component
-  // acts as a placeholder for future category section enhancements
+  // This component doesn't render anything as the category filtering is now handled in PageHeader
+  // and the CategoryFilter component. It remains as a placeholder for future enhancements.
   return null;
 };
