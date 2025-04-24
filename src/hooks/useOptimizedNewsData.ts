@@ -40,14 +40,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         };
       } else {
         // Use the optimized news_preview view
-        query = supabase
-          .from('news_preview')
-          .select('*');
+        query = supabase.from('news_preview').select('*');
         
         if (selectedCategories.length > 0) {
-          // When filtering by categories, we need to check if any category_id in the array matches
-          // Using containedBy to check if any of the selected categories is in the article's categories
-          query = query.contains('category_ids', selectedCategories);
+          // Use overlap operator to check if any selected category is in the article's categories
+          query = query.overlaps('category_ids', selectedCategories);
         }
         
         // Get total count for pagination
