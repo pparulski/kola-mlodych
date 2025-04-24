@@ -2,6 +2,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 
 interface DefaultMenuItemFieldsProps {
   link: string;
@@ -29,12 +30,10 @@ export function DefaultMenuItemFields({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="icon">Ikona (opcjonalnie)</Label>
-        <Input
-          id="icon"
-          placeholder="Nazwa ikony z lucide-react"
+        <Label htmlFor="icon">Ikona</Label>
+        <IconPicker
           value={icon}
-          onChange={(e) => setIcon(e.target.value)}
+          onChange={setIcon}
         />
       </div>
     </>
