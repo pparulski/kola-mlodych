@@ -99,28 +99,6 @@ export function MenuManagement() {
     },
   });
 
-  const reorderMutation = useMutation({
-    mutationFn: async (items: MenuItem[]) => {
-      // Update positions of all items
-      for (const item of items) {
-        const { error } = await supabase
-          .from("menu_items")
-          .update({ position: item.position })
-          .eq("id", item.id);
-
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["menu_items"] });
-      toast.success("Kolejność menu zaktualizowana");
-    },
-    onError: (error) => {
-      console.error("Error reordering menu items:", error);
-      toast.error("Nie udało się zmienić kolejności menu");
-    },
-  });
-
   const handleSubmit = (formData: MenuItemFormData) => {
     upsertMutation.mutate({
       formData,
@@ -133,10 +111,6 @@ export function MenuManagement() {
     if (deletingItem) {
       deleteMutation.mutate(deletingItem.id);
     }
-  };
-
-  const handleReorderItems = (items: MenuItem[]) => {
-    reorderMutation.mutate(items);
   };
 
   return (
@@ -157,7 +131,6 @@ export function MenuManagement() {
           <MenuItemList 
             onEdit={handleEditItem} 
             onDelete={handleDeleteItem} 
-            onReorder={handleReorderItems} 
           />
         </div>
       </div>

@@ -25,7 +25,16 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
         .order("position");
       
       if (error) throw error;
-      return data as MenuItem[];
+      // Convert database items to MenuItem type with default values for missing properties
+      return (data || []).map(item => ({
+        ...item,
+        is_public: true, // Set default value
+        is_admin: false, // Set default value
+        parent_id: null,
+        page_id: item.resource_id || null,
+        category_id: null,
+        link: item.path
+      })) as MenuItem[];
     },
   });
 
