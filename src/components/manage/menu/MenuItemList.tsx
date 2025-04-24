@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
@@ -123,17 +124,27 @@ export function MenuItemList({ onEdit, onDelete, onReorder }: MenuItemListProps)
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        {...provided.dragHandleProps}
                         className="flex items-center justify-between p-4 bg-card border rounded-lg"
                       >
                         <div className="flex items-center gap-4">
-                          <IconPicker
-                            value={item.icon || ""}
-                            onChange={(newIcon) => 
-                              updateIconMutation.mutate({ id: item.id, icon: newIcon })
-                            }
-                          />
-                          <div className="flex flex-col">
+                          {/* Modified this part to make the icon clickable outside of drag handle */}
+                          <div 
+                            onClick={(e) => {
+                              // Stop propagation to prevent drag from starting
+                              e.stopPropagation();
+                            }}
+                            className="z-10"
+                          >
+                            <IconPicker
+                              value={item.icon || ""}
+                              onChange={(newIcon) => 
+                                updateIconMutation.mutate({ id: item.id, icon: newIcon })
+                              }
+                            />
+                          </div>
+                          
+                          {/* Make the title area draggable */}
+                          <div className="flex flex-col" {...provided.dragHandleProps}>
                             <span className="font-medium">{item.title}</span>
                             <div className="flex mt-1 space-x-2">
                               <Badge variant="outline">{item.type}</Badge>
