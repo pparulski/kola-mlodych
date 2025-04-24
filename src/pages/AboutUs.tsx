@@ -6,26 +6,26 @@ export default function AboutUs() {
     <div className="prose prose-lg max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
       <h1>O nas</h1>
       
-      <section>
-        <h2>Kim jesteśmy?</h2>
-        <p>
+      <section className="my-4">
+        <h2 className="text-2xl font-bold">Kim jesteśmy?</h2>
+        <p className="mt-2">
           Jesteśmy Kołem Młodych Inicjatywy Pracowniczej - organizacją zrzeszającą młodych pracowników i pracowniczki, 
           działającą w ramach Ogólnopolskiego Związku Zawodowego Inicjatywa Pracownicza (OZZ IP).
         </p>
       </section>
 
-      <section>
-        <h2>Nasza misja</h2>
-        <p>
+      <section className="my-4">
+        <h2 className="text-2xl font-bold">Nasza misja</h2>
+        <p className="mt-2">
           Naszym celem jest ochrona praw i interesów młodych pracowników i pracowniczek w Polsce. 
           Działamy na rzecz poprawy warunków pracy, godnych wynagrodzeń oraz przeciwdziałania 
           dyskryminacji w miejscu pracy.
         </p>
       </section>
 
-      <section>
-        <h2>Co robimy?</h2>
-        <ul>
+      <section className="my-4">
+        <h2 className="text-2xl font-bold">Co robimy?</h2>
+        <ul className="list-disc pl-5 mt-2 space-y-1">
           <li>Organizujemy szkolenia i warsztaty dotyczące praw pracowniczych</li>
           <li>Udzielamy wsparcia prawnego i związkowego</li>
           <li>Prowadzimy działania edukacyjne i informacyjne</li>
@@ -34,17 +34,17 @@ export default function AboutUs() {
         </ul>
       </section>
 
-      <section>
-        <h2>Dołącz do nas</h2>
-        <p>
+      <section className="my-4">
+        <h2 className="text-2xl font-bold">Dołącz do nas</h2>
+        <p className="mt-2">
           Jeśli chcesz działać na rzecz praw pracowniczych, dołącz do nas! Razem możemy więcej. 
           Skontaktuj się z nami przez formularz kontaktowy lub przyjdź na jedno z naszych spotkań.
         </p>
       </section>
 
-      <section>
-        <h2>Nasze wartości</h2>
-        <ul>
+      <section className="my-4">
+        <h2 className="text-2xl font-bold">Nasze wartości</h2>
+        <ul className="list-disc pl-5 mt-2 space-y-1">
           <li>Solidarność pracownicza</li>
           <li>Demokracja w miejscu pracy</li>
           <li>Równość i przeciwdziałanie dyskryminacji</li>
