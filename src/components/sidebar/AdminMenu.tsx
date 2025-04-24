@@ -1,6 +1,5 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { Newspaper, Book, Download, LogOut, FileText, Tag, Menu } from "lucide-react";
+import { Newspaper, Book, Download, LogOut, FileText, Tag, Menu, Image } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +13,7 @@ const adminMenuItems = [
   { title: "Zarządzaj stronami", icon: FileText, path: "/manage/pages" },
   { title: "Zarządzaj kategoriami", icon: Tag, path: "/manage/categories" },
   { title: "Zarządzaj menu", icon: Menu, path: "/manage/menu" },
+  { title: "Zarządzaj galeriami", icon: Image, path: "/manage/galleries" },
 ];
 
 interface AdminMenuProps {

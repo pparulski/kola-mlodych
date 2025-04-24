@@ -12,22 +12,58 @@ interface TinyMCEEditor {
   on: (event: string, callback: (e: any) => void) => void;
 }
 
+interface GalleryWithImages {
+  id: string;
+  title: string;
+  gallery_images: {
+    id: string;
+    url: string;
+    caption: string | null;
+  }[];
+}
+
 export const galleryPlugin = {
   name: 'gallery',
   init: (editor: TinyMCEEditor) => {
     editor.ui.registry.addButton('gallery', {
       icon: 'gallery',
       tooltip: 'Insert Gallery',
-      onAction: () => {
+      onAction: async () => {
+        // Fetch available galleries
+        const { data: galleries, error } = await supabase
+          .from('galleries')
+          .select('id, title, gallery_images(id, url, caption)')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching galleries:', error);
+          editor.windowManager.open({
+            title: 'Error',
+            body: {
+              type: 'panel',
+              items: [{
+                type: 'htmlpanel',
+                html: '<p>Could not load galleries. Please try again.</p>'
+              }]
+            },
+            buttons: [{ type: 'cancel', text: 'Close' }]
+          });
+          return;
+        }
+
         editor.windowManager.open({
           title: 'Insert Gallery',
           body: {
             type: 'panel',
             items: [
               {
-                type: 'input',
+                type: 'selectbox',
                 name: 'galleryId',
-                label: 'Gallery ID'
+                label: 'Select Gallery',
+                items: galleries.map((gallery: GalleryWithImages) => ({
+                  text: `${gallery.title} (${gallery.gallery_images?.length || 0} images)`,
+                  value: gallery.id
+                }))
               }
             ]
           },
