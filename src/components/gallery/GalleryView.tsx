@@ -33,20 +33,22 @@ export function GalleryView({ images }: GalleryViewProps) {
         thumbnailPosition={isMobile ? "bottom" : "bottom"}
         additionalClass="w-full responsive-gallery"
       />
-      <style jsx global>{`
-        .responsive-gallery .image-gallery-slide img {
-          width: 100%;
-          height: auto;
-          object-fit: contain;
-          max-height: 70vh;
-        }
-        
-        @media (max-width: 768px) {
+      <style dangerouslySetInnerHTML={{
+        __html: `
           .responsive-gallery .image-gallery-slide img {
-            max-height: 50vh;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            max-height: 70vh;
           }
-        }
-      `}</style>
+          
+          @media (max-width: 768px) {
+            .responsive-gallery .image-gallery-slide img {
+              max-height: 50vh;
+            }
+          }
+        `
+      }} />
     </div>
   );
 }
