@@ -1,7 +1,20 @@
 
+interface TinyMCEEditor {
+  ui: {
+    registry: {
+      addButton: (name: string, config: any) => void;
+    };
+  };
+  windowManager: {
+    open: (config: any) => void;
+  };
+  insertContent: (content: string) => void;
+  on: (event: string, callback: (e: any) => void) => void;
+}
+
 export const galleryPlugin = {
   name: 'gallery',
-  init: (editor: any) => {
+  init: (editor: TinyMCEEditor) => {
     editor.ui.registry.addButton('gallery', {
       icon: 'gallery',
       tooltip: 'Insert Gallery',

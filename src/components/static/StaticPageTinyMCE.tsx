@@ -27,7 +27,8 @@ export function StaticPageTinyMCE({ content, onEditorChange }: StaticPageTinyMCE
           'removeformat | help',
         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
         setup: (editor) => {
-          editor.plugins.get('gallery') || editor.plugins.add(galleryPlugin);
+          // Add the gallery plugin during setup
+          galleryPlugin.init(editor);
         }
       }}
     />
