@@ -127,11 +127,12 @@ export function MenuItemList({ onEdit, onDelete, onReorder }: MenuItemListProps)
                         className="flex items-center justify-between p-4 bg-card border rounded-lg"
                       >
                         <div className="flex items-center gap-4">
-                          {/* Modified this part to make the icon clickable outside of drag handle */}
+                          {/* Icon area with icon picker - completely separate from drag handle */}
                           <div 
                             onClick={(e) => {
-                              // Stop propagation to prevent drag from starting
+                              // Ensure the click doesn't trigger dragging
                               e.stopPropagation();
+                              e.preventDefault();
                             }}
                             className="z-10"
                           >
@@ -143,8 +144,8 @@ export function MenuItemList({ onEdit, onDelete, onReorder }: MenuItemListProps)
                             />
                           </div>
                           
-                          {/* Make the title area draggable */}
-                          <div className="flex flex-col" {...provided.dragHandleProps}>
+                          {/* Title area with drag handle */}
+                          <div className="flex flex-col cursor-grab" {...provided.dragHandleProps}>
                             <span className="font-medium">{item.title}</span>
                             <div className="flex mt-1 space-x-2">
                               <Badge variant="outline">{item.type}</Badge>

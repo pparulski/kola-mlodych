@@ -8,9 +8,9 @@ interface NewsContentProps {
   featured_image?: string;
 }
 
-export function NewsContent({ content }: NewsContentProps) {
+export function NewsContent({ content, title, date, featured_image }: NewsContentProps) {
   return (
-    <div className="news-content">
+    <div className="news-content max-w-full overflow-hidden">
       <GalleryRenderer content={content} />
     </div>
   );
