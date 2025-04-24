@@ -135,18 +135,16 @@ export function LayoutContent() {
         <JoinBanner />
 
         <main className="flex-1 p-4 md:p-6 relative">
-          {!isManagementPage && (
-            <div className="w-full">
-              <PageHeader 
-                pageTitle={pageTitle}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                categories={categories}
-              />
-            </div>
-          )}
+          <div className="w-full">
+            <PageHeader 
+              pageTitle={pageTitle}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              categories={categories}
+            />
+          </div>
 
           <CategorySection 
             isHomePage={isHomePage}

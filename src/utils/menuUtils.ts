@@ -1,7 +1,7 @@
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
 import { MenuPosition } from "@/types/menu";
-import { Home, Map, BookOpen, Download, File } from "lucide-react";
+import { Home, Map, BookOpen, Download, File, Info } from "lucide-react";
 
 /**
  * Converts static pages to menu items format
@@ -54,6 +54,14 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       icon: 'BookOpen',
       position: 4,
       type: MenuItemType.REGULAR
+    },
+    {
+      id: 'about',
+      title: 'O nas',
+      path: '/o-nas',
+      icon: 'Info',
+      position: 5,
+      type: MenuItemType.REGULAR
     }
   ];
 };
@@ -67,6 +75,7 @@ export const getIconComponent = (iconName: string) => {
     case 'Map': return Map;
     case 'Download': return Download;
     case 'BookOpen': return BookOpen;
+    case 'Info': return Info;
     default: return File;
   }
 };
