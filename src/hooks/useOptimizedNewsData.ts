@@ -18,6 +18,8 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const { data: newsData, isLoading } = useQuery({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
+      console.log('Fetching optimized news: searchQuery=', searchQuery, 'categories=', selectedCategories, 'page=', currentPage);
+      
       let query;
       
       if (searchQuery) {
@@ -25,35 +27,53 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         const { data, error } = await supabase
           .rpc('search_news', { search_term: searchQuery });
           
-        if (error) throw error;
+        if (error) {
+          console.error('Search error:', error);
+          throw error;
+        }
+        
+        console.log(`Search found ${data?.length || 0} results`);
+        
         return {
-          items: data.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE),
-          total: data.length
+          items: data?.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE) || [],
+          total: data?.length || 0
         };
       } else {
         // Use the optimized news_preview view
         query = supabase
           .from('news_preview')
-          .select('*')
-          .order('date', { ascending: false, nullsFirst: false });
+          .select('*');
         
         if (selectedCategories.length > 0) {
-          query = query.filter('category_ids', 'cs', `{${selectedCategories.join(',')}}`);
+          // When filtering by categories, we need to check if any category_id in the array matches
+          // Using containedBy to check if any of the selected categories is in the article's categories
+          query = query.contains('category_ids', selectedCategories);
         }
         
-        // Get total count
+        // Get total count for pagination
         const { count, error: countError } = await query.count();
-        if (countError) throw countError;
+        if (countError) {
+          console.error('Count error:', countError);
+          throw countError;
+        }
         
-        // Get paginated data
+        console.log(`Found ${count} total articles`);
+        
+        // Order results by date, then get paginated data
         const { data, error } = await query
+          .order('date', { ascending: false, nullsFirst: false })
           .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Data fetch error:', error);
+          throw error;
+        }
+        
+        console.log(`Fetched ${data?.length || 0} articles for current page`);
         
         return {
-          items: data,
-          total: count
+          items: data || [],
+          total: count || 0
         };
       }
     },

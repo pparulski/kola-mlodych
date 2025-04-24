@@ -28,14 +28,18 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     return <LoadingIndicator />;
   }
 
+  console.log(`Rendering ${currentPageItems?.length || 0} news items`);
+  
   return (
     <div>
-      <NewsList newsItems={currentPageItems} />
-      <NewsPagination 
-        currentPage={currentPage} 
-        totalPages={totalPages} 
-        handlePageChange={handlePageChange}
-      />
+      <NewsList newsItems={currentPageItems || []} />
+      {totalPages > 0 && (
+        <NewsPagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          handlePageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }

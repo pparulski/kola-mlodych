@@ -23,7 +23,7 @@ export function NewsList({ newsItems }: NewsListProps) {
           content={article.content}
           date={article.date || article.created_at}
           featured_image={article.featured_image}
-          category_names={article.category_names}
+          category_names={article.category_names || []}
         />
       ))}
     </div>
