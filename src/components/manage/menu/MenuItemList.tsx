@@ -26,27 +26,35 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       
       if (error) throw error;
       // Convert database items to MenuItem type with default values for missing properties
-      return (data || []).map(item => ({
-        ...item,
-        is_public: true, // Set default value
-        is_admin: false, // Set default value
-        parent_id: null,
-        page_id: item.resource_id || null,
-        category_id: null,
-        link: item.path
-      })) as MenuItem[];
+      return (data || []).map(item => {
+        console.log('Menu Item Raw Data:', item); // Diagnostic log
+        return ({
+          ...item,
+          is_public: true, // Set default value
+          is_admin: false, // Set default value
+          parent_id: null,
+          page_id: item.resource_id || null,
+          category_id: null,
+          link: item.path
+        });
+      }) as MenuItem[];
     },
   });
 
-  // Handle icon update
+  // Handle icon update with more detailed logging
   const handleIconUpdate = async (id: string, icon: string) => {
+    console.log(`Updating icon for item ${id} to: ${icon}`); // Diagnostic log
     try {
       const { error } = await supabase
         .from("menu_items")
         .update({ icon })
         .eq("id", id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Icon Update Error:', error); // Detailed error logging
+        throw error;
+      }
+      
       toast.success("Ikona została zaktualizowana");
     } catch (error) {
       console.error("Error updating icon:", error);
@@ -76,7 +84,12 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <h2 className="text-xl font-semibold">Elementy menu</h2>
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
-          const IconComponent = item.icon ? (Icons as any)[item.icon] : Icons.FileIcon;
+          // Verify if the icon exists in Lucide icons
+          const IconComponent = item.icon && Icons[item.icon as keyof typeof Icons] 
+            ? (Icons as any)[item.icon] 
+            : Icons.FileIcon;
+          
+          console.log(`Rendering menu item: ${item.id}, Icon: ${item.icon}`); // Diagnostic log
           
           return (
             <div
@@ -86,7 +99,10 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
               <div className="w-32">
                 <IconPicker
                   value={item.icon || ""}
-                  onChange={(newIcon) => handleIconUpdate(item.id, newIcon)}
+                  onChange={(newIcon) => {
+                    console.log(`Icon Picker onChange: ${newIcon}`); // Diagnostic log
+                    handleIconUpdate(item.id, newIcon);
+                  }}
                 />
               </div>
               <div className="flex-1 min-w-0">
