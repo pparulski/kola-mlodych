@@ -48,7 +48,6 @@ export function GalleryInitializer() {
             console.error('Error initializing gallery:', error);
           }
         } else {
-          console.error(`Missing required elements for gallery ${galleryId}`);
           if (!galleryId) console.error('Missing gallery ID');
           if (!placeholder) console.error('Missing placeholder');
           if (!galleryComponent) console.error('Missing gallery component');
@@ -56,17 +55,20 @@ export function GalleryInitializer() {
       });
     };
 
-    // Run initialization after DOM is loaded
-    setTimeout(initializeGalleries, 100);
+    // Run initialization at different intervals to handle various rendering scenarios
+    setTimeout(initializeGalleries, 100); // Initial run
+    setTimeout(initializeGalleries, 500); // Short delay for async rendering
+    setTimeout(initializeGalleries, 1500); // Longer delay for slow connections
     
-    // Also run again after a delay to catch any async rendering
-    setTimeout(initializeGalleries, 500);
+    // Also run initialization when images load, which might change layout
+    const handleImageLoad = () => {
+      setTimeout(initializeGalleries, 50);
+    };
     
-    // Run one more time after a longer delay for slow connections
-    setTimeout(initializeGalleries, 1500);
+    window.addEventListener('load', handleImageLoad);
     
     return () => {
-      // Cleanup if needed
+      window.removeEventListener('load', handleImageLoad);
     };
   }, []);
 
