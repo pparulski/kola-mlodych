@@ -14,7 +14,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   }, [searchQuery, selectedCategories]);
 
   // Query using the optimized view and search function
-  const { data: newsData, isLoading } = useQuery({
+  const { data: newsData, isLoading, error } = useQuery({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
       console.log('Fetching optimized news: searchQuery=', searchQuery, 'categories=', selectedCategories, 'page=', currentPage);
@@ -38,13 +38,18 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           total: data?.length || 0
         };
       } else {
-        // Use the optimized news_preview view for regular browsing
-        query = supabase.from('news_preview').select('*', { count: 'exact' });
+        // Use the news_preview view for regular browsing, always fetch with count
+        query = supabase
+          .from('news_preview')
+          .select('*', { count: 'exact' });
         
-        // Filter by categories only if there are selected categories
+        // Filter by categories only if there are selected categories with actual values
         if (selectedCategories && selectedCategories.length > 0) {
+          console.log('Applying category filter with:', selectedCategories);
           // Use overlaps operator to check if any selected category is in the article's categories
           query = query.overlaps('category_ids', selectedCategories);
+        } else {
+          console.log('No category filters applied, fetching all articles');
         }
         
         // First get total count for pagination
@@ -69,12 +74,18 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         console.log(`Fetched ${data?.length || 0} articles for current page:`, data);
         
+        // Debug the actual data structure we're receiving
+        if (data && data.length > 0) {
+          console.log('First article sample:', data[0]);
+        }
+        
         return {
           items: data || [],
           total: count || 0
         };
       }
     },
+    staleTime: 0, // Don't cache results to ensure fresh data
   });
 
   const totalPages = Math.ceil((newsData?.total || 0) / ARTICLES_PER_PAGE);
@@ -86,11 +97,21 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     }
   };
 
+  console.log('News data status:', {
+    isLoading,
+    hasError: !!error,
+    itemCount: newsData?.items?.length || 0,
+    totalArticles: newsData?.total || 0,
+    currentPage,
+    totalPages,
+  });
+
   return {
     currentPageItems: newsData?.items || [],
     isLoading,
     currentPage,
     totalPages,
-    handlePageChange
+    handlePageChange,
+    error
   };
 }

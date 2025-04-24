@@ -1,6 +1,5 @@
 
 import { Category } from "@/types/categories";
-import { SelectedCategories } from "./SelectedCategories";
 
 interface CategorySectionProps {
   isHomePage: boolean;
@@ -15,17 +14,12 @@ export const CategorySection = ({
   setSelectedCategories,
   categories
 }: CategorySectionProps) => {
+  // Don't render on non-home pages
   if (!isHomePage) {
     return null;
   }
 
-  return (
-    <div className="mt-2">
-      <SelectedCategories 
-        selectedCategories={selectedCategories} 
-        setSelectedCategories={setSelectedCategories}
-        categories={categories}
-      />
-    </div>
-  );
+  // The badge display is now handled elsewhere, so this component
+  // acts as a placeholder for future category section enhancements
+  return null;
 };

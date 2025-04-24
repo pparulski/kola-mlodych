@@ -19,13 +19,24 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     isLoading: newsLoading,
     currentPage,
     totalPages,
-    handlePageChange
+    handlePageChange,
+    error
   } = useOptimizedNewsData(searchQuery, selectedCategories);
 
   const isLoading = categoriesLoading || newsLoading;
   
   if (isLoading) {
     return <LoadingIndicator />;
+  }
+
+  if (error) {
+    console.error('Error loading news:', error);
+    return (
+      <div className="text-center p-8 bg-card rounded-lg border-2 border-destructive">
+        <p className="text-lg font-medium mb-2">Wystąpił błąd podczas wczytywania artykułów.</p>
+        <p className="text-muted-foreground">Proszę odświeżyć stronę lub spróbować ponownie później.</p>
+      </div>
+    );
   }
 
   console.log(`Rendering ${currentPageItems?.length || 0} news items`);
