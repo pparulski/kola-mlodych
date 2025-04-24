@@ -1,27 +1,31 @@
 
-import React from 'react';
-import * as Icons from 'lucide-react';
-import { Command } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search } from 'lucide-react';
+import React from "react"
+import { Command } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import * as Icons from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Search } from "lucide-react"
 
 interface IconPickerProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (icon: string) => void
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
-  const [open, setOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [open, setOpen] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState("")
 
-  const iconNames = Object.keys(Icons).filter(key => 
-    key !== 'createLucideIcon' && 
-    key.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter icon names based on search query
+  const iconNames = Object.keys(Icons).filter(
+    (icon) =>
+      icon !== "createLucideIcon" &&
+      icon.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
-  const CurrentIcon = value ? (Icons as any)[value] : Icons.FileIcon;
+  // Get the current icon component
+  const CurrentIcon = value ? (Icons as any)[value] : Icons.FileIcon
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,25 +56,28 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           <ScrollArea className="h-[300px]">
             <div className="grid grid-cols-4 gap-2 p-2">
               {iconNames.map((name) => {
-                const Icon = (Icons as any)[name];
+                const Icon = (Icons as any)[name]
                 return (
                   <Button
                     key={name}
                     variant="ghost"
-                    className="flex h-12 w-full flex-col items-center justify-center gap-1"
+                    className={cn(
+                      "flex h-12 w-full flex-col items-center justify-center gap-1",
+                      value === name && "bg-muted"
+                    )}
                     onClick={() => {
-                      onChange(name);
-                      setOpen(false);
+                      onChange(name)
+                      setOpen(false)
                     }}
                   >
                     <Icon className="h-5 w-5" />
                   </Button>
-                );
+                )
               })}
             </div>
           </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }
