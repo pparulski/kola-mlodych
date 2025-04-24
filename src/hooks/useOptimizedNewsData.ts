@@ -7,7 +7,6 @@ const ARTICLES_PER_PAGE = 8;
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   
   // Reset page when search or categories change
   useEffect(() => {
@@ -39,16 +38,18 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           total: data?.length || 0
         };
       } else {
-        // Use the optimized news_preview view
-        query = supabase.from('news_preview').select('*');
+        // Use the optimized news_preview view for regular browsing
+        query = supabase.from('news_preview').select('*', { count: 'exact' });
         
-        if (selectedCategories.length > 0) {
-          // Use overlap operator to check if any selected category is in the article's categories
+        // Filter by categories only if there are selected categories
+        if (selectedCategories && selectedCategories.length > 0) {
+          // Use overlaps operator to check if any selected category is in the article's categories
           query = query.overlaps('category_ids', selectedCategories);
         }
         
-        // Get total count for pagination
+        // First get total count for pagination
         const { count, error: countError } = await query.count();
+        
         if (countError) {
           console.error('Count error:', countError);
           throw countError;
@@ -56,7 +57,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         console.log(`Found ${count} total articles`);
         
-        // Order results by date, then get paginated data
+        // Then get paginated data
         const { data, error } = await query
           .order('date', { ascending: false, nullsFirst: false })
           .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
@@ -66,7 +67,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           throw error;
         }
         
-        console.log(`Fetched ${data?.length || 0} articles for current page`);
+        console.log(`Fetched ${data?.length || 0} articles for current page:`, data);
         
         return {
           items: data || [],
