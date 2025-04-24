@@ -26,9 +26,13 @@ export function NewsPreview({
   featured_image,
 }: NewsPreviewProps) {
   const queryClient = useQueryClient();
-  const previewContent = content.length > 300 
-    ? content.substring(0, 300) + "..."
-    : content;
+  
+  // Remove gallery shortcodes from content for preview
+  const cleanContent = content.replace(/\[gallery id="([^"]+)"\]/g, '');
+  
+  const previewContent = cleanContent.length > 300 
+    ? cleanContent.substring(0, 300) + "..."
+    : cleanContent;
 
   const formattedDate = date 
     ? (() => {

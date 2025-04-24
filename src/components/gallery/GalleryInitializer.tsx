@@ -55,6 +55,9 @@ export function GalleryInitializer() {
       });
     };
 
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+
     // Run initialization at different intervals to handle various rendering scenarios
     setTimeout(initializeGalleries, 100); // Initial run
     setTimeout(initializeGalleries, 500); // Short delay for async rendering

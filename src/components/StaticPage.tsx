@@ -29,6 +29,11 @@ export function StaticPage() {
     enabled: !!slug
   });
 
+  useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
+  }, [slug, page]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[150px]">
