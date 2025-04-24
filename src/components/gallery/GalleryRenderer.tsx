@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,8 +49,7 @@ export function GalleryRenderer({ content, onProcessedContent }: GalleryRenderer
       galleries.forEach(gallery => {
         const shortcode = `[gallery id="${gallery.id}"]`;
         const replacement = `
-          <div class="my-6 gallery-wrapper" data-gallery-id="${gallery.id}">
-            <!-- Gallery will be replaced by React component -->
+          <div class="my-6 gallery-wrapper w-full" data-gallery-id="${gallery.id}">
             <div class="gallery-placeholder"></div>
           </div>
         `;
@@ -70,9 +70,17 @@ export function GalleryRenderer({ content, onProcessedContent }: GalleryRenderer
         dangerouslySetInnerHTML={{ __html: processedContent }}
       />
       
+      {/* Hidden elements containing gallery data to be used by the initializer */}
       {galleries?.map(gallery => (
-        <div key={gallery.id} className="gallery-component" data-id={gallery.id}>
-          <GalleryView images={gallery.gallery_images} />
+        <div 
+          key={gallery.id} 
+          className="gallery-component hidden" 
+          data-id={gallery.id}
+        >
+          <div 
+            className="gallery-data" 
+            data-images={JSON.stringify(gallery.gallery_images)}
+          />
         </div>
       ))}
       

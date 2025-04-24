@@ -1,7 +1,8 @@
+
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
 import { MenuPosition } from "@/types/menu";
-import { Home, Map, BookOpen, Download, File, Info } from "lucide-react";
+import { Home, Map, BookOpen, Download, File, Info, Image, Newspaper, Tag } from "lucide-react";
 
 /**
  * Converts static pages to menu items format
@@ -27,7 +28,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'home',
       title: 'Aktualności',
       path: '/',
-      icon: 'Home',
+      icon: 'Newspaper',
       position: 1,
       type: MenuItemType.REGULAR
     },
@@ -76,6 +77,9 @@ export const getIconComponent = (iconName: string) => {
     case 'Download': return Download;
     case 'BookOpen': return BookOpen;
     case 'Info': return Info;
+    case 'Newspaper': return Newspaper;
+    case 'Image': return Image;
+    case 'Tag': return Tag;
     default: return File;
   }
 };
