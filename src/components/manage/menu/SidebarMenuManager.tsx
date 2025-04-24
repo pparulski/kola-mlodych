@@ -3,7 +3,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useMenuItems } from "@/hooks/useMenuItems";
 import { MenuList } from "./MenuList";
-import { LoadingIndicator } from "@/components/home/LoadingIndicator";
 
 export function SidebarMenuManager() {
   const {
@@ -16,7 +15,7 @@ export function SidebarMenuManager() {
   } = useMenuItems();
 
   if (isLoadingPages) {
-    return <LoadingIndicator type="skeleton" />;
+    return <div className="p-4">Ładowanie...</div>;
   }
 
   return (

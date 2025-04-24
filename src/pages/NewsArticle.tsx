@@ -56,9 +56,6 @@ export default function NewsArticle() {
     if (article) {
       document.title = `${article.title} - Młodzi IP`;
     }
-    
-    // Scroll to top when article loads
-    window.scrollTo(0, 0);
   }, [article]);
 
   if (isLoading) {

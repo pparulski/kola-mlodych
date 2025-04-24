@@ -30,30 +30,10 @@ export function AppSidebar() {
           user_id: session.user.id 
         });
         setIsAdmin(!!isAdmin);
-      } else {
-        setIsAdmin(false);
       }
     };
 
-    // Initial check
     checkAdminStatus();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
-      if (session) {
-        const { data: isAdmin } = await supabase.rpc('is_admin', { 
-          user_id: session.user.id 
-        });
-        setIsAdmin(!!isAdmin);
-      } else {
-        setIsAdmin(false);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const handleMenuClick = () => {
