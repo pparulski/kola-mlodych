@@ -6,10 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NewsContent } from "@/components/news/NewsContent";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
 import { NewsArticle as NewsArticleType } from "@/types/news";
+import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -57,10 +57,6 @@ export default function NewsArticle() {
       document.title = `${article.title} - Młodzi IP`;
     }
   }, [article]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   if (isLoading) {
     return (
@@ -120,7 +116,7 @@ export default function NewsArticle() {
             )}
           </div>
 
-          <NewsContent content={article.content} />
+          <GalleryRenderer content={article.content} />
         </div>
       </div>
     </div>

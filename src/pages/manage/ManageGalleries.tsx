@@ -7,7 +7,8 @@ import { GalleryEditor } from "@/components/manage/galleries/GalleryEditor";
 import { Gallery } from "@/types/galleries";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function ManageGalleries() {
   const [editingGallery, setEditingGallery] = useState<Gallery | null>(null);
@@ -52,6 +53,13 @@ export function ManageGalleries() {
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">Zarządzaj galeriami</h1>
       
+      <Alert className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Aby dodać zdjęcia do galerii, najpierw utwórz nową galerię, a następnie edytuj ją, aby dodać zdjęcia.
+        </AlertDescription>
+      </Alert>
+      
       <div className="grid gap-6 lg:grid-cols-2">
         <div>
           {isCreating || editingGallery ? (
@@ -71,14 +79,8 @@ export function ManageGalleries() {
         </div>
         
         <div>
-          <div className="mb-4 flex justify-between items-center">
+          <div className="mb-4">
             <h2 className="text-xl font-medium">Twoje galerie</h2>
-            {!isCreating && !editingGallery && (
-              <Button onClick={handleCreateNew} variant="outline" size="sm">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Nowa
-              </Button>
-            )}
           </div>
           <GalleryList
             galleries={galleries || []}

@@ -1,6 +1,7 @@
 
 import { Editor } from "@tinymce/tinymce-react";
 import { Label } from "@/components/ui/label";
+import { galleryPlugin } from "@/components/gallery/GalleryPlugin";
 
 interface ContentEditorProps {
   content: string;
@@ -23,11 +24,15 @@ export function ContentEditor({ content, onEditorChange }: ContentEditorProps) {
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
           ],
-          toolbar: 'undo redo | formatselect | ' +
+          toolbar: 'gallery | undo redo | formatselect | ' +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist outdent indent | ' +
             'removeformat | help',
-          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+          setup: (editor) => {
+            // Add the gallery plugin during setup
+            galleryPlugin.init(editor);
+          }
         }}
       />
     </div>

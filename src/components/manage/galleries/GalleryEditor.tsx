@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/FileUpload";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface GalleryEditorProps {
   gallery: Gallery | null;
@@ -19,6 +21,7 @@ interface GalleryEditorProps {
 export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
   const [title, setTitle] = useState(gallery?.title || "");
   const [description, setDescription] = useState(gallery?.description || "");
+  const [newGallery, setNewGallery] = useState<Gallery | null>(null);
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -30,6 +33,7 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
           .eq('id', gallery.id);
 
         if (error) throw error;
+        return gallery;
       } else {
         const { data: newGallery, error } = await supabase
           .from('article_galleries')
@@ -44,16 +48,7 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
       queryClient.invalidateQueries({ queryKey: ['galleries'] });
       toast.success(gallery ? "Galeria zaktualizowana" : "Galeria utworzona");
       if (!gallery && data) {
-        // If we're creating a new gallery, automatically set it as the current editing gallery
-        // so user can immediately add images
-        onCancel(); // This will close the form
-        setTimeout(() => {
-          // Slight delay to ensure the UI updates properly
-          queryClient.setQueryData(['galleries'], (oldData: Gallery[] | undefined) => {
-            if (!oldData || !data) return oldData;
-            return [...oldData, data as Gallery];
-          });
-        }, 100);
+        setNewGallery(data as Gallery);
       } else {
         onCancel();
       }
@@ -70,7 +65,9 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
   };
 
   const handleImageUpload = async (name: string, url: string) => {
-    if (!gallery?.id) {
+    const galleryId = gallery?.id || newGallery?.id;
+    
+    if (!galleryId) {
       toast.error("Najpierw zapisz galerię, aby dodać zdjęcia");
       return;
     }
@@ -78,9 +75,9 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
     try {
       const { error } = await supabase.from('gallery_images').insert([
         {
-          gallery_id: gallery.id,
+          gallery_id: galleryId,
           url,
-          position: gallery.gallery_images?.length || 0
+          position: gallery?.gallery_images?.length || newGallery?.gallery_images?.length || 0
         }
       ]);
       
@@ -99,52 +96,93 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{gallery ? "Edytuj galerię" : "Dodaj nową galerię"}</CardTitle>
+        <CardTitle>{gallery || newGallery ? "Edytuj galerię" : "Dodaj nową galerię"}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Tytuł</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Nazwa galerii"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Opis</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Opis galerii (opcjonalnie)"
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {gallery ? "Zapisz zmiany" : "Dodaj galerię"}
-            </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Anuluj
-            </Button>
-          </div>
-        </form>
-
-        {gallery && (
-          <div className="mt-6 border-t pt-6">
+        {!gallery && !newGallery ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Dodaj zdjęcie do galerii</Label>
-              <FileUpload
-                onSuccess={(name, url) => handleImageUpload(name, url)}
-                acceptedFileTypes="image/*"
-                bucket="news_images"
+              <Label htmlFor="title">Tytuł</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Nazwa galerii"
+                required
               />
             </div>
-          </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Opis</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Opis galerii (opcjonalnie)"
+              />
+            </div>
+
+            <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20 my-4">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Po utworzeniu galerii będzie można dodać do niej zdjęcia.
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex gap-2">
+              <Button type="submit" disabled={saveMutation.isPending}>
+                Dodaj galerię
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Anuluj
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Tytuł</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Nazwa galerii"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Opis</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Opis galerii (opcjonalnie)"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button type="submit" disabled={saveMutation.isPending}>
+                  Zapisz zmiany
+                </Button>
+                <Button type="button" variant="outline" onClick={onCancel}>
+                  Anuluj
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-6 border-t pt-6">
+              <div className="space-y-2">
+                <Label>Dodaj zdjęcie do galerii</Label>
+                <FileUpload
+                  onSuccess={(name, url) => handleImageUpload(name, url)}
+                  acceptedFileTypes="image/*"
+                  bucket="news_images"
+                />
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
