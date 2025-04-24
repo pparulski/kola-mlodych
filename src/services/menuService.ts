@@ -14,7 +14,7 @@ export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
     .from('static_pages')
     .select('*')
     .eq('show_in_sidebar', true)
-    .order('sidebar_position', { ascending: true, nullsLast: true });
+    .order('sidebar_position', { ascending: true, nullsFirst: false });
 
   if (error) {
     console.error("Error fetching sidebar pages:", error);
