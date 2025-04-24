@@ -25,14 +25,14 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
     mutationFn: async (data: GalleryFormData) => {
       if (gallery) {
         const { error } = await supabase
-          .from('galleries')
+          .from('article_galleries')
           .update(data)
           .eq('id', gallery.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from('galleries')
+          .from('article_galleries')
           .insert([data]);
 
         if (error) throw error;
@@ -104,7 +104,7 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
                   });
                 }}
                 acceptedFileTypes="image/*"
-                bucket="gallery_images"
+                bucket="news_images"
               />
             </div>
           )}

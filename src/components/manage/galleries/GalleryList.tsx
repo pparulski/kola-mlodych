@@ -18,7 +18,7 @@ export function GalleryList({ galleries, onEdit }: GalleryListProps) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('galleries')
+        .from('article_galleries')
         .delete()
         .eq('id', id);
       

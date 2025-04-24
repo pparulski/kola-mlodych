@@ -14,7 +14,7 @@ export function ManageGalleries() {
     queryKey: ['galleries'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('galleries')
+        .from('article_galleries')
         .select('*, gallery_images(*)');
       
       if (error) {
@@ -22,7 +22,7 @@ export function ManageGalleries() {
         throw error;
       }
       
-      return data;
+      return data as Gallery[];
     },
   });
 

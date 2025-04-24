@@ -1,4 +1,6 @@
 
+import { supabase } from "@/integrations/supabase/client";
+
 interface TinyMCEEditor {
   ui: {
     registry: {
@@ -31,7 +33,7 @@ export const galleryPlugin = {
       onAction: async () => {
         // Fetch available galleries
         const { data: galleries, error } = await supabase
-          .from('galleries')
+          .from('article_galleries')
           .select('id, title, gallery_images(id, url, caption)')
           .order('created_at', { ascending: false });
 
