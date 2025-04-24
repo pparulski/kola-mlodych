@@ -306,6 +306,13 @@ export type Database = {
             referencedRelation: "news"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "news_categories_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news_preview"
+            referencedColumns: ["id"]
+          },
         ]
       }
       static_page_categories: {
@@ -424,7 +431,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      news_preview: {
+        Row: {
+          category_ids: string[] | null
+          category_names: string[] | null
+          created_at: string | null
+          date: string | null
+          featured_image: string | null
+          id: string | null
+          preview_content: string | null
+          slug: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_unique_slug: {
@@ -450,6 +470,19 @@ export type Database = {
       record_login_attempt: {
         Args: { ip_addr: string; was_successful: boolean }
         Returns: undefined
+      }
+      search_news: {
+        Args: { search_term: string }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          slug: string
+          featured_image: string
+          created_at: string
+          date: string
+          similarity: number
+        }[]
       }
     }
     Enums: {

@@ -19,9 +19,11 @@ export function NewsList({ newsItems }: NewsListProps) {
           id={article.id}
           slug={article.slug}
           title={article.title}
+          preview_content={article.preview_content}
           content={article.content}
-          date={article.created_at}
+          date={article.date || article.created_at}
           featured_image={article.featured_image}
+          category_names={article.category_names}
         />
       ))}
     </div>

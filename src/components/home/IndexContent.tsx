@@ -3,7 +3,7 @@ import React from "react";
 import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
-import { useNewsData } from "@/hooks/useNewsData";
+import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 import { useCategories } from "@/hooks/useCategories";
 
 interface IndexContentProps {
@@ -20,7 +20,7 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     currentPage,
     totalPages,
     handlePageChange
-  } = useNewsData(searchQuery, selectedCategories);
+  } = useOptimizedNewsData(searchQuery, selectedCategories);
 
   const isLoading = categoriesLoading || newsLoading;
   

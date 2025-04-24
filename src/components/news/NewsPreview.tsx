@@ -3,37 +3,33 @@ import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
-import { Category } from "@/types/categories";
 
 interface NewsPreviewProps {
   id: string;
   slug: string;
   title: string;
-  content: string;
+  preview_content?: string;
+  content?: string;
   date?: string;
   featured_image?: string;
+  category_names?: string[];
 }
 
 export function NewsPreview({
   id,
   slug,
   title,
+  preview_content,
   content,
   date,
   featured_image,
+  category_names,
 }: NewsPreviewProps) {
-  const queryClient = useQueryClient();
-  
-  // Strip gallery shortcodes for the preview
-  const cleanContent = content.replace(/\[gallery id="([^"]+)"\]/g, '');
-  
-  // Generate preview content after removing gallery shortcodes
-  const previewContent = cleanContent.length > 300 
-    ? cleanContent.substring(0, 300) + "..."
-    : cleanContent;
+  // Use pre-processed preview_content from the view, or fall back to processing content
+  const previewContent = preview_content || (content && content.length > 300 
+    ? content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300) + "..."
+    : content);
 
   const formattedDate = date 
     ? (() => {
@@ -43,23 +39,6 @@ export function NewsPreview({
           : "";
       })()
     : "";
-
-  // Fetch article categories with staleTime: 0 to ensure fresh data
-  const { data: articleCategories } = useQuery({
-    queryKey: ['news-preview-categories', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('news_categories')
-        .select(`
-          categories(*)
-        `)
-        .eq('news_id', id);
-
-      if (error) throw error;
-      return data.map(item => item.categories) as Category[];
-    },
-    staleTime: 0,
-  });
 
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
@@ -84,15 +63,23 @@ export function NewsPreview({
               <p className="text-sm text-foreground my-0">{formattedDate}</p>
             )}
             
-            {articleCategories && articleCategories.length > 0 && (
-              <CategoryBadgeList categories={articleCategories} className="m-0 inline-flex" />
+            {category_names && category_names.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {category_names.map((name) => (
+                  <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
+                    {name}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         </div>
+        
         <div 
           className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: previewContent }}
+          dangerouslySetInnerHTML={{ __html: previewContent || '' }}
         />
+        
         <div className="pt-4">
           <Link
             to={`/news/${slug}`}
