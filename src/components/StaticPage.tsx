@@ -10,7 +10,7 @@ export function StaticPage() {
   const { slug } = useParams();
 
   // Fetch page data
-  const { data: page, isLoading } = useQuery({
+  const { data: page, isLoading, error } = useQuery({
     queryKey: ['static-page', slug],
     queryFn: async () => {
       if (!slug) return null;
@@ -21,13 +21,27 @@ export function StaticPage() {
         .eq('slug', slug)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching static page:", error);
+        throw error;
+      }
 
       console.log("Static page data:", data);
       return data as StaticPageType;
     },
-    enabled: !!slug
+    enabled: !!slug,
+    staleTime: 0 // Always get fresh data
   });
+
+  if (error) {
+    console.error("Error in static page query:", error);
+    return (
+      <div className="bg-[hsl(var(--content-box))] p-4 rounded-lg text-foreground">
+        <div className="text-lg">Wystąpił błąd podczas ładowania strony.</div>
+        <div className="text-sm text-muted-foreground">{String(error)}</div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

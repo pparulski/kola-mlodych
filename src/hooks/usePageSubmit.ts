@@ -29,11 +29,15 @@ export function usePageSubmit(
         return;
       }
 
+      // Generate a slug from title if not provided
+      const slug = defaultSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
       const updateData: {
         title: string;
         content: string;
         featured_image: string | null;
         show_in_sidebar: boolean;
+        slug?: string;
       } = {
         title,
         content,
@@ -41,13 +45,23 @@ export function usePageSubmit(
         show_in_sidebar: showInSidebar,
       };
 
+      // Only include slug for new pages
+      if (!existingPage?.id) {
+        updateData.slug = slug;
+      }
+
+      console.log("Saving page data:", existingPage ? "Update" : "Create", updateData);
+
       if (existingPage?.id) {
         const { error } = await supabase
           .from('static_pages')
           .update(updateData)
           .eq('id', existingPage.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error updating static page:", error);
+          throw error;
+        }
 
         toast.success("Strona została zaktualizowana");
       } else {
@@ -56,15 +70,20 @@ export function usePageSubmit(
           .insert({
             ...updateData,
             created_by: user?.id,
-            slug: defaultSlug,
+            slug: slug,
           })
           .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error creating static page:", error);
+          throw error;
+        }
 
+        console.log("New page created:", data);
         toast.success("Strona została zapisana");
       }
 
+      // Invalidate all related queries to update UI
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });

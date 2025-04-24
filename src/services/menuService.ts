@@ -14,14 +14,20 @@ export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
     .from('static_pages')
     .select('*')
     .eq('show_in_sidebar', true)
-    .order('sidebar_position', { ascending: true });
+    .order('sidebar_position', { ascending: true, nullsLast: true });
 
   if (error) {
     console.error("Error fetching sidebar pages:", error);
     return [];
   }
 
-  console.log("Fetched sidebar pages:", data);
+  console.log("Fetched sidebar pages:", data?.length || 0);
+  if (data && data.length > 0) {
+    console.log("First sidebar page:", data[0]);
+  } else {
+    console.log("No sidebar pages found");
+  }
+  
   return data as StaticPage[];
 };
 
@@ -41,7 +47,7 @@ export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
     return [];
   }
 
-  console.log("Fetched menu positions:", data);
+  console.log("Fetched menu positions:", data?.length || 0);
   return data as MenuPosition[];
 };
 
@@ -61,7 +67,7 @@ export const fetchCategoryMenuItems = async (): Promise<Category[]> => {
     return [];
   }
 
-  console.log("Fetched category menu items:", data);
+  console.log("Fetched category menu items:", data?.length || 0);
   return data as Category[];
 };
 

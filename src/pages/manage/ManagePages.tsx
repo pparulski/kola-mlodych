@@ -13,42 +13,42 @@ export function ManagePages() {
   const [editingPage, setEditingPage] = useState<StaticPage | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: pages, isLoading } = useQuery({
+  const { data: pages, isLoading, error } = useQuery({
     queryKey: ['static-pages'],
     queryFn: async () => {
-      // First get all pages that are visible in sidebar, ordered by position
-      const { data: visiblePages, error: visibleError } = await supabase
+      console.log("Fetching all static pages");
+      
+      // Fetch all static pages
+      const { data: allPages, error: pagesError } = await supabase
         .from('static_pages')
         .select('*')
-        .eq('show_in_sidebar', true)
-        .order('sidebar_position', { ascending: true, nullsFirst: false });
-
-      if (visibleError) throw visibleError;
-
-      // Then get all pages that are not visible in sidebar
-      const { data: hiddenPages, error: hiddenError } = await supabase
-        .from('static_pages')
-        .select('*')
-        .eq('show_in_sidebar', false)
         .order('created_at', { ascending: false });
 
-      if (hiddenError) throw hiddenError;
+      if (pagesError) {
+        console.error("Error fetching static pages:", pagesError);
+        throw pagesError;
+      }
 
-      // Combine both arrays, with hidden pages at the end
-      return [...(visiblePages || []), ...(hiddenPages || [])] as StaticPage[];
-    }
+      console.log("Fetched static pages:", allPages?.length || 0);
+      return allPages as StaticPage[];
+    },
+    staleTime: 0 // Always get fresh data
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (pageId: string) => {
       if (!pageId) throw new Error("Page ID is required");
       
+      console.log("Deleting static page:", pageId);
       const { error } = await supabase
         .from('static_pages')
         .delete()
         .eq('id', pageId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting page:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
@@ -71,6 +71,22 @@ export function ManagePages() {
       deleteMutation.mutate(pageId);
     }
   };
+
+  if (error) {
+    console.error("Error loading pages:", error);
+    return (
+      <div className="p-4 bg-destructive/10 border border-destructive text-destructive rounded-md">
+        <p>Wystąpił błąd podczas ładowania stron: {String(error)}</p>
+        <Button 
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['static-pages'] })}
+          variant="outline"
+          className="mt-2"
+        >
+          Spróbuj ponownie
+        </Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div>Ładowanie...</div>;
