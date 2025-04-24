@@ -1,11 +1,11 @@
-
 import React, { useEffect } from "react";
 import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useNewsData } from "@/hooks/useNewsData";
 import { useCategories } from "@/hooks/useCategories";
-import { Alert, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface IndexContentProps {
   searchQuery: string;
@@ -40,17 +40,15 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
 
   if (newsError || categoriesError) {
     return (
-      <div className="bg-destructive/10 p-4 rounded-md border border-destructive">
-        <div className="flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2 text-destructive" />
-          <h3 className="font-medium">Wystąpił błąd podczas ładowania danych</h3>
-        </div>
-        <p className="mt-2 text-sm">
+      <Alert variant="destructive">
+        <AlertCircle className="h-5 w-5" />
+        <AlertTitle>Wystąpił błąd podczas ładowania danych</AlertTitle>
+        <AlertDescription>
           {newsError ? `Błąd ładowania aktualności: ${newsError.message}` : ''}
           {categoriesError ? `Błąd ładowania kategorii: ${categoriesError.message}` : ''}
-        </p>
-        <p className="mt-2 text-sm">Spróbuj odświeżyć stronę lub skontaktuj się z administratorem.</p>
-      </div>
+          <p className="mt-2">Spróbuj odświeżyć stronę lub skontaktuj się z administratorem.</p>
+        </AlertDescription>
+      </Alert>
     );
   }
 
