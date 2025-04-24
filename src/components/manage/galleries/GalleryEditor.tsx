@@ -31,17 +31,32 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data: newGallery, error } = await supabase
           .from('article_galleries')
-          .insert([data]);
+          .insert([data])
+          .select();
 
         if (error) throw error;
+        return newGallery[0];
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['galleries'] });
       toast.success(gallery ? "Galeria zaktualizowana" : "Galeria utworzona");
-      onCancel();
+      if (!gallery && data) {
+        // If we're creating a new gallery, automatically set it as the current editing gallery
+        // so user can immediately add images
+        onCancel(); // This will close the form
+        setTimeout(() => {
+          // Slight delay to ensure the UI updates properly
+          queryClient.setQueryData(['galleries'], (oldData: Gallery[] | undefined) => {
+            if (!oldData || !data) return oldData;
+            return [...oldData, data as Gallery];
+          });
+        }, 100);
+      } else {
+        onCancel();
+      }
     },
     onError: (error) => {
       console.error('Error saving gallery:', error);
@@ -52,6 +67,33 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate({ title, description });
+  };
+
+  const handleImageUpload = async (name: string, url: string) => {
+    if (!gallery?.id) {
+      toast.error("Najpierw zapisz galerię, aby dodać zdjęcia");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('gallery_images').insert([
+        {
+          gallery_id: gallery.id,
+          url,
+          position: gallery.gallery_images?.length || 0
+        }
+      ]);
+      
+      if (error) {
+        throw error;
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['galleries'] });
+      toast.success("Zdjęcie dodane");
+    } catch (error) {
+      console.error('Error adding image:', error);
+      toast.error("Nie udało się dodać zdjęcia");
+    }
   };
 
   return (
@@ -82,33 +124,6 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
             />
           </div>
 
-          {gallery && (
-            <div className="space-y-2">
-              <Label>Zdjęcia</Label>
-              <FileUpload
-                onSuccess={(url) => {
-                  // Add image to gallery
-                  supabase.from('gallery_images').insert([
-                    {
-                      gallery_id: gallery.id,
-                      url,
-                      position: gallery.gallery_images?.length || 0
-                    }
-                  ]).then(({ error }) => {
-                    if (error) {
-                      toast.error("Nie udało się dodać zdjęcia");
-                      return;
-                    }
-                    queryClient.invalidateQueries({ queryKey: ['galleries'] });
-                    toast.success("Zdjęcie dodane");
-                  });
-                }}
-                acceptedFileTypes="image/*"
-                bucket="news_images"
-              />
-            </div>
-          )}
-
           <div className="flex gap-2">
             <Button type="submit" disabled={saveMutation.isPending}>
               {gallery ? "Zapisz zmiany" : "Dodaj galerię"}
@@ -118,6 +133,19 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
             </Button>
           </div>
         </form>
+
+        {gallery && (
+          <div className="mt-6 border-t pt-6">
+            <div className="space-y-2">
+              <Label>Dodaj zdjęcie do galerii</Label>
+              <FileUpload
+                onSuccess={(name, url) => handleImageUpload(name, url)}
+                acceptedFileTypes="image/*"
+                bucket="news_images"
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
