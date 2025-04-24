@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -66,9 +65,11 @@ export function NewsPreview({
             {category_names && category_names.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {category_names.map((name) => (
-                  <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
-                    {name}
-                  </span>
+                  name && (
+                    <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
+                      {name}
+                    </span>
+                  )
                 ))}
               </div>
             )}
