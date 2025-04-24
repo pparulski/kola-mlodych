@@ -25,7 +25,7 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   const isLoading = categoriesLoading || newsLoading;
   
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator type="skeleton" />;
   }
 
   return (

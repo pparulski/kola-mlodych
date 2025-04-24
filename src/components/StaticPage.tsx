@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 import { GalleryRenderer } from "./gallery/GalleryRenderer";
+import { LoadingIndicator } from "./home/LoadingIndicator";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -35,11 +36,7 @@ export function StaticPage() {
   }, [slug, page]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[150px]">
-        <div className="text-lg">Ładowanie...</div>
-      </div>
-    );
+    return <LoadingIndicator />;
   }
 
   return (

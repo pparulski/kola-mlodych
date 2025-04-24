@@ -13,6 +13,7 @@ import {
   applyCustomPositions
 } from "@/utils/menuUtils";
 import { LucideIcon } from "lucide-react";
+import { LoadingIndicator } from "../home/LoadingIndicator";
 
 interface PublicMenuProps {
   onItemClick: () => void;
@@ -70,7 +71,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   const allMenuItems = assignSequentialPositions(sortedItems);
 
   if (isPagesLoading || isPositionsLoading || isCategoriesLoading) {
-    return <div className="py-2 px-3">Ładowanie menu...</div>;
+    return <LoadingIndicator type="minimal" />;
   }
 
   // Helper function to check if a menu item matches the current route

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/categories";
 import { CategoryList } from "@/components/manage/CategoryList";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingIndicator } from "@/components/home/LoadingIndicator";
 
 interface CategoryManagementListProps {
   onEdit: (category: Category) => void;
@@ -25,16 +25,7 @@ export function CategoryManagementList({ onEdit, onDelete }: CategoryManagementL
   });
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingIndicator type="skeleton" />;
   }
 
   return <CategoryList 

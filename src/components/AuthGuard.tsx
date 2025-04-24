@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { LoadingIndicator } from "./home/LoadingIndicator";
 
 export function AuthGuard() {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ export function AuthGuard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Ładowanie...</div>
+        <LoadingIndicator />
       </div>
     );
   }
