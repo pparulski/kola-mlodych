@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
@@ -9,6 +8,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { toast } from "sonner";
 import * as Icons from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface MenuItemListProps {
   onEdit: (item: MenuItem) => void;
@@ -25,13 +29,12 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
         .order("position");
       
       if (error) throw error;
-      // Convert database items to MenuItem type with default values for missing properties
       return (data || []).map(item => {
-        console.log('Menu Item Raw Data:', item); // Diagnostic log
+        console.log('Menu Item Raw Data:', item);
         return ({
           ...item,
-          is_public: true, // Set default value
-          is_admin: false, // Set default value
+          is_public: true,
+          is_admin: false,
           parent_id: null,
           page_id: item.resource_id || null,
           category_id: null,
@@ -41,9 +44,8 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
     },
   });
 
-  // Handle icon update with more detailed logging
   const handleIconUpdate = async (id: string, icon: string) => {
-    console.log(`Updating icon for item ${id} to: ${icon}`); // Diagnostic log
+    console.log(`Updating icon for item ${id} to: ${icon}`);
     try {
       const { error } = await supabase
         .from("menu_items")
@@ -51,7 +53,7 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
         .eq("id", id);
       
       if (error) {
-        console.error('Icon Update Error:', error); // Detailed error logging
+        console.error('Icon Update Error:', error);
         throw error;
       }
       
@@ -84,27 +86,40 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <h2 className="text-xl font-semibold">Elementy menu</h2>
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
-          // Verify if the icon exists in Lucide icons
           const IconComponent = item.icon && Icons[item.icon as keyof typeof Icons] 
             ? (Icons as any)[item.icon] 
             : Icons.FileIcon;
           
-          console.log(`Rendering menu item: ${item.id}, Icon: ${item.icon}`); // Diagnostic log
+          console.log(`Rendering menu item: ${item.id}, Icon: ${item.icon}`);
           
           return (
             <div
               key={item.id}
               className="p-3 flex items-center gap-3"
             >
-              <div className="w-32">
-                <IconPicker
-                  value={item.icon || ""}
-                  onChange={(newIcon) => {
-                    console.log(`Icon Picker onChange: ${newIcon}`); // Diagnostic log
-                    handleIconUpdate(item.id, newIcon);
-                  }}
-                />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-9 w-9"
+                  >
+                    <IconComponent className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                  <div className="p-2">
+                    <IconPicker
+                      value={item.icon || ""}
+                      onChange={(newIcon) => {
+                        console.log(`Icon Picker onChange: ${newIcon}`);
+                        handleIconUpdate(item.id, newIcon);
+                      }}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{item.title}</p>
                 <p className="text-xs text-muted-foreground truncate">
