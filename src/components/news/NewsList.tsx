@@ -7,6 +7,8 @@ interface NewsListProps {
 }
 
 export function NewsList({ newsItems }: NewsListProps) {
+  console.log("NewsList rendering with items:", newsItems?.length || 0);
+  
   if (!newsItems || newsItems.length === 0) {
     return <EmptyNewsList />;
   }

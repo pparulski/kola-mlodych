@@ -6,28 +6,38 @@ import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 import { GalleryRenderer } from "./gallery/GalleryRenderer";
 import { LoadingIndicator } from "./home/LoadingIndicator";
+import { AlertCircle } from "lucide-react";
 
 export function StaticPage() {
   const { slug } = useParams();
 
   // Fetch page data
-  const { data: page, isLoading } = useQuery({
+  const { data: page, isLoading, error } = useQuery({
     queryKey: ['static-page', slug],
     queryFn: async () => {
       if (!slug) return null;
       console.log("Fetching static page:", slug);
-      const { data, error } = await supabase
-        .from('static_pages')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from('static_pages')
+          .select('*')
+          .eq('slug', slug)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) {
+          console.error("Error fetching static page:", error);
+          throw error;
+        }
 
-      console.log("Static page data:", data);
-      return data as StaticPageType;
+        console.log("Static page data:", data ? "found" : "not found");
+        return data as StaticPageType;
+      } catch (err) {
+        console.error("Exception in static page fetch:", err);
+        throw err;
+      }
     },
-    enabled: !!slug
+    enabled: !!slug,
+    retry: 1
   });
 
   useEffect(() => {
@@ -37,6 +47,21 @@ export function StaticPage() {
 
   if (isLoading) {
     return <LoadingIndicator />;
+  }
+
+  if (error) {
+    return (
+      <div className="bg-destructive/10 p-4 rounded-md border border-destructive">
+        <div className="flex items-center">
+          <AlertCircle className="h-5 w-5 mr-2 text-destructive" />
+          <h3 className="font-medium">Błąd podczas ładowania strony</h3>
+        </div>
+        <p className="mt-2 text-sm">
+          {error instanceof Error ? error.message : 'Nieznany błąd'}
+        </p>
+        <p className="mt-2 text-sm">Spróbuj odświeżyć stronę lub skontaktuj się z administratorem.</p>
+      </div>
+    );
   }
 
   return (
