@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
 import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen, LucideIcon } from "lucide-react"; // Consolidated LucideIcon import
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
-import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
+import { IconPicker } from "@/components/ui/icon-picker/IconPicker"; // Fixed import path
 
 // Interface defining the props for the MenuItem component
 interface MenuItemProps {
