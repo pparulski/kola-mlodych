@@ -24,13 +24,8 @@ export function DefaultMenuItemFields({
   }, [icon]);
 
   const handleIconChange = (newIcon: string) => {
-    if (isValidIconName(newIcon)) {
-      setIcon(newIcon);
-    } else {
-      console.warn(`Invalid icon selected: ${newIcon}`);
-      // Fall back to a known good icon
-      setIcon("FileIcon");
-    }
+    console.log(`Icon selected: ${newIcon}`);
+    setIcon(newIcon);
   };
 
   return (

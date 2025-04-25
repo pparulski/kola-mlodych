@@ -1,5 +1,5 @@
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Command } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
@@ -14,18 +14,22 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
-  const [open, setOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [iconNames, setIconNames] = useState<string[]>([])
 
-  // Use icons from our validated list instead of all Lucide icons
-  const iconNames = Object.keys(VALID_ICONS).filter(
-    (iconName) => iconName.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  useEffect(() => {
+    // Get all icon names and filter them based on search query
+    const names = Object.keys(VALID_ICONS)
+    setIconNames(
+      searchQuery 
+        ? names.filter(name => name.toLowerCase().includes(searchQuery.toLowerCase()))
+        : names
+    )
+  }, [searchQuery])
 
   // Get the current icon component safely
-  const IconComponent = React.useMemo(() => {
-    return getIconComponent(value);
-  }, [value]);
+  const IconComponent = getIconComponent(value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,29 +62,34 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             <div className="grid grid-cols-4 gap-2 p-2"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              >
-              {iconNames.map((name) => {
-                const Icon = VALID_ICONS[name];
-                
-                if (!Icon) return null; // Skip if icon doesn't exist
-                
-                return (
-                  <Button
-                    key={name}
-                    variant="ghost"
-                    className={cn(
-                      "flex h-12 w-full flex-col items-center justify-center gap-1",
-                      value === name && "bg-muted"
-                    )}
-                    onClick={() => {
-                      onChange(name);
-                      setOpen(false);
-                    }}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </Button>
-                )
-              })}
+            >
+              {iconNames.length > 0 ? (
+                iconNames.map((name) => {
+                  const Icon = VALID_ICONS[name];
+                  
+                  return (
+                    <Button
+                      key={name}
+                      variant="ghost"
+                      className={cn(
+                        "flex h-12 w-full flex-col items-center justify-center gap-1",
+                        value === name && "bg-muted"
+                      )}
+                      onClick={() => {
+                        onChange(name);
+                        setOpen(false);
+                      }}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-xs truncate max-w-full">{name}</span>
+                    </Button>
+                  );
+                })
+              ) : (
+                <div className="col-span-4 text-center py-6 text-muted-foreground">
+                  No icons found
+                </div>
+              )}
             </div>
           </ScrollArea>
         </Command>
