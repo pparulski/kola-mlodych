@@ -87,14 +87,12 @@ export function CategoryFilterDropdown({
             </DropdownMenuItem>
           ))}
           {selectedCategories.length > 0 && (
-            <>
-              <DropdownMenuItem
-                onClick={handleClearCategories}
-                className="cursor-pointer text-destructive border-t mt-2 pt-2"
-              >
-                Wyczyść filtry
-              </DropdownMenuItem>
-            </>
+            <DropdownMenuItem
+              onClick={handleClearCategories}
+              className="cursor-pointer text-destructive border-t mt-2 pt-2"
+            >
+              Wyczyść filtry
+            </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
       </DropdownMenuContent>

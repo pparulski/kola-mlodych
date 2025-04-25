@@ -2,9 +2,7 @@
 import * as React from "react";
 import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
 import { Category, FilterComponentProps } from "@/types/categories";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
 
 export function CategoryFilter({
   selectedCategories,
@@ -14,18 +12,6 @@ export function CategoryFilter({
   compactOnMobile = false
 }: FilterComponentProps & { compactOnMobile?: boolean }) {
   const { toast } = useToast();
-
-  // Handle clearing filters
-  const handleClearFilter = () => {
-    if (selectedCategories.length > 0) {
-      setSelectedCategories([]);
-      toast({
-        title: "Filtry wyczyszczone",
-        description: "Wszystkie filtry kategorii zostały usunięte.",
-        duration: 2000,
-      });
-    }
-  };
 
   return (
     <div className={position === "top" ? "" : "mt-6"}>
@@ -47,18 +33,6 @@ export function CategoryFilter({
             setSelectedCategories={setSelectedCategories}
             availableCategories={availableCategories}
           />
-        )}
-
-        {selectedCategories.length > 0 && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleClearFilter}
-            className="text-xs gap-1"
-          >
-            <X className="h-3.5 w-3.5" />
-            Wyczyść filtry
-          </Button>
         )}
       </div>
     </div>
