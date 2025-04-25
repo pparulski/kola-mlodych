@@ -218,6 +218,7 @@ export type Database = {
       menu_positions: {
         Row: {
           created_at: string
+          icon: string | null
           id: string
           position: number
           resource_id: string | null
@@ -225,6 +226,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          icon?: string | null
           id: string
           position: number
           resource_id?: string | null
@@ -232,6 +234,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          icon?: string | null
           id?: string
           position?: number
           resource_id?: string | null

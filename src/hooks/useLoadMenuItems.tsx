@@ -50,16 +50,26 @@ export function useLoadMenuItems() {
         title: category.name,
         path: `/category/${category.slug}`,
         icon: 'BookOpen',
-        position: 100, // Default high position, will be sorted later
+        position: 100,
         type: MenuItemType.CATEGORY
       })) : [];
       
-      // Combine all items first
+      // Combine all items
       let combinedItems = [...defaultItems, ...staticPagesItems, ...categoryItems];
       
-      // Apply custom positions from the database
+      // Apply custom positions and icons from the database
       if (menuPositionsData && menuPositionsData.length > 0) {
-        combinedItems = applyCustomPositions(combinedItems, menuPositionsData);
+        combinedItems = combinedItems.map(item => {
+          const position = menuPositionsData.find(pos => pos.id === item.id);
+          if (position) {
+            return {
+              ...item,
+              position: position.position,
+              icon: position.icon || item.icon // Use position icon if available, fallback to default
+            };
+          }
+          return item;
+        });
       }
       
       // Sort and ensure sequential positions
