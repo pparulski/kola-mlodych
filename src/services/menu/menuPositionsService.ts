@@ -52,7 +52,8 @@ export const updateAllMenuPositions = async (
       type: item.type,
       position: item.position,
       resource_id: item.type === MenuItemType.CATEGORY ? item.originalId : null,
-      icon: item.icon
+      // Convert LucideIcon components to string icon names
+      icon: typeof item.icon === 'string' ? item.icon : null
     }));
     
     console.log("Upserting menu positions for items:", positionsData);
