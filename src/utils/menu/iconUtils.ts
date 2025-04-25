@@ -23,7 +23,8 @@ export type ValidIconName = keyof typeof VALID_ICONS;
 export const getIconComponent = (iconName: string | null | undefined) => {
   if (!iconName || !(iconName in VALID_ICONS)) {
     console.log(`Icon not found in VALID_ICONS: ${iconName}`);
-    return LucideIcons.FileIcon; // Using FileIcon as default
+    // Make sure we're using an icon that definitely exists
+    return LucideIcons.FileIcon || LucideIcons.File; 
   }
   return VALID_ICONS[iconName as ValidIconName];
 };
@@ -32,7 +33,7 @@ export const getIconComponent = (iconName: string | null | undefined) => {
  * Validate if an icon name is valid
  */
 export const isValidIconName = (iconName: string): iconName is ValidIconName => {
-  const isValid = iconName in VALID_ICONS;
+  const isValid = Object.keys(VALID_ICONS).includes(iconName);
   if (!isValid) {
     console.log(`Invalid icon name: ${iconName}`);
   }

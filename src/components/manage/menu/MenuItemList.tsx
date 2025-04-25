@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getIconComponent, isValidIconName } from "@/utils/menu/iconUtils";
+import React from "react";
 
 interface MenuItemListProps {
   onEdit: (item: MenuItem) => void;
@@ -110,8 +111,10 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <h2 className="text-xl font-semibold">Elementy menu</h2>
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
-          // Use our standardized icon getter
-          const IconComponent = getIconComponent(item.icon);
+          // Safely get the icon component
+          const IconComponent = React.useMemo(() => {
+            return getIconComponent(item.icon);
+          }, [item.icon]);
 
           return (
             <div
@@ -130,7 +133,7 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
                 <PopoverContent className="w-[300px] p-0">
                   <div className="p-2">
                     <IconPicker
-                      value={item.icon || ""}
+                      value={item.icon || "FileIcon"}
                       onChange={(newIcon) => handleIconUpdate(item.id, newIcon)}
                     />
                   </div>

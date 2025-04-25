@@ -3,6 +3,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
+import { isValidIconName } from "@/utils/menu/iconUtils";
 
 interface DefaultMenuItemFieldsProps {
   link: string;
@@ -17,6 +18,21 @@ export function DefaultMenuItemFields({
   icon, 
   setIcon 
 }: DefaultMenuItemFieldsProps) {
+  // Ensure icon has a valid default value
+  const safeIcon = React.useMemo(() => {
+    return isValidIconName(icon) ? icon : "FileIcon";
+  }, [icon]);
+
+  const handleIconChange = (newIcon: string) => {
+    if (isValidIconName(newIcon)) {
+      setIcon(newIcon);
+    } else {
+      console.warn(`Invalid icon selected: ${newIcon}`);
+      // Fall back to a known good icon
+      setIcon("FileIcon");
+    }
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -32,8 +48,8 @@ export function DefaultMenuItemFields({
       <div className="space-y-2">
         <Label htmlFor="icon">Ikona</Label>
         <IconPicker
-          value={icon}
-          onChange={setIcon}
+          value={safeIcon}
+          onChange={handleIconChange}
         />
       </div>
     </>

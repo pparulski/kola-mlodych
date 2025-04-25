@@ -6,7 +6,7 @@ import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getIconComponent, isValidIconName, ValidIconName } from "@/utils/menu/iconUtils";
+import { getIconComponent, isValidIconName } from "@/utils/menu/iconUtils";
 
 interface MenuItemProps {
   item: SidebarMenuItem;
@@ -24,8 +24,9 @@ export function MenuItem({
   updateItemIcon
 }: MenuItemProps) {
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  // Set default icon to ensure we always have a valid icon
   const [currentIcon, setCurrentIcon] = useState<string>(
-    typeof item.icon === 'string' && isValidIconName(item.icon) ? item.icon : 'File'
+    typeof item.icon === 'string' && isValidIconName(item.icon) ? item.icon : 'FileIcon'
   );
 
   // Update local state when item prop changes
@@ -58,7 +59,10 @@ export function MenuItem({
     }
   };
 
-  const IconComponent = getIconComponent(currentIcon);
+  // Get the icon component safely
+  const IconComponent = React.useMemo(() => {
+    return getIconComponent(currentIcon);
+  }, [currentIcon]);
 
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { VALID_ICONS } from "@/utils/menu/iconUtils"
+import { VALID_ICONS, getIconComponent } from "@/utils/menu/iconUtils"
 
 interface IconPickerProps {
   value: string
@@ -22,10 +22,10 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
     (iconName) => iconName.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Get the current icon component
-  const CurrentIcon = value && VALID_ICONS[value as keyof typeof VALID_ICONS]
-    ? VALID_ICONS[value as keyof typeof VALID_ICONS]
-    : VALID_ICONS.File;
+  // Get the current icon component safely
+  const IconComponent = React.useMemo(() => {
+    return getIconComponent(value);
+  }, [value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,7 +38,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-2">
-            <CurrentIcon className="h-4 w-4" />
+            <IconComponent className="h-4 w-4" />
             <span>{value || "Select icon..."}</span>
           </div>
         </Button>
@@ -60,7 +60,9 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               onTouchStart={(e) => e.stopPropagation()}
               >
               {iconNames.map((name) => {
-                const Icon = VALID_ICONS[name as keyof typeof VALID_ICONS];
+                const Icon = VALID_ICONS[name];
+                
+                if (!Icon) return null; // Skip if icon doesn't exist
                 
                 return (
                   <Button
