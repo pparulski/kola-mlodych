@@ -19,21 +19,20 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       let query;
       
-      // STEP 1: First fetch some sample data to debug category names structure
+      // STEP 1: First fetch one sample article to debug category structure
       if (selectedCategories && selectedCategories.length > 0) {
-        // Let's first look at the actual data to understand the structure
-        const { data: sampleData } = await supabase
+        console.log('DEBUG: Fetching sample article to inspect category_names structure');
+        const { data: sampleArticle } = await supabase
           .from('news_preview')
           .select('*')
-          .limit(5);
-        
-        console.log('Sample news_preview data to check category_names structure:', 
-          sampleData?.map(item => ({
-            id: item.id,
-            title: item.title,
-            category_names: item.category_names
-          }))
-        );
+          .limit(1);
+          
+        if (sampleArticle && sampleArticle.length > 0) {
+          console.log('Sample article category_names structure:', sampleArticle[0].category_names);
+          console.log('Full sample article:', sampleArticle[0]);
+        } else {
+          console.log('No sample article found');
+        }
       }
       
       if (searchQuery) {
@@ -60,14 +59,76 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         if (selectedCategories && selectedCategories.length > 0) {
           console.log('Applying category filter with:', selectedCategories);
           
-          // Try a different approach by using "ilike" to match individual items
-          // In case the category_names array contains full names instead of slugs
-          selectedCategories.forEach((category, index) => {
-            query = query.or(`category_names.ilike.%${category}%`);
+          // Try multiple different approaches to match categories correctly
+          
+          // Approach 1: Using direct array contains
+          // This works if category_names is an array of slugs
+          query = query.contains('category_names', selectedCategories);
+          
+          // Fallback approach if the above fails: Try a scan with ilike on each article server-side
+          const { data: allArticles, error: scanError } = await supabase
+            .from('news_preview')
+            .select('*')
+            .order('date', { ascending: false });
+            
+          if (scanError) {
+            console.error('Error fetching articles for category check:', scanError);
+            throw scanError;
+          }
+          
+          console.log(`Fetched ${allArticles?.length || 0} total articles`);
+          
+          // Manually filter articles where any category slug matches any of the selected categories
+          const matchingArticles = allArticles?.filter(article => {
+            // Skip if article has no categories
+            if (!article.category_names || !Array.isArray(article.category_names)) {
+              return false;
+            }
+            
+            // For debugging
+            console.log(`Article "${article.title}" has categories:`, article.category_names);
+            
+            // Check if any selected category is in the article's categories
+            // This handles both exact matches and partial matches
+            const matches = selectedCategories.some(selectedCat => {
+              return article.category_names.some((cat: string) => {
+                // Try to match either the slug or name
+                const catLower = cat.toLowerCase();
+                const selectedLower = selectedCat.toLowerCase();
+                
+                // Check for matches
+                const isMatch = catLower === selectedLower || catLower.includes(selectedLower);
+                
+                if (isMatch) {
+                  console.log(`Match found! Article "${article.title}" category "${cat}" matches selected "${selectedCat}"`);
+                }
+                
+                return isMatch;
+              });
+            });
+            
+            return matches;
           });
+          
+          console.log(`Manually filtered and found ${matchingArticles?.length || 0} articles matching categories`, selectedCategories);
+          
+          // If we found articles with the client-side filtering, use those results
+          if (matchingArticles && matchingArticles.length > 0) {
+            const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+            const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, matchingArticles.length);
+            
+            return {
+              items: matchingArticles.slice(startIndex, endIndex) || [],
+              total: matchingArticles.length
+            };
+          }
         } else {
           console.log('No category filters applied, fetching all articles');
         }
+        
+        // If we reach here, either:
+        // 1. No categories were selected, or
+        // 2. The client-side filtering didn't find results, fall back to original query
         
         const { data: countData, error: countError } = await query;
         
@@ -79,43 +140,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         const totalCount = countData ? countData.length : 0;
         console.log(`Found ${totalCount} total articles`);
         
-        if (selectedCategories && selectedCategories.length > 0 && totalCount === 0) {
-          console.log('No articles found with selected categories. Trying alternative matching approach...');
-          
-          // Try a different approach as a fallback
-          const { data: alternativeData } = await supabase
-            .from('news_preview')
-            .select('*')
-            .order('date', { ascending: false });
-            
-          // Filter client-side to inspect what's happening
-          const filteredData = alternativeData?.filter(item => {
-            if (!item.category_names) return false;
-            
-            // Log each article and its categories for debugging
-            console.log(`Article "${item.title}" has categories:`, item.category_names);
-            
-            // Check if any of the selected categories matches any of the article's categories
-            return selectedCategories.some(selectedCat => 
-              item.category_names && item.category_names.some((cat: string) => 
-                cat.toLowerCase().includes(selectedCat.toLowerCase())
-              )
-            );
-          });
-          
-          console.log(`Alternative filtering found ${filteredData?.length || 0} articles`);
-          
-          if (filteredData && filteredData.length > 0) {
-            const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-            const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, filteredData.length);
-            
-            return {
-              items: filteredData.slice(startIndex, endIndex) || [],
-              total: filteredData.length
-            };
-          }
-        }
-        
         const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
         const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, totalCount);
         const paginatedData = countData ? countData.slice(startIndex, endIndex) : [];
@@ -126,7 +150,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         };
       }
     },
-    staleTime: 30000, // Increase staleTime to prevent excessive refetching
+    staleTime: 30000, // 30 seconds
   });
 
   const totalPages = Math.ceil((newsData?.total || 0) / ARTICLES_PER_PAGE);

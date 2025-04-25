@@ -4,7 +4,8 @@ import { useMenuReordering } from "@/hooks/useMenuReordering";
 import { useLoadMenuItems } from "@/hooks/useLoadMenuItems";
 import { useMenuMutations } from "@/hooks/useMenuMutations";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
-import { assignSequentialPositions } from "@/utils/menu";
+import { assignSequentialPositions, ensureUniquePositions, ensureDefaultIcons } from "@/utils/menu";
+import { toast } from "sonner";
 
 export function useMenuItems() {
   const [menuItems, setMenuItems] = useState<SidebarMenuItem[]>([]);
@@ -15,7 +16,9 @@ export function useMenuItems() {
   // Update local state when items are loaded
   useEffect(() => {
     if (!isLoading && loadedMenuItems.length > 0) {
-      setMenuItems(loadedMenuItems);
+      // Process menu items to ensure valid position values and icons
+      const processedItems = ensureDefaultIcons(ensureUniquePositions(loadedMenuItems));
+      setMenuItems(processedItems);
     }
   }, [loadedMenuItems, isLoading]);
 
@@ -26,7 +29,16 @@ export function useMenuItems() {
 
   const handleSaveOrder = useCallback(() => {
     console.log("Saving menu order:", menuItems);
-    updateOrderMutation.mutate([...menuItems]);
+    
+    // Apply sequential positions before saving
+    const sequentialItems = assignSequentialPositions(menuItems);
+    
+    // Only save if we have items
+    if (sequentialItems.length > 0) {
+      updateOrderMutation.mutate([...sequentialItems]);
+    } else {
+      toast.error("No menu items to save");
+    }
   }, [menuItems, updateOrderMutation]);
 
   return {

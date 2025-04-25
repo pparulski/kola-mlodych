@@ -7,6 +7,8 @@ import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 import { useCategories } from "@/hooks/useCategories";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface IndexContentProps {
   searchQuery: string;
@@ -29,19 +31,25 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
 
   const isLoading = categoriesLoading || newsLoading;
   
-  // Debug effect to log when categories change
+  // Effect to display toast for category filter changes
   useEffect(() => {
     if (selectedCategories.length > 0) {
       console.log("IndexContent: Selected categories changed:", selectedCategories);
       
-      // Show toast with selected categories for testing
+      // Find the actual category names for display
+      const categoryNames = selectedCategories.map(slug => {
+        const category = categories?.find(cat => cat.slug === slug);
+        return category ? category.name : slug;
+      });
+      
+      // Show toast with selected categories
       toast({
         title: "Filtrowanie kategorii",
-        description: `Wybrane kategorie: ${selectedCategories.join(", ")}`,
+        description: `Wybrane kategorie: ${categoryNames.join(", ")}`,
         duration: 3000,
       });
     }
-  }, [selectedCategories, toast]);
+  }, [selectedCategories, categories, toast]);
   
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['optimized-news'] });
@@ -56,7 +64,11 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     return (
       <div className="text-center p-8 bg-card rounded-lg border-2 border-destructive">
         <p className="text-lg font-medium mb-2">Wystąpił błąd podczas wczytywania artykułów.</p>
-        <p className="text-muted-foreground">Proszę odświeżyć stronę lub spróbować ponownie później.</p>
+        <p className="text-muted-foreground mb-4">Proszę odświeżyć stronę lub spróbować ponownie później.</p>
+        <Button onClick={handleRefresh} variant="outline" size="sm" className="gap-2">
+          <RefreshCw className="h-4 w-4" />
+          Odśwież dane
+        </Button>
       </div>
     );
   }
@@ -65,12 +77,36 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   
   return (
     <div>
+      {selectedCategories.length > 0 && (
+        <div className="mb-6 p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Filtrowanie według kategorii</h3>
+              <p className="text-sm text-muted-foreground">
+                {currentPageItems.length > 0 
+                  ? `Znaleziono ${currentPageItems.length} artykułów` 
+                  : "Brak artykułów w wybranych kategoriach"}
+              </p>
+            </div>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Odśwież
+            </Button>
+          </div>
+        </div>
+      )}
+
       {selectedCategories.length > 0 && currentPageItems.length === 0 && (
         <div className="text-center p-6 bg-muted/30 rounded-lg mb-6">
           <p className="font-medium">Brak artykułów w wybranych kategoriach.</p>
           <button 
             className="text-primary hover:text-primary/80 underline text-sm mt-2"
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['optimized-news'] })}
+            onClick={handleRefresh}
           >
             Odśwież wyniki
           </button>

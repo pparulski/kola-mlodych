@@ -4,6 +4,7 @@ import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
 import { Category, FilterComponentProps } from "@/types/categories";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 
 export function CategoryFilter({
   selectedCategories,
@@ -14,7 +15,7 @@ export function CategoryFilter({
 }: FilterComponentProps & { compactOnMobile?: boolean }) {
   const { toast } = useToast();
 
-  // Add a simple function to help debug selected categories
+  // Handle clearing filters
   const handleClearFilter = () => {
     if (selectedCategories.length > 0) {
       setSelectedCategories([]);
@@ -53,8 +54,9 @@ export function CategoryFilter({
             variant="ghost" 
             size="sm" 
             onClick={handleClearFilter}
-            className="text-xs"
+            className="text-xs gap-1"
           >
+            <X className="h-3.5 w-3.5" />
             Wyczyść filtry
           </Button>
         )}

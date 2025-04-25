@@ -20,6 +20,7 @@ export const assignSequentialPositions = (items: SidebarMenuItem[]): SidebarMenu
 
 /**
  * Ensures that all positions in menu items are unique by adjusting duplicates
+ * This is helpful when receiving data with potential position conflicts
  */
 export const ensureUniquePositions = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
   // First, sort by position to process in order
@@ -29,7 +30,7 @@ export const ensureUniquePositions = (items: SidebarMenuItem[]): SidebarMenuItem
   const usedPositions = new Set<number>();
   
   // Process each item to ensure unique positions
-  return sortedItems.map(item => {
+  const uniqueItems = sortedItems.map(item => {
     let position = item.position;
     
     // If position is already used, find the next available one
@@ -45,5 +46,28 @@ export const ensureUniquePositions = (items: SidebarMenuItem[]): SidebarMenuItem
       ...item,
       position
     };
+  });
+  
+  // Finally, make sure positions are sequential
+  return assignSequentialPositions(uniqueItems);
+};
+
+/**
+ * Ensures each menu item has a default icon if none is provided
+ * This prevents issues with rendering or display
+ */
+export const ensureDefaultIcons = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
+  return items.map(item => {
+    // If icon is missing or empty, assign default based on type
+    if (!item.icon || item.icon === '') {
+      if (item.type === 'static_page') {
+        return { ...item, icon: 'file' };
+      } else if (item.type === 'category') {
+        return { ...item, icon: 'folder' };
+      } else {
+        return { ...item, icon: 'link' };
+      }
+    }
+    return item;
   });
 };

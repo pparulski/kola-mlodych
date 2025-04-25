@@ -9,9 +9,6 @@ import { MenuItemType, SidebarMenuItem } from "@/types/sidebarMenu";
 export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
   console.log("Fetching menu positions from database");
   try {
-    // To prevent caching, we'll use a more reliable approach
-    // that doesn't require headers manipulation
-    
     const { data, error } = await supabase
       .from('menu_positions')
       .select('*')
@@ -41,6 +38,10 @@ export const updateAllMenuPositions = async (
   
   // First, update static pages
   const staticPagesResult = await updateStaticPagesPositions(items);
+  
+  // Clean up existing positions before inserting new ones
+  // This prevents position duplicates and orphaned items
+  await cleanExistingPositions();
   
   // Then, prepare items for menu_positions table
   // This includes both regular menu items and categories
@@ -79,6 +80,51 @@ export const updateAllMenuPositions = async (
   }
   
   return staticPagesResult;
+};
+
+/**
+ * Removes any potential duplicate entries before saving new positions
+ * This helps prevent the duplicate position issues
+ */
+const cleanExistingPositions = async (): Promise<void> => {
+  try {
+    // We'll do a simple fetch and delete of all menu positions
+    // This ensures we start with a clean slate and all items get properly reordered
+    // Not doing this for static pages since they're managed differently
+    
+    const { data, error } = await supabase
+      .from('menu_positions')
+      .select('id')
+      .not('type', 'eq', 'static_page');
+    
+    if (error) {
+      console.error("Error fetching positions for cleanup:", error);
+      return;
+    }
+    
+    // Update rather than delete to avoid foreign key violations
+    // Just reset positions to large values temporarily
+    if (data && data.length > 0) {
+      // Just getting the IDs to update positions for
+      const idsToUpdate = data.map(item => item.id);
+      
+      if (idsToUpdate.length > 0) {
+        console.log(`Setting temporary positions for ${idsToUpdate.length} items`);
+        // Rather than deleting, we'll update with temporary positions
+        // This avoids issues with deleted rows
+        const { error: updateError } = await supabase
+          .from('menu_positions')
+          .update({ position: 9999 })
+          .in('id', idsToUpdate);
+          
+        if (updateError) {
+          console.error("Error resetting positions during cleanup:", updateError);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Exception during position cleanup:", error);
+  }
 };
 
 /**
