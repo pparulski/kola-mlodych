@@ -1,8 +1,9 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMenuReordering } from "@/hooks/useMenuReordering";
 import { useLoadMenuItems } from "@/hooks/useLoadMenuItems";
 import { useMenuMutations } from "@/hooks/useMenuMutations";
+import { SidebarMenuItem } from "@/types/sidebarMenu";
 import { assignSequentialPositions } from "@/utils/menuUtils";
 
 export function useMenuItems() {
@@ -12,7 +13,7 @@ export function useMenuItems() {
   const { updateIconMutation, updateOrderMutation } = useMenuMutations();
 
   // Update local state when items are loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && loadedMenuItems.length > 0) {
       setMenuItems(loadedMenuItems);
     }

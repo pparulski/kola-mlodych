@@ -1,4 +1,5 @@
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { 
@@ -34,7 +35,7 @@ export function useLoadMenuItems() {
   });
 
   // Convert and combine menu items
-  const menuItems = React.useMemo(() => {
+  const menuItems = useMemo(() => {
     if (!isLoadingPages && !isLoadingPositions && !isCategoriesLoading && staticPagesData) {
       // Get default menu items
       const defaultItems = getDefaultMenuItems();
