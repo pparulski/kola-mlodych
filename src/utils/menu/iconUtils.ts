@@ -33,7 +33,10 @@ export const getIconComponent = (iconName: string | null | undefined) => {
  * Validate if an icon name is valid
  */
 export const isValidIconName = (iconName: string): iconName is ValidIconName => {
-  const isValid = Object.keys(VALID_ICONS).includes(iconName);
+  // Use explicit string keys check instead of Object.keys() which returns (string | number)[]
+  const validKeys = Object.keys(VALID_ICONS) as string[];
+  const isValid = validKeys.includes(iconName);
+  
   if (!isValid) {
     console.log(`Invalid icon name: ${iconName}`);
   }
