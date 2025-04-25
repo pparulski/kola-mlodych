@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +42,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         if (selectedCategories && selectedCategories.length > 0) {
           console.log('Applying category filter with:', selectedCategories);
-          query = query.overlaps('category_ids', selectedCategories);
+          // Filter by category_names array column (contains slug) instead of category_ids
+          // We need to use the containedBy operator to filter the array
+          selectedCategories.forEach(category => {
+            query = query.or(`category_names.cs.{${category}}`);
+          });
         } else {
           console.log('No category filters applied, fetching all articles');
         }
