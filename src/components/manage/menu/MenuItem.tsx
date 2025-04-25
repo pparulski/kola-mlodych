@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
@@ -78,7 +79,7 @@ export function MenuItem({
             className="cursor-grab p-1 -ml-1"
             aria-label="Drag menu item"
           >
-            <DynamicIcon name={iconName} className="h-5 w-5 text-muted-foreground" />
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="w-auto">

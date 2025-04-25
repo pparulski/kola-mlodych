@@ -2,37 +2,25 @@ import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { MenuItemType } from "@/types/sidebarMenu";
-import { 
-  fetchSidebarPages, 
-  fetchMenuPositions, 
-  fetchCategoryMenuItems 
-} from "@/services/menu";
-import { 
-  staticPagesToMenuItems, 
-  getDefaultMenuItems, 
-  sortMenuItems,
-  assignSequentialPositions,
-  applyCustomPositions
-} from "@/utils/menu";
+import { fetchSidebarPages, fetchMenuPositions, fetchCategoryMenuItems } from "@/services/menu";
+import { staticPagesToMenuItems, getDefaultMenuItems, sortMenuItems, assignSequentialPositions, applyCustomPositions } from "@/utils/menu";
 import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
 import dynamic from "@/lib/dynamic";
-import dynamicIconImports from "lucide-react/dynamicIconImports";
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 
-// Dynamic icon component that loads icons on demand
-const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
+// Memoized DynamicIcon component to prevent unnecessary re-renders
+const DynamicIcon = React.memo(({ name, ...props }: LucideProps & { name: string }) => {
   const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
     loading: <div className="h-6 w-6 animate-pulse bg-muted rounded" />
   });
   
   return <LucideIcon {...props} />;
-};
+});
 
-interface PublicMenuProps {
-  onItemClick: () => void;
-}
+DynamicIcon.displayName = 'DynamicIcon';
 
-export function PublicMenu({ onItemClick }: PublicMenuProps) {
+export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   const location = useLocation();
   
   // Fetch all static pages visible in sidebar
@@ -57,36 +45,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     staleTime: 0,
   });
 
-  // Convert static pages to menu items format
-  const staticPageMenuItems = sidebarPages ? staticPagesToMenuItems(sidebarPages) : [];
-
-  // Get default menu items
-  const defaultMenuItems = getDefaultMenuItems();
-
-  // Convert categories to menu items 
-  const categoryMenuItems = categories ? categories.map(cat => ({
-    id: `category-${cat.id}`,
-    originalId: cat.id,
-    title: cat.name,
-    path: `/category/${cat.slug}`,
-    icon: 'BookOpen',
-    position: 100, // Default high position, will be sorted later
-    type: MenuItemType.CATEGORY
-  })) : [];
-
-  // Apply custom positions and icons from database if available
-  let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryMenuItems];
-  if (menuPositions && menuPositions.length > 0) {
-    combinedItems = applyCustomPositions(combinedItems, menuPositions);
-  }
-
-  // Combine, sort by current positions, then assign sequential positions
-  const sortedItems = sortMenuItems(combinedItems);
-  const allMenuItems = assignSequentialPositions(sortedItems);
-
-  if (isPagesLoading || isPositionsLoading || isCategoriesLoading) {
-    return <div className="py-2 px-3">Ładowanie menu...</div>;
-  }
+  const isLoading = isPagesLoading || isPositionsLoading || isCategoriesLoading;
 
   // Helper function to check if a menu item matches the current route
   const isItemActive = (itemPath: string) => {
@@ -100,19 +59,46 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     return location.pathname.startsWith(itemPath);
   };
 
+  // Memoize the menu items to prevent unnecessary re-renders
+  const menuItems = React.useMemo(() => {
+    if (!isLoading) {
+      const staticPageMenuItems = sidebarPages ? staticPagesToMenuItems(sidebarPages) : [];
+      const defaultMenuItems = getDefaultMenuItems();
+      const categoryMenuItems = categories ? categories.map(cat => ({
+        id: `category-${cat.id}`,
+        originalId: cat.id,
+        title: cat.name,
+        path: `/category/${cat.slug}`,
+        icon: 'book-open',
+        position: 100,
+        type: MenuItemType.CATEGORY
+      })) : [];
+
+      let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryMenuItems];
+      
+      if (menuPositions?.length > 0) {
+        combinedItems = applyCustomPositions(combinedItems, menuPositions);
+      }
+
+      const sortedItems = sortMenuItems(combinedItems);
+      return assignSequentialPositions(sortedItems);
+    }
+    return [];
+  }, [sidebarPages, categories, menuPositions, isLoading]);
+
+  if (isPagesLoading || isPositionsLoading || isCategoriesLoading) {
+    return <div className="py-2 px-3">Ładowanie menu...</div>;
+  }
+
   return (
     <>
-      {allMenuItems.map((item) => {
-        const iconStr = typeof item.icon === 'string' ? item.icon : 'file';
-        const iconName = getSafeIconName(toKebabCase(iconStr));
+      {menuItems.map((item) => {
+        const iconName = getSafeIconName(typeof item.icon === 'string' ? toKebabCase(item.icon) : 'file');
         const isActive = isItemActive(item.path);
         
         return (
           <SidebarMenuItem key={item.path}>
-            <SidebarMenuButton 
-              asChild
-              isActive={isActive}
-            >
+            <SidebarMenuButton asChild isActive={isActive}>
               <Link 
                 to={item.path} 
                 onClick={onItemClick}
