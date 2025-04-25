@@ -9,14 +9,15 @@ import { MenuItemType, SidebarMenuItem } from "@/types/sidebarMenu";
 export const fetchMenuPositions = async (): Promise<MenuPosition[]> => {
   console.log("Fetching menu positions from database");
   try {
-    // Add a cache buster to avoid Supabase response caching
-    const cacheBuster = new Date().getTime();
+    // Use a simple cache-busting approach by adding a timestamp to the query
+    const timestamp = new Date().getTime();
     
     const { data, error } = await supabase
       .from('menu_positions')
       .select('*')
       .order('position', { ascending: true })
-      .eq('dummy', `${cacheBuster}`.substring(0, 0)); // Dummy query param that doesn't affect results
+      // Add cache buster as a header instead of a query param
+      .headers({ 'Cache-Control': 'no-cache', 'X-Cache-Buster': `${timestamp}` });
 
     if (error) {
       console.error("Error fetching menu positions:", error);
