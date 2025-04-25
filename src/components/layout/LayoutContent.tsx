@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,12 +12,22 @@ import { SidebarOverlay } from "./SidebarOverlay";
 import { JoinBanner } from "./JoinBanner";
 import { PageHeader } from "./PageHeader";
 
+// Simple debounce function
+const debounce = (func: Function, wait: number) => {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 export function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
   const location = useLocation();
   const params = useParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isUpdatingUrl, setIsUpdatingUrl] = useState(false);
 
   const isCategoryPage = location.pathname.startsWith('/category/');
   const isManagementPage = location.pathname.includes('/manage/');
@@ -75,8 +86,12 @@ export function LayoutContent() {
     setSelectedCategories([]);
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (isHomePage) {
+  // Use debounced version to update URL
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const updateUrlDebounced = useCallback(
+    debounce(() => {
+      if (!isHomePage || isUpdatingUrl) return;
+      
       const params = new URLSearchParams(location.search);
       
       if (searchQuery) {
@@ -94,25 +109,37 @@ export function LayoutContent() {
       const newSearch = params.toString();
       const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
       
+      setIsUpdatingUrl(true);
       window.history.replaceState(null, '', newUrl);
-    }
-  }, [searchQuery, selectedCategories, location.pathname]);
+      setTimeout(() => setIsUpdatingUrl(false), 50);
+    }, 300), // 300ms debounce time
+    [isHomePage, searchQuery, selectedCategories, location.pathname, location.search, isUpdatingUrl]
+  );
 
+  // Update URL when query or categories change 
   useEffect(() => {
-    if (isHomePage) {
+    updateUrlDebounced();
+  }, [searchQuery, selectedCategories, updateUrlDebounced]);
+
+  // Parse URL parameters on initial load and when URL changes
+  useEffect(() => {
+    if (isHomePage && !isUpdatingUrl) {
       const params = new URLSearchParams(location.search);
       
       const searchParam = params.get('search');
-      if (searchParam) {
+      if (searchParam && searchParam !== searchQuery) {
         setSearchQuery(searchParam);
       }
       
       const categoriesParam = params.get('categories');
       if (categoriesParam) {
-        setSelectedCategories(categoriesParam.split(','));
+        const newCategories = categoriesParam.split(',');
+        if (JSON.stringify(newCategories) !== JSON.stringify(selectedCategories)) {
+          setSelectedCategories(newCategories);
+        }
       }
     }
-  }, [location.pathname, location.search]);
+  }, [location.search, isHomePage, searchQuery, selectedCategories, isUpdatingUrl]);
 
   let pageTitle: string | null = null;
   
@@ -128,6 +155,15 @@ export function LayoutContent() {
     setIsOpen(false);
   };
 
+  // Wrapped setter functions to avoid rapid state updates
+  const handleSetSearchQuery = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleSetSelectedCategories = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
   return (
     <>
       <AppSidebar />
@@ -139,9 +175,9 @@ export function LayoutContent() {
             <PageHeader 
               pageTitle={pageTitle}
               searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
+              setSearchQuery={handleSetSearchQuery}
               selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
+              setSelectedCategories={handleSetSelectedCategories}
               categories={categories}
             />
           </div>
@@ -149,7 +185,7 @@ export function LayoutContent() {
           <CategorySection 
             isHomePage={isHomePage}
             selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
+            setSelectedCategories={handleSetSelectedCategories}
             categories={categories}
           />
 

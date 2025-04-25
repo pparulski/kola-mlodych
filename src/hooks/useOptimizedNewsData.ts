@@ -19,6 +19,23 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       let query;
       
+      // STEP 1: First fetch some sample data to debug category names structure
+      if (selectedCategories && selectedCategories.length > 0) {
+        // Let's first look at the actual data to understand the structure
+        const { data: sampleData } = await supabase
+          .from('news_preview')
+          .select('*')
+          .limit(5);
+        
+        console.log('Sample news_preview data to check category_names structure:', 
+          sampleData?.map(item => ({
+            id: item.id,
+            title: item.title,
+            category_names: item.category_names
+          }))
+        );
+      }
+      
       if (searchQuery) {
         const { data, error } = await supabase
           .rpc('search_news', { search_term: searchQuery });
@@ -43,9 +60,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         if (selectedCategories && selectedCategories.length > 0) {
           console.log('Applying category filter with:', selectedCategories);
           
-          // Use a different approach with array overlaps
-          // The @> operator checks if the left array contains the right array
-          query = query.filter('category_names', 'cs', selectedCategories);
+          // Try a different approach by using "ilike" to match individual items
+          // In case the category_names array contains full names instead of slugs
+          selectedCategories.forEach((category, index) => {
+            query = query.or(`category_names.ilike.%${category}%`);
+          });
         } else {
           console.log('No category filters applied, fetching all articles');
         }
@@ -60,6 +79,43 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         const totalCount = countData ? countData.length : 0;
         console.log(`Found ${totalCount} total articles`);
         
+        if (selectedCategories && selectedCategories.length > 0 && totalCount === 0) {
+          console.log('No articles found with selected categories. Trying alternative matching approach...');
+          
+          // Try a different approach as a fallback
+          const { data: alternativeData } = await supabase
+            .from('news_preview')
+            .select('*')
+            .order('date', { ascending: false });
+            
+          // Filter client-side to inspect what's happening
+          const filteredData = alternativeData?.filter(item => {
+            if (!item.category_names) return false;
+            
+            // Log each article and its categories for debugging
+            console.log(`Article "${item.title}" has categories:`, item.category_names);
+            
+            // Check if any of the selected categories matches any of the article's categories
+            return selectedCategories.some(selectedCat => 
+              item.category_names && item.category_names.some((cat: string) => 
+                cat.toLowerCase().includes(selectedCat.toLowerCase())
+              )
+            );
+          });
+          
+          console.log(`Alternative filtering found ${filteredData?.length || 0} articles`);
+          
+          if (filteredData && filteredData.length > 0) {
+            const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+            const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, filteredData.length);
+            
+            return {
+              items: filteredData.slice(startIndex, endIndex) || [],
+              total: filteredData.length
+            };
+          }
+        }
+        
         const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
         const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, totalCount);
         const paginatedData = countData ? countData.slice(startIndex, endIndex) : [];
@@ -70,7 +126,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         };
       }
     },
-    staleTime: 0,
+    staleTime: 30000, // Increase staleTime to prevent excessive refetching
   });
 
   const totalPages = Math.ceil((newsData?.total || 0) / ARTICLES_PER_PAGE);
