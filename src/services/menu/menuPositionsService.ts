@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { MenuPosition } from "@/types/menu";
 import { MenuItemType, SidebarMenuItem } from "@/types/sidebarMenu";
@@ -70,31 +69,6 @@ export const updateAllMenuPositions = async (
   } catch (error) {
     console.error("Exception updating menu positions:", error);
     return { success: false, errors: [error] };
-  }
-};
-
-/**
- * Updates a single menu item's icon
- */
-export const updateMenuItemIcon = async (
-  itemId: string, 
-  newIcon: string
-): Promise<{ success: boolean; error: any | null }> => {
-  try {
-    const { error } = await supabase
-      .from('menu_positions')
-      .update({ icon: newIcon })
-      .eq('id', itemId);
-    
-    if (error) {
-      console.error("Error updating menu item icon:", error);
-      return { success: false, error };
-    }
-    
-    return { success: true, error: null };
-  } catch (error) {
-    console.error("Exception updating menu item icon:", error);
-    return { success: false, error };
   }
 };
 
