@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
-import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen, LucideIcon } from "lucide-react"; // Consolidated LucideIcon import
+import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen, LucideIcon } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
-import { IconPicker } from "@/components/ui/icon-picker/IconPicker"; // Fixed import path
+import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import * as Icons from "lucide-react";
 
 // Interface defining the props for the MenuItem component
 interface MenuItemProps {
@@ -12,21 +14,8 @@ interface MenuItemProps {
   index: number;
   moveItem: (index: number, direction: 'up' | 'down') => void;
   itemsLength: number;
-  // Add the function prop to handle icon updates from the picker
   updateItemIcon: (itemId: string, newIcon: string) => void;
 }
-
-// (Optional) This function might still be useful if you need to render icons
-// elsewhere based on string names, but IconPicker now handles the primary display.
-export const getIconComponent = (iconName: string): React.ReactElement => {
-  switch (iconName) {
-    case 'Home': return <Home className="h-5 w-5" />;
-    case 'Map': return <Map className="h-5 w-5" />;
-    case 'Download': return <Download className="h-5 w-5" />;
-    case 'BookOpen': return <BookOpen className="h-5 w-5" />;
-    default: return <File className="h-5 w-5" />;
-  }
-};
 
 // The main MenuItem component
 export function MenuItem({
@@ -34,13 +23,26 @@ export function MenuItem({
   index,
   moveItem,
   itemsLength,
-  updateItemIcon // Destructure the new prop
+  updateItemIcon
 }: MenuItemProps) {
+  // State to control the popover
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  
+  // State to track the current icon (for immediate UI feedback)
+  const [currentIcon, setCurrentIcon] = useState(item.icon || "File");
 
   // Handler function to be passed to IconPicker's onChange
   const handleIconUpdate = (newIcon: string) => {
-    console.log(`MenuItem: Updating icon for item ${item.id} to ${newIcon}`); // Debug log
-    updateItemIcon(item.id, newIcon); // Call the prop function passed from parent
+    console.log(`MenuItem: Updating icon for item ${item.id} to ${newIcon}`);
+    
+    // Update the local state immediately for responsive UI
+    setCurrentIcon(newIcon);
+    
+    // Close the popover
+    setIsIconPickerOpen(false);
+    
+    // Then call the parent function to update in the database
+    updateItemIcon(item.id, newIcon);
   };
 
   // Function to get the display label based on the item type
@@ -51,40 +53,51 @@ export function MenuItem({
       case MenuItemType.CATEGORY:
         return 'Kategoria';
       default:
-        return 'Menu'; // Default label
+        return 'Menu';
     }
   };
 
-  // Determine the icon value to pass to the IconPicker
-  // IconPicker expects a string name from lucide-react icons
-  const currentIconValue = typeof item.icon === 'string' ? item.icon : 'File'; // Default to 'File' if not a string
+  // Get the current icon component
+  const IconComponent = currentIcon && Icons[currentIcon as keyof typeof Icons] 
+    ? (Icons as any)[currentIcon]
+    : Icons.File;
 
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>
       {(provided, snapshot) => (
         <li
           ref={provided.innerRef}
-          {...provided.draggableProps} // Draggable props apply to the whole item
-          // dragHandleProps are NOT applied here anymore
-          className={`p-3 flex items-center gap-3 ${snapshot.isDragging ? 'bg-accent shadow-md' : ''}`} // Added shadow for dragging feedback
+          {...provided.draggableProps}
+          className={`p-3 flex items-center gap-3 ${snapshot.isDragging ? 'bg-accent shadow-md' : ''}`}
         >
-          {/* Drag Handle: Apply dragHandleProps ONLY to this element */}
+          {/* Drag Handle */}
           <div
             {...provided.dragHandleProps}
-            className="cursor-grab p-1 -ml-1" // Added padding for easier grabbing
-            aria-label="Drag menu item" // Accessibility improvement
+            className="cursor-grab p-1 -ml-1"
+            aria-label="Drag menu item"
           >
             <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
 
           {/* Icon Picker Integration */}
-          <div className="w-auto"> {/* Allow picker trigger to define width */}
-            <IconPicker
-              // Pass the current icon string name (or default)
-              value={currentIconValue}
-              // Pass the handler function to update the icon
-              onChange={handleIconUpdate}
-            />
+          <div className="w-auto">
+            <Popover open={isIconPickerOpen} onOpenChange={setIsIconPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 rounded-full"
+                >
+                  <IconComponent className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-2">
+                <IconPicker
+                  value={currentIcon}
+                  onChange={handleIconUpdate}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Item Details */}
@@ -92,18 +105,18 @@ export function MenuItem({
             <p className="font-medium truncate">{item.title}</p>
             <p className="text-xs text-muted-foreground truncate">
               {item.path}
-              {item.position != null && <span className="ml-2 text-xs">(Pozycja: {item.position})</span>} {/* Added null check for position */}
+              {item.position != null && <span className="ml-2 text-xs">(Pozycja: {item.position})</span>}
             </p>
           </div>
 
           {/* Action Buttons (Move Up/Down) */}
-          <div className="flex items-center gap-1"> {/* Removed ml-auto mr-2 for potentially better spacing with type label */}
+          <div className="flex items-center gap-1">
             <Button
-              variant="ghost" // Changed variant for less visual weight
+              variant="ghost"
               size="icon"
               className="h-8 w-8"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent drag potentially starting on rapid clicks
+                e.stopPropagation();
                 moveItem(index, 'up');
               }}
               disabled={index === 0}
@@ -112,11 +125,11 @@ export function MenuItem({
               <ArrowUp className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost" // Changed variant
+              variant="ghost"
               size="icon"
               className="h-8 w-8"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent drag potentially starting on rapid clicks
+                e.stopPropagation();
                 moveItem(index, 'down');
               }}
               disabled={index === itemsLength - 1}
@@ -127,7 +140,7 @@ export function MenuItem({
           </div>
 
           {/* Type Label */}
-          <div className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground whitespace-nowrap"> {/* Added nowrap */}
+          <div className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground whitespace-nowrap">
             {getTypeLabel()}
           </div>
         </li>

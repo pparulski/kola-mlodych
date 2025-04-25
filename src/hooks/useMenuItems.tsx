@@ -86,9 +86,13 @@ export function useMenuItems() {
   const updateIconMutation = useMutation({
     mutationFn: async ({ itemId, newIcon }: { itemId: string, newIcon: string }) => {
       console.log(`Mutation: Updating icon for item ${itemId} to ${newIcon}`);
+      
+      // Call the service function to update the icon
       const result = await updateMenuItemIcon(itemId, newIcon);
       
+      // If the update failed, throw an error to trigger onError
       if (!result.success) {
+        console.error(`Failed to update icon: ${JSON.stringify(result.error)}`);
         throw new Error(`Failed to update icon: ${JSON.stringify(result.error)}`);
       }
       
@@ -105,7 +109,10 @@ export function useMenuItems() {
         )
       );
       
-      toast.success("Ikona została zaktualizowana");
+      // Show success toast
+      toast.success("Ikona została zaktualizowana", {
+        duration: 3000,
+      });
       
       // Invalidate relevant queries to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
@@ -117,7 +124,9 @@ export function useMenuItems() {
     },
     onError: (error) => {
       console.error("Error updating icon:", error);
-      toast.error("Nie udało się zaktualizować ikony");
+      toast.error("Nie udało się zaktualizować ikony", {
+        duration: 3000,
+      });
     }
   });
 
