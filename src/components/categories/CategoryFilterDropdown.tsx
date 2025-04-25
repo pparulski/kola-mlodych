@@ -32,6 +32,10 @@ export function CategoryFilterDropdown({
     }
   };
 
+  const handleClearCategories = () => {
+    setSelectedCategories([]);
+  };
+
   // Counter for selected items
   const selectedCount = selectedCategories.length;
   const hasSelectedItems = selectedCount > 0;
@@ -82,6 +86,16 @@ export function CategoryFilterDropdown({
               )}
             </DropdownMenuItem>
           ))}
+          {selectedCategories.length > 0 && (
+            <>
+              <DropdownMenuItem
+                onClick={handleClearCategories}
+                className="cursor-pointer text-destructive border-t mt-2 pt-2"
+              >
+                Wyczyść filtry
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
