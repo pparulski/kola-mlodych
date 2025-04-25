@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
@@ -13,8 +12,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getIconComponent, isValidIconName } from "@/utils/menu/iconUtils";
+import { isValidIconName, getSafeIconName } from "@/utils/menu/iconUtils";
 import React from "react";
+import dynamic from "@/lib/dynamic";
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
+import { LucideProps } from "lucide-react";
+
+// Dynamic icon component that loads icons on demand
+const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
+  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
+    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
+  });
+  
+  return <LucideIcon {...props} />;
+};
 
 interface MenuItemListProps {
   onEdit: (item: MenuItem) => void;
@@ -111,10 +122,7 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <h2 className="text-xl font-semibold">Elementy menu</h2>
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
-          // Safely get the icon component
-          const IconComponent = React.useMemo(() => {
-            return getIconComponent(item.icon);
-          }, [item.icon]);
+          const iconName = getSafeIconName(item.icon);
 
           return (
             <div
@@ -127,13 +135,13 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
                     variant="ghost" 
                     size="icon"
                   >
-                    <IconComponent className="size-4" />
+                    <DynamicIcon name={iconName} className="size-4" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
                   <div className="p-2">
                     <IconPicker
-                      value={item.icon || "FileIcon"}
+                      value={item.icon || "file"}
                       onChange={(newIcon) => handleIconUpdate(item.id, newIcon)}
                     />
                   </div>

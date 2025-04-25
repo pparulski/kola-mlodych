@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react"
 import { Command } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -6,19 +5,30 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { DynamicIcon } from 'lucide-react/dynamic'
 import dynamicIconImports from 'lucide-react/dynamicIconImports'
-import { toKebabCase } from "@/utils/menu/iconUtils"
+import { getSafeIconName } from "@/utils/menu/iconUtils"
+import { LucideProps } from "lucide-react"
+import dynamic from "@/lib/dynamic"
 
 interface IconPickerProps {
   value: string
   onChange: (icon: string) => void
 }
 
+// Dynamic icon component that loads the icon on demand
+const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
+  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
+    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
+  });
+  
+  return <LucideIcon {...props} />;
+};
+
 export function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [iconNames, setIconNames] = useState<string[]>([])
+  const safeValue = getSafeIconName(value)
 
   useEffect(() => {
     // Get all icon names and filter them based on search query
@@ -41,7 +51,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-2">
-            <DynamicIcon name={value || "file"} className="h-4 w-4" />
+            <DynamicIcon name={safeValue} className="h-4 w-4" />
             <span>{value || "Select icon..."}</span>
           </div>
         </Button>

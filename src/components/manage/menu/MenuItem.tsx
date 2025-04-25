@@ -5,7 +5,19 @@ import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getIconComponent, toKebabCase, DynamicIcon } from "@/utils/menu/iconUtils";
+import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
+import dynamic from "@/lib/dynamic";
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
+import { LucideProps } from "lucide-react";
+
+// Dynamic icon component that loads the icon on demand
+const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
+  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
+    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
+  });
+  
+  return <LucideIcon {...props} />;
+};
 
 interface MenuItemProps {
   item: SidebarMenuItem;
@@ -51,6 +63,8 @@ export function MenuItem({
     }
   };
 
+  const iconName = getSafeIconName(currentIcon);
+
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>
       {(provided, snapshot) => (
@@ -64,7 +78,7 @@ export function MenuItem({
             className="cursor-grab p-1 -ml-1"
             aria-label="Drag menu item"
           >
-            <DynamicIcon name={currentIcon} className="h-5 w-5 text-muted-foreground" />
+            <DynamicIcon name={iconName} className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="w-auto">
@@ -75,7 +89,7 @@ export function MenuItem({
                   size="icon"
                   className="h-8 w-8 rounded-full"
                 >
-                  <DynamicIcon name={currentIcon} className="h-5 w-5" />
+                  <DynamicIcon name={iconName} className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[300px] p-0">

@@ -11,12 +11,22 @@ import {
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
   sortMenuItems,
-  getIconComponent,
   assignSequentialPositions,
   applyCustomPositions
 } from "@/utils/menu";
-import { DynamicIcon } from 'lucide-react/dynamic';
-import { toKebabCase } from "@/utils/menu/iconUtils";
+import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
+import dynamic from "@/lib/dynamic";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
+import { LucideProps } from "lucide-react";
+
+// Dynamic icon component that loads icons on demand
+const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
+  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
+    loading: <div className="h-6 w-6 animate-pulse bg-muted rounded" />
+  });
+  
+  return <LucideIcon {...props} />;
+};
 
 interface PublicMenuProps {
   onItemClick: () => void;
@@ -93,7 +103,8 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   return (
     <>
       {allMenuItems.map((item) => {
-        const iconName = typeof item.icon === 'string' ? toKebabCase(item.icon) : 'file';
+        const iconStr = typeof item.icon === 'string' ? item.icon : 'file';
+        const iconName = getSafeIconName(toKebabCase(iconStr));
         const isActive = isItemActive(item.path);
         
         return (
