@@ -21,7 +21,13 @@ export function useMenuMutations() {
       const { itemId, newIcon } = variables;
       console.log(`Mutation success: Updated icon for ${itemId} to ${newIcon}`);
       toast.success("Ikona została zaktualizowana");
+      
+      // Invalidate several queries to ensure UI is updated everywhere
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
+      
+      // If it's a regular menu item (not a static page or category), also invalidate menu-items
       if (!itemId.startsWith('page-') && !itemId.startsWith('category-')) {
         queryClient.invalidateQueries({ queryKey: ['menu-items'] });
       }

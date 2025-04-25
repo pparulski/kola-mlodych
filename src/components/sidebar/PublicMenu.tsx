@@ -32,11 +32,12 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     staleTime: 0, // Ensure we always get fresh data
   });
 
-  // Fetch menu positions for regular menu items
+  // Fetch menu positions for regular menu items with shorter staleTime
   const { data: menuPositions, isLoading: isPositionsLoading } = useQuery({
     queryKey: ['menu-positions'],
     queryFn: fetchMenuPositions,
     staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   // Fetch categories with show_in_menu=true
