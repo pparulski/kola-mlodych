@@ -85,11 +85,18 @@ export function useMenuItems() {
   // Add icon update mutation
   const updateIconMutation = useMutation({
     mutationFn: async ({ itemId, newIcon }: { itemId: string, newIcon: string }) => {
+      console.log(`Mutation: Updating icon for item ${itemId} to ${newIcon}`);
       const result = await updateMenuItemIcon(itemId, newIcon);
+      
+      if (!result.success) {
+        throw new Error(`Failed to update icon: ${JSON.stringify(result.error)}`);
+      }
+      
       return result;
     },
     onSuccess: (_, variables) => {
       const { itemId, newIcon } = variables;
+      console.log(`Mutation success: Updated icon for ${itemId} to ${newIcon}`);
       
       // Update the local state with the new icon
       setMenuItems(currentItems => 
@@ -102,6 +109,11 @@ export function useMenuItems() {
       
       // Invalidate relevant queries to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
+      
+      // For regular menu items, we might need to invalidate other queries as well
+      if (!itemId.startsWith('page-') && !itemId.startsWith('category-')) {
+        queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      }
     },
     onError: (error) => {
       console.error("Error updating icon:", error);
@@ -111,6 +123,7 @@ export function useMenuItems() {
 
   // Handler function to update an item's icon
   const handleIconUpdate = useCallback((itemId: string, newIcon: string) => {
+    console.log(`handleIconUpdate called for item ${itemId} with icon ${newIcon}`);
     updateIconMutation.mutate({ itemId, newIcon });
   }, [updateIconMutation]);
 
