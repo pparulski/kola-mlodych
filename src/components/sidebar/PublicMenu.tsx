@@ -1,3 +1,5 @@
+
+import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -60,7 +62,7 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   };
 
   // Memoize the menu items to prevent unnecessary re-renders
-  const menuItems = React.useMemo(() => {
+  const menuItems = useMemo(() => {
     if (!isLoading) {
       const staticPageMenuItems = sidebarPages ? staticPagesToMenuItems(sidebarPages) : [];
       const defaultMenuItems = getDefaultMenuItems();
