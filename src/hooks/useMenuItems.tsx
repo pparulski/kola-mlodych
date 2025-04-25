@@ -4,7 +4,7 @@ import { useMenuReordering } from "@/hooks/useMenuReordering";
 import { useLoadMenuItems } from "@/hooks/useLoadMenuItems";
 import { useMenuMutations } from "@/hooks/useMenuMutations";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
-import { assignSequentialPositions } from "@/utils/menuUtils";
+import { assignSequentialPositions } from "@/utils/menu";
 
 export function useMenuItems() {
   const [menuItems, setMenuItems] = useState<SidebarMenuItem[]>([]);

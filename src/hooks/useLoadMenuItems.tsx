@@ -13,7 +13,7 @@ import {
   sortMenuItems, 
   assignSequentialPositions,
   applyCustomPositions 
-} from "@/utils/menuUtils";
+} from "@/utils/menu";
 
 export function useLoadMenuItems() {
   // Fetch static pages that should appear in sidebar

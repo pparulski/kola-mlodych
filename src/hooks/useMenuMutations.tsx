@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateMenuItemIcon, updateAllMenuPositions } from "@/services/menu";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
-import { assignSequentialPositions } from "@/utils/menuUtils";
+import { assignSequentialPositions } from "@/utils/menu";
 
 export function useMenuMutations() {
   const queryClient = useQueryClient();
