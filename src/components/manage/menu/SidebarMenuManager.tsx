@@ -11,7 +11,8 @@ export function SidebarMenuManager() {
     updateOrderMutation,
     handleDragEnd,
     handleSaveOrder,
-    moveItem
+    moveItem,
+    handleIconUpdate
   } = useMenuItems();
 
   if (isLoadingPages) {
@@ -34,6 +35,7 @@ export function SidebarMenuManager() {
         menuItems={menuItems} 
         handleDragEnd={handleDragEnd} 
         moveItem={moveItem}
+        updateItemIcon={handleIconUpdate}
       />
     </div>
   );

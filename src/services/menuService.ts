@@ -174,3 +174,21 @@ export const updateAllMenuPositions = async (
   
   return staticPagesResult;
 };
+
+// Add function to update menu item icon
+export async function updateMenuItemIcon(itemId: string, newIcon: string): Promise<{ success: boolean; error?: any }> {
+  try {
+    // For menu_items table (direct items)
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ icon: newIcon })
+      .eq("id", itemId);
+
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating menu item icon:", error);
+    return { success: false, error };
+  }
+}

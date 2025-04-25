@@ -7,7 +7,8 @@ import {
   fetchSidebarPages, 
   fetchMenuPositions,
   fetchCategoryMenuItems,
-  updateAllMenuPositions 
+  updateAllMenuPositions,
+  updateMenuItemIcon 
 } from "@/services/menuService";
 import { 
   staticPagesToMenuItems, 
@@ -81,6 +82,38 @@ export function useMenuItems() {
     }
   }, [staticPagesData, menuPositionsData, categoryMenuItemsData, isLoadingPages, isLoadingPositions, isLoadingCategoryItems]);
 
+  // Add icon update mutation
+  const updateIconMutation = useMutation({
+    mutationFn: async ({ itemId, newIcon }: { itemId: string, newIcon: string }) => {
+      const result = await updateMenuItemIcon(itemId, newIcon);
+      return result;
+    },
+    onSuccess: (_, variables) => {
+      const { itemId, newIcon } = variables;
+      
+      // Update the local state with the new icon
+      setMenuItems(currentItems => 
+        currentItems.map(item => 
+          item.id === itemId ? { ...item, icon: newIcon } : item
+        )
+      );
+      
+      toast.success("Ikona została zaktualizowana");
+      
+      // Invalidate relevant queries to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
+    },
+    onError: (error) => {
+      console.error("Error updating icon:", error);
+      toast.error("Nie udało się zaktualizować ikony");
+    }
+  });
+
+  // Handler function to update an item's icon
+  const handleIconUpdate = useCallback((itemId: string, newIcon: string) => {
+    updateIconMutation.mutate({ itemId, newIcon });
+  }, [updateIconMutation]);
+
   // Mutation to save menu order
   const updateOrderMutation = useMutation({
     mutationFn: async (items: SidebarMenuItem[]) => {
@@ -125,6 +158,7 @@ export function useMenuItems() {
     updateOrderMutation,
     handleDragEnd,
     handleSaveOrder,
-    moveItem
+    moveItem,
+    handleIconUpdate
   };
 }
