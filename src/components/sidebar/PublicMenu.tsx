@@ -10,14 +10,29 @@ import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
 import dynamic from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
+import { FileIcon } from "lucide-react";
 
-// Memoized DynamicIcon component to prevent unnecessary re-renders
+// Improved DynamicIcon component with error handling
 const DynamicIcon = React.memo(({ name, ...props }: LucideProps & { name: string }) => {
-  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
-    loading: <div className="h-6 w-6 animate-pulse bg-muted rounded" />
-  });
-  
-  return <LucideIcon {...props} />;
+  try {
+    // Get the dynamic import for this icon name
+    const iconImport = dynamicIconImports[name as keyof typeof dynamicIconImports];
+    
+    if (!iconImport) {
+      console.warn(`Icon '${name}' not found in sidebar menu, using fallback`);
+      return <FileIcon {...props} />;
+    }
+    
+    const LucideIcon = dynamic(() => iconImport, {
+      loading: <div className="h-6 w-6 animate-pulse bg-muted rounded" />,
+      fallback: <FileIcon {...props} />
+    });
+    
+    return <LucideIcon {...props} />;
+  } catch (error) {
+    console.error(`Error loading sidebar icon '${name}':`, error);
+    return <FileIcon {...props} />;
+  }
 });
 
 DynamicIcon.displayName = 'DynamicIcon';

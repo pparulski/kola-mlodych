@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react"
 import { Command } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search } from "lucide-react"
+import { Search, FileIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamicIconImports from 'lucide-react/dynamicIconImports'
 import { getSafeIconName } from "@/utils/menu/iconUtils"
@@ -15,13 +16,27 @@ interface IconPickerProps {
   onChange: (icon: string) => void
 }
 
-// Dynamic icon component that loads the icon on demand
+// Dynamic icon component with proper error handling
 const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
-  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
-    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
-  });
-  
-  return <LucideIcon {...props} />;
+  try {
+    // Get the dynamic import for this icon name
+    const iconImport = dynamicIconImports[name as keyof typeof dynamicIconImports];
+    
+    if (!iconImport) {
+      console.warn(`Icon '${name}' not found, using fallback`);
+      return <FileIcon {...props} />;
+    }
+    
+    const LucideIcon = dynamic(() => iconImport, {
+      loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
+      fallback: <FileIcon {...props} />
+    });
+    
+    return <LucideIcon {...props} />;
+  } catch (error) {
+    console.error(`Error loading icon '${name}':`, error);
+    return <FileIcon {...props} />;
+  }
 };
 
 export function IconPicker({ value, onChange }: IconPickerProps) {

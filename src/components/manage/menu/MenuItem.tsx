@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
-import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
+import { GripVertical, ArrowUp, ArrowDown, FileIcon } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -11,13 +10,27 @@ import dynamic from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 
-// Dynamic icon component that loads the icon on demand
+// Improved DynamicIcon component with error handling
 const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
-  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
-    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
-  });
-  
-  return <LucideIcon {...props} />;
+  try {
+    // Get the dynamic import for this icon name
+    const iconImport = dynamicIconImports[name as keyof typeof dynamicIconImports];
+    
+    if (!iconImport) {
+      console.warn(`Icon '${name}' not found in menu item, using fallback`);
+      return <FileIcon {...props} />;
+    }
+    
+    const LucideIcon = dynamic(() => iconImport, {
+      loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
+      fallback: <FileIcon {...props} />
+    });
+    
+    return <LucideIcon {...props} />;
+  } catch (error) {
+    console.error(`Error loading menu item icon '${name}':`, error);
+    return <FileIcon {...props} />;
+  }
 };
 
 interface MenuItemProps {

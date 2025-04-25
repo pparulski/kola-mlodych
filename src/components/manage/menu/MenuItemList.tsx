@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, FileIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
@@ -18,13 +18,27 @@ import dynamic from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 
-// Dynamic icon component that loads icons on demand
+// Improved DynamicIcon component with error handling
 const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
-  const LucideIcon = dynamic(dynamicIconImports[name as keyof typeof dynamicIconImports], {
-    loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />
-  });
-  
-  return <LucideIcon {...props} />;
+  try {
+    // Get the dynamic import for this icon name
+    const iconImport = dynamicIconImports[name as keyof typeof dynamicIconImports];
+    
+    if (!iconImport) {
+      console.warn(`Icon '${name}' not found in menu item list, using fallback`);
+      return <FileIcon {...props} />;
+    }
+    
+    const LucideIcon = dynamic(() => iconImport, {
+      loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
+      fallback: <FileIcon {...props} />
+    });
+    
+    return <LucideIcon {...props} />;
+  } catch (error) {
+    console.error(`Error loading menu item list icon '${name}':`, error);
+    return <FileIcon {...props} />;
+  }
 };
 
 interface MenuItemListProps {
