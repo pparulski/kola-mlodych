@@ -30,7 +30,8 @@ export async function updateMenuItemIcon(itemId: string, newIcon: string): Promi
       const { error } = await supabase
         .from("menu_positions")
         .update({ 
-          icon: newIcon 
+          icon: newIcon,
+          type: itemId.startsWith('page-') ? 'STATIC_PAGE' : 'CATEGORY'
         })
         .eq("id", itemId);
 
@@ -47,4 +48,3 @@ export async function updateMenuItemIcon(itemId: string, newIcon: string): Promi
     return { success: false, error };
   }
 }
-

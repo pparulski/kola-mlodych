@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { MenuPosition } from "@/types/menu";
-import { SidebarMenuItem } from "@/types/sidebarMenu";
+import { MenuItemType, SidebarMenuItem } from "@/types/sidebarMenu";
 
 /**
  * Fetches positions for regular menu items
@@ -42,7 +42,7 @@ export const updateAllMenuPositions = async (
   // Then, prepare items for menu_positions table
   // This includes both regular menu items and categories
   const positionItems = items.filter(item => 
-    item.type === "REGULAR" || item.type === "CATEGORY"
+    item.type === MenuItemType.REGULAR || item.type === MenuItemType.CATEGORY
   );
   
   if (positionItems.length > 0) {
@@ -51,7 +51,7 @@ export const updateAllMenuPositions = async (
       id: item.id,
       type: item.type,
       position: item.position,
-      resource_id: item.type === "CATEGORY" ? item.originalId : null,
+      resource_id: item.type === MenuItemType.CATEGORY ? item.originalId : null,
       icon: item.icon
     }));
     
@@ -90,7 +90,7 @@ const updateStaticPagesPositions = async (
   
   // Only update DB for static pages
   for (const item of items) {
-    if (item.type === "STATIC_PAGE" && item.originalId) {
+    if (item.type === MenuItemType.STATIC_PAGE && item.originalId) {
       console.log(`Updating position for ${item.title} (ID: ${item.originalId}) to ${item.position}`);
       
       const updatePromise = supabase
@@ -118,4 +118,3 @@ const updateStaticPagesPositions = async (
     errors: errors.map(result => result.error)
   };
 };
-
