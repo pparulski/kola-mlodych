@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
-import dynamic from "@/lib/dynamic";
+import dynamic, { wrapDynamicIconImport } from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 
@@ -21,7 +22,10 @@ const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
       return <FileIcon {...props} />;
     }
     
-    const LucideIcon = dynamic(() => iconImport, {
+    // Wrap the import function to match our dynamic utility's expected format
+    const wrappedImport = wrapDynamicIconImport(iconImport);
+    
+    const LucideIcon = dynamic(wrappedImport, {
       loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
       fallback: <FileIcon {...props} />
     });

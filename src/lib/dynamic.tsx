@@ -1,9 +1,15 @@
 
 import React, { lazy, Suspense } from 'react';
 
-type DynamicImportType = () => Promise<{
+// The expected type for import functions
+export type DynamicImportType = () => Promise<{
   default: React.ComponentType<any>;
 }>;
+
+// This wrapper function helps transform Lucide dynamic imports to the expected format
+export function wrapDynamicIconImport(importFn: () => Promise<any>): DynamicImportType {
+  return () => importFn().then(module => ({ default: module.default }));
+}
 
 // Simple dynamic import component for React with improved error handling
 export default function dynamic(importFunc: DynamicImportType, options: { 

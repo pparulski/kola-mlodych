@@ -10,8 +10,8 @@ export type ValidIconName = keyof typeof dynamicIconImports;
  */
 export const isValidIconName = (iconName: string | null | undefined): iconName is ValidIconName => {
   if (!iconName) return false;
-  const validNames = Object.keys(dynamicIconImports) as string[];
-  return validNames.includes(iconName);
+  const validNames = Object.keys(dynamicIconImports) as ValidIconName[];
+  return validNames.includes(iconName as ValidIconName);
 };
 
 /**
@@ -29,10 +29,10 @@ export const toKebabCase = (str: string) => {
  */
 const SAFE_FALLBACK_ICONS: ValidIconName[] = [
   'file', 
-  'layout', 
-  'menu', 
+  'circle', 
+  'menu',
   'bookmark',
-  'circle'
+  'clipboard'
 ];
 
 /**

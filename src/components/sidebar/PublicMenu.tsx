@@ -7,7 +7,7 @@ import { MenuItemType } from "@/types/sidebarMenu";
 import { fetchSidebarPages, fetchMenuPositions, fetchCategoryMenuItems } from "@/services/menu";
 import { staticPagesToMenuItems, getDefaultMenuItems, sortMenuItems, assignSequentialPositions, applyCustomPositions } from "@/utils/menu";
 import { toKebabCase, getSafeIconName } from "@/utils/menu/iconUtils";
-import dynamic from "@/lib/dynamic";
+import dynamic, { wrapDynamicIconImport } from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 import { FileIcon } from "lucide-react";
@@ -23,7 +23,10 @@ const DynamicIcon = React.memo(({ name, ...props }: LucideProps & { name: string
       return <FileIcon {...props} />;
     }
     
-    const LucideIcon = dynamic(() => iconImport, {
+    // Wrap the import function to match our dynamic utility's expected format
+    const wrappedImport = wrapDynamicIconImport(iconImport);
+    
+    const LucideIcon = dynamic(wrappedImport, {
       loading: <div className="h-6 w-6 animate-pulse bg-muted rounded" />,
       fallback: <FileIcon {...props} />
     });

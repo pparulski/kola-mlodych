@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { isValidIconName, getSafeIconName } from "@/utils/menu/iconUtils";
 import React from "react";
-import dynamic from "@/lib/dynamic";
+import dynamic, { wrapDynamicIconImport } from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 
@@ -29,7 +30,10 @@ const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
       return <FileIcon {...props} />;
     }
     
-    const LucideIcon = dynamic(() => iconImport, {
+    // Wrap the import function to match our dynamic utility's expected format
+    const wrappedImport = wrapDynamicIconImport(iconImport);
+    
+    const LucideIcon = dynamic(wrappedImport, {
       loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
       fallback: <FileIcon {...props} />
     });

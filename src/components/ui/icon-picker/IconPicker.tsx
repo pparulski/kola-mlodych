@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import dynamicIconImports from 'lucide-react/dynamicIconImports'
 import { getSafeIconName } from "@/utils/menu/iconUtils"
 import { LucideProps } from "lucide-react"
-import dynamic from "@/lib/dynamic"
+import dynamic, { wrapDynamicIconImport } from "@/lib/dynamic"
 
 interface IconPickerProps {
   value: string
@@ -27,7 +27,10 @@ const DynamicIcon = ({ name, ...props }: LucideProps & { name: string }) => {
       return <FileIcon {...props} />;
     }
     
-    const LucideIcon = dynamic(() => iconImport, {
+    // Wrap the import function to match our dynamic utility's expected format
+    const wrappedImport = wrapDynamicIconImport(iconImport);
+    
+    const LucideIcon = dynamic(wrappedImport, {
       loading: <div className="h-4 w-4 animate-pulse bg-muted rounded" />,
       fallback: <FileIcon {...props} />
     });
