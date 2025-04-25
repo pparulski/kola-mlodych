@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +8,7 @@ import {
   fetchCategoryMenuItems,
   updateAllMenuPositions,
   updateMenuItemIcon 
-} from "@/services/menuService";
+} from "@/services/menu";
 import { 
   staticPagesToMenuItems, 
   getDefaultMenuItems, 
