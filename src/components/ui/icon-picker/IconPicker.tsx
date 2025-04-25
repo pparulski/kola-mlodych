@@ -4,9 +4,9 @@ import { Command } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import * as Icons from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Search } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { VALID_ICONS } from "@/utils/menu/iconUtils"
 
 interface IconPickerProps {
   value: string
@@ -17,18 +17,15 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  // Filter icon names based on search query
-  const iconNames = Object.keys(Icons).filter(
-    (icon) =>
-      icon !== "createLucideIcon" &&
-      typeof (Icons as any)[icon] === 'object' && // Ensure it's likely an icon component object
-      icon.toLowerCase().includes(searchQuery.toLowerCase())
+  // Use icons from our validated list instead of all Lucide icons
+  const iconNames = Object.keys(VALID_ICONS).filter(
+    (iconName) => iconName.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   // Get the current icon component
-  const CurrentIcon = value && typeof (Icons as any)[value] === 'object'
-    ? (Icons as any)[value]
-    : Icons.File;
+  const CurrentIcon = value && VALID_ICONS[value as keyof typeof VALID_ICONS]
+    ? VALID_ICONS[value as keyof typeof VALID_ICONS]
+    : VALID_ICONS.File;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -63,8 +60,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               onTouchStart={(e) => e.stopPropagation()}
               >
               {iconNames.map((name) => {
-                const Icon = (Icons as any)[name]
-                if (typeof Icon !== 'object' || !Icon.displayName) return null;
+                const Icon = VALID_ICONS[name as keyof typeof VALID_ICONS];
                 
                 return (
                   <Button
@@ -75,8 +71,8 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                       value === name && "bg-muted"
                     )}
                     onClick={() => {
-                      onChange(name)
-                      setOpen(false)
+                      onChange(name);
+                      setOpen(false);
                     }}
                   >
                     <Icon className="h-5 w-5" />

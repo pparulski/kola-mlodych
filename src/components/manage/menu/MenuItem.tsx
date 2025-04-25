@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
 import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getIconComponent, isValidIconName } from "@/utils/menu/iconUtils";
+import { getIconComponent, isValidIconName, ValidIconName } from "@/utils/menu/iconUtils";
 
 interface MenuItemProps {
   item: SidebarMenuItem;
@@ -27,15 +28,23 @@ export function MenuItem({
     typeof item.icon === 'string' && isValidIconName(item.icon) ? item.icon : 'File'
   );
 
-  const handleIconUpdate = (newIcon: string) => {
-    if (!isValidIconName(newIcon)) {
-      console.warn(`Invalid icon name: ${newIcon}`);
-      return;
+  // Update local state when item prop changes
+  useEffect(() => {
+    if (typeof item.icon === 'string' && isValidIconName(item.icon)) {
+      setCurrentIcon(item.icon);
     }
+  }, [item.icon]);
+
+  const handleIconUpdate = (newIcon: string) => {
+    console.log(`Updating icon for ${item.id} to ${newIcon}`);
     
-    setCurrentIcon(newIcon);
-    setIsIconPickerOpen(false);
-    updateItemIcon(item.id, newIcon);
+    if (isValidIconName(newIcon)) {
+      setCurrentIcon(newIcon);
+      updateItemIcon(item.id, newIcon);
+      setIsIconPickerOpen(false);
+    } else {
+      console.warn(`Icon name is not valid: ${newIcon}`);
+    }
   };
 
   const getTypeLabel = () => {

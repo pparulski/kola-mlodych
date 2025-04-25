@@ -3,17 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, FileIcon } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { toast } from "sonner";
-import * as Icons from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { getIconComponent, isValidIconName } from "@/utils/menu/iconUtils";
 
 interface MenuItemListProps {
   onEdit: (item: MenuItem) => void;
@@ -30,7 +30,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
-  const { data: menuItems, isLoading } = useQuery({
+  const { data: menuItems, isLoading, refetch } = useQuery({
     queryKey: ["menu_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -52,6 +52,12 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
   });
 
   const handleIconUpdate = async (id: string, icon: string) => {
+    if (!isValidIconName(icon)) {
+      console.warn(`Attempted to update with invalid icon name: ${icon}`);
+      toast.error("Nieprawidłowa ikona");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("menu_items")
@@ -59,7 +65,19 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
         .eq("id", id);
       
       if (error) throw error;
+      
+      // Also update menu_positions for consistency
+      const { error: posError } = await supabase
+        .from("menu_positions")
+        .update({ icon })
+        .eq("id", id);
+        
+      if (posError) {
+        console.warn("Could not update menu_positions table:", posError);
+      }
+      
       toast.success("Ikona została zaktualizowana");
+      refetch(); // Refresh the data after updating
     } catch (error) {
       console.error("Error updating icon:", error);
       toast.error("Nie udało się zaktualizować ikony");
@@ -92,9 +110,8 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <h2 className="text-xl font-semibold">Elementy menu</h2>
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
-          const IconComponent = item.icon && Icons[item.icon as keyof typeof Icons] 
-            ? (Icons as any)[item.icon]
-            : FileIcon;
+          // Use our standardized icon getter
+          const IconComponent = getIconComponent(item.icon);
 
           return (
             <div
