@@ -1,6 +1,7 @@
 import { StaticPage } from "@/types/staticPages";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { MenuPosition } from "@/types/menu";
+import { ValidIconName } from "./iconUtils";
 
 /**
  * Converts static pages to menu items format
@@ -12,7 +13,7 @@ export const staticPagesToMenuItems = (pages: StaticPage[]): SidebarMenuItem[] =
     title: page.title,
     path: `/${page.slug}`,
     icon: 'File',
-    position: page.sidebar_position || 100, // Use actual position or a default high number
+    position: page.sidebar_position || 100,
     type: MenuItemType.STATIC_PAGE
   }));
 };
@@ -72,21 +73,16 @@ export const applyCustomPositions = (
   items: SidebarMenuItem[], 
   positions: MenuPosition[]
 ): SidebarMenuItem[] => {
-  // Create a copy of items to avoid mutation
-  const itemsCopy = [...items];
-  
-  // Apply positions and icons from database
-  positions.forEach(position => {
-    const itemIndex = itemsCopy.findIndex(item => item.id === position.id);
-    if (itemIndex !== -1) {
-      itemsCopy[itemIndex] = {
-        ...itemsCopy[itemIndex],
+  return items.map(item => {
+    const position = positions.find(pos => pos.id === item.id);
+    if (position) {
+      return {
+        ...item,
         position: position.position,
-        // If position has an icon defined, use it; otherwise keep the original icon
-        icon: position.icon || itemsCopy[itemIndex].icon
+        // Only use the database icon if it's valid, otherwise keep the default
+        icon: position.icon && isValidIconName(position.icon) ? position.icon : item.icon
       };
     }
+    return item;
   });
-  
-  return itemsCopy;
 };
