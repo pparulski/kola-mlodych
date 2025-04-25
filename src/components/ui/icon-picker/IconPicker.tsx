@@ -1,12 +1,12 @@
 
-import React, { useMemo } from "react"
+import React from "react"
 import { Command } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { VALID_ICONS, getIconComponent } from "@/utils/menu/iconUtils"
+import { VALID_ICONS } from "@/utils/menu/iconUtils"
 
 interface IconPickerProps {
   value: string
@@ -17,21 +17,15 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  // Memoize icon names to avoid recreating on every render
-  const iconNames = useMemo(() => {
-    // Make sure VALID_ICONS is actually defined before trying to use it
-    if (!VALID_ICONS || typeof VALID_ICONS !== 'object') {
-      console.error("VALID_ICONS is not properly defined:", VALID_ICONS);
-      return [];
-    }
-    
-    return Object.keys(VALID_ICONS).filter(
-      (iconName) => iconName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
+  // Use icons from our validated list instead of all Lucide icons
+  const iconNames = Object.keys(VALID_ICONS).filter(
+    (iconName) => iconName.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   // Get the current icon component
-  const CurrentIcon = getIconComponent(value);
+  const CurrentIcon = value && VALID_ICONS[value as keyof typeof VALID_ICONS]
+    ? VALID_ICONS[value as keyof typeof VALID_ICONS]
+    : VALID_ICONS.File;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,37 +55,31 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             />
           </div>
           <ScrollArea className="h-[300px]">
-            {iconNames.length === 0 ? (
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                No icons found.
-              </div>
-            ) : (
-              <div className="grid grid-cols-4 gap-2 p-2"
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                >
-                {iconNames.map((name) => {
-                  const Icon = VALID_ICONS[name];
-                  
-                  return (
-                    <Button
-                      key={name}
-                      variant="ghost"
-                      className={cn(
-                        "flex h-12 w-full flex-col items-center justify-center gap-1",
-                        value === name && "bg-muted"
-                      )}
-                      onClick={() => {
-                        onChange(name);
-                        setOpen(false);
-                      }}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </Button>
-                  )
-                })}
-              </div>
-            )}
+            <div className="grid grid-cols-4 gap-2 p-2"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              >
+              {iconNames.map((name) => {
+                const Icon = VALID_ICONS[name as keyof typeof VALID_ICONS];
+                
+                return (
+                  <Button
+                    key={name}
+                    variant="ghost"
+                    className={cn(
+                      "flex h-12 w-full flex-col items-center justify-center gap-1",
+                      value === name && "bg-muted"
+                    )}
+                    onClick={() => {
+                      onChange(name);
+                      setOpen(false);
+                    }}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </Button>
+                )
+              })}
+            </div>
           </ScrollArea>
         </Command>
       </PopoverContent>
