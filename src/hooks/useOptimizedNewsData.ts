@@ -42,11 +42,19 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         if (selectedCategories && selectedCategories.length > 0) {
           console.log('Applying category filter with:', selectedCategories);
-          // Filter by category_names array column (contains slug) instead of category_ids
-          // We need to use the containedBy operator to filter the array
-          selectedCategories.forEach(category => {
-            query = query.or(`category_names.cs.{${category}}`);
+          
+          // Create a filter condition for each category slug
+          // This approach handles filtering news items where any of the category_names match the selected categories
+          let filterExpression = '';
+          
+          selectedCategories.forEach((category, index) => {
+            // Add OR operator between conditions except for the first one
+            if (index > 0) filterExpression += ',';
+            filterExpression += `"${category}"`;
           });
+          
+          // Use contains operator to find articles with any of the selected categories
+          query = query.filter('category_names', 'cs', `{${filterExpression}}`);
         } else {
           console.log('No category filters applied, fetching all articles');
         }
