@@ -3,7 +3,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
 import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen, LucideIcon } from "lucide-react"; // Consolidated LucideIcon import
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
-import { IconPicker } from "./IconPicker"; // Make sure the path is correct
+import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 
 // Interface defining the props for the MenuItem component
 interface MenuItemProps {
