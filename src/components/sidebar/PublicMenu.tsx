@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -62,7 +63,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
     type: MenuItemType.CATEGORY
   })) : [];
 
-  // Apply custom positions from database if available
+  // Apply custom positions and icons from database if available
   let combinedItems = [...defaultMenuItems, ...staticPageMenuItems, ...categoryMenuItems];
   if (menuPositions && menuPositions.length > 0) {
     combinedItems = applyCustomPositions(combinedItems, menuPositions);
@@ -91,11 +92,8 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   return (
     <>
       {allMenuItems.map((item) => {
-        // Convert string icon to component
-        const IconComponent = typeof item.icon === 'string' 
-          ? getIconComponent(item.icon as string) 
-          : (item.icon as LucideIcon);
-          
+        // Get the appropriate icon component based on the icon name
+        const IconComponent = getIconComponent(item.icon as string);
         const isActive = isItemActive(item.path);
         
         return (

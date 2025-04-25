@@ -1,8 +1,14 @@
-
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
 import { MenuPosition } from "@/types/menu";
-import { Home, Map, BookOpen, Download, File, Info, Image, Newspaper, Tag } from "lucide-react";
+import { 
+  Home, Map, BookOpen, Download, File, Info, Image, Newspaper, 
+  Tag, AirVent, Activity, ArrowDown, ArrowUp, Bell, Calendar, 
+  Check, Clock, Cloud, Edit, Folder, Globe, Heart, Link, 
+  Lock, LogIn, LogOut, Mail, Menu, MessageSquare, Phone, 
+  Search, Settings, Share, Shield, ShoppingCart, Star, 
+  Sun, Trash2, User, Users, Video, X, ZoomIn
+} from "lucide-react";
 
 /**
  * Converts static pages to menu items format
@@ -71,15 +77,52 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
  * Get icon component based on icon name
  */
 export const getIconComponent = (iconName: string) => {
+  // Expanded list of supported icons
   switch (iconName) {
     case 'Home': return Home;
     case 'Map': return Map;
     case 'Download': return Download;
     case 'BookOpen': return BookOpen;
+    case 'Book': return BookOpen; // Alias for consistency
     case 'Info': return Info;
     case 'Newspaper': return Newspaper;
     case 'Image': return Image;
     case 'Tag': return Tag;
+    case 'AirVent': return AirVent;
+    case 'Activity': return Activity;
+    case 'ArrowDown': return ArrowDown;
+    case 'ArrowUp': return ArrowUp;
+    case 'Bell': return Bell;
+    case 'Calendar': return Calendar;
+    case 'Check': return Check;
+    case 'Clock': return Clock;
+    case 'Cloud': return Cloud;
+    case 'Edit': return Edit;
+    case 'Folder': return Folder;
+    case 'Globe': return Globe;
+    case 'Heart': return Heart;
+    case 'Link': return Link;
+    case 'Lock': return Lock;
+    case 'LogIn': return LogIn;
+    case 'LogOut': return LogOut;
+    case 'Mail': return Mail;
+    case 'Menu': return Menu;
+    case 'MessageSquare': return MessageSquare;
+    case 'Phone': return Phone;
+    case 'Search': return Search;
+    case 'Settings': return Settings;
+    case 'Share': return Share;
+    case 'Shield': return Shield;
+    case 'ShoppingCart': return ShoppingCart;
+    case 'Star': return Star;
+    case 'Sun': return Sun;
+    case 'Trash2': return Trash2;
+    case 'User': return User;
+    case 'Users': return Users;
+    case 'Video': return Video;
+    case 'X': return X;
+    case 'ZoomIn': return ZoomIn;
+    // Default icon if none matches
     default: return File;
   }
 };
@@ -102,7 +145,7 @@ export const assignSequentialPositions = (items: SidebarMenuItem[]): SidebarMenu
 };
 
 /**
- * Apply custom positions from the database to menu items
+ * Apply custom positions and icons from the database to menu items
  */
 export const applyCustomPositions = (
   items: SidebarMenuItem[], 
@@ -111,13 +154,15 @@ export const applyCustomPositions = (
   // Create a copy of items to avoid mutation
   const itemsCopy = [...items];
   
-  // Apply positions from database
+  // Apply positions and icons from database
   positions.forEach(position => {
     const itemIndex = itemsCopy.findIndex(item => item.id === position.id);
     if (itemIndex !== -1) {
       itemsCopy[itemIndex] = {
         ...itemsCopy[itemIndex],
-        position: position.position
+        position: position.position,
+        // If position has an icon defined, use it; otherwise keep the original icon
+        icon: position.icon || itemsCopy[itemIndex].icon
       };
     }
   });
