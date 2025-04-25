@@ -8,8 +8,9 @@ export async function updateMenuItemIcon(itemId: string, newIcon: string): Promi
   console.log(`menuService: Updating icon for item ${itemId} to ${newIcon}`);
   
   try {
+    // Check if the ID starts with page- or category-
     if (itemId.startsWith('page-') || itemId.startsWith('category-')) {
-      // For static pages and categories, update in menu_positions
+      // For static pages and categories, update in menu_positions (which uses string IDs)
       const { error } = await supabase
         .from("menu_positions")
         .update({ icon: newIcon })
@@ -21,8 +22,25 @@ export async function updateMenuItemIcon(itemId: string, newIcon: string): Promi
       }
       
       console.log(`menuService: Successfully updated icon in menu_positions for item ${itemId}`);
+    } else if (itemId.startsWith('home') || 
+               itemId.startsWith('struktury') || 
+               itemId.startsWith('downloads') || 
+               itemId.startsWith('ebooks') || 
+               itemId.startsWith('about')) {
+      // For default menu items like 'home', 'about', etc., only update in menu_positions
+      const { error } = await supabase
+        .from("menu_positions")
+        .update({ icon: newIcon })
+        .eq("id", itemId);
+
+      if (error) {
+        console.error("Error updating menu position icon for default item:", error);
+        throw error;
+      }
+      
+      console.log(`menuService: Successfully updated icon for default item ${itemId}`);
     } else {
-      // For regular menu items, update in menu_items table
+      // For regular menu items with UUID, update in menu_items table
       const { error } = await supabase
         .from("menu_items")
         .update({ icon: newIcon })
