@@ -1,8 +1,9 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuItem } from "@/types/menu";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, FileIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
@@ -19,6 +20,15 @@ interface MenuItemListProps {
   onDelete: (item: MenuItem) => void;
 }
 
+// Map menu item types to human-readable labels with consistent casing
+const TYPE_LABELS: Record<string, string> = {
+  default: "Domyślny",
+  static_page: "Strona",
+  filtered_feed: "Feed",
+  category_feed: "Kategoria",
+  custom: "Niestandardowy"
+};
+
 export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
   const { data: menuItems, isLoading } = useQuery({
     queryKey: ["menu_items"],
@@ -29,39 +39,35 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
         .order("position");
       
       if (error) throw error;
-      return (data || []).map(item => {
-        console.log('Menu Item Raw Data:', item);
-        return ({
-          ...item,
-          is_public: true,
-          is_admin: false,
-          parent_id: null,
-          page_id: item.resource_id || null,
-          category_id: null,
-          link: item.path
-        });
-      }) as MenuItem[];
+      return (data || []).map(item => ({
+        ...item,
+        is_public: true,
+        is_admin: false,
+        parent_id: null,
+        page_id: item.resource_id || null,
+        category_id: null,
+        link: item.path
+      })) as MenuItem[];
     },
   });
 
   const handleIconUpdate = async (id: string, icon: string) => {
-    console.log(`Updating icon for item ${id} to: ${icon}`);
     try {
       const { error } = await supabase
         .from("menu_items")
         .update({ icon })
         .eq("id", id);
       
-      if (error) {
-        console.error('Icon Update Error:', error);
-        throw error;
-      }
-      
+      if (error) throw error;
       toast.success("Ikona została zaktualizowana");
     } catch (error) {
       console.error("Error updating icon:", error);
       toast.error("Nie udało się zaktualizować ikony");
     }
+  };
+
+  const getTypeLabel = (type: string): string => {
+    return TYPE_LABELS[type.toLowerCase()] || "Inny";
   };
 
   if (isLoading) {
@@ -87,11 +93,9 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
       <div className="divide-y border rounded-lg">
         {menuItems.map((item) => {
           const IconComponent = item.icon && Icons[item.icon as keyof typeof Icons] 
-            ? (Icons as any)[item.icon] 
-            : Icons.FileIcon;
-          
-          console.log(`Rendering menu item: ${item.id}, Icon: ${item.icon}`);
-          
+            ? (Icons as any)[item.icon]
+            : FileIcon;
+
           return (
             <div
               key={item.id}
@@ -102,19 +106,15 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className="h-9 w-9"
                   >
-                    <IconComponent className="h-4 w-4" />
+                    <IconComponent className="size-4" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
                   <div className="p-2">
                     <IconPicker
                       value={item.icon || ""}
-                      onChange={(newIcon) => {
-                        console.log(`Icon Picker onChange: ${newIcon}`);
-                        handleIconUpdate(item.id, newIcon);
-                      }}
+                      onChange={(newIcon) => handleIconUpdate(item.id, newIcon)}
                     />
                   </div>
                 </PopoverContent>
@@ -132,18 +132,18 @@ export function MenuItemList({ onEdit, onDelete }: MenuItemListProps) {
                   size="icon"
                   onClick={() => onEdit(item)}
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="size-4" />
                 </Button>
                 <Button
                   variant="destructive"
                   size="icon"
                   onClick={() => onDelete(item)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-4" />
                 </Button>
               </div>
               <Badge variant="outline">
-                {item.type}
+                {getTypeLabel(item.type)}
               </Badge>
             </div>
           );
