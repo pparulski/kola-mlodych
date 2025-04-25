@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -15,8 +14,7 @@ import {
   getIconComponent,
   assignSequentialPositions,
   applyCustomPositions
-} from "@/utils/menuUtils";
-import { LucideIcon } from "lucide-react";
+} from "@/utils/menu";
 
 interface PublicMenuProps {
   onItemClick: () => void;

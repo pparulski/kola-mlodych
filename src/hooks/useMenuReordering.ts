@@ -1,7 +1,6 @@
-
 import { useCallback } from "react";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
-import { assignSequentialPositions } from "@/utils/menuUtils";
+import { assignSequentialPositions } from "@/utils/menu";
 
 interface UseMenuReorderingProps {
   menuItems: SidebarMenuItem[];
