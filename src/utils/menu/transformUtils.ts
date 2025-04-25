@@ -1,7 +1,8 @@
+
 import { StaticPage } from "@/types/staticPages";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { MenuPosition } from "@/types/menu";
-import { ValidIconName } from "./iconUtils";
+import { ValidIconName, isValidIconName } from "./iconUtils";
 
 /**
  * Converts static pages to menu items format
