@@ -21,11 +21,14 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   const iconNames = Object.keys(Icons).filter(
     (icon) =>
       icon !== "createLucideIcon" &&
+      typeof (Icons as any)[icon] === 'object' && // Ensure it's likely an icon component object
       icon.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   // Get the current icon component
-  const CurrentIcon = value ? (Icons as any)[value] : Icons.FileIcon
+  const CurrentIcon = value && typeof (Icons as any)[value] === 'object'
+    ? (Icons as any)[value]
+    : Icons.File;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -35,6 +38,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-2">
             <CurrentIcon className="h-4 w-4" />
@@ -44,7 +48,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <div className="flex items-center border-b px-3">
+          <div className="flex items-center border-b px-3" onMouseDown={(e) => e.stopPropagation()}>
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <input
               placeholder="Search icons..."
@@ -54,9 +58,14 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             />
           </div>
           <ScrollArea className="h-[300px]">
-            <div className="grid grid-cols-4 gap-2 p-2">
+            <div className="grid grid-cols-4 gap-2 p-2"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              >
               {iconNames.map((name) => {
                 const Icon = (Icons as any)[name]
+                if (typeof Icon !== 'object' || !Icon.displayName) return null;
+                
                 return (
                   <Button
                     key={name}
