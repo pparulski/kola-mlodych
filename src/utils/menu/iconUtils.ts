@@ -1,44 +1,32 @@
 
-import * as LucideIcons from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { DynamicIcon } from 'lucide-react/dynamic';
+import type { LucideIcon } from 'lucide-react';
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
 
-// Dynamically create VALID_ICONS from all Lucide icons
-export const VALID_ICONS: { [key: string]: LucideIcon } = Object.entries(LucideIcons)
-  .filter(([name, component]) => {
-    // Filter out non-icon exports (like createLucideIcon)
-    return typeof component === 'function' && 
-           name.match(/^[A-Z]/) && // Icons start with uppercase
-           name !== 'createLucideIcon';
-  })
-  .reduce((acc, [name, component]) => ({
-    ...acc,
-    [name]: component as LucideIcon
-  }), {});
-
-export type ValidIconName = keyof typeof VALID_ICONS;
+// Create a type for valid icon names from the dynamic imports
+export type ValidIconName = keyof typeof dynamicIconImports;
 
 /**
  * Get icon component based on icon name
  */
 export const getIconComponent = (iconName: string | null | undefined) => {
-  if (!iconName || !(iconName in VALID_ICONS)) {
-    console.log(`Icon not found in VALID_ICONS: ${iconName}`);
-    // Make sure we're using an icon that definitely exists
-    return LucideIcons.FileIcon || LucideIcons.File; 
-  }
-  return VALID_ICONS[iconName as ValidIconName];
+  // Default to 'file' icon if no valid icon is provided
+  const safeIconName = isValidIconName(iconName) ? iconName : 'file';
+  return DynamicIcon;
 };
 
 /**
  * Validate if an icon name is valid
  */
-export const isValidIconName = (iconName: string): iconName is ValidIconName => {
-  // Fix the type issue by explicitly typing the keys array as string[]
-  const validKeys = Object.keys(VALID_ICONS) as Array<string>;
-  const isValid = validKeys.includes(iconName);
-  
-  if (!isValid) {
-    console.log(`Invalid icon name: ${iconName}`);
-  }
-  return isValid;
+export const isValidIconName = (iconName: string | null | undefined): iconName is ValidIconName => {
+  if (!iconName) return false;
+  return Object.keys(dynamicIconImports).includes(iconName);
+};
+
+// Convert icon name from Pascal case to kebab case for dynamic imports
+export const toKebabCase = (str: string) => {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
 };

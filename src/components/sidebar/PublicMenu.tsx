@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +15,8 @@ import {
   assignSequentialPositions,
   applyCustomPositions
 } from "@/utils/menu";
+import { DynamicIcon } from 'lucide-react/dynamic';
+import { toKebabCase } from "@/utils/menu/iconUtils";
 
 interface PublicMenuProps {
   onItemClick: () => void;
@@ -92,8 +93,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
   return (
     <>
       {allMenuItems.map((item) => {
-        // Get the appropriate icon component based on the icon name
-        const IconComponent = getIconComponent(item.icon as string);
+        const iconName = typeof item.icon === 'string' ? toKebabCase(item.icon) : 'file';
         const isActive = isItemActive(item.path);
         
         return (
@@ -107,7 +107,7 @@ export function PublicMenu({ onItemClick }: PublicMenuProps) {
                 onClick={onItemClick}
                 className="transition-colors hover:text-accent text-lg py-3 flex items-center gap-2"
               >
-                <IconComponent className="w-6 h-6" />
+                <DynamicIcon name={iconName} className="w-6 h-6" />
                 <span className="flex-1">{item.title}</span>
               </Link>
             </SidebarMenuButton>

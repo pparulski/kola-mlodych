@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getIconComponent } from "@/utils/menu/iconUtils";
+import { getIconComponent, toKebabCase, DynamicIcon } from "@/utils/menu/iconUtils";
 
 interface MenuItemProps {
   item: SidebarMenuItem;
@@ -24,16 +23,13 @@ export function MenuItem({
   updateItemIcon
 }: MenuItemProps) {
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
-  
-  // Set default icon name as string
   const [currentIcon, setCurrentIcon] = useState<string>(
-    typeof item.icon === 'string' ? item.icon : 'FileIcon'
+    typeof item.icon === 'string' ? toKebabCase(item.icon) : 'file'
   );
 
-  // Update local state when item prop changes
   useEffect(() => {
     if (typeof item.icon === 'string') {
-      setCurrentIcon(item.icon);
+      setCurrentIcon(toKebabCase(item.icon));
     }
   }, [item.icon]);
 
@@ -55,9 +51,6 @@ export function MenuItem({
     }
   };
 
-  // Get the icon component
-  const IconComponent = getIconComponent(currentIcon);
-
   return (
     <Draggable key={item.id} draggableId={item.id} index={index}>
       {(provided, snapshot) => (
@@ -71,7 +64,7 @@ export function MenuItem({
             className="cursor-grab p-1 -ml-1"
             aria-label="Drag menu item"
           >
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
+            <DynamicIcon name={currentIcon} className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="w-auto">
@@ -82,7 +75,7 @@ export function MenuItem({
                   size="icon"
                   className="h-8 w-8 rounded-full"
                 >
-                  <IconComponent className="h-5 w-5" />
+                  <DynamicIcon name={currentIcon} className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[300px] p-0">

@@ -1,9 +1,10 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { isValidIconName } from "@/utils/menu/iconUtils";
+import { DynamicIcon } from 'lucide-react/dynamic';
+import { toKebabCase } from "@/utils/menu/iconUtils";
 
 interface DefaultMenuItemFieldsProps {
   link: string;
@@ -18,9 +19,9 @@ export function DefaultMenuItemFields({
   icon, 
   setIcon 
 }: DefaultMenuItemFieldsProps) {
-  // Ensure icon has a valid default value
+  // Ensure icon has a valid default value in kebab case
   const safeIcon = React.useMemo(() => {
-    return isValidIconName(icon) ? icon : "FileIcon";
+    return toKebabCase(icon) || "file";
   }, [icon]);
 
   const handleIconChange = (newIcon: string) => {
