@@ -2,9 +2,15 @@
 import * as LucideIcons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
-// Convert LucideIcons object to a record of icon components
+// Filter and convert LucideIcons object to a record of icon components
 export const VALID_ICONS: Record<string, LucideIcon> = Object.entries(LucideIcons)
-  .filter(([key]) => key !== 'createLucideIcon') // Filter out the utility function
+  .filter(([key, value]) => 
+    // Filter out non-icon exports (functions, etc.)
+    typeof value === 'function' && 
+    key !== 'createLucideIcon' && 
+    key !== 'Icon' && 
+    !key.startsWith('__')
+  )
   .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
 export type ValidIconName = keyof typeof VALID_ICONS;
@@ -30,4 +36,3 @@ export const isValidIconName = (iconName: string): iconName is ValidIconName => 
   }
   return isValid;
 };
-
