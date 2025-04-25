@@ -40,6 +40,8 @@ export interface MenuPosition {
   type: string;
   position: number;
   resource_id?: string;
+  icon?: string;
+  created_at?: string;
 }
 
 // Extend the MenuPosition interface to ensure compatibility with database schema

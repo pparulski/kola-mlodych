@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { StaticPage } from "@/types/staticPages";
@@ -197,11 +198,13 @@ export async function updateMenuItemIcon(itemId: string, newIcon: string): Promi
       return { success: true };
     } 
     // For special menu items (static pages, categories), 
-    // update the position in menu_positions table
+    // update the position in menu_positions table which must include icon column
     else {
       const { error } = await supabase
         .from("menu_positions")
-        .update({ icon: newIcon })
+        .update({ 
+          icon: newIcon 
+        })
         .eq("id", itemId);
 
       if (error) {

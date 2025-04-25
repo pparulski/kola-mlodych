@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
-import { GripVertical, ArrowUp, ArrowDown, File, Home, Map, Download, BookOpen, LucideIcon } from "lucide-react";
+import { GripVertical, ArrowUp, ArrowDown, File } from "lucide-react";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,7 +29,7 @@ export function MenuItem({
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   
   // State to track the current icon (for immediate UI feedback)
-  const [currentIcon, setCurrentIcon] = useState(item.icon || "File");
+  const [currentIcon, setCurrentIcon] = useState<string>(typeof item.icon === 'string' ? item.icon : 'File');
 
   // Handler function to be passed to IconPicker's onChange
   const handleIconUpdate = (newIcon: string) => {
