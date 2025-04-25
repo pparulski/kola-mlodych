@@ -16,19 +16,17 @@ import {
 } from "@/utils/menu";
 
 export function useLoadMenuItems() {
-  // Fetch static pages that should appear in sidebar
+  // Fetch all menu data in parallel
   const { data: staticPagesData, isLoading: isLoadingPages } = useQuery({
     queryKey: ['static-pages-sidebar'],
     queryFn: fetchSidebarPages,
   });
 
-  // Fetch custom positions for regular menu items
   const { data: menuPositionsData, isLoading: isLoadingPositions } = useQuery({
     queryKey: ['menu-positions'],
     queryFn: fetchMenuPositions,
   });
 
-  // Fetch categories with show_in_menu=true
   const { data: categoryMenuItemsData, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['sidebar-categories'],
     queryFn: fetchCategoryMenuItems,
@@ -37,42 +35,31 @@ export function useLoadMenuItems() {
   // Convert and combine menu items
   const menuItems = useMemo(() => {
     if (!isLoadingPages && !isLoadingPositions && !isCategoriesLoading && staticPagesData) {
-      // Get default menu items
+      // Gather all potential menu items first
       const defaultItems = getDefaultMenuItems();
-      
-      // Convert static pages to menu items format
       const staticPagesItems = staticPagesToMenuItems(staticPagesData);
-      
-      // Get category menu items
       const categoryItems = categoryMenuItemsData ? categoryMenuItemsData.map(category => ({
         id: `category-${category.id}`,
         originalId: category.id,
         title: category.name,
         path: `/category/${category.slug}`,
-        icon: 'BookOpen',
-        position: 100,
+        icon: 'book-open',
+        position: 100, // Default high position, will be overridden if in menuPositionsData
         type: MenuItemType.CATEGORY
       })) : [];
       
       // Combine all items
       let combinedItems = [...defaultItems, ...staticPagesItems, ...categoryItems];
       
-      // Apply custom positions and icons from the database
+      // If we have position data, apply it to override the defaults
       if (menuPositionsData && menuPositionsData.length > 0) {
-        combinedItems = combinedItems.map(item => {
-          const position = menuPositionsData.find(pos => pos.id === item.id);
-          if (position) {
-            return {
-              ...item,
-              position: position.position,
-              icon: position.icon || item.icon // Use position icon if available, fallback to default
-            };
-          }
-          return item;
-        });
+        console.log("Applying custom positions from database to", combinedItems.length, "menu items");
+        combinedItems = applyCustomPositions(combinedItems, menuPositionsData);
+      } else {
+        console.log("No custom positions found, using default positions");
       }
       
-      // Sort and ensure sequential positions
+      // Ensure items are sorted and have sequential positions
       const sortedItems = sortMenuItems(combinedItems);
       return assignSequentialPositions(sortedItems);
     }

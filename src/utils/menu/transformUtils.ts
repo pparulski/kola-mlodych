@@ -8,13 +8,13 @@ import { ValidIconName, isValidIconName } from "./iconUtils";
  * Converts static pages to menu items format
  */
 export const staticPagesToMenuItems = (pages: StaticPage[]): SidebarMenuItem[] => {
-  return pages.map((page) => ({
+  return pages.filter(page => page.show_in_sidebar).map((page) => ({
     id: `page-${page.id}`,
     originalId: page.id,
     title: page.title,
     path: `/${page.slug}`,
-    icon: 'File',
-    position: page.sidebar_position || 100,
+    icon: 'file',
+    position: 100, // Default high position, will be overridden by menu_positions
     type: MenuItemType.STATIC_PAGE
   }));
 };
@@ -28,7 +28,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'home',
       title: 'Aktualności',
       path: '/',
-      icon: 'Newspaper',
+      icon: 'newspaper',
       position: 1,
       type: MenuItemType.REGULAR
     },
@@ -36,7 +36,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'struktury',
       title: 'Struktury',
       path: '/struktury',
-      icon: 'Map',
+      icon: 'map',
       position: 2,
       type: MenuItemType.REGULAR
     },
@@ -44,7 +44,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'downloads',
       title: 'Pliki do pobrania',
       path: '/downloads',
-      icon: 'Download',
+      icon: 'download',
       position: 3,
       type: MenuItemType.REGULAR
     },
@@ -52,7 +52,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'ebooks',
       title: 'Publikacje',
       path: '/ebooks',
-      icon: 'BookOpen',
+      icon: 'book-open',
       position: 4,
       type: MenuItemType.REGULAR
     },
@@ -60,7 +60,7 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       id: 'about',
       title: 'O nas',
       path: '/o-nas',
-      icon: 'Info',
+      icon: 'info',
       position: 5,
       type: MenuItemType.REGULAR
     }

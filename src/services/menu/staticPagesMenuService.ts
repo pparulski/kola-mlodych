@@ -3,33 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { StaticPage } from "@/types/staticPages";
 
 /**
- * Fetches static pages that should appear in sidebar
+ * Fetches all static pages regardless of sidebar status
+ * We'll use menu_positions to determine which ones appear in the sidebar
  */
 export const fetchSidebarPages = async (): Promise<StaticPage[]> => {
-  console.log("Fetching sidebar pages from database");
+  console.log("Fetching all static pages from database");
   try {
     const { data, error } = await supabase
       .from('static_pages')
-      .select('*')
-      .eq('show_in_sidebar', true)
-      .order('sidebar_position', { ascending: true, nullsFirst: false });
+      .select('*');
 
     if (error) {
-      console.error("Error fetching sidebar pages:", error);
+      console.error("Error fetching static pages:", error);
       return [];
     }
 
-    console.log("Fetched sidebar pages:", data?.length || 0);
-    if (data && data.length > 0) {
-      console.log("First sidebar page:", data[0]);
-    } else {
-      console.log("No sidebar pages found");
-    }
+    console.log("Fetched static pages:", data?.length || 0);
     
     return data as StaticPage[];
   } catch (error) {
-    console.error("Exception fetching sidebar pages:", error);
+    console.error("Exception fetching static pages:", error);
     return [];
   }
 };
-

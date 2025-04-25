@@ -10,6 +10,7 @@ export const sortMenuItems = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
 
 /**
  * Updates positions for all menu items (1-based) ensuring they are sequential
+ * This ensures there are no gaps or duplicates in positions
  */
 export const assignSequentialPositions = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
   return items.map((item, index) => ({
@@ -54,7 +55,6 @@ export const ensureUniquePositions = (items: SidebarMenuItem[]): SidebarMenuItem
 
 /**
  * Ensures each menu item has a default icon if none is provided
- * This prevents issues with rendering or display
  */
 export const ensureDefaultIcons = (items: SidebarMenuItem[]): SidebarMenuItem[] => {
   return items.map(item => {

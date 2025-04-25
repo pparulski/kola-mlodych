@@ -22,15 +22,11 @@ export function useMenuMutations() {
       console.log(`Mutation success: Updated icon for ${itemId} to ${newIcon}`);
       toast.success("Ikona została zaktualizowana");
       
-      // Invalidate several queries to ensure UI is updated everywhere
+      // Invalidate all related queries to ensure UI is updated everywhere
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
-      
-      // If it's a regular menu item (not a static page or category), also invalidate menu-items
-      if (!itemId.startsWith('page-') && !itemId.startsWith('category-')) {
-        queryClient.invalidateQueries({ queryKey: ['menu-items'] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
     },
     onError: (error) => {
       console.error("Error updating icon:", error);
@@ -45,16 +41,19 @@ export function useMenuMutations() {
       const { success, errors } = await updateAllMenuPositions(sequentialItems);
       if (!success) {
         console.error("Errors updating positions:", errors);
-        throw new Error("Failed to update some menu positions");
+        throw new Error("Failed to update menu positions");
       }
       return { items: sequentialItems };
     },
     onSuccess: (result) => {
       console.log("Menu order updated successfully. New order:", result.items);
       toast.success("Kolejność menu została zaktualizowana");
+      
+      // Invalidate all related queries
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['menu-positions'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
     },
     onError: (error) => {
       console.error("Error updating menu order:", error);

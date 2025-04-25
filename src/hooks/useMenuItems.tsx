@@ -18,13 +18,23 @@ export function useMenuItems() {
     if (!isLoading && loadedMenuItems.length > 0) {
       // Process menu items to ensure valid position values and icons
       const processedItems = ensureDefaultIcons(ensureUniquePositions(loadedMenuItems));
+      console.log("Processed menu items:", processedItems);
       setMenuItems(processedItems);
+    } else if (!isLoading) {
+      console.log("No menu items loaded or loading still in progress");
     }
   }, [loadedMenuItems, isLoading]);
 
   const handleIconUpdate = useCallback((itemId: string, newIcon: string) => {
     console.log(`handleIconUpdate called for item ${itemId} with icon ${newIcon}`);
     updateIconMutation.mutate({ itemId, newIcon });
+    
+    // Also update local state for immediate UI feedback
+    setMenuItems(current => 
+      current.map(item => 
+        item.id === itemId ? { ...item, icon: newIcon } : item
+      )
+    );
   }, [updateIconMutation]);
 
   const handleSaveOrder = useCallback(() => {
