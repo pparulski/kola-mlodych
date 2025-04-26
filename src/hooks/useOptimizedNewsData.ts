@@ -6,11 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
 const ARTICLES_PER_PAGE = 8;
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
+  // Use state properly initialized
   const [currentPage, setCurrentPage] = useState(1);
   const isLoggedRef = useRef<boolean>(false);
+  const effectRunRef = useRef<boolean>(false);
   
+  // Reset page when search params change
   useEffect(() => {
-    setCurrentPage(1);
+    if (effectRunRef.current) {
+      setCurrentPage(1);
+    }
+    effectRunRef.current = true;
   }, [searchQuery, selectedCategories]);
 
   const { data: newsData, isLoading, error } = useQuery({
@@ -118,7 +124,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       }
     },
     staleTime: 30000, // 30 seconds
-    // Add retry configuration to prevent infinite retries on error
     retry: 1,
     retryDelay: 1000,
   });
@@ -134,23 +139,24 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     }
   };
 
-  // Conditionally log status info only on initial render
+  // Use a cleanup function for the logging effect
   useEffect(() => {
-    const logStatus = {
-      isLoading,
-      hasError: !!error,
-      itemCount: newsData?.items?.length || 0,
-      totalArticles: newsData?.total || 0,
-      currentPage,
-      totalPages,
-    };
+    // Only log once per data change
+    if (newsData) {
+      const logStatus = {
+        isLoading,
+        hasError: !!error,
+        itemCount: newsData?.items?.length || 0,
+        totalArticles: newsData?.total || 0,
+        currentPage,
+        totalPages,
+      };
+      
+      console.log('News data status:', logStatus);
+    }
     
-    // Log once on mount/update
-    console.log('News data status:', logStatus);
-    
-    // Cleanup function that runs on unmount/before next effect
     return () => {
-      isLoggedRef.current = false;
+      // This will run when the component unmounts or before the next effect execution
     };
   }, [newsData, isLoading, error, currentPage, totalPages]);
 
