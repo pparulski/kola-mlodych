@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -7,6 +7,7 @@ const ARTICLES_PER_PAGE = 8;
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
+  const isLoggedRef = useRef<boolean>(false);
   
   useEffect(() => {
     setCurrentPage(1);
@@ -15,7 +16,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const { data: newsData, isLoading, error } = useQuery({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
-      console.log('Fetching optimized news: searchQuery=', searchQuery, 'categories=', selectedCategories, 'page=', currentPage);
+      // Only log on first render or when inputs change
+      if (!isLoggedRef.current) {
+        console.log('Fetching optimized news: searchQuery=', searchQuery, 'categories=', selectedCategories, 'page=', currentPage);
+        isLoggedRef.current = true;
+      }
       
       let query;
       
@@ -27,8 +32,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           console.error('Search error:', error);
           throw error;
         }
-        
-        console.log(`Search found ${data?.length || 0} results`);
         
         return {
           items: data?.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE) || [],
@@ -43,8 +46,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         // Apply category filtering if selected
         if (selectedCategories && selectedCategories.length > 0) {
-          console.log('Applying category filter with slugs:', selectedCategories);
-          
           // Fetch all articles for client-side filtering
           const { data: allArticles, error: fetchError } = await supabase
             .from('news_preview')
@@ -55,8 +56,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
             console.error('Error fetching articles for category check:', fetchError);
             throw fetchError;
           }
-          
-          console.log(`Fetched ${allArticles?.length || 0} total articles`);
           
           // Safely filter articles by selected category slugs
           const matchingArticles = allArticles?.filter(article => {
@@ -88,8 +87,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
             });
           }) || [];
           
-          console.log(`Filtered and found ${matchingArticles.length} articles matching categories`);
-          
           // Use the filtered results for pagination
           const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
           const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, matchingArticles.length);
@@ -109,7 +106,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         }
         
         const totalCount = countData ? countData.length : 0;
-        console.log(`Found ${totalCount} total articles`);
         
         const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
         const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, totalCount);
@@ -132,18 +128,31 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
+      // Reset the log flag when page changes to allow one log on the new page
+      isLoggedRef.current = false;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  console.log('News data status:', {
-    isLoading,
-    hasError: !!error,
-    itemCount: newsData?.items?.length || 0,
-    totalArticles: newsData?.total || 0,
-    currentPage,
-    totalPages,
-  });
+  // Conditionally log status info only on initial render
+  useEffect(() => {
+    const logStatus = {
+      isLoading,
+      hasError: !!error,
+      itemCount: newsData?.items?.length || 0,
+      totalArticles: newsData?.total || 0,
+      currentPage,
+      totalPages,
+    };
+    
+    // Log once on mount/update
+    console.log('News data status:', logStatus);
+    
+    // Cleanup function that runs on unmount/before next effect
+    return () => {
+      isLoggedRef.current = false;
+    };
+  }, [newsData, isLoading, error, currentPage, totalPages]);
 
   return {
     currentPageItems: newsData?.items || [],

@@ -7,8 +7,6 @@ import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 import { useCategories } from "@/hooks/useCategories";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 
 interface IndexContentProps {
   searchQuery: string;
@@ -51,10 +49,6 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     }
   }, [selectedCategories, categories, toast]);
   
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['optimized-news'] });
-  };
-  
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -65,10 +59,6 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
       <div className="text-center p-8 bg-card rounded-lg border-2 border-destructive">
         <p className="text-lg font-medium mb-2">Wystąpił błąd podczas wczytywania artykułów.</p>
         <p className="text-muted-foreground mb-4">Proszę odświeżyć stronę lub spróbować ponownie później.</p>
-        <Button onClick={handleRefresh} variant="outline" size="sm" className="gap-2">
-          <RefreshCw className="h-4 w-4" />
-          Odśwież dane
-        </Button>
       </div>
     );
   }
@@ -88,34 +78,12 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
                   : "Brak artykułów w wybranych kategoriach"}
               </p>
             </div>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              className="gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Odśwież
-            </Button>
           </div>
-        </div>
-      )}
-
-      {selectedCategories.length > 0 && currentPageItems.length === 0 && (
-        <div className="text-center p-6 bg-muted/30 rounded-lg mb-6">
-          <p className="font-medium">Brak artykułów w wybranych kategoriach.</p>
-          <button 
-            className="text-primary hover:text-primary/80 underline text-sm mt-2"
-            onClick={handleRefresh}
-          >
-            Odśwież wyniki
-          </button>
         </div>
       )}
 
       <NewsList 
         newsItems={currentPageItems || []} 
-        onRefresh={handleRefresh} 
       />
       
       {totalPages > 0 && (

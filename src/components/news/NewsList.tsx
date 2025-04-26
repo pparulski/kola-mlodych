@@ -4,12 +4,11 @@ import { EmptyNewsList } from "@/components/news/EmptyNewsList";
 
 interface NewsListProps {
   newsItems: any[];
-  onRefresh?: () => void;
 }
 
-export function NewsList({ newsItems, onRefresh }: NewsListProps) {
+export function NewsList({ newsItems }: NewsListProps) {
   if (!newsItems || newsItems.length === 0) {
-    return <EmptyNewsList onRefresh={onRefresh} />;
+    return <EmptyNewsList />;
   }
 
   return (
