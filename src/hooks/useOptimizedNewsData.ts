@@ -43,7 +43,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         // Apply category filtering if selected
         if (selectedCategories && selectedCategories.length > 0) {
-          console.log('Applying category filter with:', selectedCategories);
+          console.log('Applying category filter with slugs:', selectedCategories);
           
           // Fetch all articles for client-side filtering
           const { data: allArticles, error: fetchError } = await supabase
@@ -58,45 +58,46 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           
           console.log(`Fetched ${allArticles?.length || 0} total articles`);
           
-          // Safely filter articles by selected categories
+          // Safely filter articles by selected category slugs
           const matchingArticles = allArticles?.filter(article => {
             // Skip if article has no categories
             if (!article.category_names || !Array.isArray(article.category_names)) {
               return false;
             }
             
-            // Check if any selected category matches any article category
+            // We need to check if any of the article's categories match any selected category
+            // Since category_names is an array of names and not slugs, we need to do a fuzzy match
             return selectedCategories.some(selectedCat => {
               if (!selectedCat) return false;
               
               const selectedLower = selectedCat.toLowerCase();
               
-              return article.category_names.some((cat: string | null) => {
-                // Skip null categories
-                if (cat === null || cat === undefined) return false;
+              // Try to match by converting category names to slug-like format
+              return article.category_names.some((categoryName: string | null) => {
+                if (!categoryName) return false;
                 
-                // Safe toLowerCase comparison
-                return cat.toLowerCase() === selectedLower || 
-                       cat.toLowerCase().includes(selectedLower);
+                // Generate a slug-like string from the category name
+                const categoryNameLower = categoryName.toLowerCase();
+                const slugLike = categoryNameLower.replace(/\s+/g, '-');
+                
+                // Compare the generated slug with the selected category slug
+                return selectedLower === slugLike || 
+                       selectedLower === categoryNameLower || 
+                       categoryNameLower.includes(selectedLower);
               });
             });
-          });
+          }) || [];
           
-          console.log(`Filtered and found ${matchingArticles?.length || 0} articles matching categories`);
+          console.log(`Filtered and found ${matchingArticles.length} articles matching categories`);
           
           // Use the filtered results for pagination
-          if (matchingArticles && matchingArticles.length > 0) {
-            const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-            const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, matchingArticles.length);
-            
-            return {
-              items: matchingArticles.slice(startIndex, endIndex) || [],
-              total: matchingArticles.length
-            };
-          }
+          const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+          const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, matchingArticles.length);
           
-          // If no matches, return empty array
-          return { items: [], total: 0 };
+          return {
+            items: matchingArticles.slice(startIndex, endIndex),
+            total: matchingArticles.length
+          };
         }
         
         // Without category filtering, fetch paginated results directly
@@ -122,7 +123,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     },
     staleTime: 30000, // 30 seconds
     // Add retry configuration to prevent infinite retries on error
-    retry: 2,
+    retry: 1,
     retryDelay: 1000,
   });
 

@@ -24,7 +24,7 @@ export function NewsPreview({
   content,
   date,
   featured_image,
-  category_names,
+  category_names = [],
 }: NewsPreviewProps) {
   // Use pre-processed preview_content from the view, or fall back to processing content
   const previewContent = preview_content || (content && content.length > 300 
@@ -41,9 +41,9 @@ export function NewsPreview({
     : "";
 
   // Filter out null/empty category names
-  const validCategoryNames = category_names?.filter((name): name is string => 
+  const validCategoryNames = (category_names || []).filter((name): name is string => 
     name !== null && name !== undefined && name !== ""
-  ) || [];
+  );
 
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
