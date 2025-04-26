@@ -19,22 +19,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       let query;
       
-      // STEP 1: First fetch one sample article to debug category structure
-      if (selectedCategories && selectedCategories.length > 0) {
-        console.log('DEBUG: Fetching sample article to inspect category_names structure');
-        const { data: sampleArticle } = await supabase
-          .from('news_preview')
-          .select('*')
-          .limit(1);
-          
-        if (sampleArticle && sampleArticle.length > 0) {
-          console.log('Sample article category_names structure:', sampleArticle[0].category_names);
-          console.log('Full sample article:', sampleArticle[0]);
-        } else {
-          console.log('No sample article found');
-        }
-      }
-      
       if (searchQuery) {
         const { data, error } = await supabase
           .rpc('search_news', { search_term: searchQuery });
@@ -51,79 +35,56 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           total: data?.length || 0
         };
       } else {
+        // Start with a query to fetch news_preview data
         query = supabase
           .from('news_preview')
           .select('*')
           .order('date', { ascending: false });
         
+        // Apply category filtering if selected
         if (selectedCategories && selectedCategories.length > 0) {
           console.log('Applying category filter with:', selectedCategories);
           
-          // Try multiple different approaches to match categories correctly
-          
-          // Approach 1: Using direct array contains
-          // This works if category_names is an array of slugs
-          query = query.contains('category_names', selectedCategories);
-          
-          // Fallback approach if the above fails: Try a scan with ilike on each article server-side
-          const { data: allArticles, error: scanError } = await supabase
+          // Fetch all articles for client-side filtering
+          const { data: allArticles, error: fetchError } = await supabase
             .from('news_preview')
             .select('*')
             .order('date', { ascending: false });
             
-          if (scanError) {
-            console.error('Error fetching articles for category check:', scanError);
-            throw scanError;
+          if (fetchError) {
+            console.error('Error fetching articles for category check:', fetchError);
+            throw fetchError;
           }
           
           console.log(`Fetched ${allArticles?.length || 0} total articles`);
           
-          // Manually filter articles where any category slug matches any of the selected categories
+          // Safely filter articles by selected categories
           const matchingArticles = allArticles?.filter(article => {
             // Skip if article has no categories
             if (!article.category_names || !Array.isArray(article.category_names)) {
               return false;
             }
             
-            // For debugging
-            console.log(`Article "${article.title}" has categories:`, article.category_names);
-            
-            // Check if any selected category is in the article's categories
-            // This handles both exact matches and partial matches
-            const matches = selectedCategories.some(selectedCat => {
-              // Ensure selectedCat is not null before using toLowerCase
-              if (!selectedCat) {
-                return false;
-              }
+            // Check if any selected category matches any article category
+            return selectedCategories.some(selectedCat => {
+              if (!selectedCat) return false;
               
               const selectedLower = selectedCat.toLowerCase();
               
               return article.category_names.some((cat: string | null) => {
-                // Safely handle null/undefined category names
-                if (!cat) {
-                  return false;
-                }
+                // Skip null categories
+                if (cat === null || cat === undefined) return false;
                 
-                // Try to match either the slug or name
-                const catLower = cat.toLowerCase();
-                
-                // Check for matches
-                const isMatch = catLower === selectedLower || catLower.includes(selectedLower);
-                
-                if (isMatch) {
-                  console.log(`Match found! Article "${article.title}" category "${cat}" matches selected "${selectedCat}"`);
-                }
-                
-                return isMatch;
+                // Safe toLowerCase comparison
+                return cat.toLowerCase() === selectedLower || 
+                       cat.toLowerCase().includes(selectedLower);
               });
             });
-            
-            return matches;
           });
           
-          console.log(`Manually filtered and found ${matchingArticles?.length || 0} articles matching categories`, selectedCategories);
+          console.log(`Filtered and found ${matchingArticles?.length || 0} articles matching categories`);
           
-          // If we found articles with the client-side filtering, use those results
+          // Use the filtered results for pagination
           if (matchingArticles && matchingArticles.length > 0) {
             const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
             const endIndex = Math.min(startIndex + ARTICLES_PER_PAGE, matchingArticles.length);
@@ -133,14 +94,12 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
               total: matchingArticles.length
             };
           }
-        } else {
-          console.log('No category filters applied, fetching all articles');
+          
+          // If no matches, return empty array
+          return { items: [], total: 0 };
         }
         
-        // If we reach here, either:
-        // 1. No categories were selected, or
-        // 2. The client-side filtering didn't find results, fall back to original query
-        
+        // Without category filtering, fetch paginated results directly
         const { data: countData, error: countError } = await query;
         
         if (countError) {
@@ -162,6 +121,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       }
     },
     staleTime: 30000, // 30 seconds
+    // Add retry configuration to prevent infinite retries on error
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const totalPages = Math.ceil((newsData?.total || 0) / ARTICLES_PER_PAGE);
