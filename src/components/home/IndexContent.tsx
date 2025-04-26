@@ -5,7 +5,6 @@ import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 import { useCategories } from "@/hooks/useCategories";
-import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
 interface IndexContentProps {
@@ -14,33 +13,26 @@ interface IndexContentProps {
 }
 
 export function IndexContent({ searchQuery, selectedCategories }: IndexContentProps) {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: categories } = useCategories();
   
   const {
     currentPageItems,
-    isLoading: newsLoading,
+    isLoading,
     currentPage,
     totalPages,
     handlePageChange,
     error
   } = useOptimizedNewsData(searchQuery, selectedCategories);
 
-  const isLoading = categoriesLoading || newsLoading;
-  
-  // Effect to display toast for category filter changes
+  // Show toast for category filter changes
   useEffect(() => {
-    if (selectedCategories.length > 0) {
-      console.log("IndexContent: Selected categories changed:", selectedCategories);
-      
-      // Find the actual category names for display
+    if (selectedCategories.length > 0 && categories) {
       const categoryNames = selectedCategories.map(slug => {
-        const category = categories?.find(cat => cat.slug === slug);
+        const category = categories.find(cat => cat.slug === slug);
         return category ? category.name : slug;
       });
       
-      // Show toast with selected categories
       toast({
         title: "Filtrowanie kategorii",
         description: `Wybrane kategorie: ${categoryNames.join(", ")}`,
@@ -63,8 +55,6 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     );
   }
 
-  console.log(`Rendering ${currentPageItems?.length || 0} news items`);
-  
   return (
     <div>
       {selectedCategories.length > 0 && (
