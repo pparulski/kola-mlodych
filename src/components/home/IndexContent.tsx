@@ -1,11 +1,9 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
-import { useCategories } from "@/hooks/useCategories";
-import { useToast } from "@/hooks/use-toast";
 
 interface IndexContentProps {
   searchQuery: string;
@@ -13,9 +11,6 @@ interface IndexContentProps {
 }
 
 export function IndexContent({ searchQuery, selectedCategories }: IndexContentProps) {
-  const { toast } = useToast();
-  const { data: categories } = useCategories();
-  
   const {
     currentPageItems,
     isLoading,
@@ -24,22 +19,6 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     handlePageChange,
     error
   } = useOptimizedNewsData(searchQuery, selectedCategories);
-
-  // Show toast for category filter changes
-  useEffect(() => {
-    if (selectedCategories.length > 0 && categories) {
-      const categoryNames = selectedCategories.map(slug => {
-        const category = categories.find(cat => cat.slug === slug);
-        return category ? category.name : slug;
-      });
-      
-      toast({
-        title: "Filtrowanie kategorii",
-        description: `Wybrane kategorie: ${categoryNames.join(", ")}`,
-        duration: 3000,
-      });
-    }
-  }, [selectedCategories, categories, toast]);
   
   if (isLoading) {
     return <LoadingIndicator />;
