@@ -91,10 +91,21 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
             // Check if any selected category is in the article's categories
             // This handles both exact matches and partial matches
             const matches = selectedCategories.some(selectedCat => {
-              return article.category_names.some((cat: string) => {
+              // Ensure selectedCat is not null before using toLowerCase
+              if (!selectedCat) {
+                return false;
+              }
+              
+              const selectedLower = selectedCat.toLowerCase();
+              
+              return article.category_names.some((cat: string | null) => {
+                // Safely handle null/undefined category names
+                if (!cat) {
+                  return false;
+                }
+                
                 // Try to match either the slug or name
                 const catLower = cat.toLowerCase();
-                const selectedLower = selectedCat.toLowerCase();
                 
                 // Check for matches
                 const isMatch = catLower === selectedLower || catLower.includes(selectedLower);

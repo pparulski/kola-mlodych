@@ -24,7 +24,8 @@ export function NewsList({ newsItems, onRefresh }: NewsListProps) {
           content={article.content}
           date={article.date || article.created_at}
           featured_image={article.featured_image}
-          category_names={article.category_names?.filter(Boolean) || []} // Filter out null/empty categories
+          // Make sure to handle potential null values in category_names
+          category_names={Array.isArray(article.category_names) ? article.category_names : []}
         />
       ))}
     </div>

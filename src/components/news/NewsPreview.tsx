@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -12,7 +13,7 @@ interface NewsPreviewProps {
   content?: string;
   date?: string;
   featured_image?: string;
-  category_names?: string[];
+  category_names?: (string | null)[];
 }
 
 export function NewsPreview({
@@ -39,6 +40,11 @@ export function NewsPreview({
       })()
     : "";
 
+  // Filter out null/empty category names
+  const validCategoryNames = category_names?.filter((name): name is string => 
+    name !== null && name !== undefined && name !== ""
+  ) || [];
+
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (
@@ -62,14 +68,12 @@ export function NewsPreview({
               <p className="text-sm text-foreground my-0">{formattedDate}</p>
             )}
             
-            {category_names && category_names.length > 0 && (
+            {validCategoryNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {category_names.map((name) => (
-                  name && (
-                    <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
-                      {name}
-                    </span>
-                  )
+                {validCategoryNames.map((name) => (
+                  <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
+                    {name}
+                  </span>
                 ))}
               </div>
             )}
