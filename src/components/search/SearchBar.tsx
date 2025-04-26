@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from "react";
+import { useRef, KeyboardEvent, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -20,11 +20,15 @@ export function SearchBar({
   inputRef,
   className = "",
 }: SearchBarProps) {
-  // Use provided ref or create a new one
   const localInputRef = useRef<HTMLInputElement>(null);
   const activeRef = inputRef || localInputRef;
+  const [localSearch, setLocalSearch] = useState(searchQuery);
   
-  // Removed the auto-focus effect to prevent automatic focus on page load
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setSearchQuery(localSearch);
+    }
+  };
 
   if (!isOpen) {
     return null;
@@ -35,9 +39,10 @@ export function SearchBar({
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
         type="search"
-        placeholder="Szukaj..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Szukaj w tytułach..."
+        value={localSearch}
+        onChange={(e) => setLocalSearch(e.target.value)}
+        onKeyPress={handleKeyPress}
         className={`pl-8 w-full ${isCompact ? "h-9" : ""}`}
         ref={activeRef}
       />

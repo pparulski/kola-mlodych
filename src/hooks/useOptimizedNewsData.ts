@@ -8,12 +8,10 @@ const ARTICLES_PER_PAGE = 8;
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Reset to page 1 when search query or categories change (in useEffect, not directly)
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedCategories]);
 
-  // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
@@ -22,27 +20,28 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       const from = (currentPage - 1) * ARTICLES_PER_PAGE;
       const to = from + ARTICLES_PER_PAGE - 1;
       
-      // Handle search queries with the search_news function
-      if (searchQuery) {
-        const { data, error } = await supabase
-          .rpc('search_news', { search_term: searchQuery });
+      // Handle search in titles
+      if (searchQuery?.trim()) {
+        const searchTerm = `%${searchQuery.toLowerCase()}%`;
+        const { data, count, error } = await supabase
+          .from('news_preview')
+          .select('*', { count: 'exact' })
+          .ilike('title', searchTerm)
+          .order('date', { ascending: false })
+          .range(from, to);
           
         if (error) {
           console.error('Search error:', error);
           throw error;
         }
         
-        // Client-side pagination for search results
-        const total = data?.length || 0;
-        const paginatedItems = data?.slice(from, from + ARTICLES_PER_PAGE) || [];
-        
         return {
-          items: paginatedItems,
-          total
+          items: data || [],
+          total: count || 0
         };
       } 
       
-      // Server-side filtering and pagination for category filters
+      // Handle category filtering
       if (selectedCategories && selectedCategories.length > 0) {
         // Step 1: Get category IDs from slugs
         const { data: categories, error: categoryError } = await supabase
@@ -56,7 +55,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         }
         
         if (!categories || categories.length === 0) {
-          // No matching categories found
           return { items: [], total: 0 };
         }
         
@@ -72,28 +70,15 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         }
         
         if (!newsCategories || newsCategories.length === 0) {
-          // No news with these categories
           return { items: [], total: 0 };
         }
         
         // Step 3: Get the actual news articles with pagination
         const newsIds = [...new Set(newsCategories.map(item => item.news_id))];
         
-        // Get total count
-        const { count, error: countError } = await supabase
+        const { data: newsItems, count, error: newsError } = await supabase
           .from('news_preview')
           .select('*', { count: 'exact' })
-          .in('id', newsIds);
-          
-        if (countError) {
-          console.error('Error getting count:', countError);
-          throw countError;
-        }
-        
-        // Get paginated results
-        const { data: newsItems, error: newsError } = await supabase
-          .from('news_preview')
-          .select('*')
           .in('id', newsIds)
           .order('date', { ascending: false })
           .range(from, to);
