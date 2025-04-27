@@ -32,7 +32,11 @@ export function CategoryFilterDropdown({
     }
   };
 
-  const handleClearCategories = () => {
+  // Modified to ensure it properly clears categories
+  const handleClearCategories = (e: React.MouseEvent) => {
+    // Stop propagation to prevent dropdown from closing
+    e.stopPropagation();
+    // Clear selected categories by setting to empty array
     setSelectedCategories([]);
   };
 
