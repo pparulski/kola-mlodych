@@ -3,7 +3,17 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define near the top of useOptimizedNewsData.ts or in a shared types file
+import { NewsArticle } from '@/types/news'; // Assuming you have a NewsArticle type
+
+interface SearchRpcResult {
+  items: NewsArticle[] | null; // Allow null if json_agg returns null
+  total: number | null;       // Allow null if count returns null
+}
+
+
 const ARTICLES_PER_PAGE = 8;
+
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,22 +32,29 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       // Handle search queries with the search_news function
       if (searchQuery) {
-        const { data, error } = await supabase
-          .rpc('search_news', { search_term: searchQuery });
-          
+        const limit = ARTICLES_PER_PAGE;
+        const offset = (currentPage - 1) * ARTICLES_PER_PAGE;
+
+        const { data: rpcResult, error } = await supabase
+          .rpc('search_news', {
+            search_term: searchQuery,
+            page_limit: limit,
+            page_offset: offset
+           });
+
         if (error) {
           throw error;
         }
-        
-        // Client-side pagination for search results
-        const total = data?.length || 0;
-        const paginatedItems = data?.slice(from, from + ARTICLES_PER_PAGE) || [];
-        
+
+        // === FIX 1: USE 'unknown' CAST ===
+        const typedResult = rpcResult as unknown as SearchRpcResult | null;
+
+        // === FIX 2: ACCESS PROPERTIES VIA 'typedResult' ===
         return {
-          items: paginatedItems,
-          total
+          items: typedResult?.items || [], // Use typedResult here
+          total: typedResult?.total || 0   // Use typedResult here
         };
-      } 
+      }
       
       // Server-side filtering and pagination for category filters
       if (selectedCategories && selectedCategories.length > 0) {

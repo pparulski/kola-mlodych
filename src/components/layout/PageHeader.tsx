@@ -51,7 +51,11 @@ export function PageHeader({
   }, [location.pathname]);
   
   const toggleSearch = () => {
-    setSearchOpen(!searchOpen);
+    // If we are currently open and about to close, clear the search query
+    if (searchOpen) {
+      setSearchQuery(''); // Clear the actual search query state
+    }
+    setSearchOpen(!searchOpen); // Toggle the visibility state
   };
 
   const isHomePage = location.pathname === '/';
