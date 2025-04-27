@@ -18,3 +18,4 @@ export const CategorySection = ({
   // and the CategoryFilter component. It remains as a placeholder for future enhancements.
   return null;
 };
+
