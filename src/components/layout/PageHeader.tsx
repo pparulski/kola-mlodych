@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -73,7 +72,7 @@ export function PageHeader({
           </div>
 
           <div className="flex items-center gap-2">
-            {shouldShowBackButton && (
+            {(location.pathname.includes('/news/') || location.pathname.includes('/article/')) && (
               <Button 
                 variant="outline"
                 onClick={handleGoBack}
@@ -140,4 +139,3 @@ export function PageHeader({
     </div>
   );
 }
-

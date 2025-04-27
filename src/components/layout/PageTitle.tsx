@@ -16,4 +16,3 @@ export function PageTitle({ title, description }: PageTitleProps) {
     </div>
   );
 }
-
