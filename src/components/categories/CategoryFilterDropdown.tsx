@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,11 @@ export function CategoryFilterDropdown({
     }
   };
 
-  const handleClearCategories = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleClearCategories = () => {
     setSelectedCategories([]);
   };
 
+  // Counter for selected items
   const selectedCount = selectedCategories.length;
   const hasSelectedItems = selectedCount > 0;
 
