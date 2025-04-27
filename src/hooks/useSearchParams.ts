@@ -11,34 +11,31 @@ export function useSearchParams() {
 
   const isHomePage = location.pathname === '/';
 
-  // Update URL when query or categories change
-  const updateUrl = useCallback(
-    debounce(() => {
-      if (!isHomePage || isUpdatingUrl) return;
-      
-      const params = new URLSearchParams(location.search);
-      
-      if (searchQuery) {
-        params.set('search', searchQuery);
-      } else {
-        params.delete('search');
-      }
-      
-      if (selectedCategories.length > 0) {
-        params.set('categories', selectedCategories.join(','));
-      } else {
-        params.delete('categories');
-      }
-      
-      const newSearch = params.toString();
-      const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
-      
-      setIsUpdatingUrl(true);
-      window.history.replaceState(null, '', newUrl);
-      setTimeout(() => setIsUpdatingUrl(false), 50);
-    }, 300),
-    [isHomePage, searchQuery, selectedCategories, location.pathname, location.search, isUpdatingUrl]
-  );
+  // Directly update the URL with no debounce to ensure server-side search works properly
+  const updateUrl = useCallback(() => {
+    if (!isHomePage || isUpdatingUrl) return;
+    
+    const params = new URLSearchParams(location.search);
+    
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    } else {
+      params.delete('search');
+    }
+    
+    if (selectedCategories.length > 0) {
+      params.set('categories', selectedCategories.join(','));
+    } else {
+      params.delete('categories');
+    }
+    
+    const newSearch = params.toString();
+    const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
+    
+    setIsUpdatingUrl(true);
+    window.history.replaceState(null, '', newUrl);
+    setTimeout(() => setIsUpdatingUrl(false), 50);
+  }, [isHomePage, searchQuery, selectedCategories, location.pathname, location.search, isUpdatingUrl]);
 
   // Parse URL parameters on initial load and when URL changes
   useEffect(() => {
@@ -60,7 +57,7 @@ export function useSearchParams() {
     }
   }, [location.search, isHomePage, searchQuery, selectedCategories, isUpdatingUrl]);
 
-  // Update URL when parameters change
+  // Update URL when parameters change - immediately, not debounced
   useEffect(() => {
     updateUrl();
   }, [searchQuery, selectedCategories, updateUrl]);

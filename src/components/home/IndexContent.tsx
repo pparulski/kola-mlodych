@@ -25,7 +25,6 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   }
 
   if (error) {
-    console.error('Error loading news:', error);
     return (
       <div className="text-center p-8 bg-card rounded-lg border-2 border-destructive">
         <p className="text-lg font-medium mb-2">Wystąpił błąd podczas wczytywania artykułów.</p>

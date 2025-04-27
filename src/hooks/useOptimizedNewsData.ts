@@ -8,7 +8,7 @@ const ARTICLES_PER_PAGE = 8;
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Reset to page 1 when search query or categories change (in useEffect, not directly)
+  // Reset to page 1 when search query or categories change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedCategories]);
@@ -17,8 +17,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const { data: newsData, isLoading, error } = useQuery({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
-      console.log('Fetching page:', currentPage, 'with categories:', selectedCategories, 'search:', searchQuery);
-      
       const from = (currentPage - 1) * ARTICLES_PER_PAGE;
       const to = from + ARTICLES_PER_PAGE - 1;
       
@@ -28,7 +26,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           .rpc('search_news', { search_term: searchQuery });
           
         if (error) {
-          console.error('Search error:', error);
           throw error;
         }
         
@@ -51,7 +48,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           .in('slug', selectedCategories);
           
         if (categoryError) {
-          console.error('Error fetching categories:', categoryError);
           throw categoryError;
         }
         
@@ -67,7 +63,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           .in('category_id', categories.map(cat => cat.id));
           
         if (newsCategoryError) {
-          console.error('Error fetching news categories:', newsCategoryError);
           throw newsCategoryError;
         }
         
@@ -86,7 +81,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           .in('id', newsIds);
           
         if (countError) {
-          console.error('Error getting count:', countError);
           throw countError;
         }
         
@@ -99,7 +93,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           .range(from, to);
           
         if (newsError) {
-          console.error('Error fetching news:', newsError);
           throw newsError;
         }
         
@@ -117,7 +110,6 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         .range(from, to);
       
       if (fetchError) {
-        console.error('Fetch error:', fetchError);
         throw fetchError;
       }
       
