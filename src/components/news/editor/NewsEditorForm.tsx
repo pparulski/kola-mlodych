@@ -5,7 +5,7 @@ import { useNewsEditorForm } from "@/hooks/useNewsEditorForm";
 import { TitleInput } from "./TitleInput";
 import { FeaturedImageUpload } from "./FeaturedImageUpload";
 import { CategorySelector } from "./CategorySelector";
-import { ContentEditor } from "./ContentEditor";
+import { RichTextEditor } from "@/components/news/editor/RichTextEditor"; // Adjust path
 import { SubmitButton } from "./SubmitButton";
 
 interface NewsEditorFormProps {
@@ -57,8 +57,8 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
         categories={categories || []}
       />
 
-      <ContentEditor 
-        content={content} 
+      <RichTextEditor 
+        value={content} 
         onEditorChange={setContent} 
       />
 

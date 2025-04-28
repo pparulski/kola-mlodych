@@ -1,9 +1,13 @@
+// StaticPageEditor.tsx
 
 import { Button } from "../ui/button";
-import { useState } from "react";
+// Removed useState as it wasn't used directly here
 import { StaticPage } from "@/types/staticPages";
 import { StaticPageImageUpload } from "./StaticPageImageUpload";
-import { StaticPageTinyMCE } from "./StaticPageTinyMCE";
+// --- REMOVE OLD IMPORT ---
+// import { StaticPageTinyMCE } from "./StaticPageTinyMCE";
+// --- ADD NEW IMPORT ---
+import { RichTextEditor } from "@/components/news/editor/RichTextEditor"; // Adjust path
 import { StaticPageSidebarOption } from "./StaticPageSidebarOption";
 import { usePageSubmit } from "@/hooks/usePageSubmit";
 
@@ -13,16 +17,16 @@ interface StaticPageEditorProps {
   defaultSlug?: string;
 }
 
-export function StaticPageEditor({ 
-  existingPage, 
-  onSuccess, 
-  defaultSlug 
+export function StaticPageEditor({
+  existingPage,
+  onSuccess,
+  defaultSlug
 }: StaticPageEditorProps) {
   const {
     title,
     setTitle,
-    content,
-    setContent,
+    content, // This holds the editor value
+    setContent, // This is the callback for the editor
     featuredImage,
     setFeaturedImage,
     showInSidebar,
@@ -37,7 +41,7 @@ export function StaticPageEditor({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Tytuł strony..."
-        className="w-full p-2 border rounded text-black bg-white"
+        className="w-full p-2 border rounded text-black bg-white" // Consider styling consistency
       />
 
       <StaticPageImageUpload
@@ -50,13 +54,19 @@ export function StaticPageEditor({
         setShowInSidebar={setShowInSidebar}
       />
 
-      <StaticPageTinyMCE 
-        content={content}
-        onEditorChange={setContent}
+      {/* --- REPLACE USAGE --- */}
+      <RichTextEditor
+        value={content} // Pass the current content
+        onEditorChange={setContent} // Pass the state update function
+        // --- Provide specific overrides if needed ---
+        height={500}
+        menubar={true}
+        // You could also pass a more complex init object here if needed:
+        // init={{ menubar: true, height: 500, /* other overrides */ }}
       />
 
-      <Button 
-        onClick={() => handleSubmit([])} 
+      <Button
+        onClick={() => handleSubmit([])} // Assuming handleSubmit expects categories (empty here?)
         className="mt-4"
       >
         {existingPage ? "Zaktualizuj" : "Opublikuj"}
