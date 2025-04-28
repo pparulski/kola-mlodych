@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -107,6 +108,7 @@ export function PageHeader({
     navigate(-1);
   };
 
+  // Improved header class logic for scroll behavior
   const headerClass = isMobile
     ? `transition-transform duration-300 ${
         isScrollingDown && scrollY > 60
@@ -118,10 +120,7 @@ export function PageHeader({
   console.log('Scroll info:', { scrollY, direction, isScrollingDown, headerClass });
 
   return (
-    <div 
-      className={`w-full ${headerClass} sticky top-8 z-30 bg-background shadow-sm`}
-      style={{ willChange: 'transform' }}
-    >
+    <div className={`w-full ${headerClass} sticky top-8 z-20 bg-background`}>
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
           <div className="flex items-center gap-2">

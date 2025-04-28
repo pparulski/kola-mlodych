@@ -18,7 +18,6 @@ export function PageLayout() {
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           categories={categories}
-          key="page-header" // Force stable identity
         />
       </div>
 
