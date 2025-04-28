@@ -475,17 +475,8 @@ export type Database = {
         Returns: undefined
       }
       search_news: {
-        Args: { search_term: string }
-        Returns: {
-          id: string
-          title: string
-          content: string
-          slug: string
-          featured_image: string
-          created_at: string
-          date: string
-          similarity: number
-        }[]
+        Args: { search_term: string; page_limit: number; page_offset: number }
+        Returns: Json
       }
     }
     Enums: {

@@ -107,6 +107,54 @@
   .category-pill {
     @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
   }
+
+  /* HugeRTE content styling */
+  .hugerte-content {
+    @apply prose prose-base lg:prose-lg dark:prose-invert max-w-none;
+  }
+
+  /* Override specific HugeRTE elements */
+  .hugerte-content h1,
+  .hugerte-content h2,
+  .hugerte-content h3,
+  .hugerte-content h4,
+  .hugerte-content h5,
+  .hugerte-content h6 {
+    @apply font-bold mb-4 mt-6 text-foreground;
+  }
+
+  .hugerte-content table {
+    @apply border-collapse border border-border my-4 w-full;
+  }
+
+  .hugerte-content th,
+  .hugerte-content td {
+    @apply border border-border p-2 text-foreground;
+  }
+
+  .hugerte-content blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-4;
+  }
+
+  .hugerte-content code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+  }
+
+  .hugerte-content pre {
+    @apply bg-muted p-4 rounded-md overflow-x-auto my-4;
+  }
+
+  .hugerte-content img {
+    @apply max-w-full h-auto rounded-md my-4;
+  }
+
+  .hugerte-content ul {
+    @apply list-disc pl-5 my-4;
+  }
+
+  .hugerte-content ol {
+    @apply list-decimal pl-5 my-4;
+  }
 }
 
 /* Theme-specific styles */

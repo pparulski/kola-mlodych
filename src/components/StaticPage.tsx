@@ -75,7 +75,7 @@ export function StaticPage() {
     <div className="relative">
       <div className="relative">
         {page ? (
-          <div className="prose prose-lg max-w-none dark:prose-invert [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>img]:rounded-lg [&>img]:w-full [&>img]:h-auto bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
+          <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
             <GalleryRenderer content={page.content} />
           </div>
         ) : (
