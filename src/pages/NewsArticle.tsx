@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +11,7 @@ import { Category } from "@/types/categories";
 import { NewsArticle as NewsArticleType } from "@/types/news";
 import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { ArticleStructuredData } from "@/components/StructuredData";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -96,6 +98,16 @@ export default function NewsArticle() {
 
   return (
     <div>
+      {article && (
+        <ArticleStructuredData
+          title={article.title}
+          image={article.featured_image || undefined}
+          datePublished={article.date || undefined}
+          dateModified={article.date || undefined}
+          description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
+        />
+      )}
+
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
           <FeaturedImage 

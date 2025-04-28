@@ -2,6 +2,7 @@
 import { GalleryRenderer } from "../gallery/GalleryRenderer";
 import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { ArticleStructuredData } from "@/components/StructuredData";
 
 interface NewsContentProps {
   content: string;
@@ -20,6 +21,15 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
 
   return (
     <div className="news-content max-w-full overflow-hidden">
+      {title && date && featured_image && (
+        <ArticleStructuredData
+          title={title}
+          image={featured_image}
+          datePublished={date}
+          description={content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
+        />
+      )}
+      
       {featured_image && (
         <FeaturedImage
           src={featured_image}

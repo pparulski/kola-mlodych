@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ArticleStructuredData } from "@/components/StructuredData";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -84,6 +86,16 @@ export function NewsDetails() {
 
   return (
     <div className="space-y-4 container mx-auto px-4">
+      {article && (
+        <ArticleStructuredData
+          title={article.title}
+          image={article.featured_image || undefined}
+          datePublished={article.created_at || undefined}
+          dateModified={article.created_at || undefined}
+          description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
+        />
+      )}
+      
       <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
         <div className="space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
@@ -101,9 +113,9 @@ export function NewsDetails() {
           {article.featured_image && (
             <FeaturedImage
               src={article.featured_image}
-              aspectRatio={16/9} // Changed from 16:9 to 16:9 (keeping the same ratio)
+              aspectRatio={16/9}
               objectFit="cover"
-              priority // This is the main image, so we don't lazy load it
+              priority
               className="w-full"
             />
           )}
