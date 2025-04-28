@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -48,14 +47,9 @@ export function PageHeader({
   const { data: dynamicPageData } = useQuery({
     queryKey: ['page-title', location.pathname, slug],
     queryFn: async () => {
-      // For news articles, get the title from the news table
-      if (location.pathname.includes('/news/') && slug) {
-        const { data } = await supabase
-          .from('news')
-          .select('title')
-          .eq('slug', slug)
-          .maybeSingle();
-        return data?.title;
+      // For news articles, return "Aktualności" for the header
+      if (location.pathname.includes('/news/')) {
+        return "Aktualności";
       }
       
       // For static pages, get the title from static_pages
@@ -86,6 +80,13 @@ export function PageHeader({
   // Use dynamic data if available, otherwise fall back to props or path-based title
   const displayTitle = dynamicPageData || pageTitle || title || getPageTitle(location.pathname);
   
+  // Set document title based on the page title
+  useEffect(() => {
+    if (displayTitle && !location.pathname.includes('/news/')) {
+      document.title = `${displayTitle} - Młodzi IP`;
+    }
+  }, [displayTitle, location.pathname]);
+
   useEffect(() => {
     setSearchOpen(false);
     

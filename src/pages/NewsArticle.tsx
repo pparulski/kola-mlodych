@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -59,6 +58,7 @@ export default function NewsArticle() {
 
   useEffect(() => {
     if (article) {
+      // Only set document title, keep header title as "Aktualności"
       document.title = `${article.title} - Młodzi IP`;
     }
   }, [article]);

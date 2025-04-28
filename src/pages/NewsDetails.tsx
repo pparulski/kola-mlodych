@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -43,6 +45,12 @@ export function NewsDetails() {
     },
     enabled: !!article?.id,
   });
+
+  useEffect(() => {
+    if (article?.title) {
+      document.title = `${article.title} - Młodzi IP`;
+    }
+  }, [article]);
 
   const handleGoBack = () => {
     navigate(-1);
