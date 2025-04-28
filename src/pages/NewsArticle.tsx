@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { Category } from "@/types/categories";
 import { NewsArticle as NewsArticleType } from "@/types/news";
 import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
+import { FeaturedImage } from "@/components/common/FeaturedImage";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -99,13 +101,14 @@ export default function NewsArticle() {
     <div>
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
-          <div className="w-full relative">
-            <img
-              src={article.featured_image}
-              alt=""
-              className="w-full h-[200px] md:h-[400px] object-cover"
-            />
-          </div>
+          <FeaturedImage 
+            src={article.featured_image}
+            aspectRatio={21/9}
+            priority
+            objectFit="cover"
+            className="w-full"
+            containerClassName="w-full"
+          />
         )}
 
         <div className="p-3 md:p-6 space-y-4 md:space-y-6">

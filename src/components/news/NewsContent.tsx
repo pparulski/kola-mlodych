@@ -1,6 +1,7 @@
 
 import { GalleryRenderer } from "../gallery/GalleryRenderer";
 import { useEffect } from "react";
+import { FeaturedImage } from "@/components/common/FeaturedImage";
 
 interface NewsContentProps {
   content: string;
@@ -18,8 +19,18 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
   }, [title]);
 
   return (
-    <div className="news-content max-w-full overflow-hidden prose prose-lg dark:prose-invert hugerte-content">
-      <GalleryRenderer content={content} />
+    <div className="news-content max-w-full overflow-hidden">
+      {featured_image && (
+        <FeaturedImage
+          src={featured_image}
+          aspectRatio={16/9}
+          objectFit="cover"
+          className="w-full mb-6"
+        />
+      )}
+      <div className="prose prose-lg dark:prose-invert hugerte-content">
+        <GalleryRenderer content={content} />
+      </div>
     </div>
   );
 }

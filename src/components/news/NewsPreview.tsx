@@ -4,6 +4,7 @@ import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
+import { FeaturedImage } from "@/components/common/FeaturedImage";
 
 interface NewsPreviewProps {
   id: string;
@@ -48,10 +49,11 @@ export function NewsPreview({
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (
-        <img
+        <FeaturedImage
           src={featured_image}
-          alt=""
-          className="w-full h-48 object-cover rounded-md"
+          aspectRatio={16/9}
+          objectFit="cover"
+          className="w-full"
         />
       )}
       <div className="space-y-4 md:space-y-6">

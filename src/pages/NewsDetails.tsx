@@ -9,6 +9,8 @@ import { pl } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -57,11 +59,26 @@ export function NewsDetails() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="space-y-4 container mx-auto px-4">
+        <Skeleton className="h-10 w-3/4 max-w-2xl" />
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-60 w-full" />
+      </div>
+    );
   }
 
   if (!article) {
-    return <div>Article not found</div>;
+    return (
+      <div className="container mx-auto px-4">
+        <div className="p-4 md:p-6 text-center bg-card rounded-lg shadow-sm">
+          <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
+          <p className="text-muted-foreground">
+            Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const formattedDate = article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "";
@@ -83,10 +100,12 @@ export function NewsDetails() {
           </div>
           
           {article.featured_image && (
-            <img
+            <FeaturedImage
               src={article.featured_image}
-              alt=""
-              className="w-full h-auto object-cover rounded-md"
+              aspectRatio={16/9}
+              objectFit="cover"
+              priority
+              className="w-full"
             />
           )}
           
