@@ -17,12 +17,12 @@ export function useScrollPosition(): ScrollPosition {
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
-    let lastDirection = 'none';
+    let lastDirection: 'up' | 'down' | 'none' = 'none';
 
     const updateScrollPosition = () => {
       const currentScrollY = window.scrollY;
       // Detect direction with a small threshold to avoid micro-movements triggering direction change
-      let direction = currentScrollY > lastScrollY + 2 ? 'down' : 
+      let direction: 'up' | 'down' | 'none' = currentScrollY > lastScrollY + 2 ? 'down' : 
                      currentScrollY < lastScrollY - 2 ? 'up' : lastDirection;
 
       // Store the current direction for next comparison
