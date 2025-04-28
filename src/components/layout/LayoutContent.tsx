@@ -15,8 +15,8 @@ export function LayoutContent() {
   return (
     <>
       <AppSidebar />
-      <div className="flex-1 flex flex-col w-full">
-        <JoinBanner />
+      <JoinBanner />
+      <div className="flex-1 flex flex-col w-full pt-8">
         <MainContent />
       </div>
       <SidebarOverlay isOpen={isOpen} handleOverlayClick={handleOverlayClick} />

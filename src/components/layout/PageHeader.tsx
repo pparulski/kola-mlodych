@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -107,13 +108,16 @@ export function PageHeader({
     navigate(-1);
   };
 
+  // Improved header class logic for scroll behavior
   const headerClass = isMobile
     ? `transition-transform duration-300 ${
-        isScrollingDown && scrollY > 100
+        isScrollingDown && scrollY > 60
           ? '-translate-y-full'
           : 'translate-y-0'
       }`
     : '';
+
+  console.log('Scroll info:', { scrollY, direction, isScrollingDown, headerClass });
 
   return (
     <div className={`w-full ${headerClass} sticky top-8 z-20 bg-background`}>

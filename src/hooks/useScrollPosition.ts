@@ -21,9 +21,15 @@ export function useScrollPosition(): ScrollPosition {
 
     const updateScrollPosition = () => {
       const currentScrollY = window.scrollY;
-      // Detect direction with a small threshold to avoid micro-movements triggering direction change
-      let direction: 'up' | 'down' | 'none' = currentScrollY > lastScrollY + 2 ? 'down' : 
-                     currentScrollY < lastScrollY - 2 ? 'up' : lastDirection;
+      
+      // More responsive direction detection with lower threshold
+      const direction: 'up' | 'down' | 'none' = 
+        currentScrollY > lastScrollY + 1 ? 'down' : 
+        currentScrollY < lastScrollY - 1 ? 'up' : 
+        lastDirection;
+      
+      // Set isScrollingDown based on direction, not just current direction value
+      const isScrollingDown = direction === 'down';
 
       // Store the current direction for next comparison
       lastDirection = direction;
@@ -31,7 +37,7 @@ export function useScrollPosition(): ScrollPosition {
       setScrollPosition({
         scrollY: currentScrollY,
         direction,
-        isScrollingDown: direction === 'down'
+        isScrollingDown
       });
       
       lastScrollY = currentScrollY;
