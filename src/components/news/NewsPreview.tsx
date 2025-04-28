@@ -51,9 +51,11 @@ export function NewsPreview({
       {featured_image && (
         <FeaturedImage
           src={featured_image}
-          aspectRatio={16/9}
+          aspectRatio={21/9} // Updated to 21:9 from 16:9
           objectFit="cover"
           className="w-full"
+          lazyload={true}
+          lazyloadHeight={150} // Adjusted for 21:9 aspect ratio
         />
       )}
       <div className="space-y-4 md:space-y-6">

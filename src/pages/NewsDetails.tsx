@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,9 +101,9 @@ export function NewsDetails() {
           {article.featured_image && (
             <FeaturedImage
               src={article.featured_image}
-              aspectRatio={16/9}
+              aspectRatio={16/9} // Changed from 16:9 to 16:9 (keeping the same ratio)
               objectFit="cover"
-              priority
+              priority // This is the main image, so we don't lazy load it
               className="w-full"
             />
           )}

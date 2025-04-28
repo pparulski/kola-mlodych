@@ -24,19 +24,21 @@ export function FeaturedImageUpload({
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Widok listy (16:9)</p>
+              <p className="text-xs text-muted-foreground mb-1">Widok artykułu (16:9)</p>
               <FeaturedImage 
                 src={featuredImage} 
                 aspectRatio={16/9}
                 className={cn("border border-border")}
+                lazyload={false} // Don't lazy load previews
               />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Widok artykułu (21:9)</p>
+              <p className="text-xs text-muted-foreground mb-1">Widok listy (21:9)</p>
               <FeaturedImage 
                 src={featuredImage} 
                 aspectRatio={21/9}
                 className={cn("border border-border")}
+                lazyload={false} // Don't lazy load previews
               />
             </div>
           </div>
@@ -52,8 +54,8 @@ export function FeaturedImageUpload({
       </div>
       
       <p className="text-sm text-muted-foreground mt-2">
-        Zalecane wymiary: 1200×675 px (16:9) lub 1200×570 px (21:9). 
-        Zdjęcie będzie wyświetlane w proporcjach 16:9 na liście i 21:9 w widoku artykułu.
+        Zalecane wymiary: 1200×675 px (16:9) lub 1680x720 px (21:9). 
+        Zdjęcie będzie wyświetlane w proporcjach 16:9 w widoku artykułu i 21:9 na liście.
       </p>
     </div>
   );

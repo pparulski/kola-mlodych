@@ -1,7 +1,9 @@
+
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import LazyLoad from "react-lazyload";
 
 export interface FeaturedImageProps {
   src: string | null | undefined;
@@ -17,6 +19,9 @@ export interface FeaturedImageProps {
   onClick?: () => void;
   rounded?: boolean;
   containerClassName?: string;
+  lazyload?: boolean; // New prop for controlling lazy loading
+  lazyloadHeight?: number; // Height for the lazy load placeholder
+  lazyloadOffset?: number; // Offset for triggering the lazy load
 }
 
 export function FeaturedImage({
@@ -33,6 +38,9 @@ export function FeaturedImage({
   onClick,
   rounded = true,
   containerClassName,
+  lazyload = true, // Default to lazy loading enabled
+  lazyloadHeight = 200,
+  lazyloadOffset = 100,
 }: FeaturedImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
@@ -51,37 +59,69 @@ export function FeaturedImage({
     return null;
   }
 
-  // If we're using the aspect ratio component
+  // Create the image element
+  const renderImage = () => (
+    <img
+      src={src}
+      alt={alt}
+      className={cn(
+        "transition-opacity",
+        objectFit && `object-${objectFit}`,
+        rounded && "rounded-md",
+        isLoading ? "opacity-0" : "opacity-100",
+        error ? "opacity-50" : "",
+        className
+      )}
+      style={{ 
+        objectPosition,
+        height,
+        width 
+      }}
+      onLoad={handleLoad}
+      onError={handleError}
+      loading={priority ? "eager" : "lazy"} // Keep native lazy loading as a fallback
+      onClick={onClick}
+    />
+  );
+
+  // If using aspect ratio
   if (aspectRatio) {
-    return (
+    const content = (
       <div className={cn("relative overflow-hidden", containerClassName)}>
         <AspectRatio ratio={aspectRatio}>
           {isLoading && (
             <Skeleton className="absolute inset-0 z-0 h-full w-full" />
           )}
-          <img
-            src={src}
-            alt={alt}
-            className={cn(
-              "h-full w-full transition-opacity",
-              objectFit && `object-${objectFit}`,
-              rounded && "rounded-md",
-              isLoading ? "opacity-0" : "opacity-100",
-              error ? "opacity-50" : "",
-              className
-            )}
-            style={{ objectPosition }}
-            onLoad={handleLoad}
-            onError={handleError}
-            loading={priority ? "eager" : "lazy"}
-          />
+          {renderImage()}
         </AspectRatio>
       </div>
     );
+
+    // Apply LazyLoad if not priority and lazyload is enabled
+    if (!priority && lazyload) {
+      return (
+        <LazyLoad 
+          height={lazyloadHeight}
+          offset={lazyloadOffset}
+          once
+          placeholder={
+            <Skeleton className={cn(
+              "w-full", 
+              `h-[${lazyloadHeight}px]`, 
+              rounded && "rounded-md"
+            )} />
+          }
+        >
+          {content}
+        </LazyLoad>
+      );
+    }
+    
+    return content;
   }
 
-  // Otherwise, render a regular image
-  return (
+  // For regular image without aspect ratio
+  const content = (
     <div className={cn("relative", containerClassName)}>
       {isLoading && (
         <Skeleton 
@@ -92,27 +132,29 @@ export function FeaturedImage({
           )} 
         />
       )}
-      <img
-        src={src}
-        alt={alt}
-        className={cn(
-          "transition-opacity",
-          objectFit && `object-${objectFit}`,
-          rounded && "rounded-md",
-          isLoading ? "opacity-0" : "opacity-100",
-          error ? "opacity-50" : "",
-          className
-        )}
-        style={{ 
-          objectPosition,
-          height,
-          width 
-        }}
-        onLoad={handleLoad}
-        onError={handleError}
-        loading={priority ? "eager" : "lazy"}
-        onClick={onClick}
-      />
+      {renderImage()}
     </div>
   );
+
+  // Apply LazyLoad if not priority and lazyload is enabled
+  if (!priority && lazyload) {
+    return (
+      <LazyLoad 
+        height={lazyloadHeight}
+        offset={lazyloadOffset}
+        once
+        placeholder={
+          <Skeleton className={cn(
+            width ? `w-[${width}px]` : "w-full", 
+            height ? `h-[${height}px]` : `h-[${lazyloadHeight}px]`, 
+            rounded && "rounded-md"
+          )} />
+        }
+      >
+        {content}
+      </LazyLoad>
+    );
+  }
+
+  return content;
 }

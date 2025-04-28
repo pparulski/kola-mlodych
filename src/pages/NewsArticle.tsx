@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +15,6 @@ export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  // Ensure page scrolls to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -60,7 +58,6 @@ export default function NewsArticle() {
 
   useEffect(() => {
     if (article) {
-      // Only set document title, keep header title as "Aktualności"
       document.title = `${article.title} - Młodzi IP`;
     }
   }, [article]);
@@ -103,7 +100,7 @@ export default function NewsArticle() {
         {article.featured_image && (
           <FeaturedImage 
             src={article.featured_image}
-            aspectRatio={21/9}
+            aspectRatio={16/9}
             priority
             objectFit="cover"
             className="w-full"

@@ -23,9 +23,10 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
       {featured_image && (
         <FeaturedImage
           src={featured_image}
-          aspectRatio={16/9}
+          aspectRatio={16/9} // Using 16:9 aspect ratio
           objectFit="cover"
           className="w-full mb-6"
+          priority // Main content image should load immediately
         />
       )}
       <div className="prose prose-lg dark:prose-invert hugerte-content">
