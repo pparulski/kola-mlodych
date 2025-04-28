@@ -17,11 +17,16 @@ export function useScrollPosition(): ScrollPosition {
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
+    let lastDirection = 'none';
 
     const updateScrollPosition = () => {
       const currentScrollY = window.scrollY;
-      const direction = currentScrollY > lastScrollY ? 'down' : 
-                         currentScrollY < lastScrollY ? 'up' : 'none';
+      // Detect direction with a small threshold to avoid micro-movements triggering direction change
+      let direction = currentScrollY > lastScrollY + 2 ? 'down' : 
+                     currentScrollY < lastScrollY - 2 ? 'up' : lastDirection;
+
+      // Store the current direction for next comparison
+      lastDirection = direction;
 
       setScrollPosition({
         scrollY: currentScrollY,
@@ -35,7 +40,6 @@ export function useScrollPosition(): ScrollPosition {
 
     const handleScroll = () => {
       if (!ticking) {
-        // Use requestAnimationFrame to throttle event handling
         window.requestAnimationFrame(() => {
           updateScrollPosition();
         });
@@ -43,6 +47,9 @@ export function useScrollPosition(): ScrollPosition {
       }
     };
 
+    // Initial position
+    updateScrollPosition();
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {

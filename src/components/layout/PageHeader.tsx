@@ -43,18 +43,15 @@ export function PageHeader({
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
-  const { isScrollingDown, scrollY } = useScrollPosition();
+  const { scrollY, direction, isScrollingDown } = useScrollPosition();
   
-  // Get the appropriate title for the current page
   const { data: dynamicPageData } = useQuery({
     queryKey: ['page-title', location.pathname, slug],
     queryFn: async () => {
-      // For news articles, return "Aktualności" for the header
       if (location.pathname.includes('/news/')) {
         return "Aktualności";
       }
       
-      // For static pages, get the title from static_pages
       if (slug && !location.pathname.includes('/news/') && !location.pathname.includes('/category/')) {
         const { data } = await supabase
           .from('static_pages')
@@ -64,7 +61,6 @@ export function PageHeader({
         return data?.title;
       }
       
-      // For category pages
       if (location.pathname.includes('/category/') && slug) {
         const { data } = await supabase
           .from('categories')
@@ -79,10 +75,8 @@ export function PageHeader({
     enabled: !!location.pathname && (!!slug || location.pathname === '/'),
   });
   
-  // Use dynamic data if available, otherwise fall back to props or path-based title
   const displayTitle = dynamicPageData || pageTitle || title || getPageTitle(location.pathname);
   
-  // Set document title based on the page title
   useEffect(() => {
     if (displayTitle && !location.pathname.includes('/news/')) {
       document.title = `${displayTitle} - Młodzi IP`;
@@ -99,11 +93,10 @@ export function PageHeader({
   }, [location.pathname]);
   
   const toggleSearch = () => {
-    // If we are currently open and about to close, clear the search query
     if (searchOpen) {
-      setSearchQuery(''); // Clear the actual search query state
+      setSearchQuery('');
     }
-    setSearchOpen(!searchOpen); // Toggle the visibility state
+    setSearchOpen(!searchOpen);
   };
 
   const isHomePage = location.pathname === '/';
@@ -114,7 +107,6 @@ export function PageHeader({
     navigate(-1);
   };
 
-  // Determine header visibility class based on scroll position for mobile
   const headerClass = isMobile
     ? `transition-transform duration-300 ${
         isScrollingDown && scrollY > 100
