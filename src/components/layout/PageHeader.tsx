@@ -1,5 +1,6 @@
+
 import { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,6 +11,9 @@ import { SidebarToggle } from "./SidebarToggle";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { getPageTitle } from "@/utils/pageUtils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -33,13 +37,54 @@ export function PageHeader({
   categories = [],
 }: PageHeaderProps) {
   const location = useLocation();
+  const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   
-  const displayTitle = pageTitle || title || "";
+  // Get the appropriate title for the current page
+  const { data: dynamicPageData } = useQuery({
+    queryKey: ['page-title', location.pathname, slug],
+    queryFn: async () => {
+      // For news articles, get the title from the news table
+      if (location.pathname.includes('/news/') && slug) {
+        const { data } = await supabase
+          .from('news')
+          .select('title')
+          .eq('slug', slug)
+          .maybeSingle();
+        return data?.title;
+      }
+      
+      // For static pages, get the title from static_pages
+      if (slug && !location.pathname.includes('/news/') && !location.pathname.includes('/category/')) {
+        const { data } = await supabase
+          .from('static_pages')
+          .select('title')
+          .eq('slug', slug)
+          .maybeSingle();
+        return data?.title;
+      }
+      
+      // For category pages
+      if (location.pathname.includes('/category/') && slug) {
+        const { data } = await supabase
+          .from('categories')
+          .select('name')
+          .eq('slug', slug)
+          .maybeSingle();
+        return data?.name ? `Kategoria: ${data.name}` : null;
+      }
+      
+      return null;
+    },
+    enabled: !!location.pathname && (!!slug || location.pathname === '/'),
+  });
+  
+  // Use dynamic data if available, otherwise fall back to props or path-based title
+  const displayTitle = dynamicPageData || pageTitle || title || getPageTitle(location.pathname);
   
   useEffect(() => {
     setSearchOpen(false);
@@ -76,7 +121,7 @@ export function PageHeader({
           </div>
 
           <div className="flex items-center gap-2">
-            {(location.pathname.includes('/news/') || location.pathname.includes('/article/')) && (
+            {shouldShowBackButton && (
               <Button 
                 variant="outline"
                 onClick={handleGoBack}

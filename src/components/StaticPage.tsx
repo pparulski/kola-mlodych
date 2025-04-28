@@ -40,6 +40,9 @@ export function StaticPage() {
         if (data) {
           console.log("Page title:", data.title);
           console.log("Content length:", data.content?.length || 0);
+          
+          // Set document title when page loads
+          document.title = `${data.title} - Młodzi IP`;
         }
         
         return data as StaticPageType;
