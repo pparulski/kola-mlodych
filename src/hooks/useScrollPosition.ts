@@ -22,13 +22,13 @@ export function useScrollPosition(): ScrollPosition {
     const updateScrollPosition = () => {
       const currentScrollY = window.scrollY;
       
-      // More responsive direction detection with lower threshold
+      // Almost no threshold for immediate direction detection
       const direction: 'up' | 'down' | 'none' = 
-        currentScrollY > lastScrollY + 1 ? 'down' : 
-        currentScrollY < lastScrollY - 1 ? 'up' : 
+        currentScrollY > lastScrollY ? 'down' : 
+        currentScrollY < lastScrollY ? 'up' : 
         lastDirection;
       
-      // Set isScrollingDown based on direction, not just current direction value
+      // Set isScrollingDown based on both direction and a minimum movement to prevent flickering
       const isScrollingDown = direction === 'down';
 
       // Store the current direction for next comparison
