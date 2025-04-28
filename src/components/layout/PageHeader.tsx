@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useScrollPosition } from "@/hooks/useScrollPosition";
 import { SearchBar } from "@/components/search/SearchBar";
 import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
@@ -42,6 +43,7 @@ export function PageHeader({
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
+  const { isScrollingDown, scrollY } = useScrollPosition();
   
   // Get the appropriate title for the current page
   const { data: dynamicPageData } = useQuery({
@@ -112,8 +114,17 @@ export function PageHeader({
     navigate(-1);
   };
 
+  // Determine header visibility class based on scroll position for mobile
+  const headerClass = isMobile
+    ? `transition-transform duration-300 ${
+        isScrollingDown && scrollY > 100
+          ? '-translate-y-full'
+          : 'translate-y-0'
+      }`
+    : '';
+
   return (
-    <div className="w-full">
+    <div className={`w-full ${headerClass} sticky top-8 z-20 bg-background`}>
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
           <div className="flex items-center gap-2">

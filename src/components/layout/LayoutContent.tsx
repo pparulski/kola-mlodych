@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "../AppSidebar";
 import { JoinBanner } from "./JoinBanner";
