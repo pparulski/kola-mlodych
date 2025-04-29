@@ -16,7 +16,7 @@ export function LayoutContent() {
   return (
     <>
       <AppSidebar />
-      <div className="flex-1 flex flex-col w-full">
+      <div className="flex-1 flex flex-col w-full relative">
         <JoinBanner />
         <MainContent />
       </div>

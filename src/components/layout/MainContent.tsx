@@ -8,7 +8,7 @@ export function MainContent() {
   const isCategoryPage = location.pathname.startsWith('/category/');
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 relative">
       <PageLayout />
     </main>
   );

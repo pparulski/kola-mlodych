@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -101,9 +102,9 @@ export function PageHeader({
   const toggleSearch = () => {
     // If we are currently open and about to close, clear the search query
     if (searchOpen) {
-      setSearchQuery(''); // Clear the actual search query state
+      setSearchQuery(''); 
     }
-    setSearchOpen(!searchOpen); // Toggle the visibility state
+    setSearchOpen(!searchOpen);
   };
 
   const isHomePage = location.pathname === '/';
@@ -115,11 +116,11 @@ export function PageHeader({
   };
 
   return (
-    <div 
-      className={`w-full bg-background z-30 sticky top-0 transition-all duration-500 transform ${
+    <header 
+      className={`w-full bg-background z-40 sticky top-[40px] transition-all duration-500 transform ${
         isMobile && !isHeaderVisible ? '-translate-y-full' : 'translate-y-0'
       }`}
-      style={{ willChange: 'transform' }} // Performance optimization for mobile
+      style={{ willChange: 'transform' }} // Performance optimization
     >
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
@@ -193,6 +194,6 @@ export function PageHeader({
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 }

@@ -14,12 +14,15 @@ export function useScrollAway(threshold = 10) {
         // Scrolling down - hide the header
         setIsVisible(false);
       } else if (currentScrollY < lastScrollY) {
-        // Scrolling up - show the header, but only if we've scrolled up by at least 5px
+        // Scrolling up - show the header
+        // Only trigger the change if we've scrolled up by at least 5px
         if (lastScrollY - currentScrollY >= 5) {
           setIsVisible(true);
         }
-      } else if (currentScrollY <= threshold) {
-        // At the top of the page - always show
+      }
+      
+      // Always show header when at the top of the page
+      if (currentScrollY <= threshold) {
         setIsVisible(true);
       }
       
