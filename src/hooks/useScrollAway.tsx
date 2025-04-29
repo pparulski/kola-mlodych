@@ -9,14 +9,13 @@ export function useScrollAway(threshold = 10) {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Determine if we should show or hide based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > threshold) {
-        // Scrolling down - hide the header
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up - show the header
-        // Only trigger the change if we've scrolled up by at least 5px
-        if (lastScrollY - currentScrollY >= 5) {
+      // Only change visibility state if we've scrolled past the threshold
+      if (Math.abs(currentScrollY - lastScrollY) > 5) {
+        if (currentScrollY > lastScrollY && currentScrollY > threshold) {
+          // Scrolling down - hide the header
+          setIsVisible(false);
+        } else if (currentScrollY < lastScrollY) {
+          // Scrolling up - show the header
           setIsVisible(true);
         }
       }

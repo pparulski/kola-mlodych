@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -117,7 +116,7 @@ export function PageHeader({
 
   return (
     <header 
-      className={`w-full bg-background z-40 sticky top-[40px] transition-all duration-500 transform ${
+      className={`w-full bg-background z-30 sticky top-[40px] transition-all duration-500 transform ${
         isMobile && !isHeaderVisible ? '-translate-y-full' : 'translate-y-0'
       }`}
       style={{ willChange: 'transform' }} // Performance optimization
