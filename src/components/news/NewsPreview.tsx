@@ -56,6 +56,7 @@ export function NewsPreview({
           className="w-full"
           lazyload={true}
           lazyloadHeight={150} // Adjusted for 21:9 aspect ratio
+          alt={title} // Added alt text for better accessibility
         />
       )}
       <div className="space-y-4 md:space-y-6">

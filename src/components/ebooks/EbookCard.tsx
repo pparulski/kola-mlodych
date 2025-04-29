@@ -1,6 +1,9 @@
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpenText, Trash2 } from "lucide-react";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,11 +49,14 @@ export function EbookCard({ ebook, onDelete, adminMode = false }: EbookCardProps
             onClick={handleOpenPdf}
             className="w-full group"
           >
-            <img
+            <LazyLoadImage
               src={ebook.cover_url}
               alt={`Okładka ${ebook.title}`}
               className="w-full object-contain rounded-md mb-4 transition-transform duration-200 group-hover:scale-105"
               style={{ maxHeight: '400px' }}
+              effect="opacity"
+              threshold={100}
+              wrapperClassName="w-full"
             />
           </button>
         ) : (

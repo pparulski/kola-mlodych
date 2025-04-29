@@ -18,6 +18,11 @@ export function GalleryView({ images }: GalleryViewProps) {
     original: image.url,
     thumbnail: image.url,
     description: image.caption,
+    // Added lazy loading configuration for ImageGallery items
+    originalAlt: image.caption || "Gallery image",
+    thumbnailAlt: image.caption || "Thumbnail",
+    thumbnailLoading: "lazy",
+    originalLoading: "lazy",
   }));
 
   return (
