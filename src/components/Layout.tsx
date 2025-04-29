@@ -5,7 +5,7 @@ import { LayoutContent } from "./layout/LayoutContent";
 export function Layout() {
   return (
     <SidebarProvider>
-      <div className="flex w-full">
+      <div className="flex w-full min-h-screen">
         <LayoutContent />
       </div>
     </SidebarProvider>
