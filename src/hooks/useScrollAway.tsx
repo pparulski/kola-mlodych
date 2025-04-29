@@ -11,10 +11,15 @@ export function useScrollAway(threshold = 10) {
       
       // Determine if we should show or hide based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > threshold) {
-        // Scrolling down
+        // Scrolling down - hide the header
         setIsVisible(false);
-      } else {
-        // Scrolling up or at the top
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show the header, but only if we've scrolled up by at least 5px
+        if (lastScrollY - currentScrollY >= 5) {
+          setIsVisible(true);
+        }
+      } else if (currentScrollY <= threshold) {
+        // At the top of the page - always show
         setIsVisible(true);
       }
       
