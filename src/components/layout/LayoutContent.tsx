@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "../AppSidebar";
 import { JoinBanner } from "./JoinBanner";
@@ -15,8 +16,8 @@ export function LayoutContent() {
   return (
     <>
       <AppSidebar />
-      <JoinBanner />
-      <div className="flex-1 flex flex-col w-full pt-8">
+      <div className="flex-1 flex flex-col w-full">
+        <JoinBanner />
         <MainContent />
       </div>
       <SidebarOverlay isOpen={isOpen} handleOverlayClick={handleOverlayClick} />

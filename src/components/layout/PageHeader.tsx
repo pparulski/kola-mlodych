@@ -1,10 +1,8 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
 import { Category } from "@/types/categories";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useScrollPosition } from "@/hooks/useScrollPosition";
 import { SearchBar } from "@/components/search/SearchBar";
 import { MobileSearchToggle } from "@/components/search/MobileSearchToggle";
 import { PageTitle } from "./PageTitle";
@@ -44,15 +42,17 @@ export function PageHeader({
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
-  const { scrollY, direction, isScrollingDown } = useScrollPosition();
   
+  // Get the appropriate title for the current page
   const { data: dynamicPageData } = useQuery({
     queryKey: ['page-title', location.pathname, slug],
     queryFn: async () => {
+      // For news articles, return "Aktualności" for the header
       if (location.pathname.includes('/news/')) {
         return "Aktualności";
       }
       
+      // For static pages, get the title from static_pages
       if (slug && !location.pathname.includes('/news/') && !location.pathname.includes('/category/')) {
         const { data } = await supabase
           .from('static_pages')
@@ -62,6 +62,7 @@ export function PageHeader({
         return data?.title;
       }
       
+      // For category pages
       if (location.pathname.includes('/category/') && slug) {
         const { data } = await supabase
           .from('categories')
@@ -76,8 +77,10 @@ export function PageHeader({
     enabled: !!location.pathname && (!!slug || location.pathname === '/'),
   });
   
+  // Use dynamic data if available, otherwise fall back to props or path-based title
   const displayTitle = dynamicPageData || pageTitle || title || getPageTitle(location.pathname);
   
+  // Set document title based on the page title
   useEffect(() => {
     if (displayTitle && !location.pathname.includes('/news/')) {
       document.title = `${displayTitle} - Młodzi IP`;
@@ -94,10 +97,11 @@ export function PageHeader({
   }, [location.pathname]);
   
   const toggleSearch = () => {
+    // If we are currently open and about to close, clear the search query
     if (searchOpen) {
-      setSearchQuery('');
+      setSearchQuery(''); // Clear the actual search query state
     }
-    setSearchOpen(!searchOpen);
+    setSearchOpen(!searchOpen); // Toggle the visibility state
   };
 
   const isHomePage = location.pathname === '/';
@@ -108,19 +112,8 @@ export function PageHeader({
     navigate(-1);
   };
 
-  // Improved header class logic for scroll behavior
-  const headerClass = isMobile
-    ? `transition-transform duration-300 ${
-        isScrollingDown && scrollY > 60
-          ? '-translate-y-full'
-          : 'translate-y-0'
-      }`
-    : '';
-
-  console.log('Scroll info:', { scrollY, direction, isScrollingDown, headerClass });
-
   return (
-    <div className={`w-full ${headerClass} sticky top-8 z-20 bg-background`}>
+    <div className="w-full">
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
           <div className="flex items-center gap-2">
