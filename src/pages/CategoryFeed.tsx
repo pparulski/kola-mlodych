@@ -7,6 +7,7 @@ import { NewsPreview } from "@/components/news/NewsPreview";
 import { Category } from "@/types/categories";
 import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SEO } from "@/components/seo/SEO";
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
@@ -34,7 +35,6 @@ export default function CategoryFeed() {
   useEffect(() => {
     if (category) {
       setCategoryName(category.name);
-      document.title = `${category.name} - Młodzi IP`;
     }
   }, [category]);
   
@@ -87,6 +87,10 @@ export default function CategoryFeed() {
   if (!category) {
     return (
       <div className="max-w-4xl mx-auto p-4">
+        <SEO
+          title="Kategoria nie znaleziona"
+          description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
+        />
         <p className="text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
@@ -96,6 +100,12 @@ export default function CategoryFeed() {
   
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <SEO 
+        title={category.name}
+        description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
+        keywords={category.name}
+      />
+      
       {articles && articles.length > 0 ? (
         <div className="space-y-6">
           {articles.map((article) => (

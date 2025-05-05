@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
 import { GalleryRenderer } from "./gallery/GalleryRenderer";
 import { toast } from "sonner";
+import { SEO } from "@/components/seo/SEO";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -40,9 +41,6 @@ export function StaticPage() {
         if (data) {
           console.log("Page title:", data.title);
           console.log("Content length:", data.content?.length || 0);
-          
-          // Set document title when page loads
-          document.title = `${data.title} - Młodzi IP`;
         }
         
         return data as StaticPageType;
@@ -55,6 +53,18 @@ export function StaticPage() {
     enabled: !!slug,
     staleTime: 0 // Always get fresh data
   });
+
+  // Generate a clean excerpt for SEO description
+  const generateExcerpt = (content?: string): string => {
+    if (!content) return '';
+    
+    // Remove HTML tags and limit to ~160 characters
+    const plainText = content.replace(/<[^>]*>?/gm, '');
+    const excerpt = plainText.substring(0, 160);
+    
+    // Add ellipsis if text was truncated
+    return plainText.length > 160 ? `${excerpt}...` : excerpt;
+  };
 
   if (error) {
     console.error("Error in static page query:", error);
@@ -76,6 +86,14 @@ export function StaticPage() {
 
   return (
     <div className="relative">
+      {page && (
+        <SEO
+          title={page.title}
+          description={generateExcerpt(page.content)}
+          image={page.featured_image}
+        />
+      )}
+      
       <div className="relative">
         {page ? (
           <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">

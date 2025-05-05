@@ -11,7 +11,7 @@ import { Category } from "@/types/categories";
 import { NewsArticle as NewsArticleType } from "@/types/news";
 import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
-import { ArticleStructuredData } from "@/components/StructuredData";
+import { SEO } from "@/components/seo/SEO";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -58,11 +58,17 @@ export default function NewsArticle() {
     enabled: !!article,
   });
 
-  useEffect(() => {
-    if (article) {
-      document.title = `${article.title} - Młodzi IP`;
-    }
-  }, [article]);
+  // Generate a clean excerpt for SEO description 
+  const generateExcerpt = (content?: string): string => {
+    if (!content) return '';
+    
+    // Remove HTML tags and limit to ~160 characters
+    const plainText = content.replace(/<[^>]*>?/gm, '');
+    const excerpt = plainText.substring(0, 160);
+    
+    // Add ellipsis if text was truncated
+    return plainText.length > 160 ? `${excerpt}...` : excerpt;
+  };
 
   if (isLoading) {
     return (
@@ -77,6 +83,10 @@ export default function NewsArticle() {
   if (!article) {
     return (
       <div>
+        <SEO 
+          title="Artykuł nie znaleziony" 
+          description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
+        />
         <div className="p-4 md:p-6 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
@@ -96,17 +106,22 @@ export default function NewsArticle() {
       })()
     : "";
 
+  // Extract category names for SEO keywords
+  const categoryNames = categories?.map(cat => cat.name).filter(Boolean) || [];
+  
   return (
     <div>
-      {article && (
-        <ArticleStructuredData
-          title={article.title}
-          image={article.featured_image || undefined}
-          datePublished={article.date || undefined}
-          dateModified={article.date || undefined}
-          description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
-        />
-      )}
+      <SEO 
+        title={article.title}
+        description={generateExcerpt(article.content)}
+        image={article.featured_image || undefined}
+        article={{
+          publishedAt: article.date || article.created_at || undefined,
+          modifiedAt: article.date || article.created_at || undefined,
+          categories: categoryNames,
+        }}
+        keywords={categoryNames.join(', ')}
+      />
 
       <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
         {article.featured_image && (
