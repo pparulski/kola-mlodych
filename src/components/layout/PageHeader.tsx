@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -62,14 +63,14 @@ export function PageHeader({
         return data?.title;
       }
       
-      // For category pages
+      // For category pages - Remove "Kategoria:" prefix
       if (location.pathname.includes('/category/') && slug) {
         const { data } = await supabase
           .from('categories')
           .select('name')
           .eq('slug', slug)
           .maybeSingle();
-        return data?.name ? `Kategoria: ${data.name}` : null;
+        return data?.name || null;
       }
       
       return null;

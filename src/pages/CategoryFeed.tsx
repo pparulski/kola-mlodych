@@ -87,7 +87,6 @@ export default function CategoryFeed() {
   if (!category) {
     return (
       <div className="max-w-4xl mx-auto p-4">
-        <h1 className="text-2xl font-bold">Kategoria nie znaleziona</h1>
         <p className="text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
