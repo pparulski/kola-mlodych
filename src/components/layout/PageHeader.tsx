@@ -13,7 +13,6 @@ import { ArrowLeft } from "lucide-react";
 import { getPageTitle } from "@/utils/pageUtils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useScrollAway } from "@/hooks/useScrollAway";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -43,7 +42,6 @@ export function PageHeader({
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
-  const isHeaderVisible = useScrollAway(10);
   
   // Get the appropriate title for the current page
   const { data: dynamicPageData } = useQuery({
@@ -101,9 +99,9 @@ export function PageHeader({
   const toggleSearch = () => {
     // If we are currently open and about to close, clear the search query
     if (searchOpen) {
-      setSearchQuery(''); 
+      setSearchQuery(''); // Clear the actual search query state
     }
-    setSearchOpen(!searchOpen);
+    setSearchOpen(!searchOpen); // Toggle the visibility state
   };
 
   const isHomePage = location.pathname === '/';
@@ -115,12 +113,7 @@ export function PageHeader({
   };
 
   return (
-    <header 
-      className={`w-full bg-background z-30 sticky top-[40px] transition-all duration-500 transform ${
-        isMobile && !isHeaderVisible ? '-translate-y-full' : 'translate-y-0'
-      }`}
-      style={{ willChange: 'transform' }} // Performance optimization
-    >
+    <div className="w-full">
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between w-full mb-2">
           <div className="flex items-center gap-2">
@@ -193,6 +186,6 @@ export function PageHeader({
           </div>
         )}
       </div>
-    </header>
+    </div>
   );
 }

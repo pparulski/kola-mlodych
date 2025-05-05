@@ -45,7 +45,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`fixed md:sticky top-0 h-dvh w-64 flex flex-col bg-background border-r transition-transform duration-300 z-50 ${
+      className={`fixed md:sticky top-0 h-dvh w-64 flex flex-col bg-background border-r transition-transform duration-300 z-40 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       } md:translate-x-0`}
     >
