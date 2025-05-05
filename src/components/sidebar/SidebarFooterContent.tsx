@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Mail, ExternalLink } from 'lucide-react';
 
 // Email obfuscation component to protect from spam crawlers
 function ObfuscatedEmail() {
@@ -23,10 +24,16 @@ function ObfuscatedEmail() {
 export function SidebarFooterContent() {
   return (
     <div className="px-4 py-3 text-xs text-muted-foreground">
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-2">
         <p>© {new Date().getFullYear()} Koła Młodych OZZ IP</p>
-        <p>Kontakt: <ObfuscatedEmail /></p>
-        <p className="text-xs">
+        
+        <div className="flex items-center space-x-1.5">
+          <Mail className="h-3.5 w-3.5" />
+          <span>Kontakt: <ObfuscatedEmail /></span>
+        </div>
+        
+        <div className="flex items-center space-x-1.5">
+          <ExternalLink className="h-3.5 w-3.5" />
           <a 
             href="https://ozzip.pl" 
             target="_blank"
@@ -35,7 +42,7 @@ export function SidebarFooterContent() {
           >
             ozzip.pl
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );
