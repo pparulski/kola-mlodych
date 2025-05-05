@@ -97,7 +97,6 @@ export function StaticPage() {
       <div className="relative">
         {page ? (
           <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
-            {/* Title is removed from here as it's already shown in PageHeader */}
             <GalleryRenderer content={page.content} />
           </div>
         ) : (

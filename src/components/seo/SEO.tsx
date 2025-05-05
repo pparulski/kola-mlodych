@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MetaTags } from './MetaTags';
+import { HeadTags } from './HeadTags';
 import { ArticleStructuredData } from './ArticleStructuredData';
 import { WebPageStructuredData } from './WebPageStructuredData';
 import { OrganizationStructuredData } from './OrganizationStructuredData';
@@ -34,7 +34,7 @@ export function SEO({
 
   return (
     <>
-      <MetaTags
+      <HeadTags
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
@@ -47,7 +47,7 @@ export function SEO({
         keywords={keywords}
       >
         {children}
-      </MetaTags>
+      </HeadTags>
 
       <OrganizationStructuredData />
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SEO } from '@/components/seo/SEO';
 
@@ -11,7 +12,6 @@ export default function AboutUs() {
       />
       
       <div className="prose prose-lg max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
-        {/* Title removed as it's already in the header */}
         <section className="my-4">
           <h2 className="text-2xl font-bold">Kim jesteśmy?</h2>
           <p className="mt-2">
