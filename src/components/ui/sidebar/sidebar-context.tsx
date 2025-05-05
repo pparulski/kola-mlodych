@@ -77,7 +77,7 @@ export function SidebarTrigger() {
   
   return (
     <button
-      data-component-name="SidebarTrigger"
+      // Fixed the duplicate attribute - removed data-component-name
       className={`
         fixed top-4 left-4 z-50 p-2 rounded-md
         transition-all duration-200

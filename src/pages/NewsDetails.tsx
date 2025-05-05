@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArticleStructuredData } from "@/components/StructuredData";
+import { SEO } from "@/components/seo/SEO";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -72,6 +72,10 @@ export function NewsDetails() {
   if (!article) {
     return (
       <div className="container mx-auto px-4">
+        <SEO
+          title="Artykuł nie znaleziony"
+          description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
+        />
         <div className="p-4 md:p-6 text-center bg-card rounded-lg shadow-sm">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
@@ -83,18 +87,23 @@ export function NewsDetails() {
   }
 
   const formattedDate = article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "";
+  
+  // Extract category names for SEO keywords
+  const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
 
   return (
     <div className="space-y-4 container mx-auto px-4">
-      {article && (
-        <ArticleStructuredData
-          title={article.title}
-          image={article.featured_image || undefined}
-          datePublished={article.created_at || undefined}
-          dateModified={article.created_at || undefined}
-          description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
-        />
-      )}
+      <SEO 
+        title={article.title}
+        description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
+        image={article.featured_image || undefined}
+        article={{
+          publishedAt: article.created_at || undefined,
+          modifiedAt: article.created_at || undefined,
+          categories: categoryNames,
+        }}
+        keywords={categoryNames.join(', ')}
+      />
       
       <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
         <div className="space-y-4">
