@@ -51,7 +51,8 @@ export function StaticPage() {
       }
     },
     enabled: !!slug,
-    staleTime: 0 // Always get fresh data
+    staleTime: 0, // Always get fresh data when component mounts
+    refetchOnWindowFocus: true // Refetch when the window regains focus
   });
 
   // Generate a clean excerpt for SEO description

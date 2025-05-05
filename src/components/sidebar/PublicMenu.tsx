@@ -48,6 +48,7 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
     queryKey: ['static-pages-sidebar'],
     queryFn: fetchSidebarPages,
     staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   // Fetch menu positions for regular menu items with shorter staleTime
@@ -62,7 +63,8 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['sidebar-categories'],
     queryFn: fetchCategoryMenuItems,
-    staleTime: 0,
+    staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   const isLoading = isPagesLoading || isPositionsLoading || isCategoriesLoading;

@@ -30,11 +30,14 @@ export default function CategoryFeed() {
     },
     enabled: !!slug,
     staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
   
   useEffect(() => {
     if (category) {
       setCategoryName(category.name);
+      // Update document title when category is loaded
+      document.title = `${category.name} - Młodzi IP`;
     }
   }, [category]);
   
@@ -66,6 +69,7 @@ export default function CategoryFeed() {
     },
     enabled: !!category,
     staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
   
   const isLoading = isCategoryLoading || isArticlesLoading;

@@ -63,7 +63,7 @@ export function PageHeader({
         return data?.title;
       }
       
-      // For category pages - Remove "Kategoria:" prefix
+      // For category pages - get category name
       if (location.pathname.includes('/category/') && slug) {
         const { data } = await supabase
           .from('categories')
@@ -76,6 +76,8 @@ export function PageHeader({
       return null;
     },
     enabled: !!location.pathname && (!!slug || location.pathname === '/'),
+    staleTime: 0, // Ensure we always get fresh data
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
   
   // Use dynamic data if available, otherwise fall back to props or path-based title
