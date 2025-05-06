@@ -66,7 +66,7 @@ export function ContentRenderer({ content = '' }: ContentRendererProps) {
         withEbooksProcessed.forEach((element, index) => {
           if (typeof element === 'string') {
             // Check for gallery and file placeholders in the string
-            let str = element.toString();
+            let str = element;  // Fixed: No need to call toString() here
             let parts: (string | JSX.Element)[] = [str];
             
             // Replace gallery placeholders
