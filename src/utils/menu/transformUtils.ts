@@ -1,4 +1,3 @@
-
 import { StaticPage } from "@/types/staticPages";
 import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
 import { MenuPosition } from "@/types/menu";
@@ -54,14 +53,6 @@ export const getDefaultMenuItems = (): SidebarMenuItem[] => {
       path: '/ebooks',
       icon: 'book-open',
       position: 4,
-      type: MenuItemType.REGULAR
-    },
-    {
-      id: 'about',
-      title: 'O nas',
-      path: '/o-nas',
-      icon: 'info',
-      position: 5,
       type: MenuItemType.REGULAR
     }
   ];
