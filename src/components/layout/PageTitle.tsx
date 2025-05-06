@@ -12,7 +12,7 @@ export function PageTitle({ title, description }: PageTitleProps) {
       <h1 className="text-3xl md:text-4xl font-bold text-primary inline-flex">
         {title}
       </h1>
-      {description && <p className="text-muted-foreground ml-[44px] md:ml-0">{description}</p>}
+      {description && <p className="text-muted-foreground">{description}</p>}
     </div>
   );
 }

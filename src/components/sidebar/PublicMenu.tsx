@@ -84,11 +84,8 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   // Memoize the menu items to prevent unnecessary re-renders
   const menuItems = useMemo(() => {
     if (!isLoading) {
-      // Ensure we don't have duplicate entries for "O nas"
-      // Filter out the static page with slug "o-nas" since it's already in default menu
-      const filteredStaticPages = sidebarPages ? sidebarPages.filter(page => page.slug !== 'o-nas') : [];
-      
-      const staticPageMenuItems = staticPagesToMenuItems(filteredStaticPages);
+      // Don't filter out "o-nas" anymore
+      const staticPageMenuItems = staticPagesToMenuItems(sidebarPages || []);
       const defaultMenuItems = getDefaultMenuItems();
       const categoryMenuItems = categories ? categories.map(cat => ({
         id: `category-${cat.id}`,
