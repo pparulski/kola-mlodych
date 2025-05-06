@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { NewsContent } from "@/components/news/NewsContent";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -129,10 +130,7 @@ export function NewsDetails() {
             />
           )}
           
-          <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+          <NewsContent content={article.content} />
         </div>
       </article>
     </div>

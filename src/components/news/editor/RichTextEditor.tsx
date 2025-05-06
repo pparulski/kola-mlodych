@@ -34,9 +34,11 @@ const defaultInitOptions: CoreEditorOptions = {
     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
     'insertdatetime', 'media', 'table', 'help', 'wordcount', 'quickbars', 'visualchars', 'emoticons'
   ],
-  toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
-      'bullist numlist outdent indent | link image | print preview media | gallery file ebook | ' + 
-      'forecolor backcolor emoticons | help',
+  toolbar: [
+    'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify',
+    'bullist numlist outdent indent | link image | print preview media',
+    'gallery file ebook | forecolor backcolor emoticons | help'
+  ].join(' | '),
   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
   setup: (editor: HugeRTEEditor) => {
     console.log("Setting up HugeRTE editor...");

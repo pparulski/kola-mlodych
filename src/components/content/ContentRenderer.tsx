@@ -13,58 +13,124 @@ export function ContentRenderer({ content = '' }: ContentRendererProps) {
   const [processedContent, setProcessedContent] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
-    // Multi-stage processing
     if (!content) {
       setProcessedContent([]);
       return;
     }
 
-    // Process galleries first (as it's likely more complex)
-    const withGalleriesProcessed = processGalleryShortcodes(content);
-
-    // Convert back to string for next processing
-    const htmlString = withGalleriesProcessed.map(el => {
-      if (typeof el === 'string') return el;
-      // For JSX elements (galleries), we use a placeholder
-      if (React.isValidElement(el)) {
-        return `<!--gallery-placeholder-${Math.random().toString(36).substring(2, 9)}-->`;
+    const processContent = async () => {
+      try {
+        // Process shortcodes in sequence
+        console.log("Processing content with length:", content.length);
+        
+        // Step 1: Process galleries
+        const withGalleriesProcessed = processGalleryShortcodes(content);
+        
+        // Convert JSX elements to placeholder strings for next processing step
+        let intermediateContent = '';
+        const galleryPlaceholders: Record<string, JSX.Element> = {};
+        
+        withGalleriesProcessed.forEach((element, index) => {
+          if (typeof element === 'string') {
+            intermediateContent += element;
+          } else if (React.isValidElement(element)) {
+            const placeholder = `<!--gallery-placeholder-${index}-->`;
+            galleryPlaceholders[placeholder] = element;
+            intermediateContent += placeholder;
+          }
+        });
+        
+        // Step 2: Process file shortcodes
+        const withFilesProcessed = processFileShortcodes(intermediateContent);
+        
+        // Convert to next intermediate content
+        let secondIntermediateContent = '';
+        const filePlaceholders: Record<string, JSX.Element> = {};
+        
+        withFilesProcessed.forEach((element, index) => {
+          if (typeof element === 'string') {
+            secondIntermediateContent += element;
+          } else if (React.isValidElement(element)) {
+            const placeholder = `<!--file-placeholder-${index}-->`;
+            filePlaceholders[placeholder] = element;
+            secondIntermediateContent += placeholder;
+          }
+        });
+        
+        // Step 3: Process ebook shortcodes
+        const withEbooksProcessed = processEbookShortcodes(secondIntermediateContent);
+        
+        // Combine all processed content and restore placeholders
+        const finalContent: JSX.Element[] = [];
+        
+        withEbooksProcessed.forEach((element, index) => {
+          if (typeof element === 'string') {
+            // Check for gallery and file placeholders in the string
+            let str = element.toString();
+            let parts: (string | JSX.Element)[] = [str];
+            
+            // Replace gallery placeholders
+            Object.entries(galleryPlaceholders).forEach(([placeholder, jsxElement]) => {
+              parts = parts.flatMap(part => {
+                if (typeof part !== 'string') return [part];
+                const splitParts = part.split(placeholder);
+                if (splitParts.length === 1) return [part];
+                
+                return splitParts.flatMap((subPart, i) => {
+                  if (i === 0) return subPart ? [subPart] : [];
+                  return [jsxElement, subPart];
+                });
+              });
+            });
+            
+            // Replace file placeholders
+            parts = parts.flatMap(part => {
+              if (typeof part !== 'string') return [part];
+              
+              let result: (string | JSX.Element)[] = [part];
+              Object.entries(filePlaceholders).forEach(([placeholder, jsxElement]) => {
+                result = result.flatMap(subPart => {
+                  if (typeof subPart !== 'string') return [subPart];
+                  const splitParts = subPart.split(placeholder);
+                  if (splitParts.length === 1) return [subPart];
+                  
+                  return splitParts.flatMap((fragment, i) => {
+                    if (i === 0) return fragment ? [fragment] : [];
+                    return [jsxElement, fragment];
+                  });
+                });
+              });
+              
+              return result;
+            });
+            
+            // Add all parts to final content
+            parts.forEach((part, partIndex) => {
+              if (typeof part === 'string') {
+                finalContent.push(
+                  <span key={`text-${index}-${partIndex}`} dangerouslySetInnerHTML={{ __html: part }} />
+                );
+              } else {
+                finalContent.push(React.cloneElement(part, { key: `element-${index}-${partIndex}` }));
+              }
+            });
+          } else if (React.isValidElement(element)) {
+            finalContent.push(React.cloneElement(element, { key: `ebook-${index}` }));
+          }
+        });
+        
+        console.log("Content processing complete, elements:", finalContent.length);
+        setProcessedContent(finalContent);
+      } catch (error) {
+        console.error("Error processing content:", error);
+        // Fallback to just rendering the HTML content directly
+        setProcessedContent([
+          <span key="error-fallback" dangerouslySetInnerHTML={{ __html: content }} />
+        ]);
       }
-      return '';
-    }).join('');
+    };
 
-    // Process files
-    const withFilesProcessed = processFileShortcodes(htmlString);
-
-    // Convert back to string again
-    const htmlWithFiles = withFilesProcessed.map(el => {
-      if (typeof el === 'string') return el;
-      // For JSX elements (files), we use a placeholder
-      if (React.isValidElement(el)) {
-        return `<!--file-placeholder-${Math.random().toString(36).substring(2, 9)}-->`;
-      }
-      return '';
-    }).join('');
-
-    // Process ebooks last
-    const finalContent = processEbookShortcodes(htmlWithFiles);
-
-    // Combine all processed content
-    let combinedContent: JSX.Element[] = [];
-    let galleryIndex = 0;
-    let fileIndex = 0;
-
-    // Reconstruct the content with real components
-    finalContent.forEach((item) => {
-      if (typeof item === 'string') {
-        // Just add text content
-        combinedContent.push(<span key={`text-${Math.random().toString(36).substring(2, 9)}`} dangerouslySetInnerHTML={{ __html: item }} />);
-      } else if (React.isValidElement(item)) {
-        // For JSX elements (ebooks, galleries, files)
-        combinedContent.push(item);
-      }
-    });
-
-    setProcessedContent(combinedContent);
+    processContent();
   }, [content]);
 
   return (
