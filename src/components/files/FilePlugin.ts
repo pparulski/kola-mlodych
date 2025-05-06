@@ -85,21 +85,42 @@ async function openFileSelectionDialog(editor: HugeRTEEditor) {
       return;
     }
 
-    // Create and open a dialog with file options
-    const container = document.createElement('div');
-    container.className = 'file-selection-dialog';
-    container.innerHTML = `
+    // Create dialog element
+    const dialog = document.createElement('div');
+    dialog.className = 'file-selection-dialog';
+    dialog.style.position = 'fixed';
+    dialog.style.top = '50%';
+    dialog.style.left = '50%';
+    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.zIndex = '9999';
+    dialog.style.backgroundColor = 'white';
+    dialog.style.borderRadius = '8px';
+    dialog.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    dialog.style.padding = '16px';
+    dialog.style.maxWidth = '600px';
+    dialog.style.width = '100%';
+    dialog.style.maxHeight = '400px';
+    dialog.style.overflowY = 'auto';
+
+    // Create dialog overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.zIndex = '9998';
+
+    // Close dialog when clicking on overlay
+    overlay.addEventListener('click', () => {
+      document.body.removeChild(dialog);
+      document.body.removeChild(overlay);
+    });
+
+    // Create dialog content
+    dialog.innerHTML = `
       <style>
-        .file-selection-dialog {
-          background-color: white;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          padding: 16px;
-          max-width: 600px;
-          width: 100%;
-          max-height: 400px;
-          overflow-y: auto;
-        }
         .file-item {
           padding: 8px 12px;
           border-radius: 4px;
@@ -136,15 +157,19 @@ async function openFileSelectionDialog(editor: HugeRTEEditor) {
       </div>
     `;
 
+    // Add dialog to document
+    document.body.appendChild(overlay);
+    document.body.appendChild(dialog);
+
     // Add click handlers for file selection
-    document.body.appendChild(container);
-    const fileItems = container.querySelectorAll('.file-item');
+    const fileItems = dialog.querySelectorAll('.file-item');
     fileItems.forEach(item => {
       item.addEventListener('click', () => {
         const fileId = item.getAttribute('data-file-id');
         if (fileId) {
           insertFile(editor, fileId);
-          document.body.removeChild(container);
+          document.body.removeChild(dialog);
+          document.body.removeChild(overlay);
         }
       });
     });
