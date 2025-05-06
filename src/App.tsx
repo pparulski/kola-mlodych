@@ -1,3 +1,4 @@
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -19,7 +20,6 @@ import Map from "@/pages/Map";
 import NewsArticle from "@/pages/NewsArticle";
 import Auth from "@/pages/Auth";
 import { AuthGuard } from "@/components/AuthGuard";
-import AboutUs from "@/pages/AboutUs";
 import { ManageGalleries } from "@/pages/manage/ManageGalleries";
 
 const router = createBrowserRouter([
@@ -31,10 +31,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Index />,
-      },
-      {
-        path: "/o-nas",
-        element: <AboutUs />,
       },
       {
         element: <AuthGuard />,

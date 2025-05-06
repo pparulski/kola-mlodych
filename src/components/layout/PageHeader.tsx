@@ -118,9 +118,13 @@ export function PageHeader({
   return (
     <div className="w-full">
       <div className="flex flex-col w-full">
-        <div className="flex items-center justify-between w-full mb-2">
-          <div className="flex items-center gap-2">
-            {isMobile && <SidebarToggle toggleSidebar={toggleSidebar} />}
+        <div className="flex items-start md:items-center justify-between w-full mb-2">
+          <div className="flex items-start gap-2">
+            {isMobile && (
+              <div className="mt-1">
+                <SidebarToggle toggleSidebar={toggleSidebar} />
+              </div>
+            )}
             <PageTitle title={displayTitle} description={description} />
           </div>
 

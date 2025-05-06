@@ -15,6 +15,7 @@ export function SidebarLogo() {
           } 
           alt="Logo Koła Młodych" 
           className="w-40 h-40 object-contain transition-transform hover:scale-105"
+          loading="eager" // Explicitly disable lazy loading for the logo
         />
       </Link>
     </div>
