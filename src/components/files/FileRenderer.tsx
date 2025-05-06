@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { FILE_SHORTCODE_PATTERN } from './plugin/FileShortcode';
 
 interface FileData {
   id: string;
@@ -90,7 +91,6 @@ export function FileRenderer({ fileId }: FileRendererProps) {
 // File Renderer Initializer - finds and replaces file shortcodes in content
 export function processFileShortcodes(content: string): JSX.Element[] {
   const elements: JSX.Element[] = [];
-  const FILE_SHORTCODE_PATTERN = /\[file id="([^"]+)"\]/g;
   
   // Split content by file shortcodes
   const parts = content.split(FILE_SHORTCODE_PATTERN);
