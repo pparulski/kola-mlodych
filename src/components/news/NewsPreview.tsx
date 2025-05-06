@@ -70,7 +70,7 @@ export function NewsPreview({
           
           <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <p className="text-sm font-medium italic text-muted-foreground dark:text-primary/70 my-0">{formattedDate}</p>
+              <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">{formattedDate}</p>
             )}
             
             {validCategoryNames.length > 0 && (

@@ -70,7 +70,7 @@ export function StaticPage() {
   if (error) {
     console.error("Error in static page query:", error);
     return (
-      <div className="bg-[hsl(var(--content-box))] p-4 rounded-lg text-foreground mt-6">
+      <div className="bg-[hsl(var(--content-box))] p-4 rounded-lg text-foreground mt-4">
         <div className="text-lg">Wystąpił błąd podczas ładowania strony.</div>
         <div className="text-sm text-muted-foreground">{String(error)}</div>
       </div>
@@ -79,14 +79,14 @@ export function StaticPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[150px] mt-6">
+      <div className="flex justify-center items-center min-h-[150px] mt-4">
         <div className="text-lg">Ładowanie...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative mt-6">
+    <div className="relative mt-4">
       {page && (
         <SEO
           title={page.title}
