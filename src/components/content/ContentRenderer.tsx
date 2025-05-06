@@ -1,7 +1,9 @@
+
 import { processGalleryShortcodes } from '../gallery/GalleryRenderer';
 import { processFileShortcodes } from '../files/FileRenderer';
 import { processEbookShortcodes } from '../ebooks/EbookRenderer';
 import { useEffect, useState } from 'react';
+import React from 'react';
 
 interface ContentRendererProps {
   content?: string;
@@ -52,24 +54,12 @@ export function ContentRenderer({ content = '' }: ContentRendererProps) {
     let fileIndex = 0;
 
     // Reconstruct the content with real components
-    finalContent.forEach((item, index) => {
+    finalContent.forEach((item) => {
       if (typeof item === 'string') {
-        // If it's a gallery placeholder, add the real gallery
-        if (String(item.props?.dangerouslySetInnerHTML?.__html).includes('<!--gallery-placeholder-')) {
-          combinedContent.push(withGalleriesProcessed[galleryIndex]);
-          galleryIndex++;
-        } 
-        // If it's a file placeholder, add the real file
-        else if (String(item.props?.dangerouslySetInnerHTML?.__html).includes('<!--file-placeholder-')) {
-          combinedContent.push(withFilesProcessed[fileIndex]);
-          fileIndex++;
-        } 
-        // Otherwise it's just text
-        else {
-          combinedContent.push(item);
-        }
-      } else {
-        // Already processed elements (ebooks) just get added directly
+        // Just add text content
+        combinedContent.push(<span key={`text-${Math.random().toString(36).substring(2, 9)}`} dangerouslySetInnerHTML={{ __html: item }} />);
+      } else if (React.isValidElement(item)) {
+        // For JSX elements (ebooks, galleries, files)
         combinedContent.push(item);
       }
     });

@@ -21,10 +21,11 @@ export const ebookPlugin = {
     // Register a custom element to represent ebooks in the editor
     editor.ui.registry.addIcon('ebook', '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 2h-6v6h-2V2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 20V4h6v10l2-1.5 2 1.5V4h6v16H4z" fill="currentColor"/></svg>');
     
-    // Define how ebook shortcodes are displayed in the editor
-    editor.ui.registry.addDecoration('ebook-shortcode', {
+    // Register custom formatter for ebook shortcodes
+    editor.formatter.register('ebookShortcode', {
+      inline: 'span',
+      classes: 'ebook-shortcode-preview',
       attributes: {
-        'class': 'ebook-shortcode-preview',
         'data-mce-decoration': 'ebook-shortcode'
       }
     });

@@ -22,10 +22,11 @@ export const filePlugin = {
     // Register a custom element to represent files in the editor
     editor.ui.registry.addIcon('file-download', '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H8l4-4 4 4h-3v4h-2z" fill="currentColor"/></svg>');
     
-    // Define how file shortcodes are displayed in the editor
-    editor.ui.registry.addDecoration('file-shortcode', {
+    // Register custom formatter for file shortcodes
+    editor.formatter.register('fileShortcode', {
+      inline: 'span',
+      classes: 'file-shortcode-preview',
       attributes: {
-        'class': 'file-shortcode-preview',
         'data-mce-decoration': 'file-shortcode'
       }
     });

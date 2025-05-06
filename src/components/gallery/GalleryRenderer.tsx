@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { GalleryView } from "./GalleryView";
 import { GalleryInitializer } from "./GalleryInitializer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import React from "react";
 
 interface GalleryRendererProps {
   content: string;
@@ -108,4 +109,31 @@ export function GalleryRenderer({ content, onProcessedContent }: GalleryRenderer
       ))}
     </>
   );
+}
+
+// Add the missing processGalleryShortcodes function
+export function processGalleryShortcodes(content: string): (string | React.ReactElement)[] {
+  const elements: (string | React.ReactElement)[] = [];
+  const GALLERY_SHORTCODE_PATTERN = /\[gallery id="([^"]+)"\]/g;
+  
+  // Split content by gallery shortcodes
+  const parts = content.split(GALLERY_SHORTCODE_PATTERN);
+  
+  // Process each part
+  for (let i = 0; i < parts.length; i++) {
+    // Add text content
+    if (parts[i]) {
+      elements.push(parts[i]);
+    }
+    
+    // Add gallery renderer for each gallery ID (which appear at odd indices starting from 1)
+    if (i < parts.length - 1 && i % 2 === 0) {
+      const galleryId = parts[i + 1];
+      if (galleryId) {
+        elements.push(<GalleryRenderer key={`gallery-${galleryId}`} content={`[gallery id="${galleryId}"]`} />);
+      }
+    }
+  }
+  
+  return elements;
 }
