@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Editor } from '@hugerte/hugerte-react';
 
@@ -5,6 +6,8 @@ import { Editor } from '@hugerte/hugerte-react';
 import type { HugeRTE, Editor as HugeRTEEditor } from 'hugerte';
 
 import { galleryPlugin } from '@/components/gallery/GalleryPlugin'; // Adjust path
+import { filePlugin } from '@/components/files/FilePlugin'; // Import file plugin
+import { ebookPlugin } from '@/components/ebooks/EbookPlugin'; // Import ebook plugin
 
 // Type for the core options object
 type CoreEditorOptions = Parameters<HugeRTE['init']>[0];
@@ -32,16 +35,25 @@ const defaultInitOptions: CoreEditorOptions = {
     'insertdatetime', 'media', 'table', 'help', 'wordcount', 'quickbars', 'visualchars', 'emoticons'
   ],
   toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
-      'bullist numlist outdent indent | link image | print preview media gallery | ' +
+      'bullist numlist outdent indent | link image | print preview media gallery file ebook | ' +
       'forecolor backcolor emoticons | help',
   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
   setup: (editor: HugeRTEEditor) => {
     console.log("Setting up HugeRTE editor...");
     try {
-         galleryPlugin.init(editor);
-         console.log("Gallery plugin initialized successfully.");
+      // Initialize the gallery plugin
+      galleryPlugin.init(editor);
+      console.log("Gallery plugin initialized successfully.");
+      
+      // Initialize the file plugin
+      filePlugin.init(editor);
+      console.log("File plugin initialized successfully.");
+      
+      // Initialize the ebook plugin
+      ebookPlugin.init(editor);
+      console.log("Ebook plugin initialized successfully.");
     } catch (pluginError) {
-         console.error("Error initializing gallery plugin:", pluginError);
+      console.error("Error initializing plugins:", pluginError);
     }
   },
   height: 450,
@@ -78,30 +90,13 @@ export function RichTextEditor({
   // BUT the prop itself expects the stricter omitted type.
   const finalInitOptions: CoreEditorOptions = mergedOptions;
 
-
-  // --- Alternative if strict type needed for `finalInitOptions` ---
-  // const finalInitOptions: RichTextEditorInitProps = ( () => {
-  //    const { selector, target, readonly, ...rest } = mergedOptions;
-  //    // You might need to cast 'rest' if TS complains about potential extra properties
-  //    return rest as RichTextEditorInitProps;
-  // })();
-
   console.log("Final Init Options Passed to Editor:", JSON.stringify(finalInitOptions));
 
   return (
     <Editor
       value={value}
       onEditorChange={onEditorChange}
-      // --- Pass the potentially broader merged object ---
-      // The <Editor> component's internal prop type checking will
-      // effectively ignore/allow this as long as the REQUIRED properties match
-      // and the FORBIDDEN ones aren't problematic strings.
-      // Casting here can suppress the error if absolutely needed, but indicates
-      // a slight mismatch between our merged object and the strict prop type.
-      //init={finalInitOptions}
-      // If the error persists on the line above, try casting:
-      // init={finalInitOptions as any} // Less safe, hides potential issues
-      init={finalInitOptions as RichTextEditorInitProps} // Might still complain
+      init={finalInitOptions as RichTextEditorInitProps}
     />
   );
 }

@@ -1,37 +1,14 @@
 
-import { GalleryRenderer } from "../gallery/GalleryRenderer";
-import { useEffect } from "react";
-import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { ContentRenderer } from "@/components/content/ContentRenderer";
 
 interface NewsContentProps {
   content: string;
-  title?: string;
-  date?: string;
-  featured_image?: string;
 }
 
-export function NewsContent({ content, title, date, featured_image }: NewsContentProps) {
-  // Update the document title when the component renders with a title
-  useEffect(() => {
-    if (title) {
-      document.title = `${title} - Młodzi IP`;
-    }
-  }, [title]);
-
+export function NewsContent({ content }: NewsContentProps) {
   return (
-    <div className="news-content max-w-full overflow-hidden">
-      {featured_image && (
-        <FeaturedImage
-          src={featured_image}
-          aspectRatio={16/9} // Using 16:9 aspect ratio
-          objectFit="cover"
-          className="w-full mb-6"
-          priority // Main content image should load immediately
-        />
-      )}
-      <div className="prose prose-lg dark:prose-invert hugerte-content">
-        <GalleryRenderer content={content} />
-      </div>
+    <div className="prose prose-lg max-w-none dark:prose-invert mt-6">
+      <ContentRenderer content={content} />
     </div>
   );
 }

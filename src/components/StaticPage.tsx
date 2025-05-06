@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
-import { GalleryRenderer } from "./gallery/GalleryRenderer";
+import { ContentRenderer } from "./content/ContentRenderer";
 import { toast } from "sonner";
 import { SEO } from "@/components/seo/SEO";
 
@@ -98,7 +98,7 @@ export function StaticPage() {
       <div className="relative">
         {page ? (
           <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
-            <GalleryRenderer content={page.content} />
+            <ContentRenderer content={page.content} />
           </div>
         ) : (
           <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
