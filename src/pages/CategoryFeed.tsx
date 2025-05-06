@@ -8,6 +8,7 @@ import { Category } from "@/types/categories";
 import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { Badge } from "@/components/ui/badge";
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
@@ -76,7 +77,7 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-4 space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8 mt-6">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -90,12 +91,12 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="max-w-4xl mx-auto mt-6">
         <SEO
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
         />
-        <p className="text-muted-foreground mt-4 bg-[hsl(var(--content-box))] p-6 rounded-lg">
+        <p className="text-muted-foreground bg-[hsl(var(--content-box))] p-5 rounded-lg">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
       </div>
@@ -103,12 +104,18 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 mt-6">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
         keywords={category.name}
       />
+      
+      <div className="mb-6">
+        <Badge variant="default" className="text-base px-4 py-1">
+          {category.name}
+        </Badge>
+      </div>
       
       {articles && articles.length > 0 ? (
         <div className="space-y-6">
@@ -121,6 +128,7 @@ export default function CategoryFeed() {
               content={article.content}
               date={article.date || undefined}
               featured_image={article.featured_image || undefined}
+              category_names={[category.name]}
             />
           ))}
         </div>

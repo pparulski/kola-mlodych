@@ -51,12 +51,12 @@ export function NewsPreview({
       {featured_image && (
         <FeaturedImage
           src={featured_image}
-          aspectRatio={21/9} // Updated to 21:9 from 16:9
+          aspectRatio={21/9} 
           objectFit="cover"
           className="w-full"
           lazyload={true}
-          lazyloadHeight={150} // Adjusted for 21:9 aspect ratio
-          alt={title} // Added alt text for better accessibility
+          lazyloadHeight={150}
+          alt={title}
         />
       )}
       <div className="space-y-4 md:space-y-6">
@@ -70,7 +70,7 @@ export function NewsPreview({
           
           <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <p className="text-sm text-foreground my-0">{formattedDate}</p>
+              <p className="text-sm font-medium italic text-muted-foreground dark:text-primary/70 my-0">{formattedDate}</p>
             )}
             
             {validCategoryNames.length > 0 && (

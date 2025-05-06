@@ -28,7 +28,7 @@ export function PageLayout() {
         categories={categories}
       />
 
-      <div className="max-w-4xl mx-auto mt-2">
+      <div className="max-w-4xl mx-auto">
         <Outlet context={{ searchQuery, selectedCategories }} />
       </div>
     </div>

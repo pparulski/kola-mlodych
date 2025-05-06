@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +61,7 @@ export function NewsDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 container mx-auto px-4">
+      <div className="space-y-4 container mx-auto px-4 mt-6">
         <Skeleton className="h-10 w-3/4 max-w-2xl" />
         <Skeleton className="h-5 w-48" />
         <Skeleton className="h-60 w-full" />
@@ -70,12 +71,12 @@ export function NewsDetails() {
 
   if (!article) {
     return (
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 mt-6">
         <SEO
           title="Artykuł nie znaleziony"
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
         />
-        <div className="p-4 md:p-6 text-center bg-card rounded-lg shadow-sm">
+        <div className="p-5 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
@@ -91,7 +92,7 @@ export function NewsDetails() {
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
 
   return (
-    <div className="space-y-4 container mx-auto px-4">
+    <div className="space-y-4 container mx-auto px-4 mt-6">
       <SEO 
         title={article.title}
         description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
@@ -104,13 +105,13 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-6 p-4 md:p-6 bg-card rounded-lg border-2 border-border overflow-hidden">
+      <article className="space-y-6 p-5 bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
         <div className="space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">
             {formattedDate && (
-              <p className="text-sm text-foreground my-0">{formattedDate}</p>
+              <p className="text-sm font-medium italic text-muted-foreground dark:text-primary/70 my-0">{formattedDate}</p>
             )}
             
             {articleCategories && articleCategories.length > 0 && (
