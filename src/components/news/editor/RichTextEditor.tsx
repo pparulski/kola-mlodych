@@ -35,7 +35,7 @@ const defaultInitOptions: CoreEditorOptions = {
     'insertdatetime', 'media', 'table', 'help', 'wordcount', 'quickbars', 'visualchars', 'emoticons'
   ],
   toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
-      'bullist numlist outdent indent | link image | print preview media gallery file ebook | ' +
+      'bullist numlist outdent indent | link image | print preview media | gallery file ebook | ' + 
       'forecolor backcolor emoticons | help',
   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
   setup: (editor: HugeRTEEditor) => {
@@ -58,10 +58,6 @@ const defaultInitOptions: CoreEditorOptions = {
   },
   height: 450,
   menubar: true
-  // These might technically be present in CoreEditorOptions type, but we won't pass them
-  // selector: undefined,
-  // target: undefined,
-  // readonly: undefined,
 };
 
 export function RichTextEditor({

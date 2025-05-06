@@ -1,7 +1,6 @@
 
 import type { Editor as HugeRTEEditor } from 'hugerte';
 import { supabase } from '@/integrations/supabase/client';
-import { Dialog } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 // Define the file shortcode pattern
