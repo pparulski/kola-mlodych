@@ -14,11 +14,19 @@ export function NewsList({ newsItems }: NewsListProps) {
   return (
     <div className="space-y-6">
       {newsItems.map((article) => {
-        // Ensure the preview content has ellipsis if needed
+        // Ensure we have content before processing it
         const content = article.content || '';
+        
+        // Generate preview with ellipsis for long content
         const preview_content = content.length > 300
           ? `${content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300)}...`
           : content;
+        
+        console.log("NewsList rendering article:", { 
+          title: article.title, 
+          contentLength: content.length,
+          previewStart: preview_content?.substring(0, 50) 
+        });
           
         return (
           <NewsPreview

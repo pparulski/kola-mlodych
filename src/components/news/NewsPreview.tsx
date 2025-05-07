@@ -47,6 +47,14 @@ export function NewsPreview({
     name !== null && name !== undefined && name !== ""
   );
 
+  // For debugging
+  console.log("NewsPreview rendering with:", { 
+    title,
+    preview_content, 
+    content: content?.substring(0, 50),
+    previewContent: previewContent?.substring(0, 50)
+  });
+
   return (
     <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
       {featured_image && (

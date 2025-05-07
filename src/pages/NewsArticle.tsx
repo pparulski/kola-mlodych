@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -69,6 +68,17 @@ export default function NewsArticle() {
     // Add ellipsis if text was truncated
     return plainText.length > 160 ? `${excerpt}...` : excerpt;
   };
+
+  // For debugging
+  useEffect(() => {
+    if (article) {
+      console.log("Article detail rendering:", {
+        title: article.title,
+        contentLength: article.content?.length || 0,
+        contentPreview: article.content?.substring(0, 50)
+      });
+    }
+  }, [article]);
 
   if (isLoading) {
     return (
