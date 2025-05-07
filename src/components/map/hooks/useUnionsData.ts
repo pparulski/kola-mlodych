@@ -22,7 +22,7 @@ export const useUnionsData = () => {
         ...union,
         coordinates: union.city && cityCoordinates[union.city] 
           ? cityCoordinates[union.city] 
-          : cityCoordinates.default
+          : null // Don't use default to avoid clustering non-located unions
       }));
       
       return unionsWithCoordinates as Union[];
