@@ -19,7 +19,7 @@ export function NewsCard(props: NewsCardProps) {
   // Create a preview_content if previewLength is specified
   const preview_content = props.previewLength && props.content?.length > props.previewLength
     ? `${props.content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, props.previewLength)}...`
-    : undefined;
+    : props.content;
   
   return (
     <div className="w-full">
