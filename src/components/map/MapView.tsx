@@ -1,5 +1,5 @@
 
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Map, { Marker, NavigationControl, Popup, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapPin, AlertCircle } from "lucide-react";
@@ -48,7 +48,7 @@ export const MapView = ({
   if (!mapboxToken || mapboxToken === DEFAULT_MAPBOX_TOKEN) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted/20 border rounded-lg">
-        <div className="max-w-md p-4">
+        <div className="max-w-md p-2">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
@@ -64,7 +64,7 @@ export const MapView = ({
     <div className="w-full h-full">
       {mapError ? (
         <div className="w-full h-full flex items-center justify-center bg-muted/20 border rounded-lg">
-          <div className="max-w-md p-4">
+          <div className="max-w-md p-2">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{mapError}</AlertDescription>
@@ -125,7 +125,7 @@ export const MapView = ({
                 className="z-10"
                 maxWidth="300px"
               >
-                <div className="p-2">
+                <div className="p-1">
                   <h3 className="font-bold text-sm">{popupInfo.name}</h3>
                   {popupInfo.city && <p className="text-xs">{popupInfo.city}</p>}
                 </div>

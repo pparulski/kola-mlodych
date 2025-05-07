@@ -10,6 +10,12 @@ export interface Union {
   description?: string;
   city?: string;
   coordinates?: Coordinates;
+  logo_url?: string;
+  year_created?: number;
+  bio?: string;
+  contact?: string;
+  facebook_url?: string;
+  instagram_url?: string;
 }
 
 // Cities coordinates in Poland

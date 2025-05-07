@@ -65,7 +65,7 @@ const UnionsMap = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-6 flex items-center justify-center min-h-[300px]">
+      <div className="container mx-auto px-2 py-4 flex items-center justify-center min-h-[300px]">
         <div className="animate-pulse flex flex-col items-center w-full">
           <div className="h-8 w-48 bg-muted rounded mb-4"></div>
           <div className="h-[400px] w-full bg-muted rounded mb-4"></div>
@@ -82,7 +82,7 @@ const UnionsMap = () => {
   // Show token input form if needed
   if (isSettingToken) {
     return (
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-2 py-4">
         <Card className="max-w-md mx-auto">
           <CardHeader>
             <CardTitle>Konfiguracja mapy</CardTitle>
@@ -124,8 +124,8 @@ const UnionsMap = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="container mx-auto px-2 py-3">
+      <div className="flex justify-between items-center mb-2">
         {/* Mobile View Toggle Button */}
         {isMobile && (
           <Button 
@@ -149,14 +149,14 @@ const UnionsMap = () => {
       </div>
       
       <div className={cn(
-        "flex flex-col md:flex-row gap-4",
-        "h-[calc(100vh-150px)] md:min-h-[600px]"
+        "flex flex-col md:flex-row gap-2",
+        "h-[calc(100vh-120px)] md:min-h-[650px]"
       )}>
         {/* Map Section */}
         <div className={cn(
-          "w-full md:w-1/2 h-full rounded-xl overflow-hidden border",
+          "w-full md:w-3/5 lg:w-2/3 h-full rounded-xl overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[calc(100vh-200px)]"
+          isMobile && showMapOnMobile && "h-[calc(100vh-150px)]"
         )}>
           {unions && (
             <MapView 
@@ -189,7 +189,7 @@ const UnionsMap = () => {
         
         {/* Unions List Section */}
         <div className={cn(
-          "w-full md:w-1/2 overflow-auto pr-1",
+          "w-full md:w-2/5 lg:w-1/3 overflow-auto pr-1",
           isMobile && showMapOnMobile && "hidden"
         )}>
           {unions && (
