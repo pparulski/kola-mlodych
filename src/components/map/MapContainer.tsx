@@ -43,7 +43,7 @@ export const MapContainer = ({
         <div className={cn(
           "w-full md:w-4/5 h-full aspect-square rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[calc(100vh-130px)]"
+          isMobile && showMapOnMobile && "h-[80vw] max-h-[calc(100vh-150px)]" // Square on mobile with max height
         )}>
           {mapComponent}
         </div>

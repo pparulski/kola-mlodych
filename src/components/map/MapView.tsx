@@ -6,8 +6,8 @@ import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Union, POLAND_BOUNDS, POLAND_CENTER } from "./types";
 
-// Default token will be filled by environment variable or local storage
-const MAPBOX_TOKEN = "pk.eyJ1IjoibWxvZHppaXAiLCJhIjoiY2x5YWdsc2YwMDd1dTJsbzg2eGQzcDlnaCJ9.VZn2djMrb9unDUOBodZOaw";
+// Set the Mapbox token
+const MAPBOX_TOKEN = "pk.eyJ1IjoiaGF5ZWsyOSIsImEiOiJjbWFlaWE4aTYwMHFjMmpzMzhxbGhiNG9wIn0.9p3d1MoBwalUlgd2Gv7xzQ";
 
 interface MapViewProps {
   unions: Union[];
