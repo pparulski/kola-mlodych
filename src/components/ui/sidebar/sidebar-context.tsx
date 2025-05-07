@@ -16,13 +16,14 @@ const SidebarContext = createContext<SidebarContextProps>({
   setIsOpen: () => {},
   openMobile: false,
   isMobile: false,
-  state: "open",
+  state: "closed",
   toggleSidebar: () => {}
 });
 
 export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // Ensure state is typed correctly as "open" | "closed" | "collapsed"
   const state = isOpen ? "open" : "closed";
   const openMobile = isOpen && isMobile;
 

@@ -12,7 +12,7 @@ import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";
 import { FileIcon } from "lucide-react";
 
-// Improved DynamicIcon component with error handling
+// Improved DynamicIcon component with error handling and memoization
 const DynamicIcon = React.memo(({ name, ...props }: LucideProps & { name: string }) => {
   try {
     // Get the dynamic import for this icon name
@@ -40,22 +40,23 @@ const DynamicIcon = React.memo(({ name, ...props }: LucideProps & { name: string
 
 DynamicIcon.displayName = 'DynamicIcon';
 
-export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
+// Memo-ize the entire PublicMenu component
+export const PublicMenu = React.memo(function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   const location = useLocation();
   
   // Fetch all static pages visible in sidebar
   const { data: sidebarPages, isLoading: isPagesLoading } = useQuery({
     queryKey: ['static-pages-sidebar'],
     queryFn: fetchSidebarPages,
-    staleTime: 0, // Ensure we always get fresh data
+    staleTime: 600000, // 10 minutes cache to prevent refetch on sidebar toggle
     refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
-  // Fetch menu positions for regular menu items with shorter staleTime
+  // Fetch menu positions for regular menu items with longer staleTime
   const { data: menuPositions, isLoading: isPositionsLoading } = useQuery({
     queryKey: ['menu-positions'],
     queryFn: fetchMenuPositions,
-    staleTime: 0, // Ensure we always get fresh data
+    staleTime: 600000, // 10 minutes cache to prevent refetch on sidebar toggle
     refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
@@ -63,14 +64,14 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
   const { data: categories, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['sidebar-categories'],
     queryFn: fetchCategoryMenuItems,
-    staleTime: 0, // Ensure we always get fresh data
+    staleTime: 600000, // 10 minutes cache to prevent refetch on sidebar toggle
     refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   const isLoading = isPagesLoading || isPositionsLoading || isCategoriesLoading;
 
-  // Helper function to check if a menu item matches the current route
-  const isItemActive = (itemPath: string) => {
+  // Memoized helper function to check if a menu item matches the current route
+  const isItemActive = React.useCallback((itemPath: string) => {
     // For the homepage, only match exactly '/'
     if (itemPath === '/') {
       return location.pathname === '/';
@@ -79,7 +80,7 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
     // For other paths, we check if the current location starts with the item path
     // This helps with nested routes
     return location.pathname.startsWith(itemPath);
-  };
+  }, [location.pathname]);
 
   // Memoize the menu items to prevent unnecessary re-renders
   const menuItems = useMemo(() => {
@@ -136,4 +137,5 @@ export function PublicMenu({ onItemClick }: { onItemClick: () => void }) {
       })}
     </>
   );
-}
+});
+

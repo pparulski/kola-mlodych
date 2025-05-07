@@ -1,17 +1,17 @@
 
-import { useState } from "react";
+import { memo, useCallback } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "../AppSidebar";
 import { JoinBanner } from "./JoinBanner";
 import { SidebarOverlay } from "./SidebarOverlay";
 import { MainContent } from "./MainContent";
 
-export function LayoutContent() {
+export const LayoutContent = memo(function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
 
-  const handleOverlayClick = () => {
+  const handleOverlayClick = useCallback(() => {
     setIsOpen(false);
-  };
+  }, [setIsOpen]);
 
   return (
     <>
@@ -23,4 +23,4 @@ export function LayoutContent() {
       <SidebarOverlay isOpen={isOpen} handleOverlayClick={handleOverlayClick} />
     </>
   );
-}
+});

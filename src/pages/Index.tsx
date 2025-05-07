@@ -2,13 +2,14 @@
 import { useOutletContext } from "react-router-dom";
 import { IndexContent } from "@/components/home/IndexContent";
 import { SEO } from "@/components/seo/SEO";
+import { memo } from "react";
 
 interface IndexContext {
   searchQuery: string;
   selectedCategories: string[];
 }
 
-export default function Index() {
+const Index = memo(function Index() {
   const { searchQuery, selectedCategories } = useOutletContext<IndexContext>();
   
   return (
@@ -21,4 +22,6 @@ export default function Index() {
       <IndexContent searchQuery={searchQuery} selectedCategories={selectedCategories} />
     </>
   );
-}
+});
+
+export default Index;

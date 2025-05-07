@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -143,12 +143,12 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   // Memoize the current page items to prevent unnecessary re-renders
   const currentPageItems = useMemo(() => newsData?.items || [], [newsData?.items]);
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [totalPages]);
 
   return {
     currentPageItems,

@@ -1,10 +1,12 @@
 
+import { memo } from "react";
+
 interface SidebarOverlayProps {
   isOpen: boolean;
   handleOverlayClick: () => void;
 }
 
-export const SidebarOverlay = ({ isOpen, handleOverlayClick }: SidebarOverlayProps) => {
+export const SidebarOverlay = memo(function SidebarOverlay({ isOpen, handleOverlayClick }: SidebarOverlayProps) {
   if (!isOpen) {
     return null;
   }
@@ -16,4 +18,4 @@ export const SidebarOverlay = ({ isOpen, handleOverlayClick }: SidebarOverlayPro
       aria-hidden="true"
     />
   );
-};
+});
