@@ -18,8 +18,8 @@ export const UnionsList = ({
   handleCardInteraction 
 }: UnionsListProps) => {
   return (
-    <ScrollArea className="h-full px-1 py-1">
-      <div className="pr-1 pt-1"> {/* Added pt-1 to fix shadow cutoff */}
+    <ScrollArea className="h-full px-1 py-2">
+      <div className="pr-1"> 
         {unions?.map((union) => (
           <UnionCard
             key={union.id}

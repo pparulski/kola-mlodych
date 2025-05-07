@@ -37,20 +37,20 @@ export const MapContainer = ({
       
       <div className={cn(
         "flex flex-col md:flex-row gap-1",
-        "h-[calc(100vh-120px)] md:min-h-[550px]"
+        "h-[calc(100vh-150px)] md:min-h-[500px]"
       )}>
         {/* Map Section - Square aspect ratio preserved */}
         <div className={cn(
-          "w-full md:w-3/5 md:h-auto aspect-square rounded-lg overflow-hidden border",
+          "w-full md:w-1/2 aspect-square rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[80vw] max-h-[calc(100vh-150px)]" // Square on mobile with max height
+          isMobile && showMapOnMobile && "h-[70vw] max-h-[calc(100vh-180px)]" // Smaller square on mobile
         )}>
           {mapComponent}
         </div>
         
-        {/* Unions List Section - Now same height as map */}
+        {/* Unions List Section - Now wider */}
         <div className={cn(
-          "w-full md:w-2/5 h-full overflow-hidden border rounded-lg",
+          "w-full md:w-1/2 h-full overflow-hidden border rounded-lg",
           isMobile && showMapOnMobile && "hidden"
         )}>
           {listComponent}
