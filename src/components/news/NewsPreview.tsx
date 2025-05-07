@@ -5,6 +5,7 @@ import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { Button } from "@/components/ui/button";
 
 interface NewsPreviewProps {
   id: string;
@@ -91,12 +92,20 @@ export function NewsPreview({
         />
         
         <div className="pt-4">
-          <Link
-            to={`/news/${slug}`}
-            className="inline-flex items-center text-primary hover:text-accent transition-colors no-underline"
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="group text-primary hover:text-accent hover:bg-transparent p-0"
           >
-            Czytaj więcej <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
+            <Link
+              to={`/news/${slug}`}
+              className="inline-flex items-center no-underline"
+            >
+              Czytaj dalej
+              <ArrowRight className="ml-1 h-4 w-4 transition-all duration-300 ease-in-out group-hover:translate-x-1" />
+            </Link>
+          </Button>
         </div>
       </div>
     </article>
