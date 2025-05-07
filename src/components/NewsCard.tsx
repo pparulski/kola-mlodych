@@ -23,7 +23,15 @@ export function NewsCard(props: NewsCardProps) {
   
   return (
     <div className="w-full">
-      <NewsPreview {...props} date={formattedDate} preview_content={preview_content} />
+      <NewsPreview 
+        id={props.id}
+        slug={props.slug}
+        title={props.title}
+        date={formattedDate}
+        preview_content={preview_content}
+        content={props.content}
+        featured_image={props.featured_image || undefined}
+      />
     </div>
   );
 }

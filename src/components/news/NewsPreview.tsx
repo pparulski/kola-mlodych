@@ -86,10 +86,12 @@ export function NewsPreview({
           </div>
         </div>
         
-        <div 
-          className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: previewContent || '' }}
-        />
+        {previewContent && (
+          <div 
+            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
+            dangerouslySetInnerHTML={{ __html: previewContent }}
+          />
+        )}
         
         <div className="pt-4">
           <Button
