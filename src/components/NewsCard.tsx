@@ -16,9 +16,14 @@ interface NewsCardProps {
 export function NewsCard(props: NewsCardProps) {
   const formattedDate = format(new Date(props.date), "d MMMM yyyy", { locale: pl });
   
+  // Create a preview_content if previewLength is specified
+  const preview_content = props.previewLength && props.content?.length > props.previewLength
+    ? `${props.content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, props.previewLength)}...`
+    : undefined;
+  
   return (
     <div className="w-full">
-      <NewsPreview {...props} date={formattedDate} />
+      <NewsPreview {...props} date={formattedDate} preview_content={preview_content} />
     </div>
   );
 }

@@ -30,7 +30,7 @@ export function NewsPreview({
 }: NewsPreviewProps) {
   // Use pre-processed preview_content from the view, or fall back to processing content
   const previewContent = preview_content || (content && content.length > 300 
-    ? content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300) + "..."
+    ? `${content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300)}...`
     : content);
 
   const formattedDate = date 
