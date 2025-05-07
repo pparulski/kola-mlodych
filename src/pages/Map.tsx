@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { MapView } from "@/components/map/MapView";
 import { UnionsList } from "@/components/map/UnionsList";
 import { useUnionsData } from "@/components/map/hooks/useUnionsData";
 import { Union } from "@/components/map/types";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * UnionsMap page component that displays a map of union locations
@@ -17,6 +19,20 @@ const UnionsMap = () => {
   const [selectedUnion, setSelectedUnion] = useState<string | null>(null);
   const [showMapOnMobile, setShowMapOnMobile] = useState(false);
   const [popupInfo, setPopupInfo] = useState<Union | null>(null);
+  
+  // Get Mapbox token from localStorage or use empty string
+  const [mapboxToken, setMapboxToken] = useState<string>(() => {
+    return localStorage.getItem('mapbox_token') || '';
+  });
+  
+  const [isSettingToken, setIsSettingToken] = useState<boolean>(!mapboxToken);
+
+  // Save token to localStorage when it changes
+  useEffect(() => {
+    if (mapboxToken) {
+      localStorage.setItem('mapbox_token', mapboxToken);
+    }
+  }, [mapboxToken]);
 
   // Fetch unions data from Supabase using our custom hook
   const { data: unions, isLoading } = useUnionsData();
@@ -40,6 +56,12 @@ const UnionsMap = () => {
   const toggleMapView = () => {
     setShowMapOnMobile(!showMapOnMobile);
   };
+  
+  // Handle token submission
+  const handleTokenSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSettingToken(false);
+  };
 
   if (isLoading) {
     return (
@@ -57,11 +79,55 @@ const UnionsMap = () => {
     );
   }
 
+  // Show token input form if needed
+  if (isSettingToken) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Konfiguracja mapy</CardTitle>
+            <CardDescription>
+              Aby korzystać z mapy, potrzebny jest token dostępu do Mapbox.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleTokenSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="mapbox_token" className="text-sm font-medium">
+                  Token Mapbox
+                </label>
+                <Input
+                  id="mapbox_token"
+                  value={mapboxToken}
+                  onChange={(e) => setMapboxToken(e.target.value)}
+                  placeholder="pk.eyJ1IjoieW91..."
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Możesz uzyskać token na stronie{" "}
+                  <a 
+                    href="https://account.mapbox.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Mapbox
+                  </a>
+                </p>
+              </div>
+              <Button type="submit" className="w-full">Zapisz token</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Mobile View Toggle Button */}
-      {isMobile && (
-        <div className="mb-4 flex justify-center">
+      <div className="flex justify-between items-center mb-4">
+        {/* Mobile View Toggle Button */}
+        {isMobile && (
           <Button 
             onClick={toggleMapView}
             variant="outline"
@@ -69,8 +135,18 @@ const UnionsMap = () => {
           >
             {showMapOnMobile ? "Pokaż listę" : "Pokaż mapę"}
           </Button>
-        </div>
-      )}
+        )}
+        
+        {/* Mapbox token button */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsSettingToken(true)}
+          className={cn(isMobile ? "hidden" : "ml-auto")}
+        >
+          Zmień token Mapbox
+        </Button>
+      </div>
       
       <div className={cn(
         "flex flex-col md:flex-row gap-4",
@@ -106,6 +182,7 @@ const UnionsMap = () => {
               }}
               popupInfo={popupInfo}
               setPopupInfo={setPopupInfo}
+              mapboxToken={mapboxToken}
             />
           )}
         </div>
