@@ -23,8 +23,9 @@ const SidebarContext = createContext<SidebarContextProps>({
 export const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // Ensure state is typed correctly as "open" | "closed" | "collapsed"
-  const state = isOpen ? "open" : "closed";
+  
+  // Explicitly type the state as the union type expected by SidebarContextProps
+  const state: "open" | "closed" | "collapsed" = isOpen ? "open" : "closed";
   const openMobile = isOpen && isMobile;
 
   useEffect(() => {
