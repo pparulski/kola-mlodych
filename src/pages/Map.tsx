@@ -5,7 +5,6 @@ import { UnionsList } from "@/components/map/UnionsList";
 import { useUnionsData } from "@/components/map/hooks/useUnionsData";
 import { useMapState } from "@/components/map/hooks/useMapState";
 import { MapContainer } from "@/components/map/MapContainer";
-import { TokenInput } from "@/components/map/TokenInput";
 import { MapSkeleton } from "@/components/map/MapSkeleton";
 
 /**
@@ -22,46 +21,23 @@ const UnionsMap = () => {
     showMapOnMobile,
     popupInfo,
     setPopupInfo,
-    mapboxToken,
-    setMapboxToken,
-    isSettingToken,
-    setIsSettingToken,
     handleCardInteraction,
     handleMapSelection,
     toggleMapView,
     isMobile
   } = useMapState(unions);
 
-  // Handle token submission
-  const handleTokenSubmit = (token: string) => {
-    setMapboxToken(token);
-    setIsSettingToken(false);
-  };
-
   // Show loading state
   if (isLoading) {
     return <MapSkeleton />;
   }
 
-  // Show token input form if needed
-  if (isSettingToken) {
-    return (
-      <div className="container mx-auto px-2 py-4">
-        <TokenInput 
-          mapboxToken={mapboxToken} 
-          onTokenSubmit={handleTokenSubmit} 
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-2 py-3">
+    <div className="container mx-auto px-1 py-2">
       <MapContainer
         isMobile={isMobile}
         showMapOnMobile={showMapOnMobile}
         toggleMapView={toggleMapView}
-        onOpenTokenSettings={() => setIsSettingToken(true)}
         mapComponent={
           unions && (
             <MapView 
@@ -70,7 +46,6 @@ const UnionsMap = () => {
               setSelectedUnion={handleMapSelection}
               popupInfo={popupInfo}
               setPopupInfo={setPopupInfo}
-              mapboxToken={mapboxToken}
             />
           )
         }

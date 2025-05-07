@@ -2,13 +2,12 @@
 import { useRef, useState } from "react";
 import Map, { Marker, NavigationControl, Popup, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapPin, AlertCircle } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Union, POLAND_BOUNDS, POLAND_CENTER } from "./types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Default token will be replaced with a user-provided one
-const DEFAULT_MAPBOX_TOKEN = "YOUR_MAPBOX_TOKEN";
+// Default token will be filled by environment variable or local storage
+const MAPBOX_TOKEN = "pk.eyJ1IjoibWxvZHppaXAiLCJhIjoiY2x5YWdsc2YwMDd1dTJsbzg2eGQzcDlnaCJ9.VZn2djMrb9unDUOBodZOaw";
 
 interface MapViewProps {
   unions: Union[];
@@ -16,7 +15,6 @@ interface MapViewProps {
   setSelectedUnion: (id: string) => void;
   popupInfo: Union | null;
   setPopupInfo: (union: Union | null) => void;
-  mapboxToken?: string;
 }
 
 /**
@@ -27,11 +25,9 @@ export const MapView = ({
   selectedUnion, 
   setSelectedUnion,
   popupInfo,
-  setPopupInfo,
-  mapboxToken = DEFAULT_MAPBOX_TOKEN
+  setPopupInfo
 }: MapViewProps) => {
   const mapRef = useRef<MapRef>(null);
-  const [mapError, setMapError] = useState<string | null>(null);
   
   // Handle marker click
   const handleMarkerClick = (union: Union) => {
@@ -39,101 +35,66 @@ export const MapView = ({
     setPopupInfo(union);
   };
 
-  // Handle map load error
-  const handleMapError = (error: any) => {
-    console.error("Map error:", error);
-    setMapError("Wystąpił błąd podczas wczytywania mapy. Sprawdź token dostępu do Mapbox.");
-  };
-
-  if (!mapboxToken || mapboxToken === DEFAULT_MAPBOX_TOKEN) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-muted/20 border rounded-lg">
-        <div className="max-w-md p-2">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Wymagany jest ważny token Mapbox. Proszę podać poprawny token API Mapbox.
-            </AlertDescription>
-          </Alert>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full h-full">
-      {mapError ? (
-        <div className="w-full h-full flex items-center justify-center bg-muted/20 border rounded-lg">
-          <div className="max-w-md p-2">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{mapError}</AlertDescription>
-            </Alert>
-          </div>
-        </div>
-      ) : (
-        <div className="w-full h-full">
-          <Map
-            ref={mapRef}
-            mapboxAccessToken={mapboxToken}
-            initialViewState={{
-              longitude: POLAND_CENTER[0],
-              latitude: POLAND_CENTER[1],
-              zoom: 5.5
-            }}
-            maxBounds={POLAND_BOUNDS}
-            mapStyle="mapbox://styles/mapbox/light-v10"
-            dragRotate={false}
-            minZoom={5}
-            maxZoom={10}
-            style={{ width: '100%', height: '100%' }}
-            onError={handleMapError}
+      <Map
+        ref={mapRef}
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={{
+          longitude: POLAND_CENTER[0],
+          latitude: POLAND_CENTER[1],
+          zoom: 5.5,
+          padding: { top: 20, bottom: 20, left: 20, right: 20 }
+        }}
+        maxBounds={POLAND_BOUNDS}
+        mapStyle="mapbox://styles/mapbox/light-v10"
+        dragRotate={false}
+        minZoom={5}
+        maxZoom={10}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <NavigationControl position="top-right" />
+        
+        {/* Map Markers - only render markers with valid coordinates */}
+        {unions
+          .filter(union => union.coordinates)
+          .map((union) => (
+            <Marker
+              key={union.id}
+              longitude={union.coordinates!.lng}
+              latitude={union.coordinates!.lat}
+              onClick={() => handleMarkerClick(union)}
+              anchor="bottom"
+            >
+              <div className={cn(
+                "cursor-pointer transition-transform duration-200",
+                selectedUnion === union.id ? "text-primary scale-125" : "text-accent"
+              )}>
+                <MapPin size={28} strokeWidth={selectedUnion === union.id ? 3 : 2} />
+              </div>
+            </Marker>
+          ))
+        }
+        
+        {/* Popup for selected marker */}
+        {popupInfo && popupInfo.coordinates && (
+          <Popup
+            longitude={popupInfo.coordinates.lng}
+            latitude={popupInfo.coordinates.lat}
+            anchor="bottom"
+            closeButton={true}
+            closeOnClick={false}
+            onClose={() => setPopupInfo(null)}
+            className="z-10"
+            maxWidth="300px"
           >
-            <NavigationControl position="top-right" />
-            
-            {/* Map Markers - only render markers with valid coordinates */}
-            {unions.map((union) => {
-              if (!union.coordinates) return null;
-              
-              return (
-                <Marker
-                  key={union.id}
-                  longitude={union.coordinates.lng}
-                  latitude={union.coordinates.lat}
-                  onClick={() => handleMarkerClick(union)}
-                  anchor="bottom"
-                >
-                  <div className={cn(
-                    "cursor-pointer transition-transform duration-200",
-                    selectedUnion === union.id ? "text-primary scale-125" : "text-accent"
-                  )}>
-                    <MapPin size={28} strokeWidth={selectedUnion === union.id ? 3 : 2} />
-                  </div>
-                </Marker>
-              );
-            })}
-            
-            {/* Popup for selected marker */}
-            {popupInfo && popupInfo.coordinates && (
-              <Popup
-                longitude={popupInfo.coordinates.lng}
-                latitude={popupInfo.coordinates.lat}
-                anchor="bottom"
-                closeButton={true}
-                closeOnClick={false}
-                onClose={() => setPopupInfo(null)}
-                className="z-10"
-                maxWidth="300px"
-              >
-                <div className="p-1">
-                  <h3 className="font-bold text-sm">{popupInfo.name}</h3>
-                  {popupInfo.city && <p className="text-xs">{popupInfo.city}</p>}
-                </div>
-              </Popup>
-            )}
-          </Map>
-        </div>
-      )}
+            <div className="p-1">
+              <h3 className="font-bold text-sm">{popupInfo.name}</h3>
+              {popupInfo.city && <p className="text-xs">{popupInfo.city}</p>}
+            </div>
+          </Popup>
+        )}
+      </Map>
     </div>
   );
 };

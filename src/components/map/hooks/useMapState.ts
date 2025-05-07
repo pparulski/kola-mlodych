@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Union } from "../types";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -11,24 +11,6 @@ export const useMapState = (unions: Union[] | undefined) => {
   const [selectedUnion, setSelectedUnion] = useState<string | null>(null);
   const [showMapOnMobile, setShowMapOnMobile] = useState(false);
   const [popupInfo, setPopupInfo] = useState<Union | null>(null);
-  const [isSettingToken, setIsSettingToken] = useState<boolean>(false);
-  
-  // Get Mapbox token from localStorage or use empty string
-  const [mapboxToken, setMapboxToken] = useState<string>(() => {
-    return localStorage.getItem('mapbox_token') || '';
-  });
-
-  // Initialize token setting state based on whether a token exists
-  useEffect(() => {
-    setIsSettingToken(!mapboxToken);
-  }, []);
-
-  // Save token to localStorage when it changes
-  useEffect(() => {
-    if (mapboxToken) {
-      localStorage.setItem('mapbox_token', mapboxToken);
-    }
-  }, [mapboxToken]);
 
   // Handle card interaction (click/hover)
   const handleCardInteraction = (unionId: string) => {
@@ -76,10 +58,6 @@ export const useMapState = (unions: Union[] | undefined) => {
     showMapOnMobile,
     popupInfo,
     setPopupInfo,
-    mapboxToken,
-    setMapboxToken,
-    isSettingToken,
-    setIsSettingToken,
     handleCardInteraction,
     handleMapSelection,
     toggleMapView,

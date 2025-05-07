@@ -8,7 +8,6 @@ interface MapContainerProps {
   listComponent: ReactNode;
   showMapOnMobile: boolean;
   toggleMapView: () => void;
-  onOpenTokenSettings: () => void;
   isMobile: boolean;
 }
 
@@ -21,50 +20,37 @@ export const MapContainer = ({
   listComponent,
   showMapOnMobile,
   toggleMapView,
-  onOpenTokenSettings,
   isMobile
 }: MapContainerProps) => {
   return (
     <>
-      <div className="flex justify-between items-center mb-2">
-        {/* Mobile View Toggle Button */}
-        {isMobile && (
-          <Button 
-            onClick={toggleMapView}
-            variant="outline"
-            className="w-full"
-          >
-            {showMapOnMobile ? "Pokaż listę" : "Pokaż mapę"}
-          </Button>
-        )}
-        
-        {/* Mapbox token button */}
+      {/* Mobile View Toggle Button */}
+      {isMobile && (
         <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={onOpenTokenSettings}
-          className={cn(isMobile ? "hidden" : "ml-auto")}
+          onClick={toggleMapView}
+          variant="outline"
+          className="w-full mb-2"
         >
-          Zmień token Mapbox
+          {showMapOnMobile ? "Pokaż listę" : "Pokaż mapę"}
         </Button>
-      </div>
+      )}
       
       <div className={cn(
-        "flex flex-col md:flex-row gap-2",
-        "h-[calc(100vh-120px)] md:min-h-[600px]"
+        "flex flex-col md:flex-row gap-1",
+        "h-[calc(100vh-100px)] md:min-h-[600px]"
       )}>
         {/* Map Section */}
         <div className={cn(
-          "w-full md:w-3/4 lg:w-3/4 h-full rounded-xl overflow-hidden border",
+          "w-full md:w-4/5 lg:w-4/5 h-full aspect-square rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[calc(100vh-150px)]"
+          isMobile && showMapOnMobile && "h-[calc(100vh-130px)]"
         )}>
           {mapComponent}
         </div>
         
         {/* Unions List Section */}
         <div className={cn(
-          "w-full md:w-1/4 lg:w-1/4 overflow-auto pr-0.5",
+          "w-full md:w-1/5 lg:w-1/5 overflow-auto pr-0",
           isMobile && showMapOnMobile && "hidden"
         )}>
           {listComponent}
