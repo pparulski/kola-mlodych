@@ -30,23 +30,24 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
-// Defining an interface for union data
+// Defining an interface for union data - updated to match Supabase return type
 interface Union {
-  id: number;
+  id: string; // Changed from number to string to match Supabase UUID
   name: string;
-  bio?: string;
-  logo_url?: string;
+  bio?: string | null;
+  logo_url?: string | null;
   year_created?: number;
   contact?: string;
-  facebook_url?: string;
-  instagram_url?: string;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
   region?: string;
   city?: string;
+  created_at?: string;
 }
 
 const Map = () => {
   const isMobile = useIsMobile();
-  const [expandedUnion, setExpandedUnion] = useState<number | null>(null);
+  const [expandedUnion, setExpandedUnion] = useState<string | null>(null); // Changed from number to string to match the id type
 
   const { data: unions, isLoading } = useQuery({
     queryKey: ['unions'],
@@ -82,7 +83,7 @@ const Map = () => {
   }, [unionsByRegion]);
 
   // Toggle expanded state for a union
-  const toggleExpand = (unionId: number) => {
+  const toggleExpand = (unionId: string) => { // Changed parameter type from number to string
     setExpandedUnion(expandedUnion === unionId ? null : unionId);
   };
 
