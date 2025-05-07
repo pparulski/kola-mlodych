@@ -53,7 +53,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="bio" className="border-0">
             <AccordionTrigger className="py-0.5 text-xs text-primary hover:no-underline">
-              O organizacji
+              O nas
             </AccordionTrigger>
             <AccordionContent>
               {union.bio ? (

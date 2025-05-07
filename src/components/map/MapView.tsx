@@ -76,7 +76,7 @@ export const MapView = ({
           ))
         }
         
-        {/* Popup for selected marker */}
+        {/* Popup for selected marker - Fixed text color in dark mode */}
         {popupInfo && popupInfo.coordinates && (
           <Popup
             longitude={popupInfo.coordinates.lng}
@@ -88,7 +88,7 @@ export const MapView = ({
             className="z-10"
             maxWidth="300px"
           >
-            <div className="p-1">
+            <div className="p-1 text-foreground dark:text-black">
               <h3 className="font-bold text-sm">{popupInfo.name}</h3>
               {popupInfo.city && <p className="text-xs">{popupInfo.city}</p>}
             </div>

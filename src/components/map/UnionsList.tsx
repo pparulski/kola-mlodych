@@ -19,7 +19,7 @@ export const UnionsList = ({
 }: UnionsListProps) => {
   return (
     <ScrollArea className="h-full px-1 py-1">
-      <div className="pr-1">
+      <div className="pr-1 pt-1"> {/* Added pt-1 to fix shadow cutoff */}
         {unions?.map((union) => (
           <UnionCard
             key={union.id}
