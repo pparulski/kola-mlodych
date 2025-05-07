@@ -399,6 +399,7 @@ export type Database = {
       unions: {
         Row: {
           bio: string | null
+          city: string | null
           contact: string
           created_at: string
           facebook_url: string | null
@@ -406,10 +407,12 @@ export type Database = {
           instagram_url: string | null
           logo_url: string | null
           name: string
+          region: string | null
           year_created: number
         }
         Insert: {
           bio?: string | null
+          city?: string | null
           contact: string
           created_at?: string
           facebook_url?: string | null
@@ -417,10 +420,12 @@ export type Database = {
           instagram_url?: string | null
           logo_url?: string | null
           name: string
+          region?: string | null
           year_created: number
         }
         Update: {
           bio?: string | null
+          city?: string | null
           contact?: string
           created_at?: string
           facebook_url?: string | null
@@ -428,6 +433,7 @@ export type Database = {
           instagram_url?: string | null
           logo_url?: string | null
           name?: string
+          region?: string | null
           year_created?: number
         }
         Relationships: []

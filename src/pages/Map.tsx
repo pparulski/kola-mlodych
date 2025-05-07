@@ -50,8 +50,8 @@ interface Union {
   contact?: string;
   facebook_url?: string | null;
   instagram_url?: string | null;
-  region?: string;
-  city?: string;
+  region?: string | null;
+  city?: string | null;
   created_at?: string;
   coordinates?: Coordinates; // Added coordinates for map positioning
 }
@@ -103,7 +103,9 @@ const UnionsMap = () => {
       // Add coordinates based on city
       const unionsWithCoordinates = data.map(union => ({
         ...union,
-        coordinates: cityCoordinates[union.city || ''] || cityCoordinates.default
+        coordinates: union.city && cityCoordinates[union.city] 
+          ? cityCoordinates[union.city] 
+          : cityCoordinates.default
       }));
       
       return unionsWithCoordinates as Union[];
