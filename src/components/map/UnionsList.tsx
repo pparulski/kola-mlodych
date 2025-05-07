@@ -1,6 +1,7 @@
 
 import { Union } from "./types";
 import { UnionCard } from "./UnionCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface UnionsListProps {
   unions: Union[];
@@ -17,15 +18,17 @@ export const UnionsList = ({
   handleCardInteraction 
 }: UnionsListProps) => {
   return (
-    <div className="grid gap-2 grid-cols-1">
-      {unions?.map((union) => (
-        <UnionCard
-          key={union.id}
-          union={union}
-          isSelected={selectedUnion === union.id}
-          onSelect={() => handleCardInteraction(union.id)}
-        />
-      ))}
-    </div>
+    <ScrollArea className="h-full px-1 py-1">
+      <div className="pr-1">
+        {unions?.map((union) => (
+          <UnionCard
+            key={union.id}
+            union={union}
+            isSelected={selectedUnion === union.id}
+            onSelect={() => handleCardInteraction(union.id)}
+          />
+        ))}
+      </div>
+    </ScrollArea>
   );
 };

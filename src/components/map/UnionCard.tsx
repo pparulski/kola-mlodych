@@ -1,5 +1,5 @@
 
-import { Facebook, Instagram, Mail, MapPin, Users } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
 import { 
   Card, 
   CardHeader, 
@@ -7,7 +7,6 @@ import {
   CardTitle, 
   CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { 
   Accordion,
   AccordionContent,
@@ -31,7 +30,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
     <Card 
       id={`union-card-${union.id}`}
       className={cn(
-        "overflow-hidden transition-all duration-200",
+        "overflow-hidden transition-all duration-200 mb-1",
         "hover:shadow-md",
         isSelected ? "ring-2 ring-primary/50" : ""
       )}
@@ -40,36 +39,17 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
     >
       <CardHeader className="pb-1 pt-2 px-3">
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <CardTitle className="text-base break-words">{union.name}</CardTitle>
-            {union.city && (
-              <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                <MapPin className="h-3 w-3" />
-                <span>{union.city}</span>
-              </div>
-            )}
-          </div>
-          
-          {union.logo_url && (
-            <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
-              <img 
-                src={union.logo_url} 
-                alt={`Logo ${union.name}`}
-                className="max-h-12 max-w-12 object-contain"
-              />
-            </div>
-          )}
+          <CardTitle className="text-base break-words w-full">{union.name}</CardTitle>
         </div>
+        {union.city && (
+          <div className="flex items-center gap-1 text-muted-foreground text-xs">
+            <MapPin className="h-3 w-3" />
+            <span>{union.city}</span>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="pb-2 pt-1 px-3">
-        {union.year_created && (
-          <Badge variant="outline" className="mb-2 text-xs">
-            <Users className="mr-1 h-3 w-3" />
-            Rok założenia: {union.year_created}
-          </Badge>
-        )}
-        
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="bio" className="border-0">
             <AccordionTrigger className="py-0.5 text-xs text-primary hover:no-underline">

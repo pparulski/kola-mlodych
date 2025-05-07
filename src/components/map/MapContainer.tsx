@@ -29,7 +29,7 @@ export const MapContainer = ({
         <Button 
           onClick={toggleMapView}
           variant="outline"
-          className="w-full mb-2"
+          className="w-full mb-1"
         >
           {showMapOnMobile ? "Pokaż listę" : "Pokaż mapę"}
         </Button>
@@ -41,7 +41,7 @@ export const MapContainer = ({
       )}>
         {/* Map Section */}
         <div className={cn(
-          "w-full md:w-4/5 lg:w-4/5 h-full aspect-square rounded-lg overflow-hidden border",
+          "w-full md:w-4/5 h-full aspect-square rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
           isMobile && showMapOnMobile && "h-[calc(100vh-130px)]"
         )}>
@@ -50,7 +50,7 @@ export const MapContainer = ({
         
         {/* Unions List Section */}
         <div className={cn(
-          "w-full md:w-1/5 lg:w-1/5 overflow-auto pr-0",
+          "w-full md:w-1/5 h-full overflow-y-auto pr-0 border rounded-lg",
           isMobile && showMapOnMobile && "hidden"
         )}>
           {listComponent}
