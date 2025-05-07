@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, memo } from "react";
 import { AlignLeft, X } from "lucide-react";
 
 interface SidebarContextProps {
@@ -54,17 +54,20 @@ export const SidebarProvider = ({ children }: { children: React.ReactNode }) => 
     };
   }, [openMobile]);
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  // Memoize toggleSidebar to prevent unnecessary re-renders
+  const toggleSidebar = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+
+  const contextValue = React.useMemo(() => ({
+    isOpen, 
+    setIsOpen, 
+    openMobile, 
+    isMobile, 
+    state, 
+    toggleSidebar
+  }), [isOpen, openMobile, isMobile, state, toggleSidebar]);
 
   return (
-    <SidebarContext.Provider value={{ 
-      isOpen, 
-      setIsOpen, 
-      openMobile, 
-      isMobile, 
-      state, 
-      toggleSidebar 
-    }}>
+    <SidebarContext.Provider value={contextValue}>
       <div className="relative min-h-screen flex w-full">
         {children}
       </div>
@@ -72,12 +75,16 @@ export const SidebarProvider = ({ children }: { children: React.ReactNode }) => 
   );
 };
 
-export function SidebarTrigger() {
+// Memoize the SidebarTrigger component to prevent unnecessary re-renders
+export const SidebarTrigger = memo(function SidebarTrigger() {
   const { isOpen, setIsOpen } = useSidebar();
+  
+  const handleToggle = useCallback(() => {
+    setIsOpen(!isOpen);
+  }, [isOpen, setIsOpen]);
   
   return (
     <button
-      // Fixed the duplicate attribute - removed data-component-name
       className={`
         fixed top-4 left-4 z-50 p-2 rounded-md
         transition-all duration-200
@@ -86,7 +93,7 @@ export function SidebarTrigger() {
         focus:outline-none focus:ring-2 focus:ring-ring
         ${isOpen ? "translate-x-0" : "translate-x-0"}
       `}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={handleToggle}
     >
       {isOpen ? (
         <X size={24} />
@@ -95,7 +102,7 @@ export function SidebarTrigger() {
       )}
     </button>
   );
-}
+});
 
 export const useSidebar = () => {
   return useContext(SidebarContext);

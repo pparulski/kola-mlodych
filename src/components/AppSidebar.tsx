@@ -1,4 +1,5 @@
 
+import { memo, useEffect, useState, useCallback } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,7 +10,6 @@ import {
   useSidebar,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarLogo } from "./sidebar/SidebarLogo";
 import { PublicMenu } from "./sidebar/PublicMenu";
@@ -17,7 +17,7 @@ import { AdminMenu } from "./sidebar/AdminMenu";
 import { SidebarFooterContent } from "./sidebar/SidebarFooterContent";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export function AppSidebar() {
+export const AppSidebar = memo(function AppSidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const { isOpen, setIsOpen } = useSidebar();
   const isMobile = window.innerWidth < 768;
@@ -36,12 +36,12 @@ export function AppSidebar() {
     checkAdminStatus();
   }, []);
 
-  const handleMenuClick = () => {
+  const handleMenuClick = useCallback(() => {
     if (isMobile) {
       console.log("Closing sidebar on mobile after menu click");
       setIsOpen(false);
     }
-  };
+  }, [isMobile, setIsOpen]);
 
   return (
     <Sidebar 
@@ -81,4 +81,4 @@ export function AppSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
-}
+});

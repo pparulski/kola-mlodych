@@ -35,7 +35,7 @@ export function NewsList({ newsItems }: NewsListProps) {
             slug={article.slug}
             title={article.title}
             preview_content={preview_content}
-            content={article.content}
+            content={content}
             date={article.date || article.created_at}
             featured_image={article.featured_image}
             // Make sure to handle potential null values in category_names

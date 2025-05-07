@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,9 +11,7 @@ interface SearchRpcResult {
   total: number | null;       // Allow null if count returns null
 }
 
-
 const ARTICLES_PER_PAGE = 8;
-
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +91,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         
         // Get total count
         const { count, error: countError } = await supabase
-          .from('news_preview')
+          .from('news')  // Using news table instead of news_preview
           .select('*', { count: 'exact' })
           .in('id', newsIds);
           
@@ -101,9 +99,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           throw countError;
         }
         
-        // Get paginated results
+        // Get paginated results with full content
         const { data: newsItems, error: newsError } = await supabase
-          .from('news_preview')
+          .from('news')  // Using news table instead of news_preview
           .select('*')
           .in('id', newsIds)
           .order('date', { ascending: false })
@@ -119,9 +117,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         };
       }
       
-      // Standard pagination without filters
+      // Standard pagination without filters - use news table to get content
       const { data, count, error: fetchError } = await supabase
-        .from('news_preview')
+        .from('news')  // Using news table instead of news_preview
         .select('*', { count: 'exact' })
         .order('date', { ascending: false })
         .range(from, to);
@@ -142,6 +140,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
 
   const totalPages = Math.ceil((newsData?.total || 0) / ARTICLES_PER_PAGE);
 
+  // Memoize the current page items to prevent unnecessary re-renders
+  const currentPageItems = useMemo(() => newsData?.items || [], [newsData?.items]);
+
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -150,7 +151,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   };
 
   return {
-    currentPageItems: newsData?.items || [],
+    currentPageItems,
     isLoading,
     currentPage,
     totalPages,

@@ -94,6 +94,7 @@ export function NewsPreview({
           </div>
         </div>
         
+        {/* Ensure preview content is displayed and fix dangerouslySetInnerHTML */}
         {previewContent && (
           <div 
             className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"

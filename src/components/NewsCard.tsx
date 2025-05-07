@@ -16,21 +16,20 @@ interface NewsCardProps {
 export function NewsCard(props: NewsCardProps) {
   const formattedDate = format(new Date(props.date), "d MMMM yyyy", { locale: pl });
   
-  // Create a preview_content if previewLength is specified
   // Ensure we have content before trying to access it
   const content = props.content || '';
   
   // Process the content and add ellipsis if needed
   const previewLength = props.previewLength || 300;
-  const preview_content = content?.length > previewLength
+  const preview_content = content.length > previewLength
     ? `${content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, previewLength)}...`
     : content;
   
   console.log("NewsCard generating preview for:", {
     title: props.title,
-    contentLength: content?.length,
+    contentLength: content.length,
     previewLength,
-    hasEllipsis: content?.length > previewLength,
+    hasEllipsis: content.length > previewLength,
     previewStart: preview_content?.substring(0, 50)
   });
   
