@@ -33,12 +33,12 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
 
   return (
     <div className="p-6">
-      <h3 className="text-xl font-semibold mb-6">{ebook.title}</h3>
+      <h3 className="text-xl font-semibold mb-6 text-center">{ebook.title}</h3>
       
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-1/4 flex flex-col items-center">
           {ebook.cover_url ? (
-            <div className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-4">
+            <div className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-2">
               {!imageLoaded && (
                 <Skeleton className="h-full w-full absolute inset-0" />
               )}
@@ -52,7 +52,7 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
               />
             </div>
           ) : (
-            <div className="w-full h-[280px] bg-muted/30 rounded-md flex items-center justify-center mb-4">
+            <div className="w-full h-[280px] bg-muted/30 rounded-md flex items-center justify-center mb-2">
               <BookOpenText size={64} className="opacity-50" />
             </div>
           )}

@@ -34,9 +34,9 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
 
   return (
     <div className="p-4">
-      <h3 className="text-lg font-semibold mb-4">{ebook.title}</h3>
+      <h3 className="text-lg font-semibold mb-4 text-center">{ebook.title}</h3>
       
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-2">
         {ebook.cover_url ? (
           <div className="relative w-[140px] h-[180px] bg-muted/20 rounded-md overflow-hidden">
             {!imageLoaded && (

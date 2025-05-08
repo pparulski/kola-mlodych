@@ -15,6 +15,11 @@ import { EbookFormValues } from "./ebookFormSchema";
 export function EbookFormFields() {
   const form = useFormContext<EbookFormValues>();
   const currentYear = new Date().getFullYear();
+  
+  // Get character count for description
+  const description = form.watch("description") || "";
+  const characterCount = description.length;
+  const maxCharacters = 1300;
 
   return (
     <>
@@ -92,9 +97,13 @@ export function EbookFormFields() {
                 {...field}
                 placeholder="Wprowadź krótki opis publikacji..."
                 rows={4}
+                maxLength={maxCharacters}
                 className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
               />
             </FormControl>
+            <div className="text-xs text-right text-muted-foreground">
+              {characterCount}/{maxCharacters} znaków
+            </div>
             <FormMessage />
           </FormItem>
         )}
