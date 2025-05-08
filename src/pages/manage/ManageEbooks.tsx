@@ -160,11 +160,22 @@ export function ManageEbooks() {
         <h2 className="text-xl mb-4">
           {isAddingNew ? "Dodaj nową publikację" : "Edytuj publikację"}
         </h2>
-        <EbookUpload 
-          onSubmit={handleSubmit} 
-          ebookToEdit={ebookToEdit}
-          onCancel={handleCancelEdit}
-        />
+        {isAddingNew ? (
+          <EbookUpload onSubmit={handleSubmit} />
+        ) : (
+          <div>
+            <EbookUpload onSubmit={handleSubmit} ebookToEdit={ebookToEdit} />
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                onClick={handleCancelEdit}
+                className="w-full"
+              >
+                Anuluj edycję
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div>

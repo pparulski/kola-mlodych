@@ -172,7 +172,6 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
       {showUpload && adminMode && (
         <EbookUpload 
           onSubmit={handleSubmit}
-          onCancel={() => setShowUpload(false)}
         />
       )}
 

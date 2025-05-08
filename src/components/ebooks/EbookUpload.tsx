@@ -26,10 +26,9 @@ interface EbookUploadProps {
     page_count?: number
   ) => Promise<void>;
   ebookToEdit?: Ebook | null;
-  onCancel?: () => void;
 }
 
-export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit, onCancel }: EbookUploadProps) {
+export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUploadProps) {
   // Convert onUploadSuccess to onSubmit format if provided
   const handleSubmitWrapper = async (
     id: string | undefined,
@@ -84,29 +83,16 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit, onCancel }
             showPreview={true}
           />
 
-          <div className="flex gap-4">
-            <Button 
-              type="submit"
-              disabled={!form.formState.isValid || !fileUrl || isSubmitting}
-              className="flex-1 transition-all hover:scale-105 duration-200"
-            >
-              {isSubmitting 
-                ? (isEditing ? "Zapisywanie..." : "Dodawanie...") 
-                : (isEditing ? "Zapisz zmiany" : "Dodaj publikację")
-              }
-            </Button>
-            
-            {onCancel && (
-              <Button 
-                type="button" 
-                variant="outline"
-                onClick={onCancel}
-                className="transition-all hover:scale-105 duration-200"
-              >
-                Anuluj
-              </Button>
-            )}
-          </div>
+          <Button 
+            type="submit"
+            disabled={!form.formState.isValid || !fileUrl || isSubmitting}
+            className="w-full transition-all hover:scale-105 duration-200"
+          >
+            {isSubmitting 
+              ? (isEditing ? "Zapisywanie..." : "Dodawanie...") 
+              : (isEditing ? "Zapisz zmiany" : "Dodaj publikację")
+            }
+          </Button>
         </form>
       </Form>
     </div>
