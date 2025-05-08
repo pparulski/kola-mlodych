@@ -17,8 +17,8 @@ export function EbookCover({ coverUrl, title, size = 'large', onClick }: EbookCo
   
   const dimensions = {
     small: {
-      width: 'w-[140px]',
-      height: 'h-[180px]',
+      width: 'w-[180px]',  // Increased from 140px to 180px
+      height: 'h-[240px]', // Increased from 180px to 240px
       iconSize: 48
     },
     large: {

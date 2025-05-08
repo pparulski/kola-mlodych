@@ -1,9 +1,5 @@
-
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpenText, BookText, Edit, Info } from "lucide-react";
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
   Accordion,
   AccordionContent,
@@ -11,9 +7,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Ebook } from "../types";
+import { EbookCover } from "./EbookCover";
 
 interface EbookCardMobileProps {
   ebook: Ebook;
@@ -23,8 +19,6 @@ interface EbookCardMobileProps {
 }
 
 export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: EbookCardMobileProps) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  
   const handleOpenPdf = () => {
     window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
   };
@@ -37,35 +31,16 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
       <h3 className="text-lg font-semibold mb-3 text-center">{ebook.title}</h3>
       
       <div className="flex justify-center mb-1">
-        {ebook.cover_url ? (
-          <div 
-            className="relative w-[140px] h-[180px] bg-muted/20 rounded-md overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={handleOpenPdf}
-          >
-            {!imageLoaded && (
-              <Skeleton className="h-full w-full absolute inset-0" />
-            )}
-            <LazyLoadImage
-              src={ebook.cover_url}
-              alt={`Okładka ${ebook.title}`}
-              className="w-full h-full object-contain rounded-md"
-              effect="opacity"
-              threshold={100}
-              afterLoad={() => setImageLoaded(true)}
-            />
-          </div>
-        ) : (
-          <div 
-            className="w-[140px] h-[180px] bg-muted/30 rounded-md flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={handleOpenPdf}
-          >
-            <BookOpenText size={48} className="opacity-50" />
-          </div>
-        )}
+        <EbookCover 
+          coverUrl={ebook.cover_url} 
+          title={ebook.title} 
+          size="small" 
+          onClick={handleOpenPdf}
+        />
       </div>
 
       <div className="flex justify-center mt-2 mb-3">
-        <Button onClick={handleOpenPdf} className="w-full max-w-[140px] transition-transform hover:scale-105">
+        <Button onClick={handleOpenPdf} className="w-full max-w-[180px] transition-transform hover:scale-105">
           <BookOpenText className="mr-2 h-4 w-4" />
           Czytaj
         </Button>
