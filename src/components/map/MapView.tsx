@@ -35,9 +35,14 @@ export const MapView = ({
   useEffect(() => {
     if (!mapRef.current) return;
     
+    // Different padding for mobile and desktop to prevent map cropping
+    const padding = isMobile 
+      ? { top: 10, bottom: 10, left: 10, right: 10 } 
+      : { top: 50, bottom: 50, left: 50, right: 50 };
+    
     // Fit map to bounds with appropriate padding
     mapRef.current.fitBounds(POLAND_BOUNDS, {
-      padding: isMobile ? { top: 20, bottom: 20, left: 20, right: 20 } : { top: 50, bottom: 50, left: 50, right: 50 },
+      padding,
       duration: 0 // Instant fit
     });
   }, [isMobile]);
