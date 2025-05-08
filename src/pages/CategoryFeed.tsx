@@ -29,14 +29,13 @@ export default function CategoryFeed() {
       return data as Category;
     },
     enabled: !!slug,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
   
   useEffect(() => {
     if (category) {
       setCategoryName(category.name);
-      // Update document title when category is loaded
       document.title = `${category.name} - Młodzi IP`;
     }
   }, [category]);
@@ -60,7 +59,7 @@ export default function CategoryFeed() {
       // Return only the news articles, sorted by date descending
       return data
         .map(item => item.news)
-        .filter(article => article) // Remove any null items
+        .filter(article => article)
         .sort((a, b) => {
           const dateA = a.date ? new Date(a.date).getTime() : 0;
           const dateB = b.date ? new Date(b.date).getTime() : 0;
@@ -68,18 +67,18 @@ export default function CategoryFeed() {
         }) as NewsArticle[];
     },
     enabled: !!category,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
   if (isLoading) {
     return (
-      <div className="page-container section-spacing mt-4">
+      <div className="page-container mt-4">
         <Skeleton className="h-12 w-2/3 max-w-md" />
-        <Skeleton className="h-6 w-full max-w-lg" />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-6 w-full max-w-lg mt-2" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
           {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
@@ -105,12 +104,14 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="page-container section-spacing mt-4">
+    <div className="page-container mt-4">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
         keywords={category.name}
       />
+      
+      <h1 className="text-2xl font-bold mb-4">{category.name}</h1>
       
       {articles && articles.length > 0 ? (
         <div className="component-spacing">
@@ -128,7 +129,7 @@ export default function CategoryFeed() {
           ))}
         </div>
       ) : (
-        <div className="content-box text-center py-10">
+        <div className="content-box text-center py-6">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.
