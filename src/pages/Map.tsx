@@ -18,12 +18,10 @@ const UnionsMap = () => {
   // Use our custom hook to manage map state
   const {
     selectedUnion,
-    showMapOnMobile,
     popupInfo,
     setPopupInfo,
     handleCardInteraction,
     handleMapSelection,
-    toggleMapView,
     isMobile
   } = useMapState(unions);
 
@@ -36,8 +34,6 @@ const UnionsMap = () => {
     <div className="container mx-auto px-1 py-2">
       <MapContainer
         isMobile={isMobile}
-        showMapOnMobile={showMapOnMobile}
-        toggleMapView={toggleMapView}
         mapComponent={
           unions && (
             <MapView 

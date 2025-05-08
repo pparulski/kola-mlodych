@@ -1,10 +1,11 @@
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Map, { Marker, NavigationControl, Popup, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Union, POLAND_BOUNDS, POLAND_CENTER } from "./types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Set the Mapbox token
 const MAPBOX_TOKEN = "pk.eyJ1IjoiaGF5ZWsyOSIsImEiOiJjbWFlaWE4aTYwMHFjMmpzMzhxbGhiNG9wIn0.9p3d1MoBwalUlgd2Gv7xzQ";
@@ -28,6 +29,18 @@ export const MapView = ({
   setPopupInfo
 }: MapViewProps) => {
   const mapRef = useRef<MapRef>(null);
+  const isMobile = useIsMobile();
+  
+  // Adjust the map view on initial load and window resize
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+    // Fit map to bounds with appropriate padding
+    mapRef.current.fitBounds(POLAND_BOUNDS, {
+      padding: isMobile ? { top: 20, bottom: 20, left: 20, right: 20 } : { top: 50, bottom: 50, left: 50, right: 50 },
+      duration: 0 // Instant fit
+    });
+  }, [isMobile]);
   
   // Handle marker click
   const handleMarkerClick = (union: Union) => {
@@ -43,13 +56,12 @@ export const MapView = ({
         initialViewState={{
           longitude: POLAND_CENTER[0],
           latitude: POLAND_CENTER[1],
-          zoom: 5.5,
-          padding: { top: 20, bottom: 20, left: 20, right: 20 }
+          zoom: 5.5
         }}
         maxBounds={POLAND_BOUNDS}
         mapStyle="mapbox://styles/mapbox/light-v10"
         dragRotate={false}
-        minZoom={5}
+        minZoom={4.5}
         maxZoom={10}
         style={{ width: '100%', height: '100%' }}
       >
