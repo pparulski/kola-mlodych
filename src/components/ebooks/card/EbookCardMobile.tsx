@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { BookOpenText, BookText, Edit, Info } from "lucide-react";
 import {
@@ -40,7 +41,7 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
       </div>
 
       <div className="flex justify-center mt-2 mb-3">
-        <Button onClick={handleOpenPdf} className="w-full max-w-[180px] transition-transform hover:scale-105">
+        <Button onClick={handleOpenPdf} className="w-full max-w-[200px] transition-transform hover:scale-105">
           <BookOpenText className="mr-2 h-4 w-4" />
           Czytaj
         </Button>
