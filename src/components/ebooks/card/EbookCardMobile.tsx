@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { BookOpenText, Edit, Trash, ChevronDown, Tag } from "lucide-react";
+import { BookOpenText, Edit, Trash, ChevronDown, Tag, BookText } from "lucide-react";
 import { EbookCover } from "./EbookCover";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Badge } from "@/components/ui/badge";
@@ -83,9 +83,9 @@ export function EbookCardMobile({
         </div>
         
         {showType && (
-          <div className="flex items-center justify-center gap-2 w-full">
+          <div className="flex items-center gap-2 w-full">
             <Tag className="h-4 w-4 text-muted-foreground" />
-            <Badge variant="outline">{ebook.ebook_type}</Badge>
+            <span className="text-muted-foreground">Typ: {ebook.ebook_type}</span>
           </div>
         )}
         
@@ -106,9 +106,10 @@ export function EbookCardMobile({
           <CollapsibleContent className="bg-muted/30 p-3 rounded-b-md">
             <div className="space-y-1">
               {ebook.page_count && (
-                <p className="text-sm text-muted-foreground">
-                  Liczba stron: {ebook.page_count}
-                </p>
+                <div className="flex items-center gap-2">
+                  <BookText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
+                </div>
               )}
             </div>
             

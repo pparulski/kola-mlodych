@@ -101,11 +101,11 @@ export function EbookCardDesktop({
         
         <div className="md:w-3/4">
           <div className="space-y-4">
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <div className="flex flex-col gap-y-2 text-sm">
               {showType && (
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground" />
-                  <Badge variant="outline">{ebook.ebook_type}</Badge>
+                  <span className="text-muted-foreground">Typ: {ebook.ebook_type}</span>
                 </div>
               )}
               
