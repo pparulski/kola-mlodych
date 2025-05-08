@@ -94,7 +94,6 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   };
 
   const handleUploadSuccess = async (
-    id: string | undefined,
     title: string, 
     file_url: string, 
     cover_url: string, 
@@ -157,7 +156,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       {showUpload && adminMode && (
         <EbookUpload 
-          onSubmit={handleUploadSuccess} 
+          onUploadSuccess={handleUploadSuccess} 
           onCancel={() => setShowUpload(false)}
         />
       )}

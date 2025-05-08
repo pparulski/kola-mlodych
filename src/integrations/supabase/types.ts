@@ -98,8 +98,10 @@ export type Database = {
           cover_url: string | null
           created_at: string
           created_by: string | null
+          description: string | null
           file_url: string
           id: string
+          page_count: number | null
           publication_year: number | null
           title: string
         }
@@ -107,8 +109,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
           file_url: string
           id?: string
+          page_count?: number | null
           publication_year?: number | null
           title: string
         }
@@ -116,8 +120,10 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
           file_url?: string
           id?: string
+          page_count?: number | null
           publication_year?: number | null
           title?: string
         }
