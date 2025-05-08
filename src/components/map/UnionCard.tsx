@@ -1,5 +1,5 @@
 
-import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+import { Facebook, Instagram, Mail } from "lucide-react";
 import { 
   Card, 
   CardHeader, 
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { Union } from "./types";
+import { useState } from "react";
 
 interface UnionCardProps {
   union: Union;
@@ -26,31 +27,47 @@ interface UnionCardProps {
  * UnionCard component to display a union's information in card format
  */
 export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
+  const [isOpen, setIsOpen] = useState<string | undefined>(undefined);
+  
+  // Handle card click - expand accordion and select card
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on footer elements (contact links)
+    if ((e.target as HTMLElement).closest('.card-footer')) {
+      return;
+    }
+    
+    // Toggle accordion state
+    setIsOpen(isOpen ? undefined : "bio");
+    
+    // Always select the card
+    onSelect();
+  };
+
   return (
     <Card 
       id={`union-card-${union.id}`}
       className={cn(
-        "overflow-hidden transition-all duration-200 mb-1",
-        "hover:shadow-md",
+        "overflow-hidden transition-all duration-200 mb-1 mt-0.5 first:mt-0",
+        "hover:shadow-md hover:ring-2 hover:ring-primary/50",
         isSelected ? "ring-2 ring-primary/50" : ""
       )}
-      onClick={onSelect}
+      onClick={handleCardClick}
       onMouseEnter={onSelect}
     >
-      <CardHeader className="pb-1 pt-2 px-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base break-words w-full">{union.name}</CardTitle>
-        </div>
-        {union.city && (
-          <div className="flex items-center gap-1 text-muted-foreground text-xs">
-            <MapPin className="h-3 w-3" />
-            <span>{union.city}</span>
-          </div>
-        )}
+      <CardHeader className="pb-1 pt-2 px-3 cursor-pointer">
+        <CardTitle className="text-base break-words w-full">
+          {union.name}
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-2 pt-1 px-3">
-        <Accordion type="single" collapsible className="w-full">
+      <CardContent className="pb-2 pt-1 px-3 cursor-pointer">
+        <Accordion 
+          type="single" 
+          collapsible 
+          className="w-full"
+          value={isOpen}
+          onValueChange={setIsOpen}
+        >
           <AccordionItem value="bio" className="border-0">
             <AccordionTrigger className="py-0.5 text-xs text-primary hover:no-underline">
               O nas
@@ -70,7 +87,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
         </Accordion>
       </CardContent>
 
-      <CardFooter className="flex justify-between items-center pt-1 pb-2 px-3 border-t">
+      <CardFooter className="flex justify-between items-center pt-1 pb-2 px-3 border-t card-footer">
         <div className="flex items-center space-x-1">
           {union.contact && (
             <a 
