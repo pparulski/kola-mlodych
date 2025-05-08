@@ -105,7 +105,7 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="page-container component-spacing mt-4">
+    <div className="page-container section-spacing mt-4">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}

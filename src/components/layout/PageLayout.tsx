@@ -10,7 +10,7 @@ export function PageLayout() {
   const { data: categories } = useCategories();
 
   return (
-    <div className="flex-1 p-4 md:p-6 relative">
+    <div className="flex-1 p-3 md:p-4 relative">
       <div className="page-container">
         <header className="page-header">
           <PageHeader 
