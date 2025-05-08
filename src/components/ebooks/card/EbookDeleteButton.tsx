@@ -15,13 +15,14 @@ import {
 
 interface EbookDeleteButtonProps {
   onDelete: () => void;
+  className?: string; // Added optional className prop
 }
 
-export function EbookDeleteButton({ onDelete }: EbookDeleteButtonProps) {
+export function EbookDeleteButton({ onDelete, className }: EbookDeleteButtonProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" className={className}>
           <Trash2 className="h-4 w-4 mr-1" />
           Usuń
         </Button>
