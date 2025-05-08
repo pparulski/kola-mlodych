@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +5,7 @@ import { EbookUpload } from "@/components/ebooks/EbookUpload";
 import { EbookCard } from "@/components/ebooks/EbookCard";
 import { toast } from "sonner";
 import { BookText } from "lucide-react";
+import { Ebook } from "@/components/ebooks/types";
 
 export function ManageEbooks() {
   const { data: ebooks, isLoading, refetch } = useQuery({

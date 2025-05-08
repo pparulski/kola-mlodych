@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, BookText } from "lucide-react";
@@ -6,17 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { EbookCard } from "@/components/ebooks/EbookCard";
 import { EbookUpload } from "@/components/ebooks/EbookUpload";
-
-interface Ebook {
-  id: string;
-  title: string;
-  file_url: string;
-  cover_url?: string;
-  created_at: string;
-  publication_year?: number;
-  description?: string;
-  page_count?: number; // Added page count field
-}
+import { Ebook } from "@/components/ebooks/types";
 
 interface EbooksProps {
   adminMode?: boolean;
