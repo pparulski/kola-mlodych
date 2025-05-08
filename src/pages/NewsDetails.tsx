@@ -61,7 +61,7 @@ export function NewsDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 container mx-auto px-4 mt-4">
+      <div className="page-container component-spacing mt-4">
         <Skeleton className="h-10 w-3/4 max-w-2xl" />
         <Skeleton className="h-5 w-48" />
         <Skeleton className="h-60 w-full" />
@@ -71,12 +71,12 @@ export function NewsDetails() {
 
   if (!article) {
     return (
-      <div className="container mx-auto px-4 mt-4">
+      <div className="page-container mt-4">
         <SEO
           title="Artykuł nie znaleziony"
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
         />
-        <div className="p-5 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
+        <div className="content-box text-center">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
@@ -92,7 +92,7 @@ export function NewsDetails() {
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
 
   return (
-    <div className="space-y-4 container mx-auto px-4 mt-4">
+    <div className="page-container component-spacing mt-4">
       <SEO 
         title={article.title}
         description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
@@ -105,8 +105,8 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-4 p-5 bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
-        <div className="space-y-3">
+      <article className="content-box border-2 element-spacing overflow-hidden">
+        <div className="element-spacing">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">

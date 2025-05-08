@@ -27,25 +27,29 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="component-spacing">
       {adminMode && (
-        <DownloadFileUploader onFileUploaded={fetchFiles} />
+        <section className="element-spacing">
+          <DownloadFileUploader onFileUploaded={fetchFiles} />
+        </section>
       )}
 
-      <DownloadFilesTable
-        files={files}
-        adminMode={adminMode}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSort={handleSort}
-        onDelete={handleDelete}
-      />
+      <section className="element-spacing">
+        <DownloadFilesTable
+          files={files}
+          adminMode={adminMode}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+          onDelete={handleDelete}
+        />
 
-      {files.length === 0 && (
-        <div className="text-center text-muted-foreground mt-8">
-          Brak plików do pobrania
-        </div>
-      )}
+        {files.length === 0 && (
+          <div className="text-center text-muted-foreground mt-6">
+            Brak plików do pobrania
+          </div>
+        )}
+      </section>
     </div>
   );
 }

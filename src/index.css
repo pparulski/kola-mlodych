@@ -1,9 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    /* Color system - keep existing color variables */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -25,9 +27,28 @@
     --ring: 345 100% 25%;
     --radius: 0.5rem;
     --content-box: 220 10% 97%;
+    
+    /* Spacing system */
+    --space-1: 0.25rem;  /* 4px */
+    --space-2: 0.5rem;   /* 8px */
+    --space-3: 0.75rem;  /* 12px */
+    --space-4: 1rem;     /* 16px */
+    --space-5: 1.25rem;  /* 20px */
+    --space-6: 1.5rem;   /* 24px */
+    --space-8: 2rem;     /* 32px */
+    --space-10: 2.5rem;  /* 40px */
+    --space-12: 3rem;    /* 48px */
+    
+    /* Component-specific spacing */
+    --header-spacing: var(--space-6);       /* 1.5rem/24px */
+    --section-spacing: var(--space-8);      /* 2rem/32px */
+    --component-spacing: var(--space-6);    /* 1.5rem/24px */
+    --element-spacing: var(--space-4);      /* 1rem/16px */
+    --container-padding: var(--space-4);    /* 1rem/16px */
   }
 
   .dark {
+    /* Keep existing dark mode colors */
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 10%;
@@ -50,6 +71,14 @@
     --content-box: 0 0% 12%;
   }
 
+  @media (min-width: 768px) {
+    :root {
+      --header-spacing: var(--space-8);        /* 2rem/32px */
+      --section-spacing: var(--space-10);      /* 2.5rem/40px */
+      --container-padding: var(--space-6);     /* 1.5rem/24px */
+    }
+  }
+
   * {
     @apply border-border;
   }
@@ -66,26 +95,53 @@
     @apply text-primary hover:text-accent no-underline;
   }
 
-  /* Content containers */
+  /* Content containers - standardized */
+  .page-container {
+    @apply w-full max-w-4xl mx-auto px-4 md:px-6;
+  }
+  
+  /* Existing containers now using standardized class */
   .container,
   article,
   .article-content,
   .downloads-container,
   .news-container,
   .static-page-container {
-    @apply w-full max-w-4xl mx-auto px-4;
+    @apply page-container;
   }
 
-  /* Content boxes */
-  .content-box,
+  /* Content boxes - standardized */
+  .content-box {
+    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 md:p-6 transition-all border border-gray-200 dark:border-gray-800;
+  }
+  
+  /* Existing content boxes now using standardized class */
   .news-card,
   .ebook-card,
   .download-item,
   .category-feed-item {
-    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all border border-gray-200 dark:border-gray-800;
+    @apply content-box;
+  }
+  
+  /* Spacing utility classes */
+  .section-spacing {
+    @apply space-y-8 md:space-y-10;
+  }
+  
+  .component-spacing {
+    @apply space-y-6;
+  }
+  
+  .element-spacing {
+    @apply space-y-4;
+  }
+  
+  /* Page header spacing */
+  .page-header {
+    @apply mb-6 md:mb-8;
   }
 
-  /* Text elements */
+  /* Text elements - keep existing */
   .text-content,
   .publication-year,
   .admin-panel,
@@ -102,17 +158,17 @@
     @apply text-foreground;
   }
 
-  /* Category pill styling */
+  /* Keep existing category pill styling */
   .category-pill {
     @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
   }
 
-  /* HugeRTE content styling */
+  /* Keep existing hugerte-content styling */
   .hugerte-content {
     @apply prose prose-base lg:prose-lg dark:prose-invert max-w-none;
   }
 
-  /* Override specific HugeRTE elements */
+  /* Keep existing HugeRTE elements overrides */
   .hugerte-content h1,
   .hugerte-content h2,
   .hugerte-content h3,
@@ -156,7 +212,7 @@
   }
 }
 
-/* Theme-specific styles */
+/* Keep existing theme-specific styles in the utilities layer */
 @layer utilities {
   /* Header styles */
   [data-header="header"] {
@@ -228,7 +284,7 @@
   }
 }
 
-/* Mobile sidebar styles */
+/* Keep existing mobile sidebar styles */
 @media (max-width: 768px) {
   [data-sidebar="sidebar"] {
     @apply bg-background/95 backdrop-blur-lg;
@@ -257,7 +313,7 @@
   }
 }
 
-/* Helper to fix hover issues on mobile touch devices */
+/* Keep existing helper to fix hover issues on mobile touch devices */
 @media (hover: none) {
   /* Disable all hover effects on elements inside sidebar on touch devices */
   [data-sidebar="menu-button"]:hover,

@@ -70,7 +70,7 @@ export function StaticPage() {
   if (error) {
     console.error("Error in static page query:", error);
     return (
-      <div className="bg-[hsl(var(--content-box))] p-4 rounded-lg text-foreground mt-2">
+      <div className="content-box element-spacing mt-4">
         <div className="text-lg">Wystąpił błąd podczas ładowania strony.</div>
         <div className="text-sm text-muted-foreground">{String(error)}</div>
       </div>
@@ -79,14 +79,14 @@ export function StaticPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[150px] mt-2">
+      <div className="flex justify-center items-center min-h-[150px] mt-4">
         <div className="text-lg">Ładowanie...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative mt-2">
+    <div className="mt-4">
       {page && (
         <SEO
           title={page.title}
@@ -95,13 +95,13 @@ export function StaticPage() {
         />
       )}
       
-      <div className="relative">
+      <div className="element-spacing">
         {page ? (
-          <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="content-box hugerte-content">
             <GalleryRenderer content={page.content} />
           </div>
         ) : (
-          <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="content-box text-center text-muted-foreground">
             <p>Ta strona jest w trakcie tworzenia lub nie istnieje.</p>
             <p className="text-sm mt-2">Slug: {slug}</p>
           </div>

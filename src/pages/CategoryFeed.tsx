@@ -76,7 +76,7 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8 mt-4">
+      <div className="page-container section-spacing mt-4">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -90,20 +90,22 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="max-w-4xl mx-auto mt-4">
+      <div className="page-container mt-4">
         <SEO
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
         />
-        <p className="text-muted-foreground bg-[hsl(var(--content-box))] p-5 rounded-lg">
-          Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
-        </p>
+        <div className="content-box">
+          <p className="text-muted-foreground">
+            Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
+          </p>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="max-w-4xl mx-auto space-y-4 mt-4">
+    <div className="page-container component-spacing mt-4">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
@@ -111,7 +113,7 @@ export default function CategoryFeed() {
       />
       
       {articles && articles.length > 0 ? (
-        <div className="space-y-6">
+        <div className="component-spacing">
           {articles.map((article) => (
             <NewsPreview 
               key={article.id}
@@ -126,7 +128,7 @@ export default function CategoryFeed() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 bg-[hsl(var(--content-box))] rounded-lg">
+        <div className="content-box text-center py-10">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.

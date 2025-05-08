@@ -11,8 +11,8 @@ export default function AboutUs() {
         keywords="związek zawodowy, młodzi pracownicy, prawa pracownicze, inicjatywa pracownicza"
       />
       
-      <div className="prose prose-lg max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-3 md:p-5 rounded-lg shadow-sm">
-        <section className="my-4">
+      <div className="content-box component-spacing prose prose-lg max-w-none dark:prose-invert">
+        <section className="element-spacing">
           <h2 className="text-2xl font-bold">Kim jesteśmy?</h2>
           <p className="mt-2">
             Jesteśmy Kołem Młodych Inicjatywy Pracowniczej - organizacją zrzeszającą młodych pracowników i pracowniczki, 
@@ -20,7 +20,7 @@ export default function AboutUs() {
           </p>
         </section>
 
-        <section className="my-4">
+        <section className="element-spacing">
           <h2 className="text-2xl font-bold">Nasza misja</h2>
           <p className="mt-2">
             Naszym celem jest ochrona praw i interesów młodych pracowników i pracowniczek w Polsce. 
@@ -29,7 +29,7 @@ export default function AboutUs() {
           </p>
         </section>
 
-        <section className="my-4">
+        <section className="element-spacing">
           <h2 className="text-2xl font-bold">Co robimy?</h2>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Organizujemy szkolenia i warsztaty dotyczące praw pracowniczych</li>
@@ -40,7 +40,7 @@ export default function AboutUs() {
           </ul>
         </section>
 
-        <section className="my-4">
+        <section className="element-spacing">
           <h2 className="text-2xl font-bold">Dołącz do nas</h2>
           <p className="mt-2">
             Jeśli chcesz działać na rzecz praw pracowniczych, dołącz do nas! Razem możemy więcej. 
@@ -48,7 +48,7 @@ export default function AboutUs() {
           </p>
         </section>
 
-        <section className="my-4">
+        <section className="element-spacing">
           <h2 className="text-2xl font-bold">Nasze wartości</h2>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Solidarność pracownicza</li>
