@@ -62,6 +62,8 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
     ebookToEdit 
   });
 
+  const isFormValid = form.formState.isValid && fileUrl;
+  
   return (
     <div className="space-y-6 mb-8 bg-card rounded-md p-6 border border-border/50 animate-fade-in">
       <Form {...form}>
@@ -87,7 +89,7 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
 
           <Button 
             type="submit"
-            disabled={!form.formState.isValid || !fileUrl || isSubmitting}
+            disabled={!isFormValid || isSubmitting}
             className="w-full transition-all hover:scale-105 duration-200"
           >
             {isSubmitting 

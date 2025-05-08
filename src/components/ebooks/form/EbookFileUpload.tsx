@@ -49,6 +49,8 @@ export function EbookFileUpload({
           bucket={bucket}
           onSuccess={handleUploadSuccess}
           acceptedFileTypes={acceptedFileTypes}
+          // Add a unique identifier for each upload component
+          uploadId={fieldName}
         />
       ) : (
         <div className="flex items-center gap-2">

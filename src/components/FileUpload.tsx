@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
@@ -10,6 +11,7 @@ interface FileUploadProps {
   acceptedFileTypes?: string;
   currentValue?: string | null;
   onUpload?: (url: string) => void;
+  uploadId?: string; // Add a unique identifier for each upload component
 }
 
 export function FileUpload({ 
@@ -17,7 +19,8 @@ export function FileUpload({
   bucket = "news_images", 
   acceptedFileTypes, 
   currentValue,
-  onUpload 
+  onUpload,
+  uploadId = "default" // Default value for backward compatibility
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -86,6 +89,11 @@ export function FileUpload({
       toast.error("Failed to upload file");
     } finally {
       setIsUploading(false);
+      // Clear the file input so the same file can be selected again
+      const fileInput = document.getElementById(`file-${uploadId}`) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = "";
+      }
     }
   };
 
@@ -100,13 +108,13 @@ export function FileUpload({
       )}
       <input
         type="file"
-        id="file"
+        id={`file-${uploadId}`} // Use unique ID for each file input
         className="hidden"
         onChange={handleFileUpload}
         accept={acceptedFileTypes}
       />
       <Button
-        onClick={() => document.getElementById("file")?.click()}
+        onClick={() => document.getElementById(`file-${uploadId}`)?.click()}
         disabled={isUploading}
       >
         <Upload className="mr-2 h-4 w-4" />

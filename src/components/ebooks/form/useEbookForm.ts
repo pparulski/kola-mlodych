@@ -60,27 +60,37 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
     }
   }, [ebookToEdit, form]);
 
-  // Track changes in fileUrl and coverUrl to update form
+  // Now we'll track changes in fileUrl and coverUrl separately
   useEffect(() => {
     if (fileUrl) {
-      form.setValue("fileUrl", fileUrl, { shouldValidate: true });
+      form.setValue("fileUrl", fileUrl, { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true 
+      });
     }
   }, [fileUrl, form]);
 
   useEffect(() => {
     if (coverUrl) {
-      form.setValue("coverUrl", coverUrl, { shouldValidate: true });
+      form.setValue("coverUrl", coverUrl, { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true 
+      });
     }
   }, [coverUrl, form]);
 
   const handleSubmit = async (data: EbookFormValues) => {
-    if (!fileUrl && !data.fileUrl) {
+    // Check if we have a file URL either from state or form data
+    const effectiveFileUrl = fileUrl || data.fileUrl;
+    
+    if (!effectiveFileUrl) {
       toast.error("Plik PDF jest wymagany");
       return;
     }
     
-    const effectiveFileUrl = data.fileUrl || fileUrl;
-    const effectiveCoverUrl = data.coverUrl || coverUrl;
+    const effectiveCoverUrl = coverUrl || data.coverUrl || "";
     
     setIsSubmitting(true);
     try {
