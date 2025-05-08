@@ -35,10 +35,10 @@ export const MapView = ({
   useEffect(() => {
     if (!mapRef.current) return;
     
-    // Different padding for mobile and desktop to prevent map cropping
+    // Enhanced padding to ensure Poland is fully visible in square container
     const padding = isMobile 
-      ? { top: 10, bottom: 10, left: 10, right: 10 } 
-      : { top: 50, bottom: 50, left: 50, right: 50 };
+      ? { top: 40, bottom: 40, left: 40, right: 40 } 
+      : { top: 60, bottom: 60, left: 60, right: 60 };
     
     // Fit map to bounds with appropriate padding
     mapRef.current.fitBounds(POLAND_BOUNDS, {
@@ -82,6 +82,7 @@ export const MapView = ({
               latitude={union.coordinates!.lat}
               onClick={() => handleMarkerClick(union)}
               anchor="bottom"
+              scale={1} // Ensure consistent icon size regardless of zoom
             >
               <div className={cn(
                 "cursor-pointer transition-transform duration-200",

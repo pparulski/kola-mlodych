@@ -1,6 +1,7 @@
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface MapContainerProps {
   mapComponent: ReactNode;
@@ -22,11 +23,13 @@ export const MapContainer = ({
     // Mobile layout - Stacked (map on top, list below)
     return (
       <div className="flex flex-col gap-3">
-        {/* Map Section - Top position */}
-        <div className="w-full relative rounded-lg overflow-hidden border h-[70vh]">
-          <div className="w-full h-full">
-            {mapComponent}
-          </div>
+        {/* Map Section - Top position with square aspect ratio */}
+        <div className="w-full relative rounded-lg overflow-hidden border">
+          <AspectRatio ratio={1}>
+            <div className="w-full h-full">
+              {mapComponent}
+            </div>
+          </AspectRatio>
         </div>
         
         {/* Unions List Section - Bottom position */}
@@ -40,11 +43,13 @@ export const MapContainer = ({
   // Desktop layout - Side by side (map left, list right)
   return (
     <div className="flex flex-row gap-4">
-      {/* Map Section - Left position */}
-      <div className="w-3/5 relative rounded-lg overflow-hidden border h-[70vh]">
-        <div className="w-full h-full">
-          {mapComponent}
-        </div>
+      {/* Map Section - Left position with square aspect ratio */}
+      <div className="w-3/5 relative rounded-lg overflow-hidden border">
+        <AspectRatio ratio={1}>
+          <div className="w-full h-full">
+            {mapComponent}
+          </div>
+        </AspectRatio>
       </div>
       
       {/* Unions List Section - Right position */}
