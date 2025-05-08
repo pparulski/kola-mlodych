@@ -35,10 +35,10 @@ export const MapView = ({
   useEffect(() => {
     if (!mapRef.current) return;
     
-    // Enhanced padding to ensure Poland is fully visible in square container
+    // Increased padding to ensure Poland is fully visible in square container
     const padding = isMobile 
-      ? { top: 40, bottom: 40, left: 40, right: 40 } 
-      : { top: 60, bottom: 60, left: 60, right: 60 };
+      ? { top: 60, bottom: 60, left: 60, right: 60 } 
+      : { top: 80, bottom: 80, left: 80, right: 80 };
     
     // Fit map to bounds with appropriate padding
     mapRef.current.fitBounds(POLAND_BOUNDS, {
