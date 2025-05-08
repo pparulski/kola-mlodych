@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SEO } from "@/components/seo/SEO";
 
 export function ManageGalleries() {
   const [editingGallery, setEditingGallery] = useState<Gallery | null>(null);
@@ -46,14 +47,23 @@ export function ManageGalleries() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
+    return (
+      <div className="page-container component-spacing mt-4">
+        <div className="flex justify-center p-8">Ładowanie...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">Zarządzaj galeriami</h1>
+    <div className="page-container section-spacing mt-4">
+      <SEO
+        title="Zarządzanie galeriami"
+        description="Panel administracyjny do zarządzania galeriami zdjęć"
+      />
       
-      <Alert className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+      <h1 className="text-2xl font-bold">Zarządzaj galeriami</h1>
+      
+      <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
         <Info className="h-4 w-4" />
         <AlertDescription>
           Aby dodać zdjęcia do galerii, najpierw utwórz nową galerię, a następnie edytuj ją, aby dodać zdjęcia.

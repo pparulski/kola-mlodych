@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -82,7 +83,7 @@ export default function NewsArticle() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 mt-4">
+      <div className="page-container section-spacing mt-4">
         <Skeleton className="h-10 w-3/4 max-w-2xl" />
         <Skeleton className="h-5 w-48" />
         <Skeleton className="h-60 w-full" />
@@ -92,12 +93,12 @@ export default function NewsArticle() {
 
   if (!article) {
     return (
-      <div className="mt-4">
+      <div className="page-container mt-4">
         <SEO 
           title="Artykuł nie znaleziony" 
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
         />
-        <div className="p-5 text-center bg-[hsl(var(--content-box))] rounded-lg shadow-sm">
+        <div className="content-box text-center">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
@@ -120,7 +121,7 @@ export default function NewsArticle() {
   const categoryNames = categories?.map(cat => cat.name).filter(Boolean) || [];
   
   return (
-    <div className="mt-4">
+    <div className="page-container mt-4">
       <SEO 
         title={article.title}
         description={generateExcerpt(article.content)}
@@ -133,7 +134,7 @@ export default function NewsArticle() {
         keywords={categoryNames.join(', ')}
       />
 
-      <div className="bg-[hsl(var(--content-box))] rounded-lg overflow-hidden">
+      <div className="content-box">
         {article.featured_image && (
           <FeaturedImage 
             src={article.featured_image}
@@ -145,7 +146,7 @@ export default function NewsArticle() {
           />
         )}
 
-        <div className="p-5 space-y-3 md:space-y-4">
+        <div className="element-spacing">
           <h1 className="text-2xl md:text-4xl font-bold">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">

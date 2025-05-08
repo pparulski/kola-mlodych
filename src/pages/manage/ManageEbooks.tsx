@@ -4,6 +4,7 @@ import { useManageEbooksData } from "@/components/manage/ebooks/useManageEbooksD
 import { EbooksFormSection } from "@/components/manage/ebooks/EbooksFormSection";
 import { EbooksListSection } from "@/components/manage/ebooks/EbooksListSection";
 import { LoadingIndicator } from "@/components/home/LoadingIndicator";
+import { SEO } from "@/components/seo/SEO";
 
 export function ManageEbooks() {
   const {
@@ -22,7 +23,12 @@ export function ManageEbooks() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-8 animate-fade-in">
+    <div className="page-container section-spacing mt-4 animate-fade-in">
+      <SEO
+        title="Zarządzanie publikacjami"
+        description="Panel administracyjny do zarządzania publikacjami"
+      />
+      
       <h1 className="text-3xl font-bold flex items-center gap-2">
         <BookText className="h-7 w-7" />
         Zarządzaj publikacjami

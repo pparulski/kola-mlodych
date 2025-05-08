@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NewsArticle } from "@/types/news";
 import { NewsEditorSection } from "@/components/news/NewsEditorSection";
 import { NewsListSection } from "@/components/news/NewsListSection";
+import { SEO } from "@/components/seo/SEO";
 
 export function ManageNews() {
   const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
@@ -24,11 +25,20 @@ export function ManageNews() {
   });
 
   if (isLoading) {
-    return <div>Wczytywanie...</div>;
+    return (
+      <div className="page-container component-spacing">
+        <div className="text-lg">Wczytywanie...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-8">
+    <div className="page-container section-spacing mt-4">
+      <SEO
+        title="Zarządzaj aktualnościami"
+        description="Panel administracyjny do zarządzania aktualnościami"
+      />
+
       <h1 className="text-3xl font-bold">Zarządzaj aktualnościami</h1>
       
       <NewsEditorSection 

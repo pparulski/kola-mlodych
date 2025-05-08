@@ -6,6 +6,7 @@ import { useUnionsData } from "@/components/map/hooks/useUnionsData";
 import { useMapState } from "@/components/map/hooks/useMapState";
 import { MapContainer } from "@/components/map/MapContainer";
 import { MapSkeleton } from "@/components/map/MapSkeleton";
+import { SEO } from "@/components/seo/SEO";
 
 /**
  * UnionsMap page component that displays a map of union locations
@@ -31,7 +32,13 @@ const UnionsMap = () => {
   }
 
   return (
-    <div className="container mx-auto px-1 py-2">
+    <div className="page-container section-spacing mt-4">
+      <SEO
+        title="Struktury związkowe"
+        description="Mapa struktur związkowych Kół Młodych Inicjatywy Pracowniczej w Polsce"
+        keywords="struktury związkowe, mapa, związek zawodowy, inicjatywa pracownicza"
+      />
+      
       <MapContainer
         isMobile={isMobile}
         mapComponent={
