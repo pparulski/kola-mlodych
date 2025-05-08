@@ -95,8 +95,8 @@ export function ManageDownloads() {
     if (sortField !== field) return null;
     
     return sortDirection === "asc" 
-      ? <ArrowUp className="h-4 w-4 inline ml-1" />
-      : <ArrowDown className="h-4 w-4 inline ml-1" />;
+      ? <ArrowUp className="h-4 w-4 inline-flex shrink-0" />
+      : <ArrowDown className="h-4 w-4 inline-flex shrink-0" />;
   };
 
   const sortedDownloads = downloads ? [...downloads].sort((a, b) => {
@@ -155,13 +155,19 @@ export function ManageDownloads() {
                 className="cursor-pointer"
                 onClick={() => handleSort("name")}
               >
-                Nazwa {getSortIcon("name")}
+                <div className="flex items-center gap-1">
+                  <span>Nazwa</span> 
+                  {getSortIcon("name")}
+                </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer"
+                className="cursor-pointer w-[180px]"
                 onClick={() => handleSort("created_at")}
               >
-                Data dodania {getSortIcon("created_at")}
+                <div className="flex items-center gap-1 whitespace-nowrap">
+                  <span>Data dodania</span> 
+                  {getSortIcon("created_at")}
+                </div>
               </TableHead>
               <TableHead>Akcje</TableHead>
             </TableRow>
@@ -170,7 +176,7 @@ export function ManageDownloads() {
             {sortedDownloads.map((file) => (
               <TableRow key={file.id}>
                 <TableCell>{file.name}</TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {new Date(file.created_at).toLocaleDateString("pl-PL")}
                 </TableCell>
                 <TableCell>

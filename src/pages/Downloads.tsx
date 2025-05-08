@@ -148,8 +148,8 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
     if (sortField !== field) return null;
     
     return sortDirection === "asc" 
-      ? <ArrowUp className="h-4 w-4 inline ml-1" />
-      : <ArrowDown className="h-4 w-4 inline ml-1" />;
+      ? <ArrowUp className="h-4 w-4 inline-flex shrink-0" />
+      : <ArrowDown className="h-4 w-4 inline-flex shrink-0" />;
   };
 
   if (isLoading) {
@@ -188,13 +188,19 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
                 className="text-white hover:bg-transparent cursor-pointer"
                 onClick={() => handleSort("name")}
               >
-                Nazwa pliku {getSortIcon("name")}
+                <div className="flex items-center gap-1">
+                  <span>Nazwa pliku</span>
+                  {getSortIcon("name")}
+                </div>
               </TableHead>
               <TableHead 
-                className="text-white hover:bg-transparent cursor-pointer"
+                className="text-white hover:bg-transparent cursor-pointer w-[180px]"
                 onClick={() => handleSort("created_at")}
               >
-                Data dodania {getSortIcon("created_at")}
+                <div className="flex items-center gap-1 whitespace-nowrap">
+                  <span>Data dodania</span>
+                  {getSortIcon("created_at")}
+                </div>
               </TableHead>
               <TableHead className="text-white hover:bg-transparent">Akcje</TableHead>
             </TableRow>
@@ -203,7 +209,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
             {sortedFiles.map((file) => (
               <TableRow key={file.id} className="hover:bg-transparent">
                 <TableCell>{file.name}</TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {new Date(file.created_at).toLocaleDateString("pl-PL")}
                 </TableCell>
                 <TableCell>

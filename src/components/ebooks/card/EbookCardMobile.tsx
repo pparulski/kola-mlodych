@@ -98,17 +98,17 @@ export function EbookCardMobile({
           
           <CollapsibleContent className="bg-muted/30 p-3 rounded-b-md">
             <div className="space-y-1">
-              {ebook.page_count && (
-                <div className="flex items-center gap-2">
-                  <BookText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
-                </div>
-              )}
-              
               {showType && (
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{ebook.ebook_type}</span>
+                </div>
+              )}
+              
+              {ebook.page_count && (
+                <div className="flex items-center gap-2">
+                  <BookText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
                 </div>
               )}
             </div>

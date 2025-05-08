@@ -102,17 +102,17 @@ export function EbookCardDesktop({
         <div className="md:w-3/4">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              {ebook.page_count && (
-                <div className="flex items-center gap-2">
-                  <BookText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
-                </div>
-              )}
-              
               {showType && (
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{ebook.ebook_type}</span>
+                </div>
+              )}
+              
+              {ebook.page_count && (
+                <div className="flex items-center gap-2">
+                  <BookText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
                 </div>
               )}
             </div>
