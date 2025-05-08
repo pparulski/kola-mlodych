@@ -167,7 +167,7 @@ export function ManageEbooks() {
                 key={ebook.id}
                 ebook={ebook}
                 onDelete={handleDelete}
-                onEdit={() => handleEdit(ebook)}
+                onEdit={handleEdit}
                 adminMode={true}
               />
             ))}

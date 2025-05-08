@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpenText, BookText, Info } from "lucide-react";
+import { BookOpenText, BookText, Edit, Info } from "lucide-react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -18,10 +18,11 @@ import { Ebook } from "../types";
 interface EbookCardMobileProps {
   ebook: Ebook;
   onDelete?: (id: string) => void;
+  onEdit?: (ebook: Ebook) => void;
   adminMode?: boolean;
 }
 
-export function EbookCardMobile({ ebook, onDelete, adminMode = false }: EbookCardMobileProps) {
+export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: EbookCardMobileProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   
   const handleOpenPdf = () => {
@@ -93,9 +94,20 @@ export function EbookCardMobile({ ebook, onDelete, adminMode = false }: EbookCar
         </AccordionItem>
       </Accordion>
       
-      {adminMode && onDelete && (
-        <div className="flex justify-end mt-4">
-          <EbookDeleteButton onDelete={() => onDelete(ebook.id)} />
+      {adminMode && (
+        <div className="flex justify-end mt-4 gap-2">
+          {onEdit && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onEdit(ebook)}
+              className="transition-colors"
+            >
+              <Edit className="h-4 w-4 mr-1" />
+              Edytuj
+            </Button>
+          )}
+          {onDelete && <EbookDeleteButton onDelete={() => onDelete(ebook.id)} />}
         </div>
       )}
     </div>

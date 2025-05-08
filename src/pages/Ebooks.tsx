@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, BookText } from "lucide-react";
@@ -93,12 +94,13 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   };
 
   const handleUploadSuccess = async (
+    id: string | undefined,
     title: string, 
     file_url: string, 
     cover_url: string, 
     publication_year: number,
     description?: string,
-    page_count?: number // Added page count parameter
+    page_count?: number
   ) => {
     try {
       console.log("Saving publication metadata:", { 
@@ -154,7 +156,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
       </div>
 
       {showUpload && adminMode && (
-        <EbookUpload onUploadSuccess={handleUploadSuccess} />
+        <EbookUpload onSubmit={handleUploadSuccess} />
       )}
 
       {ebooks.length > 0 ? (

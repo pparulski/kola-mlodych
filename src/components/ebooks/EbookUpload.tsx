@@ -16,11 +16,39 @@ interface EbookUploadProps {
     description?: string,
     page_count?: number
   ) => Promise<void>;
+  // For backward compatibility with existing code
+  onUploadSuccess?: (
+    title: string, 
+    file_url: string, 
+    cover_url: string, 
+    publication_year: number,
+    description?: string,
+    page_count?: number
+  ) => Promise<void>;
   ebookToEdit?: Ebook | null;
   onCancel?: () => void;
 }
 
-export function EbookUpload({ onSubmit, ebookToEdit, onCancel }: EbookUploadProps) {
+export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit, onCancel }: EbookUploadProps) {
+  // Convert onUploadSuccess to onSubmit format if provided
+  const handleSubmitWrapper = async (
+    id: string | undefined,
+    title: string,
+    file_url: string,
+    cover_url: string,
+    publication_year: number,
+    description?: string,
+    page_count?: number
+  ) => {
+    if (onUploadSuccess && !id) {
+      // For backwards compatibility with Ebooks.tsx
+      return onUploadSuccess(title, file_url, cover_url, publication_year, description, page_count);
+    } else {
+      // Normal operation with ManageEbooks.tsx
+      return onSubmit(id, title, file_url, cover_url, publication_year, description, page_count);
+    }
+  };
+  
   const {
     form,
     fileUrl,
@@ -30,7 +58,10 @@ export function EbookUpload({ onSubmit, ebookToEdit, onCancel }: EbookUploadProp
     isSubmitting,
     handleSubmit,
     isEditing,
-  } = useEbookForm({ onSubmit, ebookToEdit });
+  } = useEbookForm({ 
+    onSubmit: handleSubmitWrapper, 
+    ebookToEdit 
+  });
 
   return (
     <div className="space-y-6 mb-8 bg-card rounded-md p-6 border border-border/50 animate-fade-in">
