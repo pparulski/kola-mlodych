@@ -1,11 +1,11 @@
 
-// Update the EbookCardMobile.tsx file to ensure the "Czytaj" button's width scales properly with the cover
-
 import { Button } from "@/components/ui/button";
-import { BookOpenText, Edit, Trash } from "lucide-react";
+import { BookOpenText, Edit, Trash, ChevronDown } from "lucide-react";
 import { EbookCover } from "./EbookCover";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import type { Ebook } from "../types";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
 interface EbookCardMobileProps {
   ebook: Ebook;
@@ -20,6 +20,8 @@ export function EbookCardMobile({
   onEdit,
   adminMode = false
 }: EbookCardMobileProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  
   const handleOpenPdf = () => {
     window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
   };
@@ -33,6 +35,26 @@ export function EbookCardMobile({
         {i < text.split('\n').length - 1 && <br />}
       </span>
     ));
+  };
+  
+  // Handle accordion toggle
+  const handleToggleAccordion = () => {
+    const newState = !isOpen;
+    setIsOpen(newState);
+    
+    // If opened, scroll to the accordion
+    if (newState) {
+      setTimeout(() => {
+        const element = document.getElementById(`accordion-${ebook.id}`);
+        if (element) {
+          // Scrolls with a bit of offset to place at the top
+          window.scrollTo({
+            top: element.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
   };
 
   return (
@@ -57,27 +79,42 @@ export function EbookCardMobile({
           </Button>
         </div>
         
-        <div className="bg-muted/30 p-3 rounded-md w-full">
-          <div className="space-y-1">
-            {ebook.publication_year && (
-              <p className="text-sm text-muted-foreground">
-                Rok publikacji: {ebook.publication_year}
-              </p>
-            )}
-            
-            {ebook.page_count && (
-              <p className="text-sm text-muted-foreground">
-                Liczba stron: {ebook.page_count}
-              </p>
-            )}
-          </div>
+        <Collapsible 
+          open={isOpen} 
+          onOpenChange={setIsOpen}
+          className="w-full" 
+          id={`accordion-${ebook.id}`}
+        >
+          <CollapsibleTrigger 
+            onClick={handleToggleAccordion}
+            className="flex items-center justify-between w-full p-2 bg-muted/30 rounded-t-md border-b"
+          >
+            <span className="font-medium">Szczegóły publikacji</span>
+            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
           
-          {ebook.description && (
-            <p className="text-sm mt-2 whitespace-pre-line">
-              {formatDescription(ebook.description)}
-            </p>
-          )}
-        </div>
+          <CollapsibleContent className="bg-muted/30 p-3 rounded-b-md">
+            <div className="space-y-1">
+              {ebook.publication_year && (
+                <p className="text-sm text-muted-foreground">
+                  Rok publikacji: {ebook.publication_year}
+                </p>
+              )}
+              
+              {ebook.page_count && (
+                <p className="text-sm text-muted-foreground">
+                  Liczba stron: {ebook.page_count}
+                </p>
+              )}
+            </div>
+            
+            {ebook.description && (
+              <p className="text-sm mt-2 whitespace-pre-line">
+                {formatDescription(ebook.description)}
+              </p>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
         
         {adminMode && (
           <div className="flex gap-2 w-full">

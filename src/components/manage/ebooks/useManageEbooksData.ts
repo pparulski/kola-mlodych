@@ -133,6 +133,7 @@ export function useManageEbooksData() {
       }
       
       refetch();
+      // Reset form state after any submission (new or edit)
       setEbookToEdit(null);
       setIsAddingNew(true);
     } catch (error) {
