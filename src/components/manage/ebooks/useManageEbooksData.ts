@@ -88,7 +88,7 @@ export function useManageEbooksData() {
     title: string,
     file_url: string,
     cover_url: string,
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => {
@@ -100,7 +100,7 @@ export function useManageEbooksData() {
           title,
           file_url,
           cover_url,
-          publication_year,
+          ebook_type,
           description,
           page_count,
         });
@@ -109,7 +109,7 @@ export function useManageEbooksData() {
           title,
           file_url,
           cover_url,
-          publication_year,
+          ebook_type,
           description,
           page_count,
         }).eq('id', id);
@@ -122,7 +122,7 @@ export function useManageEbooksData() {
           title,
           file_url,
           cover_url,
-          publication_year,
+          ebook_type,
           description,
           page_count,
           created_by: (await supabase.auth.getUser()).data.user?.id,

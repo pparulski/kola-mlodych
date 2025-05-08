@@ -45,6 +45,21 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_ebooks_publication_year: {
+        Row: {
+          id: string | null
+          publication_year: number | null
+        }
+        Insert: {
+          id?: string | null
+          publication_year?: number | null
+        }
+        Update: {
+          id?: string | null
+          publication_year?: number | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -99,10 +114,10 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          ebook_type: string
           file_url: string
           id: string
           page_count: number | null
-          publication_year: number | null
           title: string
         }
         Insert: {
@@ -110,10 +125,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          ebook_type?: string
           file_url: string
           id?: string
           page_count?: number | null
-          publication_year?: number | null
           title: string
         }
         Update: {
@@ -121,10 +136,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          ebook_type?: string
           file_url?: string
           id?: string
           page_count?: number | null
-          publication_year?: number | null
           title?: string
         }
         Relationships: []

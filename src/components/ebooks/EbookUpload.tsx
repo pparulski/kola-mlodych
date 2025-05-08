@@ -12,7 +12,7 @@ interface EbookUploadProps {
     title: string, 
     file_url: string, 
     cover_url: string, 
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => Promise<void>;
@@ -21,7 +21,7 @@ interface EbookUploadProps {
     title: string, 
     file_url: string, 
     cover_url: string, 
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => Promise<void>;
@@ -35,16 +35,16 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
     title: string,
     file_url: string,
     cover_url: string,
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => {
     if (onUploadSuccess && !id) {
       // For backwards compatibility with Ebooks.tsx
-      return onUploadSuccess(title, file_url, cover_url, publication_year, description, page_count);
+      return onUploadSuccess(title, file_url, cover_url, ebook_type, description, page_count);
     } else {
       // Normal operation with ManageEbooks.tsx
-      return onSubmit(id, title, file_url, cover_url, publication_year, description, page_count);
+      return onSubmit(id, title, file_url, cover_url, ebook_type, description, page_count);
     }
   };
   

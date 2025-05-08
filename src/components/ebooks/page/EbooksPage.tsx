@@ -8,6 +8,7 @@ import { EbookUpload } from "@/components/ebooks/EbookUpload";
 import { EbooksList } from "./EbooksList";
 import { useEbooksData } from "./useEbooksData";
 import { Ebook } from "@/components/ebooks/types";
+import { EbooksAlarmCarousel } from "./EbooksAlarmCarousel";
 
 interface EbooksPageProps {
   adminMode?: boolean;
@@ -16,6 +17,10 @@ interface EbooksPageProps {
 export function EbooksPage({ adminMode = false }: EbooksPageProps) {
   const [showUpload, setShowUpload] = useState(false);
   const { ebooks, isLoading, fetchEbooks } = useEbooksData();
+
+  // Separate ebooks by type
+  const alarmEbooks = ebooks.filter(ebook => ebook.ebook_type === "Alarm");
+  const otherEbooks = ebooks.filter(ebook => ebook.ebook_type !== "Alarm");
 
   const handleDelete = async (id: string) => {
     try {
@@ -74,7 +79,7 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
     title: string, 
     file_url: string, 
     cover_url: string, 
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => {
@@ -83,7 +88,7 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
         title, 
         file_url, 
         cover_url, 
-        publication_year,
+        ebook_type,
         description,
         page_count
       });
@@ -92,7 +97,7 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
         title,
         file_url,
         cover_url,
-        publication_year,
+        ebook_type,
         description,
         page_count,
         created_by: (await supabase.auth.getUser()).data.user?.id,
@@ -114,7 +119,7 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-end">
         {adminMode && (
           <Button 
@@ -133,11 +138,22 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
         />
       )}
 
-      <EbooksList 
-        ebooks={ebooks} 
-        onDelete={adminMode ? handleDelete : undefined}
-        adminMode={adminMode} 
-      />
+      {alarmEbooks.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4">ALARM STUDENCKI!</h2>
+          <EbooksAlarmCarousel ebooks={alarmEbooks} />
+        </div>
+      )}
+
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Publikacje</h2>
+        <EbooksList 
+          ebooks={otherEbooks} 
+          onDelete={adminMode ? handleDelete : undefined}
+          adminMode={adminMode} 
+          showType={true}
+        />
+      </div>
     </div>
   );
 }

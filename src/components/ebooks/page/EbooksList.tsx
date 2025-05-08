@@ -8,9 +8,10 @@ interface EbooksListProps {
   onDelete?: (id: string) => void;
   onEdit?: (ebook: Ebook) => void;
   adminMode?: boolean;
+  showType?: boolean;
 }
 
-export function EbooksList({ ebooks, onDelete, onEdit, adminMode = false }: EbooksListProps) {
+export function EbooksList({ ebooks, onDelete, onEdit, adminMode = false, showType = false }: EbooksListProps) {
   if (ebooks.length === 0) {
     return <EbooksEmptyState adminMode={adminMode} />;
   }
@@ -24,6 +25,7 @@ export function EbooksList({ ebooks, onDelete, onEdit, adminMode = false }: Eboo
           onDelete={onDelete}
           onEdit={onEdit}
           adminMode={adminMode}
+          showType={showType}
         />
       ))}
     </div>

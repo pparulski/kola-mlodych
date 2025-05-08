@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { BookOpenText, BookText, Edit, Info } from "lucide-react";
+import { BookOpenText, BookText, Edit, Info, Tag } from "lucide-react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -13,15 +13,23 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Ebook } from "../types";
+import { Badge } from "@/components/ui/badge";
 
 interface EbookCardDesktopProps {
   ebook: Ebook;
   onDelete?: (id: string) => void;
   onEdit?: (ebook: Ebook) => void;
   adminMode?: boolean;
+  showType?: boolean;
 }
 
-export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }: EbookCardDesktopProps) {
+export function EbookCardDesktop({ 
+  ebook, 
+  onDelete, 
+  onEdit, 
+  adminMode = false,
+  showType = false 
+}: EbookCardDesktopProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   
   const handleOpenPdf = () => {
@@ -94,17 +102,17 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
         <div className="md:w-3/4">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              {showType && (
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <Badge variant="outline">{ebook.ebook_type}</Badge>
+                </div>
+              )}
+              
               {ebook.page_count && (
                 <div className="flex items-center gap-2">
                   <BookText className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
-                </div>
-              )}
-              
-              {ebook.publication_year && (
-                <div className="flex items-center gap-2">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Rok publikacji: {ebook.publication_year}</span>
                 </div>
               )}
             </div>

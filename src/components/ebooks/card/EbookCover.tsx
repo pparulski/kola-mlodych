@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface EbookCoverProps {
   coverUrl?: string;
   title: string;
-  size?: 'small' | 'large';
+  size?: 'small' | 'medium' | 'large';
   onClick?: () => void;
 }
 
@@ -17,13 +17,18 @@ export function EbookCover({ coverUrl, title, size = 'large', onClick }: EbookCo
   
   const dimensions = {
     small: {
-      width: 'w-[220px]',  // Increased from 200px to 220px
-      height: 'h-[280px]', // Increased from 260px to 280px
+      width: 'w-[220px]',
+      height: 'h-[280px]',
       iconSize: 48
+    },
+    medium: {
+      width: 'w-[180px]',
+      height: 'h-[240px]',
+      iconSize: 40
     },
     large: {
       width: 'w-full',
-      height: 'h-[340px]', // Increased from 320px to 340px
+      height: 'h-[340px]',
       iconSize: 64
     }
   };

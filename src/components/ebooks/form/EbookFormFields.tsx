@@ -12,10 +12,16 @@ import {
 } from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import { EbookFormValues } from "./ebookFormSchema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function EbookFormFields() {
   const form = useFormContext<EbookFormValues>();
-  const currentYear = new Date().getFullYear();
   
   // Get character count for description
   const description = form.watch("description") || "";
@@ -45,20 +51,27 @@ export function EbookFormFields() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="publicationYear"
+          name="ebookType"
           render={({ field }) => (
             <FormItem className="space-y-2">
-              <FormLabel>Rok publikacji</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  min="1900"
-                  max={currentYear}
-                  onChange={e => field.onChange(parseInt(e.target.value) || currentYear)}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
-                />
-              </FormControl>
+              <FormLabel>Typ publikacji</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Wybierz typ publikacji" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Książka">Książka</SelectItem>
+                  <SelectItem value="Raport">Raport</SelectItem>
+                  <SelectItem value="Alarm">Alarm</SelectItem>
+                  <SelectItem value="Biuletyn">Biuletyn</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

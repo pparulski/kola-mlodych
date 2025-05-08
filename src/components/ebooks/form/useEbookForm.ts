@@ -11,7 +11,7 @@ type SubmitHandler = (
   title: string,
   file_url: string,
   cover_url: string,
-  publication_year: number,
+  ebook_type: string,
   description?: string,
   page_count?: number
 ) => Promise<void>;
@@ -31,11 +31,11 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
     defaultValues: {
       id: undefined,
       title: "",
-      publicationYear: new Date().getFullYear(),
       pageCount: undefined,
       description: "",
       fileUrl: "",
       coverUrl: "",
+      ebookType: "Książka",
     },
     mode: "onChange"
   });
@@ -48,11 +48,11 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
       form.reset({
         id: ebookToEdit.id,
         title: ebookToEdit.title,
-        publicationYear: ebookToEdit.publication_year || new Date().getFullYear(),
         pageCount: ebookToEdit.page_count,
         description: ebookToEdit.description || "",
         fileUrl: ebookToEdit.file_url,
         coverUrl: ebookToEdit.cover_url || "",
+        ebookType: ebookToEdit.ebook_type || "Książka",
       });
       
       setFileUrl(ebookToEdit.file_url);
@@ -103,30 +103,25 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
         data.title,
         effectiveFileUrl,
         effectiveCoverUrl,
-        data.publicationYear,
+        data.ebookType,
         data.description,
         data.pageCount
       );
       
-      // Reset form after successful submission, regardless of edit mode
-      if (!ebookToEdit) {
-        // If adding a new ebook, reset everything
-        form.reset({
-          id: undefined,
-          title: "",
-          publicationYear: new Date().getFullYear(),
-          pageCount: undefined,
-          description: "",
-          fileUrl: "",
-          coverUrl: "",
-        });
-        
-        setFileUrl("");
-        setCoverUrl("");
-      } else {
-        // If editing, we don't reset the form to allow seeing the changes
-        toast.success("Zmiany zapisane pomyślnie");
-      }
+      // Reset form after successful submission
+      form.reset({
+        id: undefined,
+        title: "",
+        pageCount: undefined,
+        description: "",
+        fileUrl: "",
+        coverUrl: "",
+        ebookType: "Książka",
+      });
+      
+      setFileUrl("");
+      setCoverUrl("");
+      
     } catch (error) {
       console.error("Error submitting ebook:", error);
       toast.error("Wystąpił błąd podczas zapisywania publikacji");

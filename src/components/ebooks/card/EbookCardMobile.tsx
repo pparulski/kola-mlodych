@@ -1,8 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { BookOpenText, Edit, Trash, ChevronDown } from "lucide-react";
+import { BookOpenText, Edit, Trash, ChevronDown, Tag } from "lucide-react";
 import { EbookCover } from "./EbookCover";
 import { EbookDeleteButton } from "./EbookDeleteButton";
+import { Badge } from "@/components/ui/badge";
 import type { Ebook } from "../types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
@@ -12,13 +13,15 @@ interface EbookCardMobileProps {
   onDelete?: (id: string) => void;
   onEdit?: (ebook: Ebook) => void;
   adminMode?: boolean;
+  showType?: boolean;
 }
 
 export function EbookCardMobile({
   ebook,
   onDelete,
   onEdit,
-  adminMode = false
+  adminMode = false,
+  showType = false
 }: EbookCardMobileProps) {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -69,7 +72,7 @@ export function EbookCardMobile({
           onClick={handleOpenPdf} 
         />
         
-        <div className="w-[220px]"> {/* Match the width with the cover (220px) */}
+        <div className="w-[220px]">
           <Button 
             onClick={handleOpenPdf} 
             className="w-full transition-transform hover:scale-105"
@@ -78,6 +81,13 @@ export function EbookCardMobile({
             Czytaj
           </Button>
         </div>
+        
+        {showType && (
+          <div className="flex items-center justify-center gap-2 w-full">
+            <Tag className="h-4 w-4 text-muted-foreground" />
+            <Badge variant="outline">{ebook.ebook_type}</Badge>
+          </div>
+        )}
         
         <Collapsible 
           open={isOpen} 
@@ -95,12 +105,6 @@ export function EbookCardMobile({
           
           <CollapsibleContent className="bg-muted/30 p-3 rounded-b-md">
             <div className="space-y-1">
-              {ebook.publication_year && (
-                <p className="text-sm text-muted-foreground">
-                  Rok publikacji: {ebook.publication_year}
-                </p>
-              )}
-              
               {ebook.page_count && (
                 <p className="text-sm text-muted-foreground">
                   Liczba stron: {ebook.page_count}
