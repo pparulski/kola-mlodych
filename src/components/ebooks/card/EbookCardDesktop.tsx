@@ -39,7 +39,7 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
         <div className="md:w-1/4 flex flex-col items-center">
           {ebook.cover_url ? (
             <div 
-              className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative w-full h-[320px] bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleOpenPdf}
             >
               {!imageLoaded && (
@@ -56,7 +56,7 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
             </div>
           ) : (
             <div 
-              className="w-full h-[280px] bg-muted/30 rounded-md flex items-center justify-center mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="w-full h-[320px] bg-muted/30 rounded-md flex items-center justify-center mb-1 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleOpenPdf}
             >
               <BookOpenText size={64} className="opacity-50" />
