@@ -43,7 +43,7 @@ export const MapContainer = ({
         <div className={cn(
           "w-full md:w-4/5 md:h-full relative rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[70vw]" // Smaller square on mobile
+          isMobile && showMapOnMobile && "h-[80vw]" // 80vw for mobile to maintain square aspect ratio
         )}>
           {/* This inner div maintains square aspect ratio while filling width */}
           <div className="aspect-square w-full h-full">
@@ -51,7 +51,7 @@ export const MapContainer = ({
           </div>
         </div>
         
-        {/* Unions List Section - Now narrower */}
+        {/* Unions List Section */}
         <div className={cn(
           "w-full md:w-1/5 h-full overflow-hidden border rounded-lg",
           isMobile && showMapOnMobile && "hidden"
