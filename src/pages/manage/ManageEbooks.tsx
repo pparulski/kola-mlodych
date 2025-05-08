@@ -39,6 +39,16 @@ export function ManageEbooks() {
     try {
       if (id) {
         // Update existing ebook
+        console.log("Updating ebook with ID:", id);
+        console.log("Update data:", {
+          title,
+          file_url,
+          cover_url,
+          publication_year,
+          description,
+          page_count,
+        });
+
         const { error } = await supabase.from('ebooks').update({
           title,
           file_url,
@@ -153,7 +163,7 @@ export function ManageEbooks() {
         <EbookUpload 
           onSubmit={handleSubmit} 
           ebookToEdit={ebookToEdit}
-          onCancel={!isAddingNew ? handleCancelEdit : undefined}
+          onCancel={handleCancelEdit}
         />
       </div>
 

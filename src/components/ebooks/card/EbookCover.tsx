@@ -17,13 +17,13 @@ export function EbookCover({ coverUrl, title, size = 'large', onClick }: EbookCo
   
   const dimensions = {
     small: {
-      width: 'w-[200px]',  // Increased from 180px to 200px
-      height: 'h-[260px]', // Increased from 240px to 260px
+      width: 'w-[220px]',  // Increased from 200px to 220px
+      height: 'h-[280px]', // Increased from 260px to 280px
       iconSize: 48
     },
     large: {
       width: 'w-full',
-      height: 'h-[300px]', // Increased from 280px to 300px
+      height: 'h-[340px]', // Increased from 320px to 340px
       iconSize: 64
     }
   };

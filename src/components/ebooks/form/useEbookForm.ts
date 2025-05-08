@@ -43,6 +43,8 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
   // Set form data when editing an existing ebook
   useEffect(() => {
     if (ebookToEdit) {
+      console.log("Setting form data for editing:", ebookToEdit);
+      
       form.reset({
         id: ebookToEdit.id,
         title: ebookToEdit.title,
@@ -66,6 +68,10 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
     
     setIsSubmitting(true);
     try {
+      console.log("Submitting form with data:", data);
+      console.log("File URL:", fileUrl);
+      console.log("Cover URL:", coverUrl);
+      
       await onSubmit(
         data.id,
         data.title,
