@@ -11,7 +11,7 @@ interface EbooksFormSectionProps {
     title: string,
     file_url: string,
     cover_url: string,
-    publication_year: number,
+    ebook_type: string,
     description?: string,
     page_count?: number
   ) => Promise<void>;
