@@ -18,8 +18,8 @@ export const UnionsList = ({
   handleCardInteraction 
 }: UnionsListProps) => {
   return (
-    <ScrollArea className="h-full px-1 py-2">
-      <div className="pr-1"> 
+    <ScrollArea className="h-full px-0.5 py-2">
+      <div className="pr-0.5"> 
         {unions?.map((union) => (
           <UnionCard
             key={union.id}

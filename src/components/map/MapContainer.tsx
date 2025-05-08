@@ -41,16 +41,19 @@ export const MapContainer = ({
       )}>
         {/* Map Section - Square aspect ratio preserved */}
         <div className={cn(
-          "w-full md:w-1/2 aspect-square rounded-lg overflow-hidden border",
+          "w-full md:w-4/5 md:h-full relative rounded-lg overflow-hidden border",
           isMobile && !showMapOnMobile && "hidden",
-          isMobile && showMapOnMobile && "h-[70vw] max-h-[calc(100vh-180px)]" // Smaller square on mobile
+          isMobile && showMapOnMobile && "h-[70vw]" // Smaller square on mobile
         )}>
-          {mapComponent}
+          {/* This inner div maintains square aspect ratio while filling width */}
+          <div className="aspect-square w-full h-full">
+            {mapComponent}
+          </div>
         </div>
         
-        {/* Unions List Section - Now wider */}
+        {/* Unions List Section - Now narrower */}
         <div className={cn(
-          "w-full md:w-1/2 h-full overflow-hidden border rounded-lg",
+          "w-full md:w-1/5 h-full overflow-hidden border rounded-lg",
           isMobile && showMapOnMobile && "hidden"
         )}>
           {listComponent}
