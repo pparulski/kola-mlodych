@@ -1,41 +1,23 @@
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
-
-type SortField = "name" | "created_at";
-type SortDirection = "asc" | "desc";
+import { supabase } from "@/integrations/supabase/client";
+import { useDownloadsData } from "@/hooks/useDownloadsData";
+import { DownloadFilesTable } from "@/components/downloads/DownloadFilesTable";
 
 export function ManageDownloads() {
   const [fileUrl, setFileUrl] = useState("");
-  const [sortField, setSortField] = useState<SortField>("created_at");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-
-  const { data: downloads, isLoading, refetch } = useQuery({
-    queryKey: ['downloads'],
-    queryFn: async () => {
-      console.log('Fetching all downloads');
-      const { data, error } = await supabase
-        .from('downloads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
+  const {
+    files,
+    isLoading,
+    sortField,
+    sortDirection,
+    handleDelete,
+    handleSort,
+    fetchFiles
+  } = useDownloadsData();
 
   const handleSubmit = async () => {
     if (!fileUrl) {
@@ -57,59 +39,12 @@ export function ManageDownloads() {
 
       toast.success("Plik dodany pomyślnie");
       setFileUrl("");
-      refetch();
+      fetchFiles();
     } catch (error) {
       console.error('Error adding file:', error);
       toast.error("Nie udało się dodać pliku");
     }
   };
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('downloads')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success("Plik usunięty pomyślnie");
-      refetch();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      toast.error("Nie udało się usunąć pliku");
-    }
-  };
-
-  const handleSort = (field: SortField) => {
-    if (field === sortField) {
-      // Toggle direction if clicking on same field
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      // New field, set default direction
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return null;
-    
-    return sortDirection === "asc" 
-      ? <ArrowUp className="h-4 w-4 inline-flex shrink-0" />
-      : <ArrowDown className="h-4 w-4 inline-flex shrink-0" />;
-  };
-
-  const sortedDownloads = downloads ? [...downloads].sort((a, b) => {
-    if (sortField === "name") {
-      return sortDirection === "asc" 
-        ? a.name.localeCompare(b.name) 
-        : b.name.localeCompare(a.name);
-    } else {
-      return sortDirection === "asc" 
-        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    }
-  }) : [];
 
   if (isLoading) {
     return <div>Wczytywanie...</div>;
@@ -148,50 +83,14 @@ export function ManageDownloads() {
 
       <div>
         <h2 className="text-xl mb-4">Lista plików</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead 
-                className="cursor-pointer"
-                onClick={() => handleSort("name")}
-              >
-                <div className="flex items-center gap-1">
-                  <span>Nazwa</span> 
-                  {getSortIcon("name")}
-                </div>
-              </TableHead>
-              <TableHead 
-                className="cursor-pointer w-[180px]"
-                onClick={() => handleSort("created_at")}
-              >
-                <div className="flex items-center gap-1 whitespace-nowrap">
-                  <span>Data dodania</span> 
-                  {getSortIcon("created_at")}
-                </div>
-              </TableHead>
-              <TableHead>Akcje</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedDownloads.map((file) => (
-              <TableRow key={file.id}>
-                <TableCell>{file.name}</TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {new Date(file.created_at).toLocaleDateString("pl-PL")}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(file.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DownloadFilesTable
+          files={files}
+          adminMode={true}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
