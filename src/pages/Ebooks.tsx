@@ -132,6 +132,21 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     }
   };
 
+  // Handler to match the onSubmit pattern expected by EbookUpload
+  const handleSubmit = async (
+    id: string | undefined,
+    title: string, 
+    file_url: string, 
+    cover_url: string, 
+    publication_year: number,
+    description?: string,
+    page_count?: number
+  ) => {
+    // Simply forward to our existing function, ignoring the id parameter
+    // since we're only adding new ebooks here
+    return handleUploadSuccess(title, file_url, cover_url, publication_year, description, page_count);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -156,7 +171,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       {showUpload && adminMode && (
         <EbookUpload 
-          onUploadSuccess={handleUploadSuccess} 
+          onSubmit={handleSubmit}
           onCancel={() => setShowUpload(false)}
         />
       )}
