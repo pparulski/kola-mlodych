@@ -28,7 +28,7 @@
     --radius: 0.5rem;
     --content-box: 220 10% 97%;
     
-    /* Spacing system - tighter for mobile */
+    /* Spacing system */
     --space-1: 0.25rem;  /* 4px */
     --space-2: 0.5rem;   /* 8px */
     --space-3: 0.75rem;  /* 12px */
@@ -39,12 +39,12 @@
     --space-10: 2.5rem;  /* 40px */
     --space-12: 3rem;    /* 48px */
     
-    /* Component-specific spacing - more compact for mobile */
-    --header-spacing: var(--space-3);       /* 0.75rem/12px */
-    --section-spacing: var(--space-4);      /* 1rem/16px */
-    --component-spacing: var(--space-3);    /* 0.75rem/12px */
-    --element-spacing: var(--space-2);      /* 0.5rem/8px */
-    --container-padding: var(--space-2);    /* 0.5rem/8px */
+    /* Component-specific spacing - mobile-optimized by default */
+    --header-spacing: var(--space-4);       /* 1rem/16px */
+    --section-spacing: var(--space-6);      /* 1.5rem/24px */
+    --component-spacing: var(--space-4);    /* 1rem/16px */
+    --element-spacing: var(--space-3);      /* 0.75rem/12px */
+    --container-padding: var(--space-3);    /* 0.75rem/12px */
   }
 
   .dark {
@@ -73,11 +73,11 @@
 
   @media (min-width: 768px) {
     :root {
-      --header-spacing: var(--space-6);       /* 1.5rem/24px */
+      --header-spacing: var(--space-6);        /* 1.5rem/24px */
       --section-spacing: var(--space-8);      /* 2rem/32px */
-      --component-spacing: var(--space-5);    /* 1.25rem/20px */
+      --component-spacing: var(--space-6);    /* 1.5rem/24px */
       --element-spacing: var(--space-4);      /* 1rem/16px */
-      --container-padding: var(--space-5);    /* 1.25rem/20px */
+      --container-padding: var(--space-5);     /* 1.25rem/20px */
     }
   }
 
@@ -97,12 +97,12 @@
     @apply text-primary hover:text-accent no-underline;
   }
 
-  /* Content containers - widened for mobile */
+  /* Content containers - standardized and mobile optimized */
   .page-container {
-    @apply w-full max-w-[98%] sm:max-w-[94%] md:max-w-4xl mx-auto px-2 md:px-5 !important;
+    @apply w-full max-w-[95%] sm:max-w-[90%] md:max-w-4xl mx-auto px-3 md:px-5;
   }
   
-  /* Ensure these classes don't override page-container */
+  /* Existing containers now using standardized class */
   .container,
   article,
   .article-content,
@@ -112,9 +112,9 @@
     @apply page-container;
   }
 
-  /* Content boxes - more compact padding for mobile */
+  /* Content boxes - standardized and mobile optimized */
   .content-box {
-    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-2 md:p-4 transition-all border border-gray-200 dark:border-gray-800;
+    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-3 md:p-5 transition-all border border-gray-200 dark:border-gray-800;
   }
   
   /* Existing content boxes now using standardized class */
@@ -125,22 +125,22 @@
     @apply content-box;
   }
   
-  /* Spacing utility classes - tighter for mobile */
+  /* Spacing utility classes - mobile optimized */
   .section-spacing {
-    @apply space-y-4 md:space-y-8;
+    @apply space-y-6 md:space-y-8;
   }
   
   .component-spacing {
-    @apply space-y-3 md:space-y-6;
+    @apply space-y-4 md:space-y-6;
   }
   
   .element-spacing {
-    @apply space-y-2 md:space-y-4;
+    @apply space-y-3 md:space-y-4;
   }
   
-  /* Page header spacing - tighter for mobile */
+  /* Page header spacing */
   .page-header {
-    @apply mb-3 md:mb-6;
+    @apply mb-4 md:mb-6;
   }
 
   /* Text elements - keep existing */
@@ -165,52 +165,52 @@
     @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
   }
 
-  /* Keep existing hugerte-content styling with tighter spacing for mobile */
+  /* Keep existing hugerte-content styling with some mobile optimization */
   .hugerte-content {
-    @apply prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none;
+    @apply prose prose-base lg:prose-lg dark:prose-invert max-w-none;
   }
 
-  /* Keep existing HugeRTE elements overrides with tighter spacing */
+  /* Keep existing HugeRTE elements overrides */
   .hugerte-content h1,
   .hugerte-content h2,
   .hugerte-content h3,
   .hugerte-content h4,
   .hugerte-content h5,
   .hugerte-content h6 {
-    @apply font-bold mb-2 md:mb-4 mt-3 md:mt-6 text-foreground;
+    @apply font-bold mb-3 md:mb-4 mt-4 md:mt-6 text-foreground;
   }
 
   .hugerte-content table {
-    @apply border-collapse border border-border my-2 md:my-4 w-full;
+    @apply border-collapse border border-border my-3 md:my-4 w-full;
   }
 
   .hugerte-content th,
   .hugerte-content td {
-    @apply border border-border p-1 md:p-2 text-foreground;
+    @apply border border-border p-2 text-foreground;
   }
 
   .hugerte-content blockquote {
-    @apply border-l-4 border-primary pl-2 md:pl-4 italic my-2 md:my-4;
+    @apply border-l-4 border-primary pl-3 md:pl-4 italic my-3 md:my-4;
   }
 
   .hugerte-content code {
-    @apply bg-muted px-1 py-0.5 rounded text-xs md:text-sm;
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
   }
 
   .hugerte-content pre {
-    @apply bg-muted p-2 md:p-4 rounded-md overflow-x-auto my-2 md:my-4;
+    @apply bg-muted p-3 md:p-4 rounded-md overflow-x-auto my-3 md:my-4;
   }
 
   .hugerte-content img {
-    @apply max-w-full h-auto rounded-md my-2 md:my-4;
+    @apply max-w-full h-auto rounded-md my-3 md:my-4;
   }
 
   .hugerte-content ul {
-    @apply list-disc pl-3 md:pl-5 my-2 md:my-4;
+    @apply list-disc pl-4 md:pl-5 my-3 md:my-4;
   }
 
   .hugerte-content ol {
-    @apply list-decimal pl-3 md:pl-5 my-2 md:my-4;
+    @apply list-decimal pl-4 md:pl-5 my-3 md:my-4;
   }
 }
 
@@ -285,42 +285,21 @@
     @apply text-primary font-bold;
   }
 
-  /* Mobile-optimized form fields - more compact */
+  /* Mobile-optimized form fields */
   .form-input,
   .form-textarea,
   .form-select {
-    @apply px-2 py-1 md:px-3 md:py-2;
+    @apply px-2 py-1.5 md:px-3 md:py-2;
   }
 
-  /* Mobile-optimized buttons - smaller on mobile */
+  /* Mobile-optimized buttons */
   .btn-compact {
-    @apply px-1.5 py-0.5 md:px-4 md:py-2 text-xs md:text-base;
+    @apply px-2 py-1 md:px-4 md:py-2 text-sm md:text-base;
   }
 
-  /* Mobile-optimized grids - tighter gaps */
+  /* Mobile-optimized grids */
   .grid-compact {
-    @apply grid gap-2 md:gap-4;
-  }
-  
-  /* New mobile optimizations */
-  .mobile-tight-text {
-    @apply text-sm md:text-base;
-  }
-  
-  .mobile-tight-card {
-    @apply p-2 md:p-4;
-  }
-  
-  .mobile-tight-margin {
-    @apply m-1 md:m-3;
-  }
-  
-  .mobile-tight-padding {
-    @apply p-1 md:p-3;
-  }
-  
-  .mobile-full-width {
-    @apply w-full max-w-none md:max-w-md;
+    @apply grid gap-3 md:gap-4;
   }
 }
 
