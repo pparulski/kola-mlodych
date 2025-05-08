@@ -15,6 +15,7 @@ interface Ebook {
   created_at: string;
   publication_year?: number;
   description?: string;
+  page_count?: number; // Added page count field
 }
 
 interface EbooksProps {
@@ -32,7 +33,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
   const fetchEbooks = async () => {
     try {
-      console.log("Fetching publikacje...");
+      console.log("Fetching ebooks...");
       const { data, error } = await supabase
         .from("ebooks")
         .select("*")
@@ -40,10 +41,10 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
       if (error) throw error;
 
-      console.log("Publikacje fetched:", data);
+      console.log("Ebooks fetched:", data);
       setEbooks(data || []);
     } catch (error) {
-      console.error("Error fetching publikacje:", error);
+      console.error("Error fetching ebooks:", error);
       toast.error("Nie udało się pobrać publikacji");
     } finally {
       setIsLoading(false);
@@ -107,7 +108,8 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     file_url: string, 
     cover_url: string, 
     publication_year: number,
-    description?: string
+    description?: string,
+    page_count?: number // Added page count parameter
   ) => {
     try {
       console.log("Saving publication metadata:", { 
@@ -115,7 +117,8 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         file_url, 
         cover_url, 
         publication_year,
-        description
+        description,
+        page_count
       });
       
       const { error } = await supabase.from("ebooks").insert({
@@ -124,6 +127,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         cover_url,
         publication_year,
         description,
+        page_count,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
@@ -141,21 +145,19 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="text-lg">Ładowanie...</div>
+        <div className="text-lg animate-pulse">Ładowanie...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookText className="h-6 w-6" />
-          Publikacje
-        </h1>
-        
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-end">
         {adminMode && (
-          <Button onClick={() => setShowUpload(!showUpload)}>
+          <Button 
+            onClick={() => setShowUpload(!showUpload)}
+            className="transition-transform hover:scale-105 duration-200"
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             {showUpload ? "Anuluj" : "Dodaj publikację"}
           </Button>
@@ -167,7 +169,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
       )}
 
       {ebooks.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-6">
           {ebooks.map((ebook) => (
             <EbookCard
               key={ebook.id}
@@ -178,7 +180,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-muted/20 rounded-md border border-dashed">
+        <div className="text-center py-12 bg-muted/20 rounded-md border border-dashed animate-fade-in">
           <BookText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-xl font-medium mb-2">Brak publikacji</h3>
           <p className="text-muted-foreground">

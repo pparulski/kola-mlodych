@@ -27,7 +27,8 @@ export function ManageEbooks() {
     file_url: string,
     cover_url: string,
     publication_year: number,
-    description?: string
+    description?: string,
+    page_count?: number // Added page count parameter
   ) => {
     try {
       const { error } = await supabase.from('ebooks').insert({
@@ -36,6 +37,7 @@ export function ManageEbooks() {
         cover_url,
         publication_year,
         description,
+        page_count,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
@@ -98,11 +100,11 @@ export function ManageEbooks() {
   };
 
   if (isLoading) {
-    return <div>Wczytywanie...</div>;
+    return <div className="animate-pulse text-center py-8">Wczytywanie...</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-8">
+    <div className="max-w-4xl mx-auto p-4 space-y-8 animate-fade-in">
       <h1 className="text-3xl font-bold flex items-center gap-2">
         <BookText className="h-7 w-7" />
         Zarządzaj publikacjami
@@ -117,7 +119,7 @@ export function ManageEbooks() {
         <h2 className="text-xl mb-4">Lista publikacji</h2>
         
         {ebooks && ebooks.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-6">
             {ebooks.map((ebook) => (
               <EbookCard
                 key={ebook.id}

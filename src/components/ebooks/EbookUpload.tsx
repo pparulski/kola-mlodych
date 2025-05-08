@@ -12,7 +12,8 @@ interface EbookUploadProps {
     file_url: string, 
     cover_url: string, 
     publication_year: number,
-    description?: string
+    description?: string,
+    page_count?: number // Added page count parameter
   ) => Promise<void>;
 }
 
@@ -22,6 +23,7 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
   const [coverUrl, setCoverUrl] = useState("");
   const [publicationYear, setPublicationYear] = useState<number>(new Date().getFullYear());
   const [description, setDescription] = useState("");
+  const [pageCount, setPageCount] = useState<number | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -30,11 +32,12 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
     }
     setIsSubmitting(true);
     try {
-      await onUploadSuccess(title, fileUrl, coverUrl, publicationYear, description);
+      await onUploadSuccess(title, fileUrl, coverUrl, publicationYear, description, pageCount);
       setTitle("");
       setFileUrl("");
       setCoverUrl("");
       setDescription("");
+      setPageCount(undefined);
       setPublicationYear(new Date().getFullYear());
     } finally {
       setIsSubmitting(false);
@@ -42,27 +45,44 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
   };
 
   return (
-    <div className="space-y-6 mb-8 bg-card rounded-md p-6 border">
+    <div className="space-y-6 mb-8 bg-card rounded-md p-6 border border-border/50 animate-fade-in">
       <div className="space-y-2">
         <Label htmlFor="title">Tytuł publikacji</Label>
         <Input
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Wprowadź tytuł ebooka"
+          placeholder="Wprowadź tytuł publikacji"
+          className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="year">Rok publikacji</Label>
-        <Input
-          id="year"
-          type="number"
-          min="1900"
-          max={new Date().getFullYear()}
-          value={publicationYear}
-          onChange={(e) => setPublicationYear(parseInt(e.target.value))}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="year">Rok publikacji</Label>
+          <Input
+            id="year"
+            type="number"
+            min="1900"
+            max={new Date().getFullYear()}
+            value={publicationYear}
+            onChange={(e) => setPublicationYear(parseInt(e.target.value))}
+            className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="pageCount">Liczba stron</Label>
+          <Input
+            id="pageCount"
+            type="number"
+            min="1"
+            value={pageCount || ''}
+            onChange={(e) => setPageCount(e.target.value ? parseInt(e.target.value) : undefined)}
+            placeholder="Wprowadź liczbę stron"
+            className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
@@ -73,6 +93,7 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
+          className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
         />
       </div>
 
@@ -115,7 +136,7 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
       <Button 
         onClick={handleSubmit} 
         disabled={!title || !fileUrl || isSubmitting}
-        className="w-full"
+        className="w-full transition-all hover:scale-105 duration-200"
       >
         {isSubmitting ? "Dodawanie..." : "Dodaj publikację"}
       </Button>
