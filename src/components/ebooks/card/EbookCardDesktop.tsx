@@ -31,6 +31,16 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
   // Default placeholder description if none is provided
   const description = ebook.description || "Ta publikacja nie zawiera jeszcze opisu. Kliknij przycisk 'Czytaj', aby przejść do treści.";
 
+  // Function to preserve line breaks in description
+  const formatDescription = (text: string) => {
+    return text.split('\n').map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < text.split('\n').length - 1 && <br />}
+      </span>
+    ));
+  };
+
   return (
     <div className="p-6">
       <h3 className="text-xl font-semibold mb-4 text-center">{ebook.title}</h3>
@@ -100,8 +110,8 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
             </div>
             
             <div className="bg-muted/30 p-4 rounded-md">
-              <p className="text-foreground/90">
-                {description}
+              <p className="text-foreground/90 whitespace-pre-line">
+                {formatDescription(description)}
               </p>
             </div>
           </div>

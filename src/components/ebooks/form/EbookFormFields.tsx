@@ -7,7 +7,8 @@ import {
   FormItem,
   FormControl,
   FormLabel,
-  FormMessage
+  FormMessage,
+  FormDescription
 } from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import { EbookFormValues } from "./ebookFormSchema";
@@ -101,6 +102,9 @@ export function EbookFormFields() {
                 className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
               />
             </FormControl>
+            <FormDescription>
+              Możesz używać enterów do tworzenia akapitów - zostaną one zachowane na stronie publikacji.
+            </FormDescription>
             <div className="text-xs text-right text-muted-foreground">
               {characterCount}/{maxCharacters} znaków
             </div>

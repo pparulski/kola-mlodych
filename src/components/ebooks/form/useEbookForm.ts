@@ -108,8 +108,9 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
         data.pageCount
       );
       
-      // Reset form only if not editing
+      // Reset form after successful submission, regardless of edit mode
       if (!ebookToEdit) {
+        // If adding a new ebook, reset everything
         form.reset({
           id: undefined,
           title: "",
@@ -122,6 +123,9 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
         
         setFileUrl("");
         setCoverUrl("");
+      } else {
+        // If editing, we don't reset the form to allow seeing the changes
+        toast.success("Zmiany zapisane pomyślnie");
       }
     } catch (error) {
       console.error("Error submitting ebook:", error);

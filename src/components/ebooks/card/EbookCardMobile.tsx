@@ -24,6 +24,17 @@ export function EbookCardMobile({
     window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
   };
 
+  // Format text to preserve line breaks
+  const formatDescription = (text: string) => {
+    if (!text) return "";
+    return text.split('\n').map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < text.split('\n').length - 1 && <br />}
+      </span>
+    ));
+  };
+
   return (
     <div className="p-4">
       <h3 className="text-lg font-semibold mb-3 text-center">{ebook.title}</h3>
@@ -62,8 +73,8 @@ export function EbookCardMobile({
           </div>
           
           {ebook.description && (
-            <p className="text-sm mt-2 line-clamp-3">
-              {ebook.description}
+            <p className="text-sm mt-2 whitespace-pre-line">
+              {formatDescription(ebook.description)}
             </p>
           )}
         </div>
