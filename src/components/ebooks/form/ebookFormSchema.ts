@@ -2,6 +2,7 @@
 import { z } from "zod";
 
 export const ebookFormSchema = z.object({
+  id: z.string().optional(),
   title: z.string().min(1, "Tytuł jest wymagany"),
   publicationYear: z.number()
     .int("Rok musi być liczbą całkowitą")

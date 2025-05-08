@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ebookFormSchema, type EbookFormValues } from "./ebookFormSchema";
+import type { Ebook } from "@/components/ebooks/types";
 
 type SubmitHandler = (
+  id: string | undefined,
   title: string,
   file_url: string,
   cover_url: string,
@@ -14,7 +16,12 @@ type SubmitHandler = (
   page_count?: number
 ) => Promise<void>;
 
-export function useEbookForm(onUploadSuccess: SubmitHandler) {
+interface UseEbookFormProps {
+  onSubmit: SubmitHandler;
+  ebookToEdit?: Ebook | null;
+}
+
+export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
   const [fileUrl, setFileUrl] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,6 +29,7 @@ export function useEbookForm(onUploadSuccess: SubmitHandler) {
   const form = useForm<EbookFormValues>({
     resolver: zodResolver(ebookFormSchema),
     defaultValues: {
+      id: undefined,
       title: "",
       publicationYear: new Date().getFullYear(),
       pageCount: undefined,
@@ -32,6 +40,24 @@ export function useEbookForm(onUploadSuccess: SubmitHandler) {
     mode: "onChange"
   });
 
+  // Set form data when editing an existing ebook
+  useEffect(() => {
+    if (ebookToEdit) {
+      form.reset({
+        id: ebookToEdit.id,
+        title: ebookToEdit.title,
+        publicationYear: ebookToEdit.publication_year || new Date().getFullYear(),
+        pageCount: ebookToEdit.page_count,
+        description: ebookToEdit.description || "",
+        fileUrl: ebookToEdit.file_url,
+        coverUrl: ebookToEdit.cover_url || "",
+      });
+      
+      setFileUrl(ebookToEdit.file_url);
+      setCoverUrl(ebookToEdit.cover_url || "");
+    }
+  }, [ebookToEdit, form]);
+
   const handleSubmit = async (data: EbookFormValues) => {
     if (!data.fileUrl) {
       toast.error("Plik PDF jest wymagany");
@@ -40,7 +66,8 @@ export function useEbookForm(onUploadSuccess: SubmitHandler) {
     
     setIsSubmitting(true);
     try {
-      await onUploadSuccess(
+      await onSubmit(
+        data.id,
         data.title,
         data.fileUrl,
         coverUrl,
@@ -49,21 +76,24 @@ export function useEbookForm(onUploadSuccess: SubmitHandler) {
         data.pageCount
       );
       
-      // Reset form
-      form.reset({
-        title: "",
-        publicationYear: new Date().getFullYear(),
-        pageCount: undefined,
-        description: "",
-        fileUrl: "",
-        coverUrl: "",
-      });
-      
-      setFileUrl("");
-      setCoverUrl("");
+      // Reset form only if not editing
+      if (!ebookToEdit) {
+        form.reset({
+          id: undefined,
+          title: "",
+          publicationYear: new Date().getFullYear(),
+          pageCount: undefined,
+          description: "",
+          fileUrl: "",
+          coverUrl: "",
+        });
+        
+        setFileUrl("");
+        setCoverUrl("");
+      }
     } catch (error) {
       console.error("Error submitting ebook:", error);
-      toast.error("Wystąpił błąd podczas dodawania publikacji");
+      toast.error("Wystąpił błąd podczas zapisywania publikacji");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,5 +107,6 @@ export function useEbookForm(onUploadSuccess: SubmitHandler) {
     setCoverUrl,
     isSubmitting,
     handleSubmit,
+    isEditing: !!ebookToEdit,
   };
 }

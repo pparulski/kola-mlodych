@@ -1,13 +1,18 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EbookUpload } from "@/components/ebooks/EbookUpload";
 import { EbookCard } from "@/components/ebooks/EbookCard";
 import { toast } from "sonner";
-import { BookText } from "lucide-react";
+import { BookText, Plus } from "lucide-react";
 import { Ebook } from "@/components/ebooks/types";
+import { Button } from "@/components/ui/button";
 
 export function ManageEbooks() {
+  const [ebookToEdit, setEbookToEdit] = useState<Ebook | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState(true);
+
   const { data: ebooks, isLoading, refetch } = useQuery({
     queryKey: ['ebooks'],
     queryFn: async () => {
@@ -22,32 +27,63 @@ export function ManageEbooks() {
     },
   });
 
-  const handleUploadSuccess = async (
+  const handleSubmit = async (
+    id: string | undefined,
     title: string,
     file_url: string,
     cover_url: string,
     publication_year: number,
     description?: string,
-    page_count?: number // Added page count parameter
+    page_count?: number
   ) => {
     try {
-      const { error } = await supabase.from('ebooks').insert({
-        title,
-        file_url,
-        cover_url,
-        publication_year,
-        description,
-        page_count,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      });
+      if (id) {
+        // Update existing ebook
+        const { error } = await supabase.from('ebooks').update({
+          title,
+          file_url,
+          cover_url,
+          publication_year,
+          description,
+          page_count,
+        }).eq('id', id);
 
-      if (error) throw error;
-      toast.success("Publikacja dodana pomyślnie");
+        if (error) throw error;
+        toast.success("Publikacja zaktualizowana pomyślnie");
+      } else {
+        // Add new ebook
+        const { error } = await supabase.from('ebooks').insert({
+          title,
+          file_url,
+          cover_url,
+          publication_year,
+          description,
+          page_count,
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+        });
+
+        if (error) throw error;
+        toast.success("Publikacja dodana pomyślnie");
+      }
+      
       refetch();
+      setEbookToEdit(null);
+      setIsAddingNew(true);
     } catch (error) {
-      console.error('Error adding ebook:', error);
-      toast.error("Nie udało się dodać publikacji");
+      console.error('Error saving ebook:', error);
+      toast.error("Nie udało się zapisać publikacji");
     }
+  };
+
+  const handleEdit = (ebook: Ebook) => {
+    setEbookToEdit(ebook);
+    setIsAddingNew(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEbookToEdit(null);
+    setIsAddingNew(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -111,8 +147,14 @@ export function ManageEbooks() {
       </h1>
       
       <div>
-        <h2 className="text-xl mb-4">Dodaj nową publikację</h2>
-        <EbookUpload onUploadSuccess={handleUploadSuccess} />
+        <h2 className="text-xl mb-4">
+          {isAddingNew ? "Dodaj nową publikację" : "Edytuj publikację"}
+        </h2>
+        <EbookUpload 
+          onSubmit={handleSubmit} 
+          ebookToEdit={ebookToEdit}
+          onCancel={!isAddingNew ? handleCancelEdit : undefined}
+        />
       </div>
 
       <div>
@@ -125,6 +167,7 @@ export function ManageEbooks() {
                 key={ebook.id}
                 ebook={ebook}
                 onDelete={handleDelete}
+                onEdit={() => handleEdit(ebook)}
                 adminMode={true}
               />
             ))}
