@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, BookText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { EbookCard } from "@/components/ebooks/EbookCard";
@@ -13,6 +14,7 @@ interface Ebook {
   cover_url?: string;
   created_at: string;
   publication_year?: number;
+  description?: string;
 }
 
 interface EbooksProps {
@@ -104,14 +106,16 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
     title: string, 
     file_url: string, 
     cover_url: string, 
-    publication_year: number
+    publication_year: number,
+    description?: string
   ) => {
     try {
       console.log("Saving publication metadata:", { 
         title, 
         file_url, 
         cover_url, 
-        publication_year 
+        publication_year,
+        description
       });
       
       const { error } = await supabase.from("ebooks").insert({
@@ -119,6 +123,7 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
         file_url,
         cover_url,
         publication_year,
+        description,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
@@ -143,31 +148,44 @@ export default function Ebooks({ adminMode = false }: EbooksProps) {
 
   return (
     <div className="space-y-6">
-      {adminMode && (
-        <Button onClick={() => setShowUpload(!showUpload)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {showUpload ? "Anuluj" : "Dodaj publikację"}
-        </Button>
-      )}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <BookText className="h-6 w-6" />
+          Publikacje
+        </h1>
+        
+        {adminMode && (
+          <Button onClick={() => setShowUpload(!showUpload)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            {showUpload ? "Anuluj" : "Dodaj publikację"}
+          </Button>
+        )}
+      </div>
 
       {showUpload && adminMode && (
         <EbookUpload onUploadSuccess={handleUploadSuccess} />
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {ebooks.map((ebook) => (
-          <EbookCard
-            key={ebook.id}
-            ebook={ebook}
-            onDelete={handleDelete}
-            adminMode={adminMode}
-          />
-        ))}
-      </div>
-
-      {ebooks.length === 0 && (
-        <div className="text-center text-muted-foreground mt-8">
-          Brak publikacji
+      {ebooks.length > 0 ? (
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {ebooks.map((ebook) => (
+            <EbookCard
+              key={ebook.id}
+              ebook={ebook}
+              onDelete={handleDelete}
+              adminMode={adminMode}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-muted/20 rounded-md border border-dashed">
+          <BookText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-medium mb-2">Brak publikacji</h3>
+          <p className="text-muted-foreground">
+            {adminMode 
+              ? "Kliknij przycisk 'Dodaj publikację', aby dodać nową pozycję." 
+              : "W tej chwili nie ma żadnych publikacji do wyświetlenia."}
+          </p>
         </div>
       )}
     </div>

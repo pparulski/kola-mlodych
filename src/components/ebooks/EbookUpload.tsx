@@ -1,11 +1,19 @@
+
 import { useState } from "react";
 import { FileUpload } from "@/components/FileUpload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface EbookUploadProps {
-  onUploadSuccess: (title: string, file_url: string, cover_url: string, publication_year: number) => Promise<void>;
+  onUploadSuccess: (
+    title: string, 
+    file_url: string, 
+    cover_url: string, 
+    publication_year: number,
+    description?: string
+  ) => Promise<void>;
 }
 
 export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
@@ -13,18 +21,20 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
   const [fileUrl, setFileUrl] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [publicationYear, setPublicationYear] = useState<number>(new Date().getFullYear());
+  const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!title || !fileUrl || !coverUrl) {
+    if (!title || !fileUrl) {
       return;
     }
     setIsSubmitting(true);
     try {
-      await onUploadSuccess(title, fileUrl, coverUrl, publicationYear);
+      await onUploadSuccess(title, fileUrl, coverUrl, publicationYear, description);
       setTitle("");
       setFileUrl("");
       setCoverUrl("");
+      setDescription("");
       setPublicationYear(new Date().getFullYear());
     } finally {
       setIsSubmitting(false);
@@ -32,9 +42,9 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
   };
 
   return (
-    <div className="space-y-6 mb-8">
+    <div className="space-y-6 mb-8 bg-card rounded-md p-6 border">
       <div className="space-y-2">
-        <Label htmlFor="title">Tytuł</Label>
+        <Label htmlFor="title">Tytuł publikacji</Label>
         <Input
           id="title"
           value={title}
@@ -52,6 +62,17 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
           max={new Date().getFullYear()}
           value={publicationYear}
           onChange={(e) => setPublicationYear(parseInt(e.target.value))}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="description">Opis publikacji</Label>
+        <Textarea
+          id="description"
+          placeholder="Wprowadź krótki opis publikacji..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
         />
       </div>
 
@@ -93,10 +114,10 @@ export function EbookUpload({ onUploadSuccess }: EbookUploadProps) {
 
       <Button 
         onClick={handleSubmit} 
-        disabled={!title || !fileUrl || !coverUrl || isSubmitting}
+        disabled={!title || !fileUrl || isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? "Dodawanie..." : "Dodaj ebooka"}
+        {isSubmitting ? "Dodawanie..." : "Dodaj publikację"}
       </Button>
     </div>
   );
