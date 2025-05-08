@@ -73,6 +73,7 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
             setFileUrl={setFileUrl}
             label="Plik PDF"
             acceptedFileTypes=".pdf"
+            fieldName="fileUrl"
           />
 
           <EbookFileUpload 
@@ -81,6 +82,7 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
             label="Okładka"
             acceptedFileTypes="image/*"
             showPreview={true}
+            fieldName="coverUrl"
           />
 
           <Button 

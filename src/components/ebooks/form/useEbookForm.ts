@@ -60,23 +60,39 @@ export function useEbookForm({ onSubmit, ebookToEdit }: UseEbookFormProps) {
     }
   }, [ebookToEdit, form]);
 
+  // Track changes in fileUrl and coverUrl to update form
+  useEffect(() => {
+    if (fileUrl) {
+      form.setValue("fileUrl", fileUrl, { shouldValidate: true });
+    }
+  }, [fileUrl, form]);
+
+  useEffect(() => {
+    if (coverUrl) {
+      form.setValue("coverUrl", coverUrl, { shouldValidate: true });
+    }
+  }, [coverUrl, form]);
+
   const handleSubmit = async (data: EbookFormValues) => {
-    if (!data.fileUrl) {
+    if (!fileUrl && !data.fileUrl) {
       toast.error("Plik PDF jest wymagany");
       return;
     }
     
+    const effectiveFileUrl = data.fileUrl || fileUrl;
+    const effectiveCoverUrl = data.coverUrl || coverUrl;
+    
     setIsSubmitting(true);
     try {
       console.log("Submitting form with data:", data);
-      console.log("File URL:", fileUrl);
-      console.log("Cover URL:", coverUrl);
+      console.log("File URL:", effectiveFileUrl);
+      console.log("Cover URL:", effectiveCoverUrl);
       
       await onSubmit(
         data.id,
         data.title,
-        data.fileUrl,
-        coverUrl,
+        effectiveFileUrl,
+        effectiveCoverUrl,
         data.publicationYear,
         data.description,
         data.pageCount

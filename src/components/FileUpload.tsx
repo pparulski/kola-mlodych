@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
@@ -41,13 +40,23 @@ export function FileUpload({
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
-      // Sanitize the filename by removing non-ASCII characters
-      const sanitizedFilename = file.name.replace(/[^\x00-\x7F]/g, '');
+      // Keep original filename but sanitize by removing non-ASCII characters if present
+      let filename = file.name;
+      const sanitizedFilename = filename.replace(/[^\x00-\x7F]/g, '');
+      
+      // Ensure the filename is unique by adding a timestamp if needed
+      const timestamp = new Date().getTime();
+      const fileExt = filename.split('.').pop();
+      const baseName = filename.replace(`.${fileExt}`, '');
+      // Only add timestamp if there are sanitized characters (filename changed)
+      if (sanitizedFilename !== filename) {
+        filename = `${baseName}_${timestamp}.${fileExt}`;
+      }
       
       // Upload file to storage using original filename
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(sanitizedFilename, file, { upsert: true });
+        .upload(filename, file, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -58,13 +67,13 @@ export function FileUpload({
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(sanitizedFilename);
+        .getPublicUrl(filename);
 
       console.log("Public URL generated:", publicUrl);
       
       // Support both callback styles
       if (onSuccess) {
-        onSuccess(sanitizedFilename, publicUrl);
+        onSuccess(filename, publicUrl);
       }
       
       if (onUpload) {
