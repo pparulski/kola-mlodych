@@ -56,11 +56,11 @@ export function DownloadFilesTable({
               field="created_at"
               currentSortField={sortField}
               sortDirection={sortDirection}
-              label="Data dodania"
+              label="Dodano"
               className="text-white hover:bg-transparent w-[180px]"
               onSort={onSort}
             />
-            <TableHeader className="text-white hover:bg-transparent">Akcje</TableHeader>
+            <TableHeader className="text-white hover:bg-transparent text-center">Akcje</TableHeader>
           </TableRow>
         </TableHeader>
         <TableBody className="bg-background">

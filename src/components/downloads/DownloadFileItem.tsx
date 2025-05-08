@@ -23,8 +23,8 @@ export function DownloadFileItem({ file, adminMode = false, onDelete }: Download
       <TableCell className="whitespace-nowrap">
         {new Date(file.created_at).toLocaleDateString("pl-PL")}
       </TableCell>
-      <TableCell>
-        <div className="flex md:justify-end justify-center gap-2 flex-wrap">
+      <TableCell className="text-center">
+        <div className="flex md:justify-center justify-center gap-2 flex-wrap">
           <Button variant="outline" asChild size="sm">
             <a href={file.url} target="_blank" rel="noopener noreferrer">
               <Download className="h-4 w-4" />
