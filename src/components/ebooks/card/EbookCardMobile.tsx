@@ -82,13 +82,6 @@ export function EbookCardMobile({
           </Button>
         </div>
         
-        {showType && (
-          <div className="flex items-center gap-2 w-full">
-            <Tag className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Typ: {ebook.ebook_type}</span>
-          </div>
-        )}
-        
         <Collapsible 
           open={isOpen} 
           onOpenChange={setIsOpen}
@@ -109,6 +102,13 @@ export function EbookCardMobile({
                 <div className="flex items-center gap-2">
                   <BookText className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Liczba stron: {ebook.page_count}</span>
+                </div>
+              )}
+              
+              {showType && (
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{ebook.ebook_type}</span>
                 </div>
               )}
             </div>

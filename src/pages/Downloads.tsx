@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Download, Trash2 } from "lucide-react";
+import { PlusCircle, Download, Trash2, ArrowDown, ArrowUp } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,10 +25,15 @@ interface DownloadsProps {
   adminMode?: boolean;
 }
 
+type SortField = "name" | "created_at";
+type SortDirection = "asc" | "desc";
+
 const Downloads = ({ adminMode = false }: DownloadsProps) => {
   const [files, setFiles] = useState<DownloadItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [sortField, setSortField] = useState<SortField>("created_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   useEffect(() => {
     fetchFiles();
@@ -95,8 +101,11 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
 
   const handleUploadSuccess = async (name: string, url: string) => {
     try {
+      // Use the uploaded filename as the display name
+      const filename = url.split('/').pop() || name;
+      
       const { error } = await supabase.from("downloads").insert({
-        name,
+        name: filename,
         url,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
@@ -105,10 +114,42 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
       
       fetchFiles();
       setShowUpload(false);
+      toast.success("Plik został dodany");
     } catch (error) {
       console.error("Error saving file metadata:", error);
-      toast.error("Failed to save file information");
+      toast.error("Nie udało się zapisać informacji o pliku");
     }
+  };
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // Toggle direction if clicking on same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New field, set default direction
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedFiles = [...files].sort((a, b) => {
+    if (sortField === "name") {
+      return sortDirection === "asc" 
+        ? a.name.localeCompare(b.name) 
+        : b.name.localeCompare(a.name);
+    } else {
+      return sortDirection === "asc" 
+        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return null;
+    
+    return sortDirection === "asc" 
+      ? <ArrowUp className="h-4 w-4 inline ml-1" />
+      : <ArrowDown className="h-4 w-4 inline ml-1" />;
   };
 
   if (isLoading) {
@@ -133,6 +174,8 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
           <FileUpload
             bucket="downloads"
             onSuccess={handleUploadSuccess}
+            acceptedFileTypes="*/*"
+            uploadId="downloads-main"
           />
         </div>
       )}
@@ -141,13 +184,23 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         <Table>
           <TableHeader className="bg-secondary">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-white hover:bg-transparent">Nazwa pliku</TableHead>
-              <TableHead className="text-white hover:bg-transparent">Data dodania</TableHead>
+              <TableHead 
+                className="text-white hover:bg-transparent cursor-pointer"
+                onClick={() => handleSort("name")}
+              >
+                Nazwa pliku {getSortIcon("name")}
+              </TableHead>
+              <TableHead 
+                className="text-white hover:bg-transparent cursor-pointer"
+                onClick={() => handleSort("created_at")}
+              >
+                Data dodania {getSortIcon("created_at")}
+              </TableHead>
               <TableHead className="text-white hover:bg-transparent">Akcje</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-background">
-            {files.map((file) => (
+            {sortedFiles.map((file) => (
               <TableRow key={file.id} className="hover:bg-transparent">
                 <TableCell>{file.name}</TableCell>
                 <TableCell>
