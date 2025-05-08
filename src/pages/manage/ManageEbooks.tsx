@@ -3,6 +3,7 @@ import { BookText } from "lucide-react";
 import { useManageEbooksData } from "@/components/manage/ebooks/useManageEbooksData";
 import { EbooksFormSection } from "@/components/manage/ebooks/EbooksFormSection";
 import { EbooksListSection } from "@/components/manage/ebooks/EbooksListSection";
+import { LoadingIndicator } from "@/components/home/LoadingIndicator";
 
 export function ManageEbooks() {
   const {
@@ -17,7 +18,7 @@ export function ManageEbooks() {
   } = useManageEbooksData();
 
   if (isLoading) {
-    return <div className="animate-pulse text-center py-8">Wczytywanie...</div>;
+    return <LoadingIndicator />;
   }
 
   return (
