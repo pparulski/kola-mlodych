@@ -34,11 +34,14 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
 
   return (
     <div className="p-4">
-      <h3 className="text-lg font-semibold mb-4 text-center">{ebook.title}</h3>
+      <h3 className="text-lg font-semibold mb-3 text-center">{ebook.title}</h3>
       
-      <div className="flex justify-center mb-2">
+      <div className="flex justify-center mb-1">
         {ebook.cover_url ? (
-          <div className="relative w-[140px] h-[180px] bg-muted/20 rounded-md overflow-hidden">
+          <div 
+            className="relative w-[140px] h-[180px] bg-muted/20 rounded-md overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={handleOpenPdf}
+          >
             {!imageLoaded && (
               <Skeleton className="h-full w-full absolute inset-0" />
             )}
@@ -52,13 +55,16 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
             />
           </div>
         ) : (
-          <div className="w-[140px] h-[180px] bg-muted/30 rounded-md flex items-center justify-center">
+          <div 
+            className="w-[140px] h-[180px] bg-muted/30 rounded-md flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={handleOpenPdf}
+          >
             <BookOpenText size={48} className="opacity-50" />
           </div>
         )}
       </div>
 
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mt-2 mb-3">
         <Button onClick={handleOpenPdf} className="w-full max-w-[140px] transition-transform hover:scale-105">
           <BookOpenText className="mr-2 h-4 w-4" />
           Czytaj
@@ -86,7 +92,7 @@ export function EbookCardMobile({ ebook, onDelete, onEdit, adminMode = false }: 
                 </div>
               )}
               
-              <div className="mt-3 bg-muted/10 p-3 rounded-md">
+              <div className="mt-3 bg-muted/30 p-3 rounded-md">
                 <p className="text-foreground/90">{description}</p>
               </div>
             </div>

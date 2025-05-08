@@ -33,12 +33,15 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
 
   return (
     <div className="p-6">
-      <h3 className="text-xl font-semibold mb-6 text-center">{ebook.title}</h3>
+      <h3 className="text-xl font-semibold mb-4 text-center">{ebook.title}</h3>
       
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-1/4 flex flex-col items-center">
           {ebook.cover_url ? (
-            <div className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-2">
+            <div 
+              className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={handleOpenPdf}
+            >
               {!imageLoaded && (
                 <Skeleton className="h-full w-full absolute inset-0" />
               )}
@@ -52,7 +55,10 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
               />
             </div>
           ) : (
-            <div className="w-full h-[280px] bg-muted/30 rounded-md flex items-center justify-center mb-2">
+            <div 
+              className="w-full h-[280px] bg-muted/30 rounded-md flex items-center justify-center mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={handleOpenPdf}
+            >
               <BookOpenText size={64} className="opacity-50" />
             </div>
           )}
@@ -62,7 +68,7 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
               <TooltipTrigger asChild>
                 <Button 
                   onClick={handleOpenPdf} 
-                  className="w-full transition-transform hover:scale-105"
+                  className="w-full transition-transform hover:scale-105 mt-2"
                 >
                   <BookOpenText className="mr-2 h-4 w-4" />
                   Czytaj
@@ -93,7 +99,7 @@ export function EbookCardDesktop({ ebook, onDelete, onEdit, adminMode = false }:
               )}
             </div>
             
-            <div className="bg-muted/10 p-4 rounded-md">
+            <div className="bg-muted/30 p-4 rounded-md">
               <p className="text-foreground/90">
                 {description}
               </p>

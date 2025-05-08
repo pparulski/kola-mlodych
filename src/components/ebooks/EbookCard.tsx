@@ -17,7 +17,7 @@ export function EbookCard({ ebook, onDelete, onEdit, adminMode = false }: EbookC
   const isMobile = useIsMobile();
   
   return (
-    <Card className="w-full mb-6 hover:shadow-md transition-all duration-300 animate-fade-in bg-card border border-border/50">
+    <Card className="w-full mb-6 hover:shadow-md transition-all duration-300 animate-fade-in bg-[hsl(var(--content-box))] border border-border/50">
       {isMobile ? (
         <EbookCardMobile ebook={ebook} onDelete={onDelete} onEdit={onEdit} adminMode={adminMode} />
       ) : (

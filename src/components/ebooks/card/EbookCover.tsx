@@ -9,9 +9,10 @@ interface EbookCoverProps {
   coverUrl?: string;
   title: string;
   size?: 'small' | 'large';
+  onClick?: () => void;
 }
 
-export function EbookCover({ coverUrl, title, size = 'large' }: EbookCoverProps) {
+export function EbookCover({ coverUrl, title, size = 'large', onClick }: EbookCoverProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   
   const dimensions = {
@@ -31,7 +32,10 @@ export function EbookCover({ coverUrl, title, size = 'large' }: EbookCoverProps)
   
   if (coverUrl) {
     return (
-      <div className={`relative ${width} ${height} bg-muted/20 rounded-md overflow-hidden`}>
+      <div 
+        className={`relative ${width} ${height} bg-muted/20 rounded-md overflow-hidden cursor-pointer hover:opacity-90 transition-opacity`}
+        onClick={onClick}
+      >
         {!imageLoaded && (
           <Skeleton className="h-full w-full absolute inset-0" />
         )}
@@ -48,7 +52,10 @@ export function EbookCover({ coverUrl, title, size = 'large' }: EbookCoverProps)
   }
   
   return (
-    <div className={`${width} ${height} bg-muted/30 rounded-md flex items-center justify-center`}>
+    <div 
+      className={`${width} ${height} bg-muted/30 rounded-md flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity`}
+      onClick={onClick}
+    >
       <BookOpenText size={iconSize} className="opacity-50" />
     </div>
   );
