@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import LoginForm from "@/components/auth/LoginForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SEO } from "@/components/seo/SEO";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -38,21 +37,14 @@ export default function Auth() {
   });
 
   return (
-    <div className="page-container element-spacing mt-4">
-      <SEO 
-        title="Panel administratora" 
-        description="Panel logowania do systemu administracyjnego Kół Młodych Inicjatywy Pracowniczej"
-      />
+    <Card className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-lg mt-16">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">Panel administratora</CardTitle>
+      </CardHeader>
       
-      <Card className="content-box max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Panel administratora</CardTitle>
-        </CardHeader>
-        
-        <CardContent>
-          <LoginForm ipAddress={ipData} />
-        </CardContent>
-      </Card>
-    </div>
+      <CardContent>
+        <LoginForm ipAddress={ipData} />
+      </CardContent>
+    </Card>
   );
 }

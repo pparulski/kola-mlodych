@@ -10,28 +10,26 @@ export function PageLayout() {
   const { data: categories } = useCategories();
 
   return (
-    <div className="flex-1 p-3 md:p-4 relative">
-      <div className="page-container">
-        <header className="page-header">
-          <PageHeader 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            categories={categories}
-          />
-        </header>
-
-        <CategorySection 
-          isHomePage={isHomePage}
+    <div className="flex-1 p-4 md:p-6 relative">
+      <div className="w-full">
+        <PageHeader 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           categories={categories}
         />
+      </div>
 
-        <main className="section-spacing">
-          <Outlet context={{ searchQuery, selectedCategories }} />
-        </main>
+      <CategorySection 
+        isHomePage={isHomePage}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+        categories={categories}
+      />
+
+      <div className="max-w-4xl mx-auto">
+        <Outlet context={{ searchQuery, selectedCategories }} />
       </div>
     </div>
   );

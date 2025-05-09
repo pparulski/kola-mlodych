@@ -7,7 +7,6 @@ import { StaticPageEditor } from "@/components/static/StaticPageEditor";
 import { StaticPageList } from "@/components/manage/StaticPageList";
 import type { StaticPage } from "@/types/staticPages";
 import { toast } from "sonner";
-import { SEO } from "@/components/seo/SEO";
 
 export function ManagePages() {
   const [isCreating, setIsCreating] = useState(false);
@@ -88,70 +87,54 @@ export function ManagePages() {
   if (error) {
     console.error("Error loading pages:", error);
     return (
-      <div className="page-container mt-4">
-        <SEO 
-          title="Błąd" 
-          description="Wystąpił błąd podczas ładowania stron" 
-        />
-        
-        <div className="p-4 bg-destructive/10 border border-destructive text-destructive rounded-md">
-          <p>Wystąpił błąd podczas ładowania stron: {String(error)}</p>
-          <Button 
-            onClick={() => refetch()}
-            variant="outline"
-            className="mt-2"
-          >
-            Spróbuj ponownie
-          </Button>
-        </div>
+      <div className="p-4 bg-destructive/10 border border-destructive text-destructive rounded-md">
+        <p>Wystąpił błąd podczas ładowania stron: {String(error)}</p>
+        <Button 
+          onClick={() => refetch()}
+          variant="outline"
+          className="mt-2"
+        >
+          Spróbuj ponownie
+        </Button>
       </div>
     );
   }
 
   if (isLoading) {
+    return <div className="p-4">Ładowanie stron...</div>;
+  }
+
+  if (isCreating || editingPage) {
     return (
-      <div className="page-container component-spacing mt-4">
-        <div className="p-4">Ładowanie stron...</div>
+      <div className="space-y-4">
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            setIsCreating(false);
+            setEditingPage(null);
+          }}
+        >
+          Wróć do listy
+        </Button>
+        <StaticPageEditor
+          existingPage={editingPage || undefined}
+          onSuccess={() => {
+            setIsCreating(false);
+            setEditingPage(null);
+            queryClient.invalidateQueries({ queryKey: ['static-pages'] });
+            queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
+          }}
+        />
       </div>
     );
   }
 
   return (
-    <div className="page-container section-spacing mt-4">
-      <SEO 
-        title="Zarządzaj stronami" 
-        description="Panel administracyjny do zarządzania stronami statycznymi"
-      />
-      
-      {isCreating || editingPage ? (
-        <div className="space-y-4">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setIsCreating(false);
-              setEditingPage(null);
-            }}
-          >
-            Wróć do listy
-          </Button>
-          <StaticPageEditor
-            existingPage={editingPage || undefined}
-            onSuccess={() => {
-              setIsCreating(false);
-              setEditingPage(null);
-              queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-              queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
-            }}
-          />
-        </div>
-      ) : (
-        <StaticPageList
-          pages={pages || []}
-          onCreateNew={() => setIsCreating(true)}
-          onEdit={setEditingPage}
-          onDelete={handleDelete}
-        />
-      )}
-    </div>
+    <StaticPageList
+      pages={pages || []}
+      onCreateNew={() => setIsCreating(true)}
+      onEdit={setEditingPage}
+      onDelete={handleDelete}
+    />
   );
 }
