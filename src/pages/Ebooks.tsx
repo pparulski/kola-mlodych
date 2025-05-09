@@ -6,5 +6,9 @@ interface EbooksProps {
 }
 
 export default function Ebooks({ adminMode = false }: EbooksProps) {
-  return <EbooksPage adminMode={adminMode} />;
+  return (
+    <div className="animate-enter">
+      <EbooksPage adminMode={adminMode} />
+    </div>
+  );
 }

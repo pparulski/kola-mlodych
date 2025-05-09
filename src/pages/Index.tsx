@@ -19,7 +19,9 @@ const Index = memo(function Index() {
         description="Koła Młodych OZZ Inicjatywy Pracowniczej - najnowsze informacje i aktualności dotyczące działalności młodzieżowych struktur związku zawodowego."
         keywords="związek zawodowy, aktualności, młodzi pracownicy, inicjatywa pracownicza"
       />
-      <IndexContent searchQuery={searchQuery} selectedCategories={selectedCategories} />
+      <div className="animate-enter">
+        <IndexContent searchQuery={searchQuery} selectedCategories={selectedCategories} />
+      </div>
     </>
   );
 });

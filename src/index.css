@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,34 +21,44 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 70%;
+    --border: 240 5.9% 85%;
     --input: 240 5.9% 90%;
     --ring: 345 100% 25%;
     --radius: 0.5rem;
-    --content-box: 220 10% 97%;
+    --content-box: 220 33% 98%;
+    
+    /* Shadow variables for consistent depth */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
     --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
     --primary: 345 100% 25%;
     --primary-foreground: 0 0% 100%;
     --secondary: 345 100% 15%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 10%;
+    --muted: 0 0% 12%;
     --muted-foreground: 0 0% 80%;
     --accent: 345 100% 18%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 0 0% 25%;
+    --input: 0 0% 18%;
     --ring: 345 100% 25%;
-    --content-box: 0 0% 12%;
+    --content-box: 0 0% 14%;
+    
+    /* Dark mode shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2);
   }
 
   * {
@@ -57,13 +68,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  :focus-visible {
+    @apply outline-primary/70 outline-offset-2 ring-2 ring-primary/30;
+  }
 }
 
 /* Typography styles */
 @layer components {
   /* Links in articles */
   article a {
-    @apply text-primary hover:text-accent no-underline;
+    @apply text-primary hover:text-accent no-underline transition-colors;
   }
 
   /* Content containers */
@@ -76,13 +91,23 @@
     @apply w-full max-w-4xl mx-auto px-4;
   }
 
-  /* Content boxes */
+  /* Content boxes with enhanced styling */
   .content-box,
   .news-card,
   .ebook-card,
   .download-item,
   .category-feed-item {
-    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg shadow-sm p-4 transition-all border border-gray-200 dark:border-gray-800;
+    @apply bg-[hsl(var(--content-box))] backdrop-blur-sm rounded-lg 
+           border border-border/80 transition-all duration-200
+           shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] 
+           hover:border-border p-4;
+  }
+
+  /* Interactive cards with subtle hover effect */
+  .news-card,
+  .ebook-card,
+  .category-feed-item {
+    @apply hover:translate-y-[-2px];
   }
 
   /* Text elements */
@@ -102,9 +127,11 @@
     @apply text-foreground;
   }
 
-  /* Category pill styling */
+  /* Category pill styling with improved contrast */
   .category-pill {
-    @apply inline-flex items-center text-xs px-2 py-1 rounded-full bg-secondary/20 text-secondary-foreground;
+    @apply inline-flex items-center text-xs px-2 py-1 rounded-full 
+           bg-secondary/30 text-secondary-foreground font-medium
+           border border-secondary/20 shadow-sm;
   }
 
   /* HugeRTE content styling */
@@ -132,7 +159,7 @@
   }
 
   .hugerte-content blockquote {
-    @apply border-l-4 border-primary pl-4 italic my-4;
+    @apply border-l-4 border-primary pl-4 italic my-4 bg-muted/50 py-2 rounded-r;
   }
 
   .hugerte-content code {
@@ -140,11 +167,11 @@
   }
 
   .hugerte-content pre {
-    @apply bg-muted p-4 rounded-md overflow-x-auto my-4;
+    @apply bg-muted p-4 rounded-md overflow-x-auto my-4 border border-border/50;
   }
 
   .hugerte-content img {
-    @apply max-w-full h-auto rounded-md my-4;
+    @apply max-w-full h-auto rounded-md my-4 shadow-md;
   }
 
   .hugerte-content ul {
@@ -154,18 +181,71 @@
   .hugerte-content ol {
     @apply list-decimal pl-5 my-4;
   }
+  
+  /* Table styles with improved readability */
+  .table-zebra tbody tr:nth-child(odd) {
+    @apply bg-muted/30;
+  }
+
+  .dark .table-zebra tbody tr:nth-child(odd) {
+    @apply bg-muted/20;
+  }
+
+  /* Separated list items */
+  .list-separated > li {
+    @apply border-b border-border/50 last:border-0 py-2;
+  }
+  
+  /* Button enhancements */
+  .btn-outline {
+    @apply border-border;
+  }
+  
+  .dark .btn-outline {
+    @apply border-border/80;
+  }
 }
 
 /* Theme-specific styles */
 @layer utilities {
+  /* Gradient accents for visual interest */
+  .accent-gradient-light {
+    @apply bg-gradient-to-br from-primary/5 to-primary/10;
+  }
+
+  .accent-gradient-dark {
+    @apply bg-gradient-to-br from-primary/20 to-primary/30;
+  }
+
+  .dark .accent-gradient-light {
+    @apply bg-gradient-to-br from-primary/10 to-primary/20;
+  }
+
+  .dark .accent-gradient-dark {
+    @apply bg-gradient-to-br from-primary/25 to-primary/40;
+  }
+  
+  /* Shadow utilities for consistent depth */
+  .shadow-subtle {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-prominent {
+    box-shadow: var(--shadow-lg);
+  }
+
   /* Header styles */
   [data-header="header"] {
-    @apply bg-gray-100 text-black;
+    @apply bg-gray-100 text-black shadow-subtle;
   }
 
   [data-header="header"] a,
   [data-header="header"] button {
-    @apply text-black transition-none;
+    @apply text-black transition-colors;
   }
 
   /* Footer links */
@@ -177,7 +257,7 @@
     @apply text-muted-foreground hover:text-accent;
   }
   
-  /* Animations */
+  /* Enhanced animations */
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -192,9 +272,11 @@
   @keyframes scaleIn {
     from {
       transform: scale(0.95);
+      opacity: 0;
     }
     to {
       transform: scale(1);
+      opacity: 1;
     }
   }
   
@@ -206,8 +288,21 @@
     animation: scaleIn 0.3s ease-out forwards;
   }
   
+  .animate-enter {
+    @apply animate-fade-in;
+  }
+  
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-elevated;
+  }
+  
+  /* Interactive elements */
+  .interactive-element {
+    @apply transition-all duration-200;
   }
   
   /* Dark mode badge counter */
@@ -230,6 +325,15 @@
 
 /* Mobile sidebar styles */
 @media (max-width: 768px) {
+  /* More compact layout for mobile */
+  .container, article, .article-content {
+    @apply px-3;
+  }
+  
+  .content-box, .news-card, .ebook-card {
+    @apply p-3;
+  }
+
   [data-sidebar="sidebar"] {
     @apply bg-background/95 backdrop-blur-lg;
   }

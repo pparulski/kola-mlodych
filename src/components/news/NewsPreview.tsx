@@ -56,7 +56,7 @@ export function NewsPreview({
   });
 
   return (
-    <article className="space-y-6 p-4 md:p-6 bg-card bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden">
+    <article className="news-card card-hover overflow-hidden animate-fade-in">
       {featured_image && (
         <FeaturedImage
           src={featured_image}
@@ -68,13 +68,13 @@ export function NewsPreview({
           alt={title}
         />
       )}
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-4 md:space-y-5 p-3 md:p-5">
         <div className="space-y-2">
           <Link
             to={`/news/${slug}`}
-            className="no-underline"
+            className="no-underline group"
           >
-            <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-accent transition-colors break-words">{title}</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
           
           <div className="flex flex-wrap items-center gap-2">
@@ -85,7 +85,7 @@ export function NewsPreview({
             {validCategoryNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {validCategoryNames.map((name) => (
-                  <span key={name} className="text-sm bg-primary/20 px-2 py-1 rounded-full">
+                  <span key={name} className="category-pill">
                     {name}
                   </span>
                 ))}
@@ -102,7 +102,7 @@ export function NewsPreview({
           />
         )}
         
-        <div className="pt-4">
+        <div className="pt-3">
           <Button
             variant="ghost"
             size="sm"

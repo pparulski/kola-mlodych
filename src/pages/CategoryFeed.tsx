@@ -76,10 +76,10 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8 mt-4">
+      <div className="container max-w-4xl mx-auto space-y-8 mt-4 animate-pulse">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
@@ -90,12 +90,12 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="max-w-4xl mx-auto mt-4">
+      <div className="container max-w-4xl mx-auto mt-4 animate-fade-in">
         <SEO
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
         />
-        <p className="text-muted-foreground bg-[hsl(var(--content-box))] p-5 rounded-lg">
+        <p className="content-box text-muted-foreground p-5">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
       </div>
@@ -103,7 +103,7 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto space-y-4 mt-4">
+    <div className="container max-w-4xl mx-auto space-y-4 mt-4 animate-fade-in">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
@@ -126,7 +126,7 @@ export default function CategoryFeed() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 bg-[hsl(var(--content-box))] rounded-lg">
+        <div className="text-center py-10 content-box">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.
