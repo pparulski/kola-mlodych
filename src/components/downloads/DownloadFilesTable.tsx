@@ -17,6 +17,7 @@ interface DownloadFilesTableProps {
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
   onDelete: (id: string) => void;
+  className?: string; // Add the optional className property
 }
 
 export function DownloadFilesTable({
@@ -26,6 +27,7 @@ export function DownloadFilesTable({
   sortDirection,
   onSort,
   onDelete,
+  className, // Add the className parameter
 }: DownloadFilesTableProps) {
   const sortedFiles = [...files].sort((a, b) => {
     if (sortField === "name") {
@@ -40,7 +42,7 @@ export function DownloadFilesTable({
   });
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
+    <div className={`overflow-x-auto rounded-lg border border-border ${className || ''}`}>
       <Table>
         <TableHeader className="bg-secondary">
           <TableRow className="hover:bg-transparent">
