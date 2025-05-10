@@ -34,7 +34,7 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
         </div>
       )}
 
-      <div className="content-box">
+      <div>
         <DownloadFilesTable
           files={files}
           adminMode={adminMode}

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
-import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Button } from "@/components/ui/button";
 
@@ -47,14 +46,6 @@ export function NewsPreview({
     name !== null && name !== undefined && name !== ""
   );
 
-  // For debugging
-  console.log("NewsPreview rendering with:", { 
-    title,
-    preview_content, 
-    content: content?.substring(0, 50),
-    previewContent: previewContent?.substring(0, 50)
-  });
-
   return (
     <article className="news-card card-hover overflow-hidden animate-fade-in">
       {featured_image && (
@@ -94,7 +85,6 @@ export function NewsPreview({
           </div>
         </div>
         
-        {/* Ensure preview content is displayed and fix dangerouslySetInnerHTML */}
         {previewContent && (
           <div 
             className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
