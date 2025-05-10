@@ -100,41 +100,49 @@ export default {
         DEFAULT: {
           css: {
             color: theme('colors.foreground'),
-            maxWidth: '100%',
+            maxWidth: '100%', // Keep this for responsiveness
+    
+            // General line height for prose content - adjust as needed
+            // This will apply to <p>, <li>, etc., unless overridden
+            lineHeight: '1.5', // Example: default is often 1.6-1.75. '1.5' is tighter.
+    
             h1: {
               color: theme('colors.foreground'),
               fontWeight: '700',
-              fontSize: '2.25em',
+              fontSize: '2.25em', // Consider slightly smaller if needed, e.g., '2em'
               marginTop: '0',
-              marginBottom: '0.8em',
-              lineHeight: '1.1',
+              marginBottom: '0.5em', // Reduced from 0.8em
+              lineHeight: '1.1',   // Already tight
             },
             h2: {
               color: theme('colors.foreground'),
               fontWeight: '600',
-              fontSize: '1.75em',
-              marginTop: '1.5em',
-              marginBottom: '0.5em',
-              lineHeight: '1.2',
+              fontSize: '1.75em', // Consider '1.6em'
+              marginTop: '1.2em',  // Reduced from 1.5em
+              marginBottom: '0.4em', // Reduced from 0.5em
+              lineHeight: '1.2',   // Already fairly tight
             },
             h3: {
               color: theme('colors.foreground'),
               fontWeight: '600',
-              fontSize: '1.5em',
-              marginTop: '1.5em',
-              marginBottom: '0.5em',
-              lineHeight: '1.3',
+              fontSize: '1.5em', // Consider '1.35em'
+              marginTop: '1em',    // Reduced from 1.5em
+              marginBottom: '0.3em', // Reduced from 0.5em
+              lineHeight: '1.25',  // Reduced from 1.3
             },
             h4: {
               color: theme('colors.foreground'),
               fontWeight: '600',
-              marginTop: '1.5em',
-              marginBottom: '0.5em',
-              lineHeight: '1.4',
+              // fontSize: '1.125em', // Default h4 is usually 1.125em or 1.25em
+              marginTop: '0.8em',  // Reduced from 1.5em
+              marginBottom: '0.25em',// Reduced from 0.5em
+              lineHeight: '1.3',   // Reduced from 1.4
             },
+            // h5, h6 can be added similarly if used
             p: {
-              marginTop: '1em',
-              marginBottom: '1em',
+              marginTop: '0.75em', // Reduced from 1em
+              marginBottom: '0.75em', // Reduced from 1em
+              // lineHeight: '1.5', // Inherits from base or can be set here
             },
             a: {
               color: theme('colors.primary.DEFAULT'),
@@ -147,51 +155,58 @@ export default {
               fontWeight: '400',
               fontStyle: 'italic',
               color: theme('colors.muted.foreground'),
-              borderLeftWidth: '4px',
+              borderLeftWidth: '3px', // Slightly thinner border
               borderLeftColor: theme('colors.border'),
-              paddingLeft: '1rem',
+              paddingTop: '0.25em',    // Added
+              paddingBottom: '0.25em', // Added
+              paddingLeft: '0.75rem',  // Reduced from 1rem
+              marginTop: '1em',       // Reduced
+              marginBottom: '1em',    // Reduced
               marginLeft: 0,
               marginRight: 0,
             },
             hr: {
               borderColor: theme('colors.border'),
-              marginTop: '3em',
-              marginBottom: '3em',
+              marginTop: '2em',    // Reduced from 3em
+              marginBottom: '2em', // Reduced from 3em
             },
             ol: {
-              marginTop: '1.25em',
-              marginBottom: '1.25em',
-              paddingLeft: '1.625em',
+              marginTop: '0.8em',     // Reduced from 1.25em
+              marginBottom: '0.8em',  // Reduced from 1.25em
+              paddingLeft: '1.3em', // Reduced from 1.625em
               li: {
-                marginTop: '0.5em',
-                marginBottom: '0.5em',
+                marginTop: '0.25em',    // Reduced from 0.5em
+                marginBottom: '0.25em', // Reduced from 0.5em
+                // lineHeight: '1.5', // Inherits or set specifically
               },
-              'ol, ul': {
-                marginTop: '0.75em',
-                marginBottom: '0.75em',
+              'ol, ul': { // Nested lists
+                marginTop: '0.5em',    // Reduced from 0.75em
+                marginBottom: '0.5em', // Reduced from 0.75em
               },
             },
             ul: {
-              marginTop: '1.25em',
-              marginBottom: '1.25em',
-              paddingLeft: '1.625em',
+              marginTop: '0.8em',     // Reduced from 1.25em
+              marginBottom: '0.8em',  // Reduced from 1.25em
+              paddingLeft: '1.1em', // Reduced from 1.625em (ul usually has less padding than ol)
               listStyleType: 'disc',
               li: {
-                marginTop: '0.5em',
-                marginBottom: '0.5em',
+                marginTop: '0.25em',    // Reduced from 0.5em
+                marginBottom: '0.25em', // Reduced from 0.5em
+                // lineHeight: '1.5', // Inherits or set specifically
               },
-              'ol, ul': {
-                marginTop: '0.75em',
-                marginBottom: '0.75em',
+              'ol, ul': { // Nested lists
+                marginTop: '0.5em',    // Reduced from 0.75em
+                marginBottom: '0.5em', // Reduced from 0.75em
               },
             },
             table: {
               width: '100%',
-              marginTop: '1.5em',
-              marginBottom: '1.5em',
+              marginTop: '1em',      // Reduced from 1.5em
+              marginBottom: '1em',   // Reduced from 1.5em
               borderCollapse: 'collapse',
               borderColor: theme('colors.border'),
-              fontSize: theme('fontSize.sm')[0],
+              fontSize: theme('fontSize.sm')[0], // Keep or adjust if needed
+              // lineHeight: '1.4', // Table content line height
             },
             thead: {
               borderBottomWidth: '1px',
@@ -200,7 +215,7 @@ export default {
             'thead th': {
               color: theme('colors.foreground'),
               fontWeight: '600',
-              padding: '0.75rem',
+              padding: '0.5rem', // Reduced from 0.75rem
               textAlign: 'left',
             },
             'tbody tr': {
@@ -208,16 +223,16 @@ export default {
               borderBottomColor: theme('colors.border'),
             },
             'tbody td': {
-              padding: '0.75rem',
+              padding: '0.5rem', // Reduced from 0.75rem
             },
             img: {
-              marginTop: '1.5em',
-              marginBottom: '1.5em',
+              marginTop: '1em',      // Reduced from 1.5em
+              marginBottom: '1em',   // Reduced from 1.5em
               borderRadius: theme('borderRadius.md'),
             },
-            figure: {
-              marginTop: '2em',
-              marginBottom: '2em',
+            figure: { // For images with captions
+              marginTop: '1.25em',   // Reduced from 2em
+              marginBottom: '1.25em',// Reduced from 2em
             },
             'figure img': {
               marginTop: '0',
@@ -225,31 +240,32 @@ export default {
             },
             figcaption: {
               color: theme('colors.muted.foreground'),
-              fontSize: '0.875em',
-              marginTop: '0.5em',
+              fontSize: '0.8em', // Reduced from 0.875em
+              marginTop: '0.25em',// Reduced from 0.5em
+              lineHeight: '1.3',  // Tighter line height for captions
               textAlign: 'center',
             },
-            code: {
+            code: { // Inline code
               color: theme('colors.foreground'),
               backgroundColor: theme('colors.muted.DEFAULT'),
-              padding: '0.25rem 0.4rem',
+              padding: '0.15rem 0.3rem', // Slightly reduced padding
               borderRadius: '0.25rem',
-              fontSize: '0.875em',
+              fontSize: '0.85em', // Slightly reduced from 0.875em
               fontWeight: '500',
             },
-            pre: {
+            pre: { // Code blocks
               backgroundColor: theme('colors.muted.DEFAULT'),
               color: theme('colors.foreground'),
               borderRadius: theme('borderRadius.md'),
-              padding: '1rem',
+              padding: '0.75rem', // Reduced from 1rem
               overflowX: 'auto',
               border: `1px solid ${theme('colors.border')}`,
-              fontSize: '0.875em',
-              lineHeight: '1.7',
-              marginTop: '1.5em',
-              marginBottom: '1.5em',
+              fontSize: '0.85em', // Reduced from 0.875em
+              lineHeight: '1.5',   // Reduced from 1.7
+              marginTop: '1em',      // Reduced from 1.5em
+              marginBottom: '1em',   // Reduced from 1.5em
             },
-            'pre code': {
+            'pre code': { // Code inside pre, reset some inline code styles
               backgroundColor: 'transparent',
               borderWidth: '0',
               borderRadius: '0',
@@ -259,11 +275,28 @@ export default {
               fontWeight: 'inherit',
               lineHeight: 'inherit',
             },
+            // You might want to ensure there's no default top margin on the very first element
+            // This can sometimes be tricky with prose, but you can try:
+            ':first-child': {
+              marginTop: '0',
+            },
+            // And no default bottom margin on the very last
+            ':last-child': {
+              marginBottom: '0',
+            },
           },
         },
-        dark: {
+        dark: { // Apply similar or specific dark mode tightness adjustments if needed
           css: {
-            color: theme('colors.foreground'),
+            // If dark mode needs different line heights or margins, define them here.
+            // For now, it will inherit the tightened styles from DEFAULT.
+            // Example: if you want paragraphs even tighter in dark mode:
+            // p: {
+            //   lineHeight: '1.45',
+            // },
+    
+            // Ensure inherited colors are still appropriate for dark mode or override
+            color: theme('colors.foreground'), // Already defined, just for structure
             hr: {
               borderColor: theme('colors.border'),
             },

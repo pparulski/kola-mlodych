@@ -86,7 +86,7 @@ export function StaticPage() {
   }
 
   return (
-    <div className="relative mt-2">
+    <div className="relative">
       {page && (
         <SEO
           title={page.title}
@@ -97,7 +97,7 @@ export function StaticPage() {
       
       <div className="relative">
         {page ? (
-          <div className="prose prose-lg max-w-none dark:prose-invert hugerte-content bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="prose prose-lg md: prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
             <GalleryRenderer content={page.content} />
           </div>
         ) : (

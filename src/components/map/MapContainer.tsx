@@ -42,9 +42,9 @@ export const MapContainer = ({
   
   // Desktop layout - Side by side (map left, list right)
   return (
-    <div className="flex flex-row gap-4">
+    <div className="flex flex-row gap-1 items-start">
       {/* Map Section - Left position with square aspect ratio */}
-      <div className="w-3/5 relative rounded-lg overflow-hidden border">
+      <div className="w-4/6 relative rounded-lg overflow-hidden border">
         <AspectRatio ratio={1}>
           <div className="w-full h-full">
             {mapComponent}
@@ -53,7 +53,7 @@ export const MapContainer = ({
       </div>
       
       {/* Unions List Section - Right position */}
-      <div className="w-2/5 overflow-auto border rounded-lg h-[70vh]">
+      <div className="w-2/6 overflow-auto border rounded-lg">
         {listComponent}
       </div>
     </div>

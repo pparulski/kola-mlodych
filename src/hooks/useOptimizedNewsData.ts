@@ -40,7 +40,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
             page_offset: offset
            });
 
+        console.log("RAW rpcResult from search_news:", rpcResult);
+        console.log("Error from search_news RPC (if any):", error); // Also log the error
+
         if (error) {
+          console.error("Detailed error from search_news RPC:", error);
           throw error;
         }
 
@@ -92,7 +96,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         // Get total count
         const { count, error: countError } = await supabase
           .from('news')  // Using news table instead of news_preview
-          .select('*', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .in('id', newsIds);
           
         if (countError) {
@@ -100,38 +104,86 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         }
         
         // Get paginated results with full content
-        const { data: newsItems, error: newsError } = await supabase
+        const { data: rawDbNewsItems, error: newsError } = await supabase
           .from('news')  // Using news table instead of news_preview
-          .select('*')
+          .select(`
+            *,
+            news_categories (
+              categories ( id, name, slug )
+            )
+          `)
           .in('id', newsIds)
           .order('date', { ascending: false })
           .range(from, to);
           
         if (newsError) {
+          console.error("Error fetching news (category filter):", newsError);
           throw newsError;
         }
+
+        console.log("RAW DB news items (category filter path):", rawDbNewsItems);
         
+        // Process rawNewsItems to extract and flatten category_names
+        const itemsWithFlatCategories = (rawDbNewsItems || []).map(item => {
+          const categoryNames = item.news_categories?.map(
+            (nc: any) => nc.categories?.name
+          ).filter((name): name is string => name !== null && name !== undefined && name !== "") || [];
+          
+          const { news_categories, ...restOfItem } = item; // Destructure to remove original nested field
+
+          return {
+            ...restOfItem,
+            category_names: categoryNames
+          };
+        });
+
+        console.log("Processed items with flat categories (category filter path):", itemsWithFlatCategories);
+
         return {
-          items: newsItems || [],
+          items: itemsWithFlatCategories,
           total: count || 0
         };
       }
       
       // Standard pagination without filters - use news table to get content
-      const { data, count, error: fetchError } = await supabase
+      const { data: rawDefaultNewsItems, count, error: fetchError } = await supabase
         .from('news')  // Using news table instead of news_preview
-        .select('*', { count: 'exact' })
+        .select(`
+          *,
+          news_categories (
+            categories ( id, name, slug )
+          )
+        `, { count: 'exact' })
         .order('date', { ascending: false })
         .range(from, to);
       
       if (fetchError) {
         throw fetchError;
       }
-      
-      return {
-        items: data || [],
-        total: count || 0
-      };
+
+      console.log("RAW DB default news items (no filters):", rawDefaultNewsItems);
+
+// Process rawDefaultNewsItems to extract and flatten category_names
+const defaultItemsWithFlatCategories = (rawDefaultNewsItems || []).map(item => {
+  const categoryNames = item.news_categories?.map(
+    (nc: any) => nc.categories?.name
+  ).filter((name): name is string => name !== null && name !== undefined && name !== "") || [];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { news_categories, ...restOfItem } = item;
+
+  return {
+    ...restOfItem,
+    category_names: categoryNames
+  };
+});
+
+console.log("Processed default items with flat categories (no filters):", defaultItemsWithFlatCategories);
+
+return {
+  items: defaultItemsWithFlatCategories, // <--- CORRECTED: Return the processed items
+  total: count || 0
+};
     },
     staleTime: 30000,
     retry: 1,

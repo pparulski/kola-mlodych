@@ -39,7 +39,7 @@ export function SidebarFooterContent() {
           onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
         />
       </div>
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex justify-center flex-col items-center gap-2">
         <a
           href="https://ozzip.pl"
           target="_blank"

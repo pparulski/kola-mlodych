@@ -62,7 +62,7 @@ export function DownloadFilesTable({
               className="text-white hover:bg-transparent w-[180px]"
               onSort={onSort}
             />
-            <TableHeader className="text-white hover:bg-transparent text-center align-middle w-[150px]">Akcje</TableHeader>
+            <TableHeader className="hover:bg-transparent w-[150px]"></TableHeader>
           </TableRow>
         </TableHeader>
         <TableBody className="bg-background">

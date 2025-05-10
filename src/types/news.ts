@@ -8,4 +8,5 @@ export interface NewsArticle {
   created_at: string | null;
   created_by: string | null;
   date: string | null;
+  category_names?: (string | null)[];
 }

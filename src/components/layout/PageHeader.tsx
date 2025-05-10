@@ -181,7 +181,7 @@ export function PageHeader({
         </div>
         
         {isHomePage && searchOpen && isMobile && (
-          <div className="w-full mt-2">
+          <div className="w-full mb-2">
             <SearchBar 
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}

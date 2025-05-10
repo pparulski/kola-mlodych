@@ -83,7 +83,7 @@ export default function NewsArticle() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 mt-4 animate-pulse">
+      <div className="space-y-4 mt-2 animate-pulse">
         <Skeleton className="h-10 w-3/4 max-w-2xl" />
         <Skeleton className="h-5 w-48" />
         <Skeleton className="h-60 w-full" />
@@ -93,7 +93,7 @@ export default function NewsArticle() {
 
   if (!article) {
     return (
-      <div className="mt-4 animate-fade-in">
+      <div className="mt-2 animate-fade-in">
         <SEO 
           title="Artykuł nie znaleziony" 
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
@@ -121,7 +121,7 @@ export default function NewsArticle() {
   const categoryNames = categories?.map(cat => cat.name).filter(Boolean) || [];
   
   return (
-    <div className="mt-4 animate-enter">
+    <div className="mt-2 animate-enter">
       <SEO 
         title={article.title}
         description={generateExcerpt(article.content)}
@@ -149,7 +149,7 @@ export default function NewsArticle() {
         <div className="p-4 md:p-6 space-y-4 md:space-y-5">
           <h1 className="text-2xl md:text-4xl font-bold">{article.title}</h1>
           
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 justify-between">
             {formattedDate && (
               <span className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground">{formattedDate}</span>
             )}

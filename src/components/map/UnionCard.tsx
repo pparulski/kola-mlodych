@@ -47,7 +47,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
     <Card 
       id={`union-card-${union.id}`}
       className={cn(
-        "overflow-hidden transition-all duration-200 mb-1 mt-0.5 first:mt-0",
+        "overflow-hidden transition-all duration-200 mb-0.5 mt-0.5",
         "hover:shadow-md hover:ring-2 hover:ring-primary/50",
         isSelected ? "ring-2 ring-primary/50" : ""
       )}
@@ -87,7 +87,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
         </Accordion>
       </CardContent>
 
-      <CardFooter className="flex justify-between items-center pt-1 pb-2 px-3 border-t card-footer">
+      <CardFooter className="flex justify-between items-center pt-2 pb-2 px-3 border-t card-footer">
         <div className="flex items-center space-x-1">
           {union.contact && (
             <a 

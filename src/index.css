@@ -129,24 +129,12 @@
 
   /* Category pill styling with improved contrast */
   .category-pill {
-    @apply inline-flex items-center text-xs px-2 py-1 rounded-full 
-           bg-secondary/30 text-secondary-foreground font-medium
-           border border-secondary/20 shadow-sm;
+    @apply inline-flex items-center rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground bg-primary/20 hover:bg-primary/30 text-xs px-2 py-1 border-none font-medium
   }
 
   /* HugeRTE content styling */
   .hugerte-content {
     @apply prose prose-base lg:prose-lg dark:prose-invert max-w-none;
-  }
-
-  /* Override specific HugeRTE elements */
-  .hugerte-content h1,
-  .hugerte-content h2,
-  .hugerte-content h3,
-  .hugerte-content h4,
-  .hugerte-content h5,
-  .hugerte-content h6 {
-    @apply font-bold mb-4 mt-6 text-foreground;
   }
 
   .hugerte-content table {

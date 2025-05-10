@@ -76,7 +76,7 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="container max-w-4xl mx-auto space-y-8 mt-4 animate-pulse">
+      <div className="container max-w-4xl mx-auto space-y-8 animate-pulse">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
@@ -90,7 +90,7 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="container max-w-4xl mx-auto mt-4 animate-fade-in">
+      <div className="container max-w-4xl mx-auto animate-fade-in">
         <SEO
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
@@ -103,7 +103,7 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="container max-w-4xl mx-auto space-y-4 mt-4 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
@@ -111,7 +111,7 @@ export default function CategoryFeed() {
       />
       
       {articles && articles.length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-6 !mt-0">
           {articles.map((article) => (
             <NewsPreview 
               key={article.id}
@@ -126,7 +126,7 @@ export default function CategoryFeed() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 content-box">
+        <div className="text-center py-10 content-box !mt-0">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.

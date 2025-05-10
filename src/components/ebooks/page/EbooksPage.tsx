@@ -139,8 +139,8 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
       )}
 
       {alarmEbooks.length > 0 && (
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">ALARM STUDENCKI!</h2>
+        <div className="!mb-0 !mt-0">
+          <h2 className="text-2xl font-bold mb-4 text-center md:text-left">ALARM STUDENCKI!</h2>
           <EbooksAlarmCarousel ebooks={alarmEbooks} />
         </div>
       )}

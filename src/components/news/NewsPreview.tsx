@@ -27,6 +27,7 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
+  console.log("NewsPreview - category_names prop:", category_names);
   // Use pre-processed preview_content from the view, or fall back to processing content
   const previewContent = preview_content || (content && content.length > 300 
     ? `${content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300)}...`
@@ -46,6 +47,10 @@ export function NewsPreview({
     name !== null && name !== undefined && name !== ""
   );
 
+  // Log the filtered array
+  console.log("NewsPreview - validCategoryNames:", validCategoryNames);
+  console.log("NewsPreview - validCategoryNames.length:", validCategoryNames.length);
+
   return (
     <article className="news-card card-hover overflow-hidden animate-fade-in">
       {featured_image && (
@@ -59,16 +64,16 @@ export function NewsPreview({
           alt={title}
         />
       )}
-      <div className="space-y-4 md:space-y-5 p-3 md:p-5">
+      <div className="space-y-4 md:space-y-2 md:pt-2">
         <div className="space-y-2">
           <Link
             to={`/news/${slug}`}
             className="no-underline group"
           >
-            <h2 className="text-xl md:text-2xl font-bold text-primary group-hover:text-accent transition-colors break-words">{title}</h2>
+            <h2 className="text-2xl md:text-3xl pt-2 font-bold text-primary group-hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
           
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 justify-between">
             {formattedDate && (
               <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">{formattedDate}</p>
             )}
@@ -92,7 +97,7 @@ export function NewsPreview({
           />
         )}
         
-        <div className="pt-3">
+        <div className="pt-0">
           <Button
             variant="ghost"
             size="sm"
@@ -102,6 +107,7 @@ export function NewsPreview({
             <Link
               to={`/news/${slug}`}
               className="inline-flex items-center no-underline"
+              style={{ gap: 0 }}
             >
               Czytaj dalej
               <ArrowRight className="ml-1 h-4 w-4 transition-all duration-300 ease-in-out group-hover:translate-x-1" />

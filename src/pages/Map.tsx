@@ -31,7 +31,7 @@ const UnionsMap = () => {
   }
 
   return (
-    <div className="container mx-auto px-1 py-2">
+    <div className="mx-auto w-full">
       <MapContainer
         isMobile={isMobile}
         mapComponent={
