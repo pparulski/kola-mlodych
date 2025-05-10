@@ -11,7 +11,7 @@ export function PageLayout() {
 
   return (
     <div className="flex-1 p-3 md:p-5 relative animate-fade-in">
-      <div className="w-full shadow-subtle rounded-lg">
+      <div className="w-full">
         <PageHeader 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

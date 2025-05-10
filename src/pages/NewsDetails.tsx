@@ -76,7 +76,7 @@ export function NewsDetails() {
           title="Artykuł nie znaleziony"
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
         />
-        <div className="p-5 text-center content-box shadow-elevated">
+        <div className="p-5 text-center content-box">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
@@ -105,7 +105,7 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-4 p-5 bg-[hsl(var(--content-box))] rounded-lg border-2 border-border overflow-hidden shadow-elevated">
+      <article className="space-y-4 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
         <div className="space-y-3">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
@@ -115,7 +115,13 @@ export function NewsDetails() {
             )}
             
             {articleCategories && articleCategories.length > 0 && (
-              <CategoryBadgeList categories={articleCategories} className="m-0 inline-flex" />
+              <div className="flex flex-wrap gap-2">
+                {articleCategories.map((category) => (
+                  <span key={category.id} className="category-pill">
+                    {category.name}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
           
@@ -125,7 +131,7 @@ export function NewsDetails() {
               aspectRatio={16/9}
               objectFit="cover"
               priority
-              className="w-full shadow-elevated"
+              className="w-full"
             />
           )}
           

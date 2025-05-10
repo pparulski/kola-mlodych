@@ -29,12 +29,12 @@ const Downloads = ({ adminMode = false }: DownloadsProps) => {
   return (
     <div className="space-y-6 animate-enter">
       {adminMode && (
-        <div className="content-box shadow-elevated">
+        <div className="content-box">
           <DownloadFileUploader onFileUploaded={fetchFiles} />
         </div>
       )}
 
-      <div className="content-box shadow-elevated overflow-hidden">
+      <div className="content-box">
         <DownloadFilesTable
           files={files}
           adminMode={adminMode}
