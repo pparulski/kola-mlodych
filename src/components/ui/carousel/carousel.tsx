@@ -5,6 +5,7 @@ import useEmblaCarousel, {
 } from "embla-carousel-react"
 import { cn } from "@/lib/utils"
 import { CarouselContext, type CarouselProps } from "./context"
+import { debounce } from "@/utils/debounce"
 
 const Carousel = React.forwardRef<
   HTMLDivElement,
@@ -43,6 +44,12 @@ const Carousel = React.forwardRef<
       setCanScrollNext(emblaApi.canScrollNext())
     }, [])
 
+    // Debounce scroll event handling for performance
+    const debouncedOnSelect = React.useMemo(
+      () => debounce((emblaApi: UseEmblaCarouselType[1]) => onSelect(emblaApi), 100),
+      [onSelect]
+    )
+
     const scrollPrev = React.useCallback(() => {
       api?.scrollPrev()
     }, [api])
@@ -80,12 +87,13 @@ const Carousel = React.forwardRef<
 
       onSelect(api)
       api.on("reInit", onSelect)
-      api.on("select", onSelect)
+      api.on("select", debouncedOnSelect) // Use debounced version for frequent events
 
       return () => {
-        api?.off("select", onSelect)
+        api.off("select", debouncedOnSelect)
+        api.off("reInit", onSelect)
       }
-    }, [api, onSelect])
+    }, [api, onSelect, debouncedOnSelect])
 
     return (
       <CarouselContext.Provider
@@ -107,6 +115,7 @@ const Carousel = React.forwardRef<
           className={cn("relative", className)}
           role="region"
           aria-roledescription="carousel"
+          aria-label="Image carousel" // Improved accessibility
           tabIndex={0}
           {...props}
         >

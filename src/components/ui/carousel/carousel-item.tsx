@@ -5,8 +5,8 @@ import { useCarousel } from "./context"
 
 const CarouselItem = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { index?: number }
+>(({ className, index, ...props }, ref) => {
   const { orientation } = useCarousel()
 
   return (
@@ -14,6 +14,7 @@ const CarouselItem = React.forwardRef<
       ref={ref}
       role="group"
       aria-roledescription="slide"
+      aria-label={`Slide ${index !== undefined ? index + 1 : ''}`} 
       className={cn(
         "min-w-0 shrink-0 grow-0",
         orientation === "horizontal" ? "pl-4" : "pt-4",

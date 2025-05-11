@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +10,6 @@ import {
 import { EbookCover } from "../card/EbookCover";
 import { Ebook } from "../types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface EbooksAlarmCarouselProps {
   ebooks: Ebook[];
@@ -42,7 +42,11 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
   };
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div 
+      className="relative w-full overflow-hidden" 
+      aria-label="E-books carousel"
+      role="region"
+    >
       <Carousel
         opts={{
           align: "start",
@@ -52,15 +56,25 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
         className="w-full"
       >
         <CarouselContent className="-ml-2 md:-ml-4">
-          {sortedEbooks.map((ebook) => (
+          {sortedEbooks.map((ebook, i) => (
             <CarouselItem 
               key={ebook.id} 
+              index={i}
               className={isMobile ? "pl-2 basis-4/5" : "pl-4 basis-1/5 md:basis-1/4 lg:basis-1/5"}
             >
               <div className="p-1">
                 <div
                   className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-[1.03] aspect-[2/3]"
                   onClick={() => handleOpenPdf(ebook.file_url)}
+                  role="button"
+                  aria-label={`View ebook: ${ebook.title}`}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleOpenPdf(ebook.file_url);
+                    }
+                  }}
                 >
                   <EbookCover
                     coverUrl={ebook.cover_url}

@@ -25,6 +25,8 @@ const CarouselPrevious = React.forwardRef<
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
+      aria-label="Previous slide"
+      title="Previous slide" // Added title for tooltip on hover
       {...props}
     >
       <ChevronLeft className="h-4 w-4" />
@@ -55,6 +57,8 @@ const CarouselNext = React.forwardRef<
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}
+      aria-label="Next slide"
+      title="Next slide" // Added title for tooltip on hover
       {...props}
     >
       <ChevronRight className="h-4 w-4" />
