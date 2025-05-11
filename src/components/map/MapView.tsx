@@ -61,12 +61,12 @@ export const MapView = ({
         initialViewState={{
           longitude: POLAND_CENTER[0],
           latitude: POLAND_CENTER[1],
-          zoom: 5.5
+          zoom: 4.5
         }}
         maxBounds={POLAND_BOUNDS}
         mapStyle="mapbox://styles/mapbox/light-v10"
         dragRotate={false}
-        minZoom={4.5}
+        minZoom={3.5}
         maxZoom={10}
         style={{ width: '100%', height: '100%' }}
       >

@@ -42,8 +42,13 @@ export function DownloadFilesTable({
   });
 
   return (
-    <div className={`overflow-x-auto rounded-lg border border-border ${className || ''}`}>
-      <Table>
+    <div className={`overflow-hidden shadow-sm rounded-lg border border-border ${className || ''}`}>
+      <Table className="w-full table-fixed">
+        <colgroup>
+          <col className="w-3/5 md:w-auto" /> {/* Example: 60% for filename on mobile */}
+          <col className="w-1/5 md:w-[150px]" /> {/* Example: 20% for date on mobile */}
+          <col className="w-1/5 md:w-[120px]" /> {/* Example: 20% for actions on mobile */}
+        </colgroup>
         <TableHeader className="bg-secondary">
           <TableRow className="hover:bg-transparent">
             <SortableTableHeader
@@ -51,7 +56,7 @@ export function DownloadFilesTable({
               currentSortField={sortField}
               sortDirection={sortDirection}
               label="Nazwa pliku"
-              className="text-white hover:bg-transparent"
+              className="text-white hover:bg-transparent px-2 sm:px-4 py-3"
               onSort={onSort}
             />
             <SortableTableHeader
@@ -59,10 +64,10 @@ export function DownloadFilesTable({
               currentSortField={sortField}
               sortDirection={sortDirection}
               label="Dodano"
-              className="text-white hover:bg-transparent w-[180px]"
+              className="text-white hover:bg-transparent px-2 sm:px-4 py-3 text-right sm:text-left"
               onSort={onSort}
             />
-            <TableHeader className="hover:bg-transparent w-[150px]"></TableHeader>
+            <TableHeader className="hover:bg-transparent px-2 sm:px-4 py-3 text-right"></TableHeader>
           </TableRow>
         </TableHeader>
         <TableBody className="bg-background">

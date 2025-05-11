@@ -27,15 +27,15 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#800020", // burgundy
+          DEFAULT: "#C53030", // burgundy
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#4a0012", // darker burgundy
+          DEFAULT: "#B02828", // darker burgundy
           foreground: "#ffffff",
         },
         accent: {
-          DEFAULT: "#590014", // deep burgundy
+          DEFAULT: "#D53F3F", // deep burgundy
           foreground: "#ffffff",
         },
         destructive: {
