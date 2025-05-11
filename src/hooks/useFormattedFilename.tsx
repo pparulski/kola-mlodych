@@ -19,7 +19,7 @@ export function useFormattedFilename({
   filename, // This is the full original filename
   mobileBaseNameMaxLength = 50,
   desktopBaseNameMaxLength = 120,
-  ellipsis = "...",
+  ellipsis = "..",
 }: UseFormattedFilenameProps): FormattedFilenameData {
   const isMobile = useIsMobile();
 

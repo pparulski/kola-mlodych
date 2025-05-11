@@ -1,4 +1,4 @@
-
+import React, { useState, useRef, useEffect } from "react"; // Ensure React is imported
 import { Button } from "@/components/ui/button";
 import { BookOpenText, Edit, Trash, ChevronDown, Tag, BookText } from "lucide-react";
 import { EbookCover } from "./EbookCover";
@@ -6,7 +6,6 @@ import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Badge } from "@/components/ui/badge";
 import type { Ebook } from "../types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useState } from "react";
 
 interface EbookCardMobileProps {
   ebook: Ebook;
@@ -24,7 +23,8 @@ export function EbookCardMobile({
   showType = false
 }: EbookCardMobileProps) {
   const [isOpen, setIsOpen] = useState(false);
-  
+  const collapsibleRef = useRef<HTMLDivElement>(null); // Ref for the Collapsible component
+
   const handleOpenPdf = () => {
     window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
   };
@@ -33,32 +33,29 @@ export function EbookCardMobile({
   const formatDescription = (text: string) => {
     if (!text) return "";
     return text.split('\n').map((line, i) => (
-      <span key={i}>
+      <React.Fragment key={i}> {/* Use React.Fragment for key */}
         {line}
         {i < text.split('\n').length - 1 && <br />}
-      </span>
+      </React.Fragment>
     ));
   };
   
-  // Handle accordion toggle
-  const handleToggleAccordion = () => {
-    const newState = !isOpen;
-    setIsOpen(newState);
-    
-    // If opened, scroll to the accordion
-    if (newState) {
-      setTimeout(() => {
-        const element = document.getElementById(`accordion-${ebook.id}`);
-        if (element) {
-          // Scrolls with a bit of offset to place at the top
+  // This useEffect handles scrolling when the accordion opens
+  useEffect(() => {
+    if (isOpen && collapsibleRef.current) {
+      const scrollTimeout = setTimeout(() => {
+        if (collapsibleRef.current) { // Check ref again inside timeout
+          const elementTop = collapsibleRef.current.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({
-            top: element.offsetTop - 20,
+            top: elementTop - 20, // 20px offset from the top of the viewport
             behavior: 'smooth'
           });
         }
-      }, 100);
+      }, 50); // Adjust this duration (e.g., if accordion animation is 0.2s, 250-300ms is good)
+
+      return () => clearTimeout(scrollTimeout); // Cleanup timeout on unmount or if isOpen changes
     }
-  };
+  }, [isOpen]); // Dependency array: re-run this effect when 'isOpen' changes
 
   return (
     <div className="p-4">
@@ -83,13 +80,13 @@ export function EbookCardMobile({
         </div>
         
         <Collapsible 
+          ref={collapsibleRef} // Assign the ref to the Collapsible component
           open={isOpen} 
-          onOpenChange={setIsOpen}
+          onOpenChange={setIsOpen} // This prop will call setIsOpen directly
           className="w-full" 
-          id={`accordion-${ebook.id}`}
+          // id={`accordion-${ebook.id}`} // ID can be kept if used elsewhere, but ref is for this scroll
         >
           <CollapsibleTrigger 
-            onClick={handleToggleAccordion}
             className="flex items-center justify-between w-full p-2 bg-muted/30 rounded-t-md border-b"
           >
             <span className="font-medium">Szczegóły publikacji</span>

@@ -45,9 +45,9 @@ export function DownloadFilesTable({
     <div className={`overflow-hidden shadow-sm rounded-lg border border-border ${className || ''}`}>
       <Table className="w-full table-fixed">
         <colgroup>
-          <col className="w-3/5 md:w-auto" /> {/* Example: 60% for filename on mobile */}
-          <col className="w-1/5 md:w-[150px]" /> {/* Example: 20% for date on mobile */}
-          <col className="w-1/5 md:w-[120px]" /> {/* Example: 20% for actions on mobile */}
+          <col className="w-3/6 md:w-auto" /> {/* Example: 60% for filename on mobile */}
+          <col className="w-2/6 md:w-[150px]" /> {/* Example: 20% for date on mobile */}
+          <col className="w-1/6 md:w-[120px]" /> {/* Example: 20% for actions on mobile */}
         </colgroup>
         <TableHeader className="bg-secondary">
           <TableRow className="hover:bg-transparent">

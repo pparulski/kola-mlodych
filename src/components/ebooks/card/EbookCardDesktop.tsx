@@ -54,10 +54,10 @@ export function EbookCardDesktop({
       <h3 className="text-xl font-semibold mb-4 text-center">{ebook.title}</h3>
       
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="md:w-1/4 flex flex-col items-center">
+        <div className="md:w-1/4 flex flex-col items-center h-fit">
           {ebook.cover_url ? (
             <div 
-              className="relative w-full h-[280px] bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative w-full bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleOpenPdf}
             >
               {!imageLoaded && (
@@ -66,7 +66,7 @@ export function EbookCardDesktop({
               <LazyLoadImage
                 src={ebook.cover_url}
                 alt={`Okładka ${ebook.title}`}
-                className="w-full h-full object-contain rounded-md transition-transform hover:scale-[1.02]"
+                className="w-full h-auto object-contain rounded-md transition-transform hover:scale-[1.02]"
                 effect="opacity"
                 threshold={100}
                 afterLoad={() => setImageLoaded(true)}
