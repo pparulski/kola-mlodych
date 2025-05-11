@@ -17,7 +17,6 @@ const CarouselItem = React.forwardRef<
       aria-label={`Slide ${index !== undefined ? index + 1 : ''}`} 
       className={cn(
         "min-w-0 shrink-0 grow-0",
-        orientation === "horizontal" ? "pl-1 md:pl-2" : "pt-1 md:pt-2",
         className
       )}
       {...props}

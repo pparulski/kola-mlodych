@@ -38,13 +38,13 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
   };
 
   const getItemsPerView = () => {
-    if (isMobile) return 1.2; // Show 1 full item + 20% of the next one on mobile
-    return 4.2; // Show 4 full items + 20% of the next one on larger screens
+    if (isMobile) return 1.05; // Show 1 full item + minimal peek of the next one
+    return 4.05; // Show 4 full items + minimal peek of the next one
   };
 
   return (
     <div 
-      className="relative w-full overflow-hidden" 
+      className="relative w-full overflow-hidden px-2" 
       aria-label="E-books carousel"
       role="region"
     >
@@ -56,16 +56,16 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-1 md:-ml-2">
+        <CarouselContent>
           {sortedEbooks.map((ebook, i) => (
             <CarouselItem 
               key={ebook.id} 
               index={i}
-              className={isMobile ? "pl-1 basis-4/5" : "pl-2 basis-1/5 md:basis-1/4 lg:basis-1/5"}
+              className={isMobile ? "basis-[95%]" : "basis-1/4 lg:basis-1/5"}
             >
               <div className="p-0.5">
                 <div
-                  className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-[1.03] aspect-[2/3]"
+                  className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-[1.03]"
                   onClick={() => handleOpenPdf(ebook.file_url)}
                   role="button"
                   aria-label={`View ebook: ${ebook.title}`}
@@ -92,7 +92,7 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
         {/* Dot navigation for all screen sizes */}
         <CarouselDots 
           count={sortedEbooks.length} 
-          className="mt-3"
+          className="mt-1"
         />
         
         {/* Show arrows only on desktop */}
