@@ -1,4 +1,4 @@
-
+// src/components/ebooks/page/EbooksAlarmCarousel.tsx
 import { useState, useEffect } from "react";
 import {
   Carousel,
@@ -7,8 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious,
   CarouselDots,
-} from "@/components/ui/carousel";
-import { EbookCover } from "../card/EbookCover";
+} from "@/components/ui/carousel"; // Your carousel components
+import { EbookCover } from "../card/EbookCover"; // Your EbookCover
 import { Ebook } from "../types";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -20,98 +20,129 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
   const isMobile = useIsMobile();
   const [sortedEbooks, setSortedEbooks] = useState<Ebook[]>([]);
 
-  // Sort ebooks by creation date (newest first)
   useEffect(() => {
     const sorted = [...ebooks].sort((a, b) => {
-      // Compare by created_at field (assuming it exists)
       const dateA = new Date(a.created_at || "").getTime();
       const dateB = new Date(b.created_at || "").getTime();
-      return dateB - dateA; // newest first
+      return dateB - dateA;
     });
     setSortedEbooks(sorted);
   }, [ebooks]);
 
-  if (!ebooks.length) return null;
+  if (!sortedEbooks.length) return null;
 
   const handleOpenPdf = (fileUrl: string) => {
     window.open(fileUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const getItemsPerView = () => {
-    if (isMobile) return 1.05; // Show 1 full item + minimal peek of the next one
-    return 4.05; // Show 4 full items + minimal peek of the next one
-  };
+  // --- Configuration for item sizing and peeking ---
+  let itemBasis: string;
+  let itemsToConsiderForLoop: number; // How many items are mostly in view
 
+  // Define how many items you want primarily visible before peeking
+  const mobilePrimaryVisibleItems = 1;
+  const desktopSmallPrimaryVisibleItems = 3; // e.g., for screens just above mobile
+  const desktopMediumPrimaryVisibleItems = 4;
+  const desktopLargePrimaryVisibleItems = 5;
+
+  if (isMobile) {
+    itemsToConsiderForLoop = mobilePrimaryVisibleItems;
+    // Basis slightly less than 100% / (num_items + peek_fraction)
+    // For 1 item + peek (e.g., 0.1 of next item visible), effective items = 1.1
+    // Basis = 100 / 1.1 = ~90.9%
+    itemBasis = "basis-[90%]"; // Adjust for more/less peek
+  } else {
+    // Example: Use window width to determine basis for desktop for more fine-grained control
+    // This is a basic example; you might use a more robust breakpoint hook for window.innerWidth
+    // For simplicity here, we'll use your existing breakpoints from EbookCover indirectly
+    // by selecting a basis that generally fits N items.
+    // The idea is: basis = 100 / (N_items_to_show_mostly + small_fraction_for_peek)
+    // Example: show 4 items + peek => 100 / 4.2 = ~23.8%
+    // Example: show 5 items + peek => 100 / 5.2 = ~19.2%
+    
+    // Using Tailwind responsive prefixes for basis directly on CarouselItem is cleaner
+    itemBasis = "basis-[48%] sm:basis-[31%] md:basis-[24%] lg:basis-[19%]"; 
+    // basis-[48%] ~ 2 items + peek
+    // sm:basis-[31%] ~ 3 items + peek
+    // md:basis-[24%] ~ 4 items + peek
+    // lg:basis-[19%] ~ 5 items + peek
+
+    // Determine items for loop based on the largest typical view
+    itemsToConsiderForLoop = desktopLargePrimaryVisibleItems; 
+  }
+  
   return (
     <div 
-      className="relative w-full overflow-hidden px-2" 
+      className="relative w-full" // Let Carousel handle its own padding if needed
       aria-label="E-books carousel"
       role="region"
     >
       <Carousel
         opts={{
-          align: "start",
-          loop: ebooks.length > getItemsPerView(),
+          align: "start", // Aligns the first "full" item to the start, allows peeking
+          loop: sortedEbooks.length > itemsToConsiderForLoop,
           dragFree: true,
+          // slidesToScroll: 1, // Default
         }}
-        className="w-full"
+        // Add horizontal padding to the Carousel itself if you want space on the ends
+        // This keeps items truly touching but gives breathing room for the whole carousel
+        className="w-full px-1 md:px-2" 
       >
-        <CarouselContent>
+        <CarouselContent className=""> 
+          {/* NO negative margins here because CarouselItems won't have pl/pr for gaps */}
           {sortedEbooks.map((ebook, i) => (
             <CarouselItem 
               key={ebook.id} 
               index={i}
-              className={isMobile ? "basis-[95%]" : "basis-1/4 lg:basis-1/5"}
+              // Apply the responsive basis.
+              // Add a very small padding if you want a tiny line between covers, otherwise p-0.
+              className={`${itemBasis} p-0.5`} // p-0.5 creates a 1px gap effectively if covers are edge-to-edge inside
             >
-              <div className="p-0.5">
-                <div
-                  className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-[1.03]"
-                  onClick={() => handleOpenPdf(ebook.file_url)}
-                  role="button"
-                  aria-label={`View ebook: ${ebook.title}`}
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleOpenPdf(ebook.file_url);
-                    }
-                  }}
-                >
-                  <EbookCover
-                    coverUrl={ebook.cover_url}
-                    title={ebook.title}
-                    size="medium"
-                  />
-                </div>
-                {/* Title removed as requested */}
+              {/* This inner div ensures EbookCover fills the CarouselItem correctly */}
+              <div
+                className="w-full h-full cursor-pointer" // Removed hover effects from here, EbookCover handles it
+                onClick={() => handleOpenPdf(ebook.file_url)}
+                role="button"
+                aria-label={`View ebook: ${ebook.title}`}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleOpenPdf(ebook.file_url);
+                  }
+                }}
+              >
+                <EbookCover
+                  coverUrl={ebook.cover_url}
+                  title={ebook.title}
+                  size="fill" // Use the new 'fill' size (or whatever you named it)
+                  aspectRatioValue={180/240} // Example: maintain 3:4 aspect ratio
+                  // EbookCover's internal hover effects will apply
+                />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
         
-        {/* Dot navigation for all screen sizes */}
         <CarouselDots 
           count={sortedEbooks.length} 
-          className="mt-1"
+          className="mt-3 mb-1" // Dots below the carousel
         />
         
-        {/* Show arrows only on desktop */}
-        {!isMobile && ebooks.length > getItemsPerView() && (
+        {/* Arrows are positioned relative to the Carousel component */}
+        {!isMobile && sortedEbooks.length > itemsToConsiderForLoop && (
           <>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden md:block">
-              <CarouselPrevious 
-                variant="outline" 
-                size="icon" 
-                className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 shadow-md hover:bg-background" 
-              />
-            </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block">
-              <CarouselNext 
-                variant="outline" 
-                size="icon" 
-                className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 shadow-md hover:bg-background" 
-              />
-            </div>
+            {/* Adjust arrow positioning if Carousel has px (e.g., left-2, right-2) */}
+            <CarouselPrevious 
+              variant="outline" 
+              size="icon" 
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border-border/40 shadow-md hover:bg-background z-10" 
+            />
+            <CarouselNext 
+              variant="outline" 
+              size="icon" 
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border-border/40 shadow-md hover:bg-background z-10"
+            />
           </>
         )}
       </Carousel>
