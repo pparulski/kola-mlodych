@@ -33,6 +33,7 @@ const Carousel = React.forwardRef<
     )
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
+    const [selectedIndex, setSelectedIndex] = React.useState(0)
 
     // Fix the type error by properly defining the onSelect callback
     const onSelect = React.useCallback((emblaApi: UseEmblaCarouselType[1]) => {
@@ -42,6 +43,7 @@ const Carousel = React.forwardRef<
 
       setCanScrollPrev(emblaApi.canScrollPrev())
       setCanScrollNext(emblaApi.canScrollNext())
+      setSelectedIndex(emblaApi.selectedScrollSnap())
     }, [])
 
     // Debounce scroll event handling for performance
@@ -56,6 +58,10 @@ const Carousel = React.forwardRef<
 
     const scrollNext = React.useCallback(() => {
       api?.scrollNext()
+    }, [api])
+
+    const scrollTo = React.useCallback((index: number) => {
+      api?.scrollTo(index)
     }, [api])
 
     const handleKeyDown = React.useCallback(
@@ -105,8 +111,10 @@ const Carousel = React.forwardRef<
             orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
           scrollPrev,
           scrollNext,
+          scrollTo,
           canScrollPrev,
           canScrollNext,
+          selectedIndex,
         }}
       >
         <div

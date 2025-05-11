@@ -6,6 +6,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselDots,
 } from "@/components/ui/carousel";
 import { EbookCover } from "../card/EbookCover";
 import { Ebook } from "../types";
@@ -87,6 +88,12 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
+        
+        {/* Dot navigation for all screen sizes */}
+        <CarouselDots 
+          count={sortedEbooks.length} 
+          className="mt-3"
+        />
         
         {ebooks.length > getItemsPerView() && (
           <>
