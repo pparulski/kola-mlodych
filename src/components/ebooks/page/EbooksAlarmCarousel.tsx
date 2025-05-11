@@ -56,14 +56,14 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className="-ml-1 md:-ml-2">
           {sortedEbooks.map((ebook, i) => (
             <CarouselItem 
               key={ebook.id} 
               index={i}
-              className={isMobile ? "pl-2 basis-4/5" : "pl-4 basis-1/5 md:basis-1/4 lg:basis-1/5"}
+              className={isMobile ? "pl-1 basis-4/5" : "pl-2 basis-1/5 md:basis-1/4 lg:basis-1/5"}
             >
-              <div className="p-1">
+              <div className="p-0.5">
                 <div
                   className="cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-[1.03] aspect-[2/3]"
                   onClick={() => handleOpenPdf(ebook.file_url)}
@@ -83,7 +83,7 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
                     size="medium"
                   />
                 </div>
-                <p className="mt-2 text-center text-sm font-medium line-clamp-1">{ebook.title}</p>
+                {/* Title removed as requested */}
               </div>
             </CarouselItem>
           ))}
@@ -95,16 +95,17 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
           className="mt-3"
         />
         
-        {ebooks.length > getItemsPerView() && (
+        {/* Show arrows only on desktop */}
+        {!isMobile && ebooks.length > getItemsPerView() && (
           <>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden md:block">
               <CarouselPrevious 
                 variant="outline" 
                 size="icon" 
                 className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 shadow-md hover:bg-background" 
               />
             </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block">
               <CarouselNext 
                 variant="outline" 
                 size="icon" 
