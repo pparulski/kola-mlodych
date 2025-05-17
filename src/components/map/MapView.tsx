@@ -8,7 +8,7 @@ import { Union, POLAND_BOUNDS, POLAND_CENTER } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Set the Mapbox token
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+const MAPBOX_TOKEN = "pk.eyJ1IjoiaGF5ZWsyOSIsImEiOiJjbWFlaWE4aTYwMHFjMmpzMzhxbGhiNG9wIn0.9p3d1MoBwalUlgd2Gv7xzQ";
 
 interface MapViewProps {
   unions: Union[];
