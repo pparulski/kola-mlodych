@@ -2,8 +2,7 @@
 import { useOutletContext } from "react-router-dom";
 import { IndexContent } from "@/components/home/IndexContent";
 import { SEO } from "@/components/seo/SEO";
-import { memo, useState, useEffect } from "react";
-import { PasswordOverlay } from "@/components/home/PasswordOverlay";
+import { memo } from "react";
 
 interface IndexContext {
   searchQuery: string;
@@ -12,19 +11,6 @@ interface IndexContext {
 
 const Index = memo(function Index() {
   const { searchQuery, selectedCategories } = useOutletContext<IndexContext>();
-  const [showPasswordOverlay, setShowPasswordOverlay] = useState(true);
-  
-  useEffect(() => {
-    // Check if the password has been entered in this session
-    const passwordEntered = sessionStorage.getItem('sitePasswordEntered');
-    if (passwordEntered === 'true') {
-      setShowPasswordOverlay(false);
-    }
-  }, []);
-  
-  const handlePasswordCorrect = () => {
-    setShowPasswordOverlay(false);
-  };
   
   return (
     <>
@@ -34,14 +20,7 @@ const Index = memo(function Index() {
         keywords="związek zawodowy, aktualności, młodzi pracownicy, inicjatywa pracownicza"
       />
       
-      {showPasswordOverlay && (
-        <PasswordOverlay 
-          correctPassword="testing090920" 
-          onPasswordCorrect={handlePasswordCorrect} 
-        />
-      )}
-      
-      <div className={`animate-enter ${showPasswordOverlay ? 'hidden' : 'block'}`}>
+      <div className="animate-enter">
         <IndexContent searchQuery={searchQuery} selectedCategories={selectedCategories} />
       </div>
     </>

@@ -43,7 +43,7 @@ export const PasswordOverlay: React.FC<PasswordOverlayProps> = ({
   };
   
   return (
-    <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-[9999] p-4">
       <div className="max-w-md w-full space-y-6 p-8 bg-card rounded-lg shadow-lg border border-border animate-fade-in">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Strona chroniona hasłem</h1>
