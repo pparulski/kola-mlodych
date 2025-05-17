@@ -102,8 +102,7 @@ export function StaticPage() {
           </div>
         ) : (
           <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
-            <p>Ta strona jest w trakcie tworzenia lub nie istnieje.</p>
-            <p className="text-sm mt-2">Slug: {slug}</p>
+            <p>Ta strona nie istnieje.</p>
           </div>
         )}
       </div>
