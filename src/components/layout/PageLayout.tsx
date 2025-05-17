@@ -20,8 +20,9 @@ export function PageLayout() {
 
   const isScrollingUp = scrollDirection === "up";
   
+  // Fix the dynamic class - use a literal string instead of a template literal with values
   const pageHeaderTopClass = scrollDirection === "down"
-    ? `-top-[${PAGE_HEADER_MAX_HEIGHT_REM}rem]`
+    ? "-top-24" // Fixed value instead of template literal with variables
     : `top-[${JOIN_BANNER_HEIGHT_REM}rem]`;
 
   // Reset scroll position on page navigation
