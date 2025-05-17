@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategoryFilter } from "@/components/categories/CategoryFilter";
@@ -26,7 +27,6 @@ interface PageHeaderProps {
   setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
   applyPagePadding?: boolean;
-  isScrollingUp?: boolean;
 }
 
 export function PageHeader({
@@ -39,7 +39,6 @@ export function PageHeader({
   setSelectedCategories = () => {},
   categories = [],
   applyPagePadding = false,
-  isScrollingUp = false,
 }: PageHeaderProps) {
   const location = useLocation();
   const { slug } = useParams();
@@ -136,13 +135,10 @@ export function PageHeader({
   };
 
   return (
-    <div 
-      className={cn(
-        "w-full relative",
-        applyPagePadding && "p-3 md:p-5", // Conditionally apply page padding
-        isScrollingUp && "after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[6px] after:bg-gradient-to-t after:from-border/30 after:to-transparent after:z-50"
-      )}
-    >
+    <div className={cn(
+      "w-full",
+      applyPagePadding && "p-3 md:p-5" // Conditionally apply page padding
+    )}>
       <div className="flex flex-col">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">

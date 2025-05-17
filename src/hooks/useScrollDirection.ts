@@ -1,6 +1,5 @@
-
 // src/hooks/useScrollDirection.ts
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // --- Global flag for pausing (consider React Context for larger apps) ---
 // Ensure this part is at the top level of the module, outside the hook function
@@ -8,10 +7,12 @@ let isScrollDirectionGloballyPaused = false;
 
 export const pauseGlobalScrollDirection = () => {
   isScrollDirectionGloballyPaused = true;
+  // console.log("Scroll direction PAUSED");
 };
 
 export const resumeGlobalScrollDirection = () => {
   isScrollDirectionGloballyPaused = false;
+  // console.log("Scroll direction RESUMED");
 };
 // --- End global flag ---
 
@@ -20,7 +21,8 @@ export function useScrollDirection() {
   const lastScrollYRef = useRef(0);
 
   useEffect(() => {
-    // Initialize lastScrollYRef.current correctly on mount
+    // Initialize lastScrollYRef.current correctly on mount and when the pause state might change
+    // though it's mainly set within updateScrollDirection.
     lastScrollYRef.current = window.pageYOffset;
 
     const scrollThreshold = 10; 
@@ -46,7 +48,7 @@ export function useScrollDirection() {
     return () => {
       window.removeEventListener("scroll", updateScrollDirection);
     };
-  }, [scrollDirection]); 
+  }, [scrollDirection]); // scrollDirection is the dependency that triggers re-evaluation of canScroll etc.
 
   return scrollDirection;
 }
