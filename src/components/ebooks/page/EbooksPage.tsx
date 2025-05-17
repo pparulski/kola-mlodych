@@ -9,6 +9,7 @@ import { EbooksList } from "./EbooksList";
 import { useEbooksData } from "./useEbooksData";
 import { Ebook } from "@/components/ebooks/types";
 import { EbooksAlarmCarousel } from "./EbooksAlarmCarousel";
+import { cn } from "@/lib/utils";
 
 interface EbooksPageProps {
   adminMode?: boolean;
@@ -119,7 +120,7 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-0 animate-fade-in">
       <div className="flex items-center justify-end">
         {adminMode && (
           <Button 
@@ -139,14 +140,14 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
       )}
 
       {alarmEbooks.length > 0 && (
-        <div className="w-full -mx-6 px-6 md:-mx-8 md:px-8">
-          <h2 className="text-2xl font-bold mb-4 text-center md:text-left">ALARM STUDENCKI!</h2>
+        <div className={cn(
+            "w-full"
+          )}>
           <EbooksAlarmCarousel ebooks={alarmEbooks} />
         </div>
       )}
 
       <div>
-        <h2 className="text-2xl font-bold mb-4">Publikacje</h2>
         <EbooksList 
           ebooks={otherEbooks} 
           onDelete={adminMode ? handleDelete : undefined}

@@ -1,3 +1,19 @@
+# Environment variables
+.env
+.env.local
+.env.*.local # More general pattern
+
+# IDE / System files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json # Often useful to share launch configs
+.idea
+
 # Logs
 logs
 *.log
@@ -7,18 +23,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Build artifacts
 dist
 dist-ssr
-*.local
+out
+build
+.vite # Vite cache
+.next # Next.js build
+coverage
+*.tgz
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Dependency directories
+node_modules/
+
+# Misc
+*.local # General local override files
+*.sw? # Vim swap files

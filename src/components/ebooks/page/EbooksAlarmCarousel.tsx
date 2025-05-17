@@ -80,7 +80,7 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
       <Carousel
         opts={{
           align: "start", // Aligns the first "full" item to the start, allows peeking
-          loop: sortedEbooks.length > itemsToConsiderForLoop,
+          loop: false,
           dragFree: true,
           // slidesToScroll: 1, // Default
         }}
@@ -126,7 +126,7 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
         
         <CarouselDots 
           count={sortedEbooks.length} 
-          className="mt-3 mb-1" // Dots below the carousel
+          className="mt-2 mb-4" // Dots below the carousel
         />
         
         {/* Arrows are positioned relative to the Carousel component */}

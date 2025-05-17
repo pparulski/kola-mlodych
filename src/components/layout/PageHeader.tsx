@@ -14,6 +14,8 @@ import { ArrowLeft } from "lucide-react";
 import { getPageTitle } from "@/utils/pageUtils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { pauseGlobalScrollDirection, resumeGlobalScrollDirection } from '@/hooks/useScrollDirection';
+import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   pageTitle?: string;
@@ -24,6 +26,7 @@ interface PageHeaderProps {
   selectedCategories?: string[];
   setSelectedCategories?: (categories: string[]) => void;
   categories?: Category[];
+  applyPagePadding?: boolean;
 }
 
 export function PageHeader({
@@ -35,6 +38,7 @@ export function PageHeader({
   selectedCategories = [],
   setSelectedCategories = () => {},
   categories = [],
+  applyPagePadding = false,
 }: PageHeaderProps) {
   const location = useLocation();
   const { slug } = useParams();
@@ -82,7 +86,11 @@ export function PageHeader({
   
   // Use dynamic data if available, otherwise fall back to props or path-based title
   const displayTitle = dynamicPageData || pageTitle || title || getPageTitle(location.pathname);
-  
+  const isHomePage = location.pathname === '/';
+  const shouldShowBackButton = location.pathname.includes('/news/') || 
+                             location.pathname.includes('/article/');
+
+
   // Set document title based on the page title
   useEffect(() => {
     if (displayTitle && !location.pathname.includes('/news/')) {
@@ -98,27 +106,41 @@ export function PageHeader({
       viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (isHomePage && searchOpen && isMobile && searchInputRef.current) {
+      // console.log("PageHeader: Attempting to focus search input");
+      searchInputRef.current.focus({ preventScroll: true });
+    }
+  }, [searchOpen, isMobile, isHomePage]); // Add isHomePage if it's a condition for search bar visibility
   
-  const toggleSearch = () => {
+  const toggleSearch = async () => {
+    const aboutToOpen = !searchOpen;
+    pauseGlobalScrollDirection();
     // If we are currently open and about to close, clear the search query
     if (searchOpen) {
       setSearchQuery(''); // Clear the actual search query state
     }
-    setSearchOpen(!searchOpen); // Toggle the visibility state
+    setSearchOpen(aboutToOpen); // Toggle the visibility state
+    await Promise.resolve(); 
+    
+    setTimeout(() => {
+      resumeGlobalScrollDirection();
+      // console.log("PageHeader: toggleSearch - RESUMED scroll direction");
+    }, 150); // Adjust delay: enough for render + focus effect, but not too long
   };
-
-  const isHomePage = location.pathname === '/';
-  const shouldShowBackButton = location.pathname.includes('/news/') || 
-                             location.pathname.includes('/article/');
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col w-full">
-        <div className="flex items-center justify-between w-full mb-2">
+    <div className={cn(
+      "w-full",
+      applyPagePadding && "p-3 md:p-5" // Conditionally apply page padding
+    )}>
+      <div className="flex flex-col">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             {isMobile && (
               <SidebarToggle toggleSidebar={toggleSidebar} />
@@ -181,7 +203,7 @@ export function PageHeader({
         </div>
         
         {isHomePage && searchOpen && isMobile && (
-          <div className="w-full mb-2">
+          <div className="w-full mt-2 animate-fade-in">
             <SearchBar 
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}

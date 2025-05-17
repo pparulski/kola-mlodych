@@ -43,9 +43,9 @@ export function FileUpload({
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
-      // Keep original filename but sanitize by removing non-ASCII characters if present
       let filename = file.name;
-      const sanitizedFilename = filename.replace(/[^\x00-\x7F]/g, '');
+      // Allow letters, numbers, spaces, dots, hyphens, underscores
+      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9 ._-]/g, '');
       
       // Ensure the filename is unique by adding a timestamp if needed
       const timestamp = new Date().getTime();

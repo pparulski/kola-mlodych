@@ -55,7 +55,7 @@ export function SearchBar({
     if (searchQuery !== "") {
         setSearchQuery("");  // Submit an empty query to parent immediately
     }
-    activeRef.current?.focus(); // Optional: refocus input
+    activeRef.current?.focus( {preventScroll: true}); // Optional: refocus input
   };
 
     // Handle clicking the Search icon - submit current input value
@@ -63,6 +63,7 @@ export function SearchBar({
         if (inputValue !== searchQuery) {
             setSearchQuery(inputValue);
         }
+        activeRef.current?.focus({ preventScroll: true }); 
     };
 
 
