@@ -40,8 +40,10 @@ export function ThemeProvider({
   
   // Track the resolved theme (actual dark/light value)
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(
-    // Initial best guess until useEffect runs
-    defaultTheme === "dark" ? "dark" : "light"
+    // More accurate initial guess based on system preference
+    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches 
+      ? "dark" 
+      : "light"
   );
 
   // Apply theme class to document and determine resolved theme

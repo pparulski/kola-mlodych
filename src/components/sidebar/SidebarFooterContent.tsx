@@ -5,7 +5,7 @@ import { useTheme } from "@/components/ui/theme-provider";
 import { useState, useEffect } from "react";
 
 export function SidebarFooterContent() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [emailElement, setEmailElement] = useState<JSX.Element | null>(null);
   
   // Email obfuscation technique
@@ -35,7 +35,7 @@ export function SidebarFooterContent() {
       <div className="flex items-center space-x-2">
         <span className="text-sm">Ciemny motyw</span>
         <Switch
-          checked={theme === "dark"}
+          checked={resolvedTheme === "dark"}
           onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
         />
       </div>

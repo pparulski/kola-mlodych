@@ -45,21 +45,6 @@ export type Database = {
         }
         Relationships: []
       }
-      backup_ebooks_publication_year: {
-        Row: {
-          id: string | null
-          publication_year: number | null
-        }
-        Insert: {
-          id?: string | null
-          publication_year?: number | null
-        }
-        Update: {
-          id?: string | null
-          publication_year?: number | null
-        }
-        Relationships: []
-      }
       categories: {
         Row: {
           created_at: string
@@ -339,48 +324,11 @@ export type Database = {
           },
         ]
       }
-      static_page_categories: {
-        Row: {
-          category_id: string
-          created_at: string
-          id: string
-          static_page_id: string
-        }
-        Insert: {
-          category_id: string
-          created_at?: string
-          id?: string
-          static_page_id: string
-        }
-        Update: {
-          category_id?: string
-          created_at?: string
-          id?: string
-          static_page_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "static_page_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "static_page_categories_static_page_id_fkey"
-            columns: ["static_page_id"]
-            isOneToOne: false
-            referencedRelation: "static_pages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       static_pages: {
         Row: {
           content: string
           created_at: string
           created_by: string | null
-          featured_image: string | null
           id: string
           position_type: Database["public"]["Enums"]["page_position"] | null
           show_in_sidebar: boolean | null
@@ -393,7 +341,6 @@ export type Database = {
           content: string
           created_at?: string
           created_by?: string | null
-          featured_image?: string | null
           id?: string
           position_type?: Database["public"]["Enums"]["page_position"] | null
           show_in_sidebar?: boolean | null
@@ -406,7 +353,6 @@ export type Database = {
           content?: string
           created_at?: string
           created_by?: string | null
-          featured_image?: string | null
           id?: string
           position_type?: Database["public"]["Enums"]["page_position"] | null
           show_in_sidebar?: boolean | null
