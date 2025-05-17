@@ -1,6 +1,6 @@
 // PageLayout.tsx
 import React, { useEffect } from "react"; // Import React for useEffect
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useSearchParams } from "@/hooks/useSearchParams";
 import { useCategories } from "@/hooks/useCategories";
 import { PageHeader } from "./PageHeader";
@@ -15,6 +15,8 @@ export function PageLayout() {
   const { searchQuery, setSearchQuery, selectedCategories, setSelectedCategories, isHomePage } = useSearchParams();
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
+  const location = useLocation();
+
 
   const pageHeaderTopClass = scrollDirection === "down"
     ? `-top-[${PAGE_HEADER_MAX_HEIGHT_REM}rem]`
@@ -22,6 +24,11 @@ export function PageLayout() {
   
   // console.log("Applied pageHeaderTopClass:", pageHeaderTopClass);
 
+  useEffect(() => {
+  window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  
   return (
     <div className="flex-1 relative animate-fade-in">
       {/* Tailwind JIT Hint: Ensure these classes are generated */}
