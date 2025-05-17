@@ -139,8 +139,8 @@ export function PageHeader({
     <div 
       className={cn(
         "w-full relative",
-        applyPagePadding && "p-3 md:p-5", 
-        isScrollingUp && "after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[6px] after:bg-gradient-to-t after:from-background/80 after:to-transparent after:z-50"
+        applyPagePadding && "p-3 md:p-5", // Conditionally apply page padding
+        isScrollingUp && "after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[6px] after:bg-gradient-to-t after:from-border/30 after:to-transparent after:z-50"
       )}
     >
       <div className="flex flex-col">
