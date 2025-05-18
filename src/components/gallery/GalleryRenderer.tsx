@@ -55,8 +55,11 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
   // Configure DOMPurify to allow specific tags and attributes
   // Use the DOMPurify configuration directly before sanitizing
   DOMPurify.addHook('beforeSanitizeElements', (node) => {
+    // Cast the Node to HTMLElement to access tagName and hasAttribute
+    const element = node as HTMLElement;
+    
     // For iframe elements, ensure sandbox with all necessary permissions
-    if (node.tagName === 'IFRAME' && node.hasAttribute('sandbox')) {
+    if (element.tagName === 'IFRAME' && element.hasAttribute('sandbox')) {
       // This hook runs before the main sanitization
       return node;
     }
