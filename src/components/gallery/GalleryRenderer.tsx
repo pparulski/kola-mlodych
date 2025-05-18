@@ -15,26 +15,41 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
     // Find all iframes in the rendered content
     const iframes = contentRef.current.querySelectorAll('iframe');
     
-    // Update each iframe to allow script execution if it has a sandbox attribute
+    // Update each iframe to allow script execution and popups if it has a sandbox attribute
     iframes.forEach(iframe => {
       if (iframe.hasAttribute('sandbox')) {
         let sandboxValue = iframe.getAttribute('sandbox') || '';
         
-        // Only add allow-scripts if it's not already present
-        if (!sandboxValue.includes('allow-scripts')) {
-          sandboxValue = sandboxValue ? `${sandboxValue} allow-scripts` : 'allow-scripts';
-          iframe.setAttribute('sandbox', sandboxValue);
-        }
+        // Add necessary permissions that aren't already present
+        const requiredPermissions = ['allow-scripts', 'allow-popups', 'allow-popups-to-escape-sandbox'];
+        let newSandboxValue = sandboxValue;
+        
+        requiredPermissions.forEach(permission => {
+          if (!newSandboxValue.includes(permission)) {
+            newSandboxValue = newSandboxValue ? `${newSandboxValue} ${permission}` : permission;
+          }
+        });
+        
+        iframe.setAttribute('sandbox', newSandboxValue);
       }
     });
   }, [content]);
   
   if (!content) return null;
   
-  // Sanitize the HTML content but allow iframes
+  // Sanitize the HTML content but allow iframes with necessary attributes
   const sanitizedContent = DOMPurify.sanitize(content, {
     ADD_TAGS: ['iframe'],
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'sandbox', 'src', 'style']
+    ADD_ATTR: [
+      'allow', 
+      'allowfullscreen', 
+      'frameborder', 
+      'scrolling', 
+      'sandbox', 
+      'src', 
+      'style',
+      'target' // Allow target attribute for links
+    ]
   });
   
   return (
