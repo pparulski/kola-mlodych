@@ -15,8 +15,10 @@ const corsHeaders = {
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
+
+// We need to use the service role key to bypass RLS policies
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Serve function
 serve(async (req: Request) => {
@@ -93,7 +95,7 @@ serve(async (req: Request) => {
     
     console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes`)
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage using service role key to bypass RLS
     const { data: storageData, error: storageError } = await supabase
       .storage
       .from(bucketName)
