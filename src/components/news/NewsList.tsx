@@ -41,13 +41,20 @@ export function NewsList({ newsItems }: NewsListProps) {
           if (paragraphs.length > 0) {
             const firstParagraph = paragraphs[0];
             
-            // Get the inner HTML of the first paragraph
-            const innerContent = firstParagraph.innerHTML;
+            // Get the inner HTML of the first paragraph and trim whitespace
+            let innerContent = firstParagraph.innerHTML.trim();
             
             // Always add ellipsis if there's more content or multiple paragraphs
             if (hasMoreContent || paragraphs.length > 1) {
-              // Keep the paragraph tag, but modify its content to include the ellipsis within the paragraph
-              preview_content = `<p>${innerContent}...</p>`;
+              // Special handling for ending with a period
+              if (innerContent.endsWith('.')) {
+                innerContent = innerContent + '..';
+              } else {
+                innerContent = innerContent + '...';
+              }
+              
+              // Keep the paragraph tag, but modify its content to include the ellipsis inline
+              preview_content = `<p>${innerContent}</p>`;
             } else {
               // Use the complete paragraph without modification
               preview_content = firstParagraph.outerHTML;
@@ -56,7 +63,12 @@ export function NewsList({ newsItems }: NewsListProps) {
             // No paragraphs, truncate by character count
             preview_content = contentWithoutGalleries.substring(0, maxPreviewLength);
             if (contentWithoutGalleries.length > maxPreviewLength) {
-              preview_content += '...';
+              // Special handling for ending with a period
+              if (preview_content.endsWith('.')) {
+                preview_content += '..';
+              } else {
+                preview_content += '...';
+              }
             }
           }
         }

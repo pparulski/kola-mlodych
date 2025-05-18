@@ -46,12 +46,19 @@ export function NewsCard(props: NewsCardProps) {
       const firstParagraph = paragraphs[0];
       
       // Take just the first paragraph's inner HTML for manipulation
-      const innerContent = firstParagraph.innerHTML;
+      let innerContent = firstParagraph.innerHTML.trim();
       
       // Always add ellipsis if there's more paragraphs or content is long
       if (hasMoreContent || paragraphs.length > 1) {
-        // Keep the paragraph tag, but modify its content to include the ellipsis
-        preview_content = `<p>${innerContent}...</p>`;
+        // Special handling for ending with a period
+        if (innerContent.endsWith('.')) {
+          innerContent = innerContent + '..';
+        } else {
+          innerContent = innerContent + '...';
+        }
+        
+        // Keep the paragraph tag, but modify its content to include the ellipsis inline
+        preview_content = `<p>${innerContent}</p>`;
       } else {
         preview_content = firstParagraph.outerHTML;
       }
@@ -59,7 +66,12 @@ export function NewsCard(props: NewsCardProps) {
       // No paragraphs, truncate by character count
       preview_content = contentWithoutGalleries.substring(0, previewLength);
       if (contentWithoutGalleries.length > previewLength) {
-        preview_content += '...';
+        // Special handling for ending with a period
+        if (preview_content.endsWith('.')) {
+          preview_content += '..';
+        } else {
+          preview_content += '...';
+        }
       }
     }
   }
