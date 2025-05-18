@@ -8,14 +8,10 @@ export const useNewsDefault = () => {
     from: number,
     to: number
   ): Promise<NewsQueryResult> => {
-    const { data: rawDefaultNewsItems, count, error: fetchError } = await supabase
-      .from('news')
-      .select(`
-        *,
-        news_categories (
-          categories ( id, name, slug )
-        )
-      `, { count: 'exact' })
+    // Use the news_preview view instead of the full news table
+    const { data: previewNewsItems, count, error: fetchError } = await supabase
+      .from('news_preview')
+      .select('*', { count: 'exact' })
       .order('date', { ascending: false })
       .range(from, to);
     
@@ -23,10 +19,10 @@ export const useNewsDefault = () => {
       throw fetchError;
     }
 
-    console.log("RAW DB default news items (no filters):", rawDefaultNewsItems);
+    console.log("Preview news items from view:", previewNewsItems);
 
     return {
-      items: formatNewsItems(rawDefaultNewsItems),
+      items: formatNewsItems(previewNewsItems),
       total: count || 0
     };
   };

@@ -24,56 +24,25 @@ export const useNewsCategories = () => {
       return { items: [], total: 0 };
     }
     
-    // Step 2: Find news articles with those categories
-    const { data: newsCategories, error: newsCategoryError } = await supabase
-      .from('news_categories')
-      .select('news_id')
-      .in('category_id', categories.map(cat => cat.id));
-      
-    if (newsCategoryError) {
-      throw newsCategoryError;
-    }
+    const categoryIds = categories.map(cat => cat.id);
     
-    if (!newsCategories || newsCategories.length === 0) {
-      // No news with these categories
-      return { items: [], total: 0 };
-    }
-    
-    // Step 3: Get the actual news articles with pagination
-    const newsIds = [...new Set(newsCategories.map(item => item.news_id))];
-    
-    // Get total count
-    const { count, error: countError } = await supabase
-      .from('news')
-      .select('*', { count: 'exact', head: true })
-      .in('id', newsIds);
-      
-    if (countError) {
-      throw countError;
-    }
-    
-    // Get paginated results with full content
-    const { data: rawDbNewsItems, error: newsError } = await supabase
-      .from('news')
-      .select(`
-        *,
-        news_categories (
-          categories ( id, name, slug )
-        )
-      `)
-      .in('id', newsIds)
+    // Step 2: Query the news_preview view with category filtering
+    const { data: previewItems, count, error: previewError } = await supabase
+      .from('news_preview')
+      .select('*', { count: 'exact' })
+      .contains('category_ids', categoryIds)
       .order('date', { ascending: false })
       .range(from, to);
       
-    if (newsError) {
-      console.error("Error fetching news (category filter):", newsError);
-      throw newsError;
+    if (previewError) {
+      console.error("Error fetching news previews by categories:", previewError);
+      throw previewError;
     }
 
-    console.log("RAW DB news items (category filter path):", rawDbNewsItems);
+    console.log("Preview items by category:", previewItems);
     
     return {
-      items: formatNewsItems(rawDbNewsItems),
+      items: formatNewsItems(previewItems),
       total: count || 0
     };
   };

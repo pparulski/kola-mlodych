@@ -419,6 +419,28 @@ export type Database = {
           slug: string | null
           title: string | null
         }
+        Insert: {
+          category_ids?: never
+          category_names?: never
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string | null
+          preview_content?: never
+          slug?: string | null
+          title?: string | null
+        }
+        Update: {
+          category_ids?: never
+          category_names?: never
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string | null
+          preview_content?: never
+          slug?: string | null
+          title?: string | null
+        }
         Relationships: []
       }
     }

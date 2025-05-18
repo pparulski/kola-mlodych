@@ -9,6 +9,17 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
   if (!rawNewsItems) return [];
   
   return rawNewsItems.map(item => {
+    // If the data comes from news_preview view, it already has category_names as an array
+    if (item.category_names) {
+      return {
+        ...item,
+        category_names: item.category_names.filter((name): name is string => 
+          name !== null && name !== undefined && name !== ""
+        )
+      };
+    }
+    
+    // For data from the regular news table, process the category data
     const categoryNames = item.news_categories?.map(
       (nc: any) => nc.categories?.name
     ).filter((name): name is string => 

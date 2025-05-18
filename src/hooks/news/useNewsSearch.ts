@@ -22,7 +22,7 @@ export const useNewsSearch = () => {
         page_offset: offset
       });
 
-    console.log("RAW rpcResult from search_news:", rpcResult);
+    console.log("Search results from RPC:", rpcResult);
     
     if (error) {
       console.error("Detailed error from search_news RPC:", error);
@@ -32,6 +32,7 @@ export const useNewsSearch = () => {
     // Use explicit type assertion to avoid potential undefined issues
     const typedResult = rpcResult as unknown as SearchRpcResult | null;
 
+    // The search RPC already returns items with preview_content and category_names
     return {
       items: formatNewsItems(typedResult?.items || []), 
       total: typedResult?.total || 0   

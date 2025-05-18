@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { NewsPreview } from "./news/NewsPreview";
@@ -6,7 +7,8 @@ interface NewsCardProps {
   id: string;
   title: string;
   date: string;
-  content: string;
+  content?: string;
+  preview_content?: string;
   slug: string;
   featured_image?: string | null;
   previewLength?: number;
@@ -15,73 +17,10 @@ interface NewsCardProps {
 export function NewsCard(props: NewsCardProps) {
   const formattedDate = format(new Date(props.date), "d MMMM yyyy", { locale: pl });
   
-  // Ensure we have content before trying to access it
-  const content = props.content || '';
-  
-  // Process the content and add ellipsis appropriately
-  const previewLength = props.previewLength || 300;
-
-  // Create a temporary element to parse HTML
-  const tempEl = document.createElement('div');
-  tempEl.innerHTML = content;
-  const textContent = tempEl.textContent || tempEl.innerText || '';
-  
-  // Check if content has more text or multiple paragraphs
-  const hasMoreContent = textContent.length > previewLength || content.includes('</p>') && content.split('</p>').length > 2;
-  
-  let preview_content = '';
-  
-  if (content.length > 0) {
-    // Remove galleries from preview content
-    const contentWithoutGalleries = content.replace(/\[gallery id="([^"]+)"\]/g, '');
-    
-    // Create a temporary element to parse HTML
-    const parser = document.createElement('div');
-    parser.innerHTML = contentWithoutGalleries;
-    
-    // If content contains paragraphs, take just the first one for preview
-    const paragraphs = parser.querySelectorAll('p');
-    
-    if (paragraphs.length > 0) {
-      const firstParagraph = paragraphs[0];
-      
-      // Take just the first paragraph's inner HTML for manipulation
-      let innerContent = firstParagraph.innerHTML.trim();
-      
-      // Always add ellipsis if there's more paragraphs or content is long
-      if (hasMoreContent || paragraphs.length > 1) {
-        // Special handling for ending with a period
-        if (innerContent.endsWith('.')) {
-          innerContent = innerContent + '..';
-        } else {
-          innerContent = innerContent + '...';
-        }
-        
-        // Keep the paragraph tag, but modify its content to include the ellipsis inline
-        preview_content = `<p>${innerContent}</p>`;
-      } else {
-        preview_content = firstParagraph.outerHTML;
-      }
-    } else {
-      // No paragraphs, truncate by character count
-      preview_content = contentWithoutGalleries.substring(0, previewLength);
-      if (contentWithoutGalleries.length > previewLength) {
-        // Special handling for ending with a period
-        if (preview_content.endsWith('.')) {
-          preview_content += '..';
-        } else {
-          preview_content += '...';
-        }
-      }
-    }
-  }
-  
-  console.log("NewsCard generating preview for:", {
+  console.log("NewsCard rendering with:", {
     title: props.title,
-    contentLength: content.length,
-    previewLength,
-    hasMoreContent,
-    previewStart: preview_content?.substring(0, 50)
+    hasPreviewContent: !!props.preview_content,
+    previewContentLength: props.preview_content?.length || 0
   });
   
   return (
@@ -91,7 +30,7 @@ export function NewsCard(props: NewsCardProps) {
         slug={props.slug}
         title={props.title}
         date={formattedDate}
-        preview_content={preview_content}
+        preview_content={props.preview_content || ""}
         content={props.content}
         featured_image={props.featured_image || undefined}
       />
