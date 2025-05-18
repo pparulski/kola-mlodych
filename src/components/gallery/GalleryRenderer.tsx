@@ -32,10 +32,36 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
         
         iframe.setAttribute('sandbox', newSandboxValue);
       }
+      
+      // Ensure that the iframe allows fullscreen as well
+      if (!iframe.hasAttribute('allowfullscreen')) {
+        iframe.setAttribute('allowfullscreen', 'true');
+      }
+      
+      // Add allow attribute for additional permissions if not present
+      if (!iframe.hasAttribute('allow')) {
+        iframe.setAttribute('allow', 'fullscreen; payment');
+      } else {
+        const currentAllow = iframe.getAttribute('allow') || '';
+        if (!currentAllow.includes('fullscreen')) {
+          iframe.setAttribute('allow', `${currentAllow}; fullscreen; payment`);
+        }
+      }
     });
   }, [content]);
   
   if (!content) return null;
+  
+  // Configure DOMPurify to allow specific tags and attributes
+  // Use the DOMPurify configuration directly before sanitizing
+  DOMPurify.addHook('beforeSanitizeElements', (node) => {
+    // For iframe elements, ensure sandbox with all necessary permissions
+    if (node.tagName === 'IFRAME' && node.hasAttribute('sandbox')) {
+      // This hook runs before the main sanitization
+      return node;
+    }
+    return node;
+  });
   
   // Sanitize the HTML content but allow iframes with necessary attributes
   const sanitizedContent = DOMPurify.sanitize(content, {
@@ -48,7 +74,9 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
       'sandbox', 
       'src', 
       'style',
-      'target' // Allow target attribute for links
+      'target', // Allow target attribute for links
+      'width',
+      'height'
     ]
   });
   
