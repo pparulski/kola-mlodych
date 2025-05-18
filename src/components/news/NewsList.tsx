@@ -1,4 +1,3 @@
-
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { EmptyNewsList } from "@/components/news/EmptyNewsList";
 
@@ -40,12 +39,18 @@ export function NewsList({ newsItems }: NewsListProps) {
           const paragraphs = parser.querySelectorAll('p');
           
           if (paragraphs.length > 0) {
-            // Take just the first paragraph with its HTML formatting
-            preview_content = paragraphs[0].outerHTML;
+            const firstParagraph = paragraphs[0];
             
-            // Add ellipsis if there are more paragraphs or if the content is long
+            // Get the inner HTML of the first paragraph
+            const innerContent = firstParagraph.innerHTML;
+            
+            // Always add ellipsis if there's more content or multiple paragraphs
             if (hasMoreContent || paragraphs.length > 1) {
-              preview_content += '...';
+              // Keep the paragraph tag, but modify its content to include the ellipsis within the paragraph
+              preview_content = `<p>${innerContent}...</p>`;
+            } else {
+              // Use the complete paragraph without modification
+              preview_content = firstParagraph.outerHTML;
             }
           } else {
             // No paragraphs, truncate by character count

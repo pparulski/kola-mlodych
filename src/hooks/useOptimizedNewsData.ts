@@ -48,13 +48,12 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           throw error;
         }
 
-        // === FIX 1: USE 'unknown' CAST ===
+        // Use explicit type assertion to avoid potential undefined issues
         const typedResult = rpcResult as unknown as SearchRpcResult | null;
 
-        // === FIX 2: ACCESS PROPERTIES VIA 'typedResult' ===
         return {
-          items: typedResult?.items || [], // Use typedResult here
-          total: typedResult?.total || 0   // Use typedResult here
+          items: typedResult?.items || [], 
+          total: typedResult?.total || 0   
         };
       }
       
@@ -163,27 +162,27 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
 
       console.log("RAW DB default news items (no filters):", rawDefaultNewsItems);
 
-// Process rawDefaultNewsItems to extract and flatten category_names
-const defaultItemsWithFlatCategories = (rawDefaultNewsItems || []).map(item => {
-  const categoryNames = item.news_categories?.map(
-    (nc: any) => nc.categories?.name
-  ).filter((name): name is string => name !== null && name !== undefined && name !== "") || [];
+      // Process rawDefaultNewsItems to extract and flatten category_names
+      const defaultItemsWithFlatCategories = (rawDefaultNewsItems || []).map(item => {
+        const categoryNames = item.news_categories?.map(
+          (nc: any) => nc.categories?.name
+        ).filter((name): name is string => name !== null && name !== undefined && name !== "") || [];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { news_categories, ...restOfItem } = item;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { news_categories, ...restOfItem } = item;
 
-  return {
-    ...restOfItem,
-    category_names: categoryNames
-  };
-});
+        return {
+          ...restOfItem,
+          category_names: categoryNames
+        };
+      });
 
-console.log("Processed default items with flat categories (no filters):", defaultItemsWithFlatCategories);
+      console.log("Processed default items with flat categories (no filters):", defaultItemsWithFlatCategories);
 
-return {
-  items: defaultItemsWithFlatCategories, // <--- CORRECTED: Return the processed items
-  total: count || 0
-};
+      return {
+        items: defaultItemsWithFlatCategories,
+        total: count || 0
+      };
     },
     staleTime: 30000,
     retry: 1,

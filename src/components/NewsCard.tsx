@@ -1,4 +1,3 @@
-
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { NewsPreview } from "./news/NewsPreview";
@@ -44,12 +43,17 @@ export function NewsCard(props: NewsCardProps) {
     const paragraphs = parser.querySelectorAll('p');
     
     if (paragraphs.length > 0) {
-      // Take just the first paragraph with its HTML formatting
-      preview_content = paragraphs[0].outerHTML;
+      const firstParagraph = paragraphs[0];
       
-      // Add ellipsis if there are more paragraphs or if the content is long
+      // Take just the first paragraph's inner HTML for manipulation
+      const innerContent = firstParagraph.innerHTML;
+      
+      // Always add ellipsis if there's more paragraphs or content is long
       if (hasMoreContent || paragraphs.length > 1) {
-        preview_content += '...';
+        // Keep the paragraph tag, but modify its content to include the ellipsis
+        preview_content = `<p>${innerContent}...</p>`;
+      } else {
+        preview_content = firstParagraph.outerHTML;
       }
     } else {
       // No paragraphs, truncate by character count

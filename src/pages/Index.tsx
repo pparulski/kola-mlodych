@@ -10,7 +10,9 @@ interface IndexContext {
 }
 
 const Index = memo(function Index() {
-  const { searchQuery, selectedCategories } = useOutletContext<IndexContext>();
+  const context = useOutletContext<IndexContext>();
+  const searchQuery = context?.searchQuery || "";
+  const selectedCategories = context?.selectedCategories || [];
   
   return (
     <>
