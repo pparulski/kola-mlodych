@@ -18,12 +18,12 @@ export function SidebarLogo() {
     : "/lovable-uploads/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png";
   
   return (
-    <div className="p-6 flex justify-center">
-      <Link to="/">
+    <div className="p-6 flex justify-center items-center h-40">
+      <Link to="/" className="w-full h-full flex justify-center items-center">
         <img 
           src={logoSrc}
           alt="Logo Koła Młodych" 
-          className={`w-40 h-40 object-contain transition-transform hover:scale-105 ${
+          className={`max-w-full max-h-full w-auto h-auto object-contain transition-transform hover:scale-105 ${
             isLoaded ? 'transition-opacity duration-300 opacity-100' : 'opacity-0'
           }`}
           loading="eager" // Explicitly disable lazy loading for the logo
