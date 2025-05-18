@@ -287,6 +287,37 @@ export default {
             },
           },
         },
+        base: { // For ".prose-base"
+          css: {
+            // You only need to list the properties you want to override from the plugin's "base" defaults.
+            // If other properties (like h1 font size for prose-base) are fine, no need to repeat them.
+            ol: {
+              paddingLeft: '2.25em', // <<< YOUR DESIRED PADDING FOR <ol> in .prose-base
+              // If you want your tighter margins to also apply specifically to prose-base lists:
+              // marginTop: '0.8em',
+              // marginBottom: '0.8em',
+              // li: { marginTop: '0.25em', marginBottom: '0.25em', paddingLeft: '0.25em' },
+            },
+            ul: {
+              paddingLeft: '2em',   // <<< YOUR DESIRED PADDING FOR <ul> in .prose-base
+              // If you want your tighter margins to also apply specifically to prose-base lists:
+              // marginTop: '0.8em',
+              // marginBottom: '0.8em',
+              // li: { marginTop: '0.25em', marginBottom: '0.25em', paddingLeft: '0.25em' },
+            },
+          },
+        },
+        lg: { // For ".prose-lg"
+          css: {
+            ol: {
+              paddingLeft: '2.35em', // Example: slightly larger for lg, adjust as needed
+                                     // This should be larger than prose-lg default of ~1.55em
+            },
+            ul: {
+              paddingLeft: '2.1em',   // Example: slightly larger for lg, adjust as needed
+            },
+          },
+        },
         dark: { // Apply similar or specific dark mode tightness adjustments if needed
           css: {
             // If dark mode needs different line heights or margins, define them here.
