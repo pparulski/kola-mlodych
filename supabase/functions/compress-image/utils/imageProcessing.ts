@@ -68,10 +68,12 @@ export async function processImage(
         const jpegBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
         
         // Compare sizes of both formats
-        console.log(`WebP size: ${webpBuffer.byteLength} bytes, JPEG size: ${jpegBuffer.byteLength} bytes`);
+        const webpSize = webpBuffer.byteLength;
+        const jpegSize = jpegBuffer.byteLength;
+        console.log(`WebP size: ${webpSize} bytes, JPEG size: ${jpegSize} bytes`);
         
         // Use the smaller of the two formats
-        if (webpBuffer.byteLength <= jpegBuffer.byteLength) {
+        if (webpSize <= jpegSize) {
           processedImageBuffer = webpBuffer;
           outputFilename = `${baseFilename}.webp`;
           outputFormat = 'webp';
@@ -100,9 +102,11 @@ export async function processImage(
         const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
         const pngBuffer = await processedImage.encode(Image.PNG);
         
-        console.log(`WebP size: ${webpBuffer.byteLength} bytes, PNG size: ${pngBuffer.byteLength} bytes`);
+        const webpSize = webpBuffer.byteLength;
+        const pngSize = pngBuffer.byteLength;
+        console.log(`WebP size: ${webpSize} bytes, PNG size: ${pngSize} bytes`);
         
-        if (webpBuffer.byteLength <= pngBuffer.byteLength) {
+        if (webpSize <= pngSize) {
           processedImageBuffer = webpBuffer;
           outputFilename = `${baseFilename}.webp`;
           outputFormat = 'webp';
@@ -157,11 +161,9 @@ export async function processImage(
       }
     }
 
-    console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes (${(processedImageBuffer.byteLength / 1024 / 1024).toFixed(2)}MB)`);
-    
-    // Calculate compression ratio (original / new)
-    const compressionRatio = (fileSize / processedImageBuffer.byteLength).toFixed(2);
-    console.log(`Compression ratio: ${compressionRatio}x (${fileSize} / ${processedImageBuffer.byteLength})`);
+    // Double check that the buffer has a valid size
+    const finalSize = processedImageBuffer.byteLength;
+    console.log(`Compressed image size: ${finalSize} bytes (${(finalSize / 1024 / 1024).toFixed(2)}MB)`);
     
     return {
       buffer: processedImageBuffer,

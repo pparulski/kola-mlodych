@@ -1,8 +1,8 @@
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Gallery, GalleryFormData } from "@/types/galleries";
+import { Gallery, GalleryFormData, GalleryImage } from "@/types/galleries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/FileUpload";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Trash2, X, Image as ImageIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface GalleryEditorProps {
   gallery: Gallery | null;
@@ -23,6 +24,25 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
   const [description, setDescription] = useState(gallery?.description || "");
   const [newGallery, setNewGallery] = useState<Gallery | null>(null);
   const queryClient = useQueryClient();
+
+  // Get gallery images if editing an existing gallery
+  const { data: galleryImages, isLoading: imagesLoading } = useQuery({
+    queryKey: ['gallery-images', gallery?.id || newGallery?.id],
+    queryFn: async () => {
+      const galleryId = gallery?.id || newGallery?.id;
+      if (!galleryId) return [];
+
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('*')
+        .eq('gallery_id', galleryId)
+        .order('position', { ascending: true });
+
+      if (error) throw error;
+      return data as GalleryImage[];
+    },
+    enabled: !!(gallery?.id || newGallery?.id),
+  });
 
   const saveMutation = useMutation({
     mutationFn: async (data: GalleryFormData) => {
@@ -59,6 +79,27 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
     }
   });
 
+  const deleteImageMutation = useMutation({
+    mutationFn: async (imageId: string) => {
+      const { error } = await supabase
+        .from('gallery_images')
+        .delete()
+        .eq('id', imageId);
+        
+      if (error) throw error;
+      return imageId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
+      queryClient.invalidateQueries({ queryKey: ['galleries'] });
+      toast.success("Zdjęcie usunięte");
+    },
+    onError: (error) => {
+      console.error('Error deleting image:', error);
+      toast.error("Nie udało się usunąć zdjęcia");
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate({ title, description });
@@ -77,7 +118,7 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
         {
           gallery_id: galleryId,
           url,
-          position: gallery?.gallery_images?.length || newGallery?.gallery_images?.length || 0
+          position: galleryImages?.length || 0
         }
       ]);
       
@@ -85,11 +126,33 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
         throw error;
       }
       
+      queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['galleries'] });
       toast.success("Zdjęcie dodane");
     } catch (error) {
       console.error('Error adding image:', error);
       toast.error("Nie udało się dodać zdjęcia");
+    }
+  };
+
+  // Helper to extract file name from URL
+  const getFileNameFromUrl = (url: string): string => {
+    try {
+      const parts = new URL(url).pathname.split('/');
+      return parts[parts.length - 1];
+    } catch (e) {
+      return "Unknown file";
+    }
+  };
+  
+  // Helper to get file format
+  const getFileFormat = (url: string): string => {
+    try {
+      const fileName = getFileNameFromUrl(url);
+      const parts = fileName.split('.');
+      return parts.length > 1 ? parts[parts.length - 1].toUpperCase() : 'Unknown';
+    } catch (e) {
+      return "Unknown";
     }
   };
 
@@ -172,13 +235,79 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
               </div>
             </form>
 
-            <div className="mt-6 border-t pt-6">
-              <div className="space-y-2">
+            <Separator className="my-6" />
+
+            <div className="mt-4">
+              <h3 className="font-medium text-lg mb-4">Zdjęcia w galerii</h3>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {imagesLoading ? (
+                    <div>Ładowanie zdjęć...</div>
+                  ) : galleryImages && galleryImages.length > 0 ? (
+                    galleryImages.map((image) => (
+                      <div key={image.id} className="flex items-center justify-between border rounded p-3 bg-white dark:bg-zinc-800">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 bg-gray-100 dark:bg-zinc-700 rounded flex-shrink-0 overflow-hidden">
+                            <img 
+                              src={image.url} 
+                              alt="" 
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = ''; 
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const parent = (e.target as HTMLElement).parentElement;
+                                if (parent) {
+                                  const icon = document.createElement('div');
+                                  icon.className = 'flex items-center justify-center h-full w-full';
+                                  icon.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>';
+                                  parent.appendChild(icon);
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-sm font-medium truncate" title={getFileNameFromUrl(image.url)}>
+                              {getFileNameFromUrl(image.url)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Format: {getFileFormat(image.url)}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm('Czy na pewno chcesz usunąć to zdjęcie z galerii?')) {
+                              deleteImageMutation.mutate(image.id);
+                            }
+                          }}
+                          disabled={deleteImageMutation.isPending}
+                          className="text-destructive hover:bg-destructive/10"
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Usuń zdjęcie</span>
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center p-6 border rounded border-dashed">
+                      <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-muted-foreground">Ta galeria nie zawiera jeszcze żadnych zdjęć</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-2">
                 <Label>Dodaj zdjęcie do galerii</Label>
                 <FileUpload
                   onSuccess={(name, url) => handleImageUpload(name, url)}
                   acceptedFileTypes="image/*"
                   bucket="news_images"
+                  uploadId={`gallery-upload-${gallery?.id || newGallery?.id}`}
+                  compress={true}
                 />
               </div>
             </div>

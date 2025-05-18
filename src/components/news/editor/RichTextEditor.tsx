@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Editor } from '@hugerte/hugerte-react';
 
@@ -5,6 +6,7 @@ import { Editor } from '@hugerte/hugerte-react';
 import type { HugeRTE, Editor as HugeRTEEditor } from 'hugerte';
 
 import { galleryPlugin } from '@/components/gallery/GalleryPlugin'; // Adjust path
+import { imageUploadHandler } from '@/components/gallery/ImageUploadHandler'; // We'll create this
 
 // Type for the core options object
 type CoreEditorOptions = Parameters<HugeRTE['init']>[0];
@@ -44,6 +46,13 @@ const defaultInitOptions: CoreEditorOptions = {
          console.error("Error initializing gallery plugin:", pluginError);
     }
   },
+  // Add our custom image upload handler that will use compression
+  images_upload_handler: imageUploadHandler,
+  automatic_uploads: true,
+  file_picker_types: 'image',
+  // Configuration for image tools
+  image_advtab: true,
+  image_dimensions: false, // Don't let users specify dimensions
   height: 450,
   menubar: true
   // These might technically be present in CoreEditorOptions type, but we won't pass them

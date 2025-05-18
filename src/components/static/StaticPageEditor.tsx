@@ -1,3 +1,4 @@
+
 // StaticPageEditor.tsx
 
 import { Button } from "../ui/button";

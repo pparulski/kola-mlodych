@@ -62,7 +62,7 @@ export function FileUpload({
       
       // Determine if we should use compression (only for images and when compress is true)
       const isImage = file.type.startsWith('image/');
-      const useCompression = compress && isImage && fileExt !== 'webp';
+      const useCompression = compress && isImage;
 
       let publicUrl = '';
       

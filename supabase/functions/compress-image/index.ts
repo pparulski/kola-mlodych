@@ -61,9 +61,12 @@ serve(async (req: Request) => {
         fileSize
       );
       
+      // Ensure we have a valid buffer size for comparison
+      const processedSize = processedImageBuffer.byteLength;
+      
       // Final check to make sure we're actually saving space
-      if (processedImageBuffer.byteLength >= fileSize) {
-        console.log(`Compressed size ${processedImageBuffer.byteLength} bytes is larger than original ${fileSize} bytes. Using original file.`);
+      if (processedSize >= fileSize) {
+        console.log(`Compressed size ${processedSize} bytes is larger than original ${fileSize} bytes. Using original file.`);
         
         // Upload original file instead
         const publicUrl = await uploadToStorage(
@@ -97,6 +100,11 @@ serve(async (req: Request) => {
         processedImageBuffer,
         contentType
       );
+
+      // Log actual compression results
+      const compressionRatio = (fileSize / processedSize).toFixed(2);
+      console.log(`Actual compression ratio: ${compressionRatio}x (${fileSize} / ${processedSize} bytes)`);
+      console.log(`Size reduction: ${(fileSize - processedSize) / 1024} KB (${(100 - (processedSize / fileSize) * 100).toFixed(1)}%)`);
 
       // Return success response with the same format as the original upload
       return new Response(
