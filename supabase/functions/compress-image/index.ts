@@ -89,7 +89,7 @@ serve(async (req: Request) => {
     
     // Convert to WebP format - ImageScript uses quality 0-100 scale
     const webpQuality = quality / 100
-    const processedImageBuffer = await processedImage.encodeWEBP(webpQuality)
+    const processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality)
     
     console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes`)
 
