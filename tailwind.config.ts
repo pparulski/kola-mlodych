@@ -318,6 +318,17 @@ export default {
             },
           },
         },
+        md: { // For ".prose-md"
+          css: {
+            ol: {
+              paddingLeft: '2.30em', // Example: slightly larger for lg, adjust as needed
+                                     // This should be larger than prose-lg default of ~1.55em
+            },
+            ul: {
+              paddingLeft: '2.05em',   // Example: slightly larger for lg, adjust as needed
+            },
+          },
+        },
         dark: { // Apply similar or specific dark mode tightness adjustments if needed
           css: {
             // If dark mode needs different line heights or margins, define them here.
