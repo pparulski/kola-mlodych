@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,7 +97,7 @@ export function StaticPage() {
       
       <div className="relative">
         {page ? (
-          <div className="prose prose-lg md: prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="prose prose-lg md:prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
             <GalleryRenderer content={page.content} />
           </div>
         ) : (
