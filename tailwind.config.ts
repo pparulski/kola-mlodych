@@ -174,7 +174,7 @@ export default {
             ol: {
               marginTop: '0.8em',     // Reduced from 1.25em
               marginBottom: '0.8em',  // Reduced from 1.25em
-              paddingLeft: '1.3em', // Reduced from 1.625em
+              paddingLeft: '1.75em', // Reduced from 1.625em
               li: {
                 marginTop: '0.25em',    // Reduced from 0.5em
                 marginBottom: '0.25em', // Reduced from 0.5em
@@ -188,7 +188,7 @@ export default {
             ul: {
               marginTop: '0.8em',     // Reduced from 1.25em
               marginBottom: '0.8em',  // Reduced from 1.25em
-              paddingLeft: '1.1em', // Reduced from 1.625em (ul usually has less padding than ol)
+              paddingLeft: '1.5em', // Reduced from 1.625em (ul usually has less padding than ol)
               listStyleType: 'disc',
               li: {
                 marginTop: '0.25em',    // Reduced from 0.5em
