@@ -20,6 +20,14 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
 // We need to use the service role key to bypass RLS policies
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+// Determine if an image needs compression based on size
+function needsCompression(fileSize: number, width: number, height: number): boolean {
+  const SIZE_THRESHOLD = 1024 * 1024; // 1MB
+  const DIMENSION_THRESHOLD = 1920; // 1080p width
+  
+  return fileSize > SIZE_THRESHOLD || width > DIMENSION_THRESHOLD || height > DIMENSION_THRESHOLD;
+}
+
 // Serve function
 serve(async (req: Request) => {
   // Handle CORS preflight requests
@@ -57,79 +65,202 @@ serve(async (req: Request) => {
     }
 
     console.log(`Processing image upload: ${file.name} for bucket: ${bucketName}`)
-
-    // Read file as ArrayBuffer
-    const fileBuffer = await file.arrayBuffer()
+    const fileSize = file.size;
+    console.log(`Original file size: ${fileSize} bytes (${(fileSize / 1024 / 1024).toFixed(2)}MB)`)
     
-    // Process image with ImageScript (WebP alternative for Deno)
+    // Process file name regardless of whether we compress
     const originalFilename = file.name
     const filenameParts = originalFilename.split('.')
     const extension = filenameParts.pop()?.toLowerCase()
     const baseFilename = filenameParts.join('.')
-    const newFilename = `${baseFilename}.webp`
+    
+    // For very large images or specific formats where WebP conversion is problematic
+    // we'll skip processing and just upload the original file
+    if (fileSize > 10 * 1024 * 1024) { // Files larger than 10MB
+      console.log(`File too large (${(fileSize / 1024 / 1024).toFixed(2)}MB), uploading original file`)
+      
+      // Read file as ArrayBuffer
+      const fileBuffer = await file.arrayBuffer()
+      
+      // Upload to Supabase Storage directly
+      const { data: storageData, error: storageError } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(originalFilename, fileBuffer, {
+          contentType: file.type,
+          upsert: true
+        })
 
+      if (storageError) {
+        console.error(`Storage error: ${JSON.stringify(storageError)}`)
+        throw storageError
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(originalFilename)
+        
+      console.log(`Large file uploaded successfully without compression: ${publicUrl}`)
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          uploadId,
+          name: originalFilename, 
+          url: publicUrl
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+    
+    // Read file as ArrayBuffer for normal processing
+    const fileBuffer = await file.arrayBuffer()
+    
     // Load the image with ImageScript
-    const image = await Image.decode(new Uint8Array(fileBuffer))
-    console.log(`Image loaded: ${image.width}x${image.height}`)
-    
-    // Resize if necessary (for large images)
-    let processedImage = image
-    if (image.width > 1920 || image.height > 1080) {
-      // Calculate new dimensions while maintaining aspect ratio
-      const aspectRatio = image.width / image.height
-      let newWidth = 1920
-      let newHeight = Math.round(newWidth / aspectRatio)
+    try {
+      const image = await Image.decode(new Uint8Array(fileBuffer))
+      console.log(`Image loaded: ${image.width}x${image.height}`)
       
-      if (newHeight > 1080) {
-        newHeight = 1080
-        newWidth = Math.round(newHeight * aspectRatio)
+      // Choose output format based on input format and size
+      const isJpeg = extension === 'jpg' || extension === 'jpeg';
+      const isPng = extension === 'png';
+      const isWebP = extension === 'webp';
+      
+      let outputFilename, outputFormat, processedImageBuffer;
+      let processedImage = image;
+      
+      // Apply resizing if necessary (for large images)
+      const needsResize = image.width > 1920 || image.height > 1080;
+      
+      if (needsResize) {
+        // Calculate new dimensions while maintaining aspect ratio
+        const aspectRatio = image.width / image.height
+        let newWidth = 1920
+        let newHeight = Math.round(newWidth / aspectRatio)
+        
+        if (newHeight > 1080) {
+          newHeight = 1080
+          newWidth = Math.round(newHeight * aspectRatio)
+        }
+        
+        processedImage = await image.resize(newWidth, newHeight)
+        console.log(`Image resized to: ${newWidth}x${newHeight}`)
       }
       
-      processedImage = await image.resize(newWidth, newHeight)
-      console.log(`Image resized to: ${newWidth}x${newHeight}`)
-    }
-    
-    // Convert to WebP format - ImageScript uses quality 0-100 scale
-    const webpQuality = quality / 100
-    const processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality)
-    
-    console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes`)
-
-    // Upload to Supabase Storage using service role key to bypass RLS
-    const { data: storageData, error: storageError } = await supabase
-      .storage
-      .from(bucketName)
-      .upload(newFilename, processedImageBuffer, {
-        contentType: 'image/webp',
-        upsert: true
-      })
-
-    if (storageError) {
-      console.error(`Storage error: ${JSON.stringify(storageError)}`)
-      throw storageError
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from(bucketName)
-      .getPublicUrl(newFilename)
-      
-    console.log(`File uploaded successfully: ${publicUrl}`)
-
-    // Return success response with the same format as the original upload
-    return new Response(
-      JSON.stringify({
-        success: true,
-        uploadId,
-        name: newFilename, 
-        url: publicUrl
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // JPEGs should retain the JPEG format if WebP conversion causes inflation
+      if (isJpeg) {
+        // Test WebP compression first
+        const webpQuality = quality / 100;
+        const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        
+        // Also encode as JPEG to compare size
+        const jpegQuality = Math.min(quality + 10, 95) / 100; // Slightly higher quality for JPEG
+        const jpegBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
+        
+        console.log(`WebP size: ${webpBuffer.byteLength} bytes, JPEG size: ${jpegBuffer.byteLength} bytes`);
+        
+        // Use the smaller format
+        if (webpBuffer.byteLength <= jpegBuffer.byteLength) {
+          outputFormat = Image.WebP;
+          processedImageBuffer = webpBuffer;
+          outputFilename = `${baseFilename}.webp`;
+          console.log('Using WebP format (smaller)');
+        } else {
+          outputFormat = Image.JPEG;
+          processedImageBuffer = jpegBuffer;
+          outputFilename = `${baseFilename}.jpg`;
+          console.log('Using JPEG format (smaller)');
+        }
+      } 
+      // For non-JPEGs, always use WebP
+      else {
+        const webpQuality = quality / 100;
+        processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        outputFilename = `${baseFilename}.webp`;
+        console.log('Using WebP format for non-JPEG image');
       }
-    )
+      
+      console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes (${(processedImageBuffer.byteLength / 1024 / 1024).toFixed(2)}MB)`)
+      console.log(`Compression ratio: ${(processedImageBuffer.byteLength / fileSize * 100).toFixed(2)}%`)
+
+      // Upload to Supabase Storage using service role key to bypass RLS
+      const { data: storageData, error: storageError } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(outputFilename, processedImageBuffer, {
+          contentType: isJpeg && outputFilename.endsWith('.jpg') ? 'image/jpeg' : 'image/webp',
+          upsert: true
+        })
+
+      if (storageError) {
+        console.error(`Storage error: ${JSON.stringify(storageError)}`)
+        throw storageError
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(outputFilename)
+        
+      console.log(`File uploaded successfully: ${publicUrl}`)
+
+      // Return success response with the same format as the original upload
+      return new Response(
+        JSON.stringify({
+          success: true,
+          uploadId,
+          name: outputFilename, 
+          url: publicUrl
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    } catch (imageError) {
+      console.error(`Error processing image: ${imageError.message}`);
+      
+      // If image processing fails, upload the original file
+      const { data: storageData, error: storageError } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(originalFilename, fileBuffer, {
+          contentType: file.type,
+          upsert: true
+        })
+
+      if (storageError) {
+        console.error(`Storage error: ${JSON.stringify(storageError)}`)
+        throw storageError
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(originalFilename)
+        
+      console.log(`Original file uploaded as fallback: ${publicUrl}`)
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          uploadId,
+          name: originalFilename, 
+          url: publicUrl
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
   } catch (error) {
     console.error(`Error processing image: ${error.message}`)
     return new Response(
