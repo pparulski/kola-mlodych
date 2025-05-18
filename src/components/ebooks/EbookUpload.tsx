@@ -76,6 +76,7 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
             label="Plik PDF"
             acceptedFileTypes=".pdf"
             fieldName="fileUrl"
+            compress={false} // Don't compress PDFs
           />
 
           <EbookFileUpload 
@@ -85,6 +86,8 @@ export function EbookUpload({ onSubmit, onUploadSuccess, ebookToEdit }: EbookUpl
             acceptedFileTypes="image/*"
             showPreview={true}
             fieldName="coverUrl"
+            compress={true} // Do compress cover images
+            quality={85} // Use high quality for covers
           />
 
           <Button 

@@ -1,10 +1,11 @@
+
 // src/components/ebooks/card/EbookCover.tsx
 import { BookOpenText } from "lucide-react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AspectRatio } from "@/components/ui/aspect-ratio"; // IMPORT THIS
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { cn } from "@/lib/utils";
 
 interface EbookCoverProps {

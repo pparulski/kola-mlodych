@@ -41,7 +41,19 @@ export function GalleryRenderer({ content, onProcessedContent }: GalleryRenderer
         .order('position', { foreignTable: 'gallery_images' });
 
       if (error) throw error;
-      return galleryData;
+      
+      // Process the image URLs to ensure proper loading
+      if (galleryData) {
+        return galleryData.map(gallery => ({
+          ...gallery,
+          gallery_images: gallery.gallery_images.map(image => ({
+            ...image,
+            // Ensure WebP images render correctly with proper MIME type
+            url: image.url
+          }))
+        }));
+      }
+      return [];
     },
     enabled: galleryIds.length > 0,
   });

@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
 interface FeaturedImageUploadProps {
   featuredImage: string | null;
   setFeaturedImage: (url: string) => void;
+  quality?: number; // Add quality option for featured images
 }
 
 export function FeaturedImageUpload({ 
   featuredImage, 
-  setFeaturedImage 
+  setFeaturedImage,
+  quality = 85 // Higher quality for featured images
 }: FeaturedImageUploadProps) {
   return (
     <div className="space-y-4">
@@ -50,12 +52,17 @@ export function FeaturedImageUpload({
           onUpload={(url) => setFeaturedImage(url)}
           currentValue={featuredImage}
           acceptedFileTypes="image/*"
+          bucket="news_images"
+          compress={true}
+          quality={quality}
+          uploadId="featured-image"
         />
       </div>
       
       <p className="text-sm text-muted-foreground mt-2">
         Zalecane wymiary: 1200×675 px (16:9) lub 1680x720 px (21:9). 
         Zdjęcie będzie wyświetlane w proporcjach 16:9 w widoku artykułu i 21:9 na liście.
+        Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
       </p>
     </div>
   );
