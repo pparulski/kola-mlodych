@@ -14,8 +14,8 @@ export function SidebarLogo() {
   
   // Determine the logo source based on the resolved theme
   const logoSrc = resolvedTheme === 'dark' 
-    ? "/lovable-uploads/a69e03ab-2d39-4e2c-acef-8b773e96bc91.png"
-    : "/lovable-uploads/f47783a4-9b20-4e2a-ad2c-ee83934d60cc.png";
+    ? "/lovable-uploads/8bc5ecba-6aff-442e-81b0-0c51f2cc9cc7.png"
+    : "/lovable-uploads/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png";
   
   return (
     <div className="p-6 flex justify-center">
