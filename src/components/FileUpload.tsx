@@ -77,13 +77,16 @@ export function FileUpload({
         formData.append('uploadId', uploadId);
         formData.append('quality', quality.toString());
         
-        // Call the edge function
+        // Call the edge function - get authentication token properly
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData?.session?.access_token || '';
+        
         const response = await fetch(`https://zhxajqfwzevtrazipwlg.supabase.co/functions/v1/compress-image`, {
           method: 'POST',
           body: formData,
           headers: {
             // No need for Content-Type header with FormData
-            'Authorization': `Bearer ${supabase.auth.session()?.access_token || ''}`
+            'Authorization': `Bearer ${accessToken}`
           }
         });
         

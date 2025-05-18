@@ -1,8 +1,9 @@
+
 // This edge function compresses images, converts them to WebP format,
 // and uploads them to the appropriate Supabase storage bucket
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7'
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { Sharp } from 'https://esm.sh/sharp@0.32.6'
+import { Image } from 'https://deno.land/x/imagescript@1.2.15/mod.ts'
 import { Buffer } from 'https://deno.land/std@0.177.0/node/buffer.ts'
 
 // CORS headers for browser requests
@@ -58,48 +59,37 @@ serve(async (req: Request) => {
     // Read file as ArrayBuffer
     const fileBuffer = await file.arrayBuffer()
     
-    // Process image with Sharp
+    // Process image with ImageScript (WebP alternative for Deno)
     const originalFilename = file.name
     const filenameParts = originalFilename.split('.')
     const extension = filenameParts.pop()?.toLowerCase()
     const baseFilename = filenameParts.join('.')
     const newFilename = `${baseFilename}.webp`
 
-    // Create Sharp instance and process image
-    const sharpInstance = new Sharp(Buffer.from(fileBuffer))
+    // Load the image with ImageScript
+    const image = await Image.decode(new Uint8Array(fileBuffer))
+    console.log(`Image loaded: ${image.width}x${image.height}`)
     
-    // Get image metadata
-    const metadata = await sharpInstance.metadata()
-    console.log(`Image metadata: ${JSON.stringify(metadata)}`)
-    
-    // Process image based on size
-    let processedImageBuffer
-    
-    // Apply appropriate compression based on image dimensions
-    if (metadata.width && metadata.height) {
-      if (metadata.width > 1920 || metadata.height > 1080) {
-        // Resize large images while maintaining aspect ratio
-        processedImageBuffer = await sharpInstance
-          .resize({ 
-            width: 1920,
-            height: 1080,
-            fit: 'inside',
-            withoutEnlargement: true
-          })
-          .webp({ quality })
-          .toBuffer()
-      } else {
-        // Keep original dimensions but convert to WebP
-        processedImageBuffer = await sharpInstance
-          .webp({ quality })
-          .toBuffer()
+    // Resize if necessary (for large images)
+    let processedImage = image
+    if (image.width > 1920 || image.height > 1080) {
+      // Calculate new dimensions while maintaining aspect ratio
+      const aspectRatio = image.width / image.height
+      let newWidth = 1920
+      let newHeight = Math.round(newWidth / aspectRatio)
+      
+      if (newHeight > 1080) {
+        newHeight = 1080
+        newWidth = Math.round(newHeight * aspectRatio)
       }
-    } else {
-      // Fallback if we can't get dimensions
-      processedImageBuffer = await sharpInstance
-        .webp({ quality })
-        .toBuffer()
+      
+      processedImage = await image.resize(newWidth, newHeight)
+      console.log(`Image resized to: ${newWidth}x${newHeight}`)
     }
+    
+    // Convert to WebP format - ImageScript uses quality 0-100 scale
+    const webpQuality = quality / 100
+    const processedImageBuffer = await processedImage.encodeWEBP(webpQuality)
     
     console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes`)
 
