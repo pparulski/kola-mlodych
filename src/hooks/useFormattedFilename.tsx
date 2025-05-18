@@ -1,4 +1,4 @@
-// src/hooks/useFormattedFilename.ts
+
 import React, { useMemo } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,7 +23,7 @@ export function useFormattedFilename({
 }: UseFormattedFilenameProps): FormattedFilenameData {
   const isMobile = useIsMobile();
 
-  // The useMemo hook will compute the formatted data.
+  // The useMemo hook computes the formatted data.
   // It depends on filename, isMobile, and the length/ellipsis props.
   const formattedData = useMemo(() => {
     const currentOriginalName = filename; // Use the passed filename as the original
@@ -78,14 +78,12 @@ export function useFormattedFilename({
       }
     }
 
-    // This object is what useMemo's callback returns
     return {
       displayText: calculatedDisplayText,
       isTruncated: currentWasBaseNameTruncated,
-      originalName: currentOriginalName, // Return the original full filename
+      originalName: currentOriginalName,
     };
-  }, [filename, isMobile, mobileBaseNameMaxLength, desktopBaseNameMaxLength, ellipsis]); // Correct dependencies for useMemo
+  }, [filename, isMobile, mobileBaseNameMaxLength, desktopBaseNameMaxLength, ellipsis]);
 
-  // The hook itself returns the result of useMemo
   return formattedData;
 }
