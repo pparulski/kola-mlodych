@@ -131,7 +131,7 @@ serve(async (req: Request) => {
       const isPng = extension === 'png';
       const isWebP = extension === 'webp';
       
-      let outputFilename, outputFormat, processedImageBuffer;
+      let outputFilename, processedImageBuffer;
       let processedImage = image;
       
       // Apply resizing if necessary (for large images)
@@ -152,48 +152,117 @@ serve(async (req: Request) => {
         console.log(`Image resized to: ${newWidth}x${newHeight}`)
       }
       
-      // JPEGs should retain the JPEG format if WebP conversion causes inflation
+      // For JPEG formats, try both WebP and JPEG compression to choose the smaller one
       if (isJpeg) {
-        // Test WebP compression first
-        const webpQuality = quality / 100;
+        // WebP compression (use slightly lower quality for better compression)
+        const webpQuality = Math.min(quality - 10, 90) / 100;
         const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
         
-        // Also encode as JPEG to compare size
-        const jpegQuality = Math.min(quality + 10, 95) / 100; // Slightly higher quality for JPEG
+        // JPEG compression with slightly higher quality
+        const jpegQuality = quality / 100;
         const jpegBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
         
+        // Compare sizes of both formats
         console.log(`WebP size: ${webpBuffer.byteLength} bytes, JPEG size: ${jpegBuffer.byteLength} bytes`);
         
-        // Use the smaller format
-        if (webpBuffer.byteLength <= jpegBuffer.byteLength) {
-          outputFormat = Image.WebP;
+        // Use the smaller of the two formats
+        if (webpBuffer.byteLength <= jpegBuffer.byteLength && webpBuffer.byteLength < fileSize) {
           processedImageBuffer = webpBuffer;
           outputFilename = `${baseFilename}.webp`;
           console.log('Using WebP format (smaller)');
         } else {
-          outputFormat = Image.JPEG;
           processedImageBuffer = jpegBuffer;
           outputFilename = `${baseFilename}.jpg`;
           console.log('Using JPEG format (smaller)');
         }
       } 
-      // For non-JPEGs, always use WebP
+      // For PNG and other formats, use WebP if it's smaller
+      else if (isPng) {
+        // Try both WebP and PNG
+        const webpQuality = quality / 100;
+        const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        const pngBuffer = await processedImage.encode(Image.PNG);
+        
+        console.log(`WebP size: ${webpBuffer.byteLength} bytes, PNG size: ${pngBuffer.byteLength} bytes`);
+        
+        if (webpBuffer.byteLength <= pngBuffer.byteLength) {
+          processedImageBuffer = webpBuffer;
+          outputFilename = `${baseFilename}.webp`;
+          console.log('Using WebP format (smaller than PNG)');
+        } else {
+          processedImageBuffer = pngBuffer;
+          outputFilename = `${baseFilename}.png`;
+          console.log('Using PNG format (smaller)');
+        }
+      }
+      // For WebP input, re-encode with our quality settings
+      else if (isWebP) {
+        const webpQuality = quality / 100;
+        processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        outputFilename = `${baseFilename}.webp`;
+        console.log('Re-encoding WebP with specified quality');
+      }
+      // For all other formats, default to WebP
       else {
         const webpQuality = quality / 100;
         processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
         outputFilename = `${baseFilename}.webp`;
-        console.log('Using WebP format for non-JPEG image');
+        console.log('Converting unknown format to WebP');
+      }
+      
+      // Final check to make sure we're actually saving space
+      if (processedImageBuffer.byteLength >= fileSize && !needsResize) {
+        console.log(`Compressed size ${processedImageBuffer.byteLength} bytes is larger than original ${fileSize} bytes. Using original file.`);
+        
+        // Upload original file instead
+        const { data: storageData, error: storageError } = await supabase
+          .storage
+          .from(bucketName)
+          .upload(originalFilename, fileBuffer, {
+            contentType: file.type,
+            upsert: true
+          })
+
+        if (storageError) {
+          console.error(`Storage error: ${JSON.stringify(storageError)}`)
+          throw storageError
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from(bucketName)
+          .getPublicUrl(originalFilename)
+          
+        console.log(`Original file uploaded (compression did not reduce size): ${publicUrl}`)
+        
+        return new Response(
+          JSON.stringify({
+            success: true,
+            uploadId,
+            name: originalFilename, 
+            url: publicUrl
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        )
       }
       
       console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes (${(processedImageBuffer.byteLength / 1024 / 1024).toFixed(2)}MB)`)
       console.log(`Compression ratio: ${(processedImageBuffer.byteLength / fileSize * 100).toFixed(2)}%`)
 
       // Upload to Supabase Storage using service role key to bypass RLS
+      const contentType = outputFilename.endsWith('.webp') ? 'image/webp' : 
+                          outputFilename.endsWith('.jpg') || outputFilename.endsWith('.jpeg') ? 'image/jpeg' :
+                          outputFilename.endsWith('.png') ? 'image/png' : file.type;
+      
       const { data: storageData, error: storageError } = await supabase
         .storage
         .from(bucketName)
         .upload(outputFilename, processedImageBuffer, {
-          contentType: isJpeg && outputFilename.endsWith('.jpg') ? 'image/jpeg' : 'image/webp',
+          contentType: contentType,
           upsert: true
         })
 
