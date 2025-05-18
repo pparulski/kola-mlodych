@@ -58,66 +58,103 @@ export async function processImage(
     
     // For JPEG formats, try both WebP and JPEG compression to choose the smaller one
     if (isJpeg) {
-      // WebP compression with dynamic quality
-      const webpQuality = dynamicQuality / 100;
-      const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
-      
-      // JPEG compression with slightly higher quality (JPEG needs higher quality to match WebP)
-      const jpegQuality = Math.min(dynamicQuality + 5, 95) / 100;
-      const jpegBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
-      
-      // Compare sizes of both formats
-      console.log(`WebP size: ${webpBuffer.byteLength} bytes, JPEG size: ${jpegBuffer.byteLength} bytes`);
-      
-      // Use the smaller of the two formats
-      if (webpBuffer.byteLength <= jpegBuffer.byteLength) {
-        processedImageBuffer = webpBuffer;
-        outputFilename = `${baseFilename}.webp`;
-        outputFormat = 'webp';
-        console.log('Using WebP format (smaller)');
-      } else {
-        processedImageBuffer = jpegBuffer;
+      try {
+        // WebP compression with dynamic quality
+        const webpQuality = dynamicQuality / 100;
+        const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        
+        // JPEG compression with slightly higher quality (JPEG needs higher quality to match WebP)
+        const jpegQuality = Math.min(dynamicQuality + 5, 95) / 100;
+        const jpegBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
+        
+        // Compare sizes of both formats
+        console.log(`WebP size: ${webpBuffer.byteLength} bytes, JPEG size: ${jpegBuffer.byteLength} bytes`);
+        
+        // Use the smaller of the two formats
+        if (webpBuffer.byteLength <= jpegBuffer.byteLength) {
+          processedImageBuffer = webpBuffer;
+          outputFilename = `${baseFilename}.webp`;
+          outputFormat = 'webp';
+          console.log('Using WebP format (smaller)');
+        } else {
+          processedImageBuffer = jpegBuffer;
+          outputFilename = `${baseFilename}.jpg`;
+          outputFormat = 'jpeg';
+          console.log('Using JPEG format (smaller)');
+        }
+      } catch (error) {
+        console.error(`Error comparing formats: ${error.message}`);
+        // Fallback to JPEG if there's an error with format comparison
+        const jpegQuality = Math.min(dynamicQuality + 5, 95) / 100;
+        processedImageBuffer = await processedImage.encode(Image.JPEG, jpegQuality);
         outputFilename = `${baseFilename}.jpg`;
         outputFormat = 'jpeg';
-        console.log('Using JPEG format (smaller)');
+        console.log('Falling back to JPEG format due to error');
       }
     } 
     // For PNG and other formats, use WebP if it's smaller
     else if (isPng) {
-      // Try both WebP and PNG
-      const webpQuality = dynamicQuality / 100;
-      const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
-      const pngBuffer = await processedImage.encode(Image.PNG);
-      
-      console.log(`WebP size: ${webpBuffer.byteLength} bytes, PNG size: ${pngBuffer.byteLength} bytes`);
-      
-      if (webpBuffer.byteLength <= pngBuffer.byteLength) {
-        processedImageBuffer = webpBuffer;
-        outputFilename = `${baseFilename}.webp`;
-        outputFormat = 'webp';
-        console.log('Using WebP format (smaller than PNG)');
-      } else {
-        processedImageBuffer = pngBuffer;
+      try {
+        // Try both WebP and PNG
+        const webpQuality = dynamicQuality / 100;
+        const webpBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        const pngBuffer = await processedImage.encode(Image.PNG);
+        
+        console.log(`WebP size: ${webpBuffer.byteLength} bytes, PNG size: ${pngBuffer.byteLength} bytes`);
+        
+        if (webpBuffer.byteLength <= pngBuffer.byteLength) {
+          processedImageBuffer = webpBuffer;
+          outputFilename = `${baseFilename}.webp`;
+          outputFormat = 'webp';
+          console.log('Using WebP format (smaller than PNG)');
+        } else {
+          processedImageBuffer = pngBuffer;
+          outputFilename = `${baseFilename}.png`;
+          outputFormat = 'png';
+          console.log('Using PNG format (smaller)');
+        }
+      } catch (error) {
+        console.error(`Error comparing formats: ${error.message}`);
+        // Fallback to PNG if there's an error with format comparison
+        processedImageBuffer = await processedImage.encode(Image.PNG);
         outputFilename = `${baseFilename}.png`;
         outputFormat = 'png';
-        console.log('Using PNG format (smaller)');
+        console.log('Falling back to PNG format due to error');
       }
     }
     // For WebP input, re-encode with our quality settings
     else if (isWebP) {
-      const webpQuality = dynamicQuality / 100;
-      processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
-      outputFilename = `${baseFilename}.webp`;
-      outputFormat = 'webp';
-      console.log('Re-encoding WebP with dynamic quality');
+      try {
+        const webpQuality = dynamicQuality / 100;
+        processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        outputFilename = `${baseFilename}.webp`;
+        outputFormat = 'webp';
+        console.log('Re-encoding WebP with dynamic quality');
+      } catch (error) {
+        console.error(`Error re-encoding WebP: ${error.message}`);
+        // Just use the original buffer if re-encoding fails
+        processedImageBuffer = imageBuffer;
+        outputFilename = originalFilename;
+        outputFormat = 'webp';
+        console.log('Using original WebP due to encoding error');
+      }
     }
     // For all other formats, default to WebP
     else {
-      const webpQuality = dynamicQuality / 100;
-      processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
-      outputFilename = `${baseFilename}.webp`;
-      outputFormat = 'webp';
-      console.log('Converting unknown format to WebP');
+      try {
+        const webpQuality = dynamicQuality / 100;
+        processedImageBuffer = await processedImage.encode(Image.WebP, webpQuality);
+        outputFilename = `${baseFilename}.webp`;
+        outputFormat = 'webp';
+        console.log('Converting unknown format to WebP');
+      } catch (error) {
+        console.error(`Error converting to WebP: ${error.message}`);
+        // Just use the original buffer if conversion fails
+        processedImageBuffer = imageBuffer;
+        outputFilename = originalFilename;
+        outputFormat = 'unknown';
+        console.log('Using original format due to conversion error');
+      }
     }
 
     console.log(`Compressed image size: ${processedImageBuffer.byteLength} bytes (${(processedImageBuffer.byteLength / 1024 / 1024).toFixed(2)}MB)`);
