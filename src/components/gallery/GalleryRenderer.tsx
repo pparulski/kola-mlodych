@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 
 interface GalleryRendererProps {
   content?: string;
