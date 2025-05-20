@@ -38,26 +38,58 @@ const defaultInitOptions: CoreEditorOptions = {
       'forecolor backcolor emoticons | help',
   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
   setup: (editor: HugeRTEEditor) => {
-    console.log("Setting up HugeRTE editor...");
-    try {
-         galleryPlugin.init(editor);
-         console.log("Gallery plugin initialized successfully.");
-        // Ensure iframes keep required sandbox permissions when content is parsed
-         editor.on('PreInit', () => {
-           editor.parser.addNodeFilter('iframe', nodes => {
-             nodes.forEach(node => {
-               const existing = node.attr('sandbox') || '';
-               const tokens = new Set(existing.split(/\s+/).filter(Boolean));
-               tokens.add('allow-scripts');
-               tokens.add('allow-same-origin');
-               node.attr('sandbox', Array.from(tokens).join(' '));
-             });
-           });
-         });
-    } catch (pluginError) {
-         console.error("Error initializing gallery plugin:", pluginError);
-    }
-  },
+  console.log("Setting up HugeRTE editor...");
+  try {
+    galleryPlugin.init(editor); // Assuming this is fine
+    console.log("Gallery plugin initialized successfully.");
+
+    editor.on('PreInit', () => { // Or 'BeforeSetContent' or 'LoadContent' might also be relevant
+      console.log("HugeRTE PreInit: Adding iframe node filter.");
+      editor.parser.addNodeFilter('iframe', nodes => {
+        console.log(`Found ${nodes.length} iframe(s) in content.`);
+        nodes.forEach((node, index) => {
+          const existingSandbox = node.attr('sandbox') || '';
+          const sandboxTokens = new Set(existingSandbox.split(/\s+/).filter(Boolean));
+          
+          // Add ALL required sandbox permissions for zrzutka widget
+          sandboxTokens.add('allow-scripts');
+          sandboxTokens.add('allow-popups');
+          sandboxTokens.add('allow-popups-to-escape-sandbox');
+          // 'allow-same-origin' is powerful. Only add if zrzutka.pl widget *truly* needs it
+          // and you understand the implications. For just opening popups, it's usually not required.
+          // Let's keep it for now if zrzutka needs it to function beyond just popups.
+          sandboxTokens.add('allow-same-origin'); 
+          // Consider if other permissions are needed by zrzutka, e.g., allow-forms
+          // sandboxTokens.add('allow-forms'); 
+
+          const newSandboxValue = Array.from(sandboxTokens).join(' ');
+          console.log(`Iframe ${index} original sandbox: "${existingSandbox}", new sandbox: "${newSandboxValue}"`);
+          node.attr('sandbox', newSandboxValue);
+
+          // --- Also ensure 'allow' attribute is correctly set for payment/fullscreen ---
+          const existingAllow = node.attr('allow') || '';
+          const allowTokens = new Set(existingAllow.split(/;\s*/).filter(Boolean));
+          allowTokens.add('fullscreen');
+          allowTokens.add('payment');
+          // allowTokens.add('clipboard-write'); // If needed
+          
+          const newAllowValue = Array.from(allowTokens).join('; ');
+          console.log(`Iframe ${index} original allow: "${existingAllow}", new allow: "${newAllowValue}"`);
+          node.attr('allow', newAllowValue);
+
+          if (!node.attr('allowfullscreen')) {
+            node.attr('allowfullscreen', 'true');
+          }
+          if (!node.attr('referrerpolicy')) {
+            node.attr('referrerpolicy', 'no-referrer-when-downgrade');
+        }
+        });
+      });
+    });
+  } catch (pluginError) {
+    console.error("Error initializing gallery plugin or iframe filter:", pluginError);
+  }
+},
   // Add our custom image upload handler that will use compression
   images_upload_handler: imageUploadHandler,
   automatic_uploads: true,
