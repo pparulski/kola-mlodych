@@ -63,6 +63,7 @@ export function NewsDetails() {
   // Generate description for SEO
   const generateDescription = (content?: string): string => {
     if (!content) return '';
+    // Use our improved HTML stripping function with proper spacing
     const plainText = stripHtmlAndDecodeEntities(content);
     return plainText.substring(0, 150);
   };

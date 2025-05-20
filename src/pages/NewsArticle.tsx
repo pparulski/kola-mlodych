@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -59,12 +58,13 @@ export default function NewsArticle() {
     enabled: !!article,
   });
 
-  // Generate a clean excerpt for SEO description 
+  // Generate description for SEO
   const generateExcerpt = (content?: string): string => {
     if (!content) return '';
     
-    // Use our improved HTML stripping function for consistency
-    return stripHtmlAndDecodeEntities(content).substring(0, 160);
+    // Use our improved HTML stripping function for consistency with proper spacing
+    const plainText = stripHtmlAndDecodeEntities(content);
+    return plainText.substring(0, 160);
   };
 
   // For debugging
