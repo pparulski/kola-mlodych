@@ -27,7 +27,6 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  console.log("NewsPreview - category_names prop:", category_names);
   // Use pre-processed preview_content from the view, or fall back to processing content
   const previewContent = preview_content || "";
 
@@ -45,12 +44,13 @@ export function NewsPreview({
     name !== null && name !== undefined && name !== ""
   );
 
-  // Log the filtered array
-  console.log("NewsPreview - validCategoryNames:", validCategoryNames);
-  console.log("NewsPreview - validCategoryNames.length:", validCategoryNames.length);
+  // Log for debugging
+  if (validCategoryNames.length > 0) {
+    console.log("NewsPreview - validCategoryNames:", validCategoryNames);
+  }
 
   return (
-    <article className="news-card card-hover overflow-hidden animate-fade-in">
+    <article className="news-card content-box overflow-hidden animate-fade-in">
       {featured_image && (
         <FeaturedImage
           src={featured_image}
@@ -62,13 +62,13 @@ export function NewsPreview({
           alt={title}
         />
       )}
-      <div className="space-y-4 md:space-y-2 md:pt-2">
+      <div className="p-5 space-y-4 md:space-y-2">
         <div className="space-y-2">
           <Link
             to={`/news/${slug}`}
             className="no-underline group"
           >
-            <h2 className="text-2xl md:text-3xl pt-2 font-bold text-primary group-hover:text-accent transition-colors break-words">{title}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-primary group-hover:text-accent transition-colors break-words">{title}</h2>
           </Link>
           
           <div className="flex flex-wrap items-center gap-2 justify-between">
@@ -79,9 +79,13 @@ export function NewsPreview({
             {validCategoryNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {validCategoryNames.map((name) => (
-                  <span key={name} className="category-pill">
+                  <Link 
+                    key={name} 
+                    to={`/category/${name.toLowerCase().replace(/\s+/g, '-')}`} 
+                    className="category-pill"
+                  >
                     {name}
-                  </span>
+                  </Link>
                 ))}
               </div>
             )}
@@ -95,7 +99,7 @@ export function NewsPreview({
           />
         )}
         
-        <div className="pt-0">
+        <div className="pt-2">
           <Button
             variant="ghost"
             size="sm"

@@ -76,10 +76,10 @@ export default function CategoryFeed() {
   
   if (isLoading) {
     return (
-      <div className="container max-w-4xl mx-auto space-y-8 animate-pulse">
+      <div className="container max-w-4xl mx-auto space-y-8 animate-pulse mt-2">
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
           {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
@@ -90,7 +90,7 @@ export default function CategoryFeed() {
   
   if (!category) {
     return (
-      <div className="container max-w-4xl mx-auto animate-fade-in">
+      <div className="container max-w-4xl mx-auto animate-fade-in mt-2">
         <SEO
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
@@ -103,30 +103,40 @@ export default function CategoryFeed() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-4 animate-fade-in mt-2">
       <SEO 
         title={category.name}
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
         keywords={category.name}
       />
       
+      <div className="content-box p-5 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">{category.name}</h1>
+        <p className="text-muted-foreground mt-2">
+          {articles && articles.length > 0 
+            ? `Znaleziono ${articles.length} ${articles.length === 1 ? 'artykuł' : (articles.length < 5 ? 'artykuły' : 'artykułów')} w tej kategorii`
+            : 'Brak artykułów w tej kategorii'}
+        </p>
+      </div>
+      
       {articles && articles.length > 0 ? (
-        <div className="space-y-6 !mt-0">
+        <div className="space-y-6">
           {articles.map((article) => (
             <NewsPreview 
               key={article.id}
               id={article.id}
               slug={article.slug}
               title={article.title}
+              preview_content={article.preview_content || ""}
               content={article.content}
-              date={article.date || undefined}
+              date={article.date || article.created_at}
               featured_image={article.featured_image || undefined}
               category_names={[category.name]}
             />
           ))}
         </div>
       ) : (
-        <div className="text-center py-10 content-box !mt-0">
+        <div className="text-center py-10 content-box">
           <h2 className="text-xl font-medium">Brak artykułów</h2>
           <p className="text-muted-foreground mt-2">
             W tej kategorii nie ma jeszcze żadnych artykułów.
