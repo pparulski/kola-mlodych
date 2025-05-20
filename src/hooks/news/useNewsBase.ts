@@ -18,23 +18,16 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
     if (item.preview_content) {
       previewContent = stripHtmlAndDecodeEntities(item.preview_content);
     } else if (item.content) {
-      previewContent = stripHtmlAndDecodeEntities(item.content).substring(0, PREVIEW_LENGTH);
+      // Extract more content - not just first paragraph
+      previewContent = stripHtmlAndDecodeEntities(item.content);
     }
     
     // Make sure we don't exceed our preview length
     if (previewContent.length > PREVIEW_LENGTH) {
-      previewContent = previewContent.substring(0, PREVIEW_LENGTH);
-    }
-    
-    // Add ellipsis only if the content is actually truncated
-    const fullContent = item.content ? stripHtmlAndDecodeEntities(item.content) : '';
-    if (previewContent && fullContent && previewContent.length < fullContent.length) {
-      previewContent = previewContent.trim();
-      if (!previewContent.endsWith('.')) {
-        previewContent += '...';
-      } else {
-        previewContent += '..';
-      }
+      previewContent = previewContent.substring(0, PREVIEW_LENGTH).trim();
+      
+      // Always add ellipsis at the end when we truncate content
+      previewContent += '...';
     }
 
     // If the data comes from news_preview view, it already has category_names as an array
