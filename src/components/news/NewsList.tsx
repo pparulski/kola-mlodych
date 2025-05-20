@@ -15,8 +15,8 @@ export function NewsList({ newsItems }: NewsListProps) {
     <div className="space-y-6">
       {newsItems.map((article) => {
         console.log("Rendering article preview:", { 
-          title: article.title,
-          hasCategories: Array.isArray(article.category_names) && article.category_names.length > 0
+          title: article.title, 
+          preview_content: article.preview_content?.substring(0, 50) + "..." 
         });
           
         return (
