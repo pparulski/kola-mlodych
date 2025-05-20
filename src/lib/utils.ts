@@ -74,4 +74,3 @@ export function stripHtmlAndDecodeEntities(html?: string): string {
   
   return result;
 }
-

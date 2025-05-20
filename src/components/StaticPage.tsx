@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +6,7 @@ import type { StaticPage as StaticPageType } from "@/types/staticPages";
 import { GalleryRenderer } from "./gallery/GalleryRenderer";
 import { toast } from "sonner";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -59,8 +59,10 @@ export function StaticPage() {
   const generateExcerpt = (content?: string): string => {
     if (!content) return '';
     
-    // Remove HTML tags and limit to ~160 characters
-    const plainText = content.replace(/<[^>]*>?/gm, '');
+    // Use our improved HTML stripping function with proper spacing
+    const plainText = stripHtmlAndDecodeEntities(content);
+    
+    // Limit to ~160 characters for SEO meta description
     const excerpt = plainText.substring(0, 160);
     
     // Add ellipsis if text was truncated
