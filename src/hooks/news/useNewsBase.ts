@@ -4,7 +4,7 @@ import { stripHtmlAndDecodeEntities } from '@/lib/utils';
 
 // Constants used across news-related hooks
 export const ARTICLES_PER_PAGE = 8;
-export const PREVIEW_LENGTH = 300; // Define a consistent preview length
+export const PREVIEW_LENGTH = 500; // Increased from 300 to 500 characters
 
 // Helper function to format news items by flattening categories
 export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
@@ -18,7 +18,7 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
     if (item.preview_content) {
       previewContent = stripHtmlAndDecodeEntities(item.preview_content);
     } else if (item.content) {
-      // Extract more content - not just first paragraph
+      // Process the full content, preserving paragraphs
       previewContent = stripHtmlAndDecodeEntities(item.content);
     }
     

@@ -8,7 +8,7 @@ import { Category } from "@/types/categories";
 import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
-import { stripHtmlAndDecodeEntities } from "@/lib/utils";
+import { formatNewsItems } from "@/hooks/news/useNewsBase";
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
@@ -43,7 +43,7 @@ export default function CategoryFeed() {
   }, [category]);
   
   // Fetch articles from this category
-  const { data: articles, isLoading: isArticlesLoading } = useQuery({
+  const { data: articlesRaw, isLoading: isArticlesLoading } = useQuery({
     queryKey: ["category-articles", slug],
     queryFn: async () => {
       if (!category) return [];
@@ -66,12 +66,15 @@ export default function CategoryFeed() {
           const dateA = a.date ? new Date(a.date).getTime() : 0;
           const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateB - dateA;
-        }) as NewsArticle[];
+        });
     },
     enabled: !!category,
     staleTime: 0, // Ensure we always get fresh data
     refetchOnWindowFocus: true, // Refetch when window regains focus
   });
+  
+  // Format the articles using our consistent formatter
+  const articles = articlesRaw ? formatNewsItems(articlesRaw) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -113,29 +116,18 @@ export default function CategoryFeed() {
       
       {articles && articles.length > 0 ? (
         <div className="space-y-6 !mt-0">
-          {articles.map((article) => {
-            // Always ensure preview content is clean
-            let previewContent = article.preview_content;
-            if (!previewContent && article.content) {
-              previewContent = stripHtmlAndDecodeEntities(article.content).substring(0, 500);
-            } else if (previewContent) {
-              previewContent = stripHtmlAndDecodeEntities(previewContent);
-            }
-            
-            return (
-              <NewsPreview 
-                key={article.id}
-                id={article.id}
-                slug={article.slug}
-                title={article.title}
-                content={article.content}
-                preview_content={previewContent}
-                date={article.date || undefined}
-                featured_image={article.featured_image || undefined}
-                category_names={[category.name]}
-              />
-            );
-          })}
+          {articles.map((article) => (
+            <NewsPreview 
+              key={article.id}
+              id={article.id}
+              slug={article.slug}
+              title={article.title}
+              preview_content={article.preview_content}
+              date={article.date || undefined}
+              featured_image={article.featured_image || undefined}
+              category_names={[category.name]}
+            />
+          ))}
         </div>
       ) : (
         <div className="text-center py-10 content-box !mt-0">

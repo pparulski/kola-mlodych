@@ -11,7 +11,6 @@ interface NewsPreviewProps {
   slug: string;
   title: string;
   preview_content?: string;
-  content?: string;
   date?: string;
   featured_image?: string;
   category_names?: (string | null)[];
@@ -22,13 +21,11 @@ export function NewsPreview({
   slug,
   title,
   preview_content,
-  content,
   date,
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  // Use the provided preview content directly
-  // It should already be processed by formatNewsItems
+  // The preview_content should already be processed by formatNewsItems
   const previewContent = preview_content || "";
   
   const formattedDate = date 
@@ -85,7 +82,7 @@ export function NewsPreview({
         </div>
         
         {previewContent && (
-          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden line-clamp-10">
+          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden">
             {previewContent}
           </div>
         )}
