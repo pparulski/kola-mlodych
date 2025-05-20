@@ -5,6 +5,7 @@ import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Button } from "@/components/ui/button";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 interface NewsPreviewProps {
   id: string;
@@ -27,26 +28,21 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  // Use pre-processed preview_content or generate from content
+  // Create clean preview content
   let previewContent = preview_content || "";
   
   // If preview_content is not available but content is, create a simplified preview
   if (!previewContent && content) {
-    // Remove HTML tags and decode HTML entities to properly display Polish characters
-    const tempElement = document.createElement('div');
-    tempElement.innerHTML = content;
-    const plainText = tempElement.textContent || tempElement.innerText || '';
-    
-    // Limit to a reasonable length for display
-    previewContent = plainText.substring(0, 500);
+    previewContent = stripHtmlAndDecodeEntities(content).substring(0, 500);
+  }
+  // If we have preview content, ensure it's clean
+  else if (previewContent) {
+    previewContent = stripHtmlAndDecodeEntities(previewContent);
   }
   
   // Add ellipsis if the content was trimmed
   if (previewContent && content) {
-    // For content comparison, we need to strip HTML from both
-    const tempElement = document.createElement('div');
-    tempElement.innerHTML = content;
-    const fullPlainText = tempElement.textContent || tempElement.innerText || '';
+    const fullPlainText = stripHtmlAndDecodeEntities(content);
     
     if (previewContent.length < fullPlainText.length) {
       // Add proper ellipsis, checking if the last character is already a period

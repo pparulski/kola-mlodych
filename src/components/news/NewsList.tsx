@@ -15,10 +15,16 @@ export function NewsList({ newsItems }: NewsListProps) {
   return (
     <div className="space-y-6">
       {newsItems.map((article) => {
-        // Create clean preview content for the article if needed
+        // Always ensure the preview content is clean, regardless of source
         let previewContent = article.preview_content;
+        
+        // If there's no preview content but there is content, create one
         if (!previewContent && article.content) {
           previewContent = stripHtmlAndDecodeEntities(article.content).substring(0, 500);
+        } 
+        // If there is preview content, make sure it's properly stripped of HTML and decoded
+        else if (previewContent) {
+          previewContent = stripHtmlAndDecodeEntities(previewContent);
         }
         
         return (

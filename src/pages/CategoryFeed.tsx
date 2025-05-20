@@ -114,10 +114,12 @@ export default function CategoryFeed() {
       {articles && articles.length > 0 ? (
         <div className="space-y-6 !mt-0">
           {articles.map((article) => {
-            // Create clean preview content for the article if needed
+            // Always ensure preview content is clean
             let previewContent = article.preview_content;
             if (!previewContent && article.content) {
               previewContent = stripHtmlAndDecodeEntities(article.content).substring(0, 500);
+            } else if (previewContent) {
+              previewContent = stripHtmlAndDecodeEntities(previewContent);
             }
             
             return (
