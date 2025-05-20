@@ -19,11 +19,11 @@ export const useNewsDefault = () => {
       throw fetchError;
     }
 
-    console.log("Default news items from view:", previewNewsItems);
+    console.log("Default news items from view (raw):", previewNewsItems);
 
     // Use the common formatter to ensure consistent processing
     const formattedItems = formatNewsItems(previewNewsItems);
-    console.log("Formatted default news items:", formattedItems);
+    console.log("Formatted default news items with proper previews:", formattedItems);
     
     return {
       items: formattedItems,

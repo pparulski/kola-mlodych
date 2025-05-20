@@ -22,7 +22,7 @@ export const useNewsSearch = () => {
         page_offset: offset
       });
 
-    console.log("Search results from RPC:", rpcResult);
+    console.log("Search results from RPC (raw):", rpcResult);
     
     if (error) {
       console.error("Detailed error from search_news RPC:", error);
@@ -34,7 +34,7 @@ export const useNewsSearch = () => {
 
     // Use the common formatter to ensure consistency
     const formattedItems = formatNewsItems(typedResult?.items || []);
-    console.log("Formatted search result items:", formattedItems);
+    console.log("Formatted search result items with proper previews:", formattedItems);
     
     return {
       items: formattedItems, 

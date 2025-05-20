@@ -5,7 +5,6 @@ import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Button } from "@/components/ui/button";
-import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 interface NewsPreviewProps {
   id: string;
@@ -28,28 +27,10 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  // Use the provided preview content directly if available
-  let previewContent = preview_content || "";
+  // Use the provided preview content directly
+  // It should already be processed by formatNewsItems
+  const previewContent = preview_content || "";
   
-  // Only generate a preview if one wasn't provided but content exists
-  if (!previewContent && content) {
-    previewContent = stripHtmlAndDecodeEntities(content).substring(0, 500);
-  }
-  
-  // Add ellipsis if the content was trimmed
-  if (previewContent && content) {
-    const fullPlainText = stripHtmlAndDecodeEntities(content);
-    
-    if (previewContent.length < fullPlainText.length) {
-      // Add proper ellipsis, checking if the last character is already a period
-      if (previewContent.endsWith('.')) {
-        previewContent += '.';
-      } else {
-        previewContent += '...';
-      }
-    }
-  }
-
   const formattedDate = date 
     ? (() => {
         const parsedDate = new Date(date);
