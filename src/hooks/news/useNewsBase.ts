@@ -18,7 +18,7 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
     if (item.preview_content) {
       previewContent = stripHtmlAndDecodeEntities(item.preview_content);
     } else if (item.content) {
-      // Process the full content, preserving paragraphs
+      // Process the full content to get plain text, preserving all elements
       previewContent = stripHtmlAndDecodeEntities(item.content);
     }
     

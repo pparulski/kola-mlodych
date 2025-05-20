@@ -12,6 +12,7 @@ import { NewsArticle as NewsArticleType } from "@/types/news";
 import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export default function NewsArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -62,12 +63,8 @@ export default function NewsArticle() {
   const generateExcerpt = (content?: string): string => {
     if (!content) return '';
     
-    // Remove HTML tags and limit to ~160 characters
-    const plainText = content.replace(/<[^>]*>?/gm, '');
-    const excerpt = plainText.substring(0, 160);
-    
-    // Add ellipsis if text was truncated
-    return plainText.length > 160 ? `${excerpt}...` : excerpt;
+    // Use our improved HTML stripping function for consistency
+    return stripHtmlAndDecodeEntities(content).substring(0, 160);
   };
 
   // For debugging

@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -59,6 +60,13 @@ export function NewsDetails() {
     navigate(-1);
   };
 
+  // Generate description for SEO
+  const generateDescription = (content?: string): string => {
+    if (!content) return '';
+    const plainText = stripHtmlAndDecodeEntities(content);
+    return plainText.substring(0, 150);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4 container mx-auto px-4 mt-4 animate-pulse">
@@ -95,7 +103,7 @@ export function NewsDetails() {
     <div className="space-y-4 container mx-auto px-4 mt-4 animate-enter">
       <SEO 
         title={article.title}
-        description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
+        description={generateDescription(article.content)}
         image={article.featured_image || undefined}
         article={{
           publishedAt: article.created_at || undefined,
