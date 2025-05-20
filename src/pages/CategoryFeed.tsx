@@ -119,6 +119,7 @@ export default function CategoryFeed() {
               slug={article.slug}
               title={article.title}
               content={article.content}
+              preview_content={article.preview_content}
               date={article.date || undefined}
               featured_image={article.featured_image || undefined}
               category_names={[category.name]}

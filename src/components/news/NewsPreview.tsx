@@ -27,9 +27,26 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  console.log("NewsPreview - category_names prop:", category_names);
-  // Use pre-processed preview_content from the view, or fall back to processing content
-  const previewContent = preview_content || "";
+  // Use pre-processed preview_content or generate from content
+  let previewContent = preview_content || "";
+  
+  // If preview_content is not available but content is, create a simplified preview
+  if (!previewContent && content) {
+    // Remove HTML tags and get plain text
+    const plainText = content.replace(/<[^>]*>?/gm, '');
+    // Limit to a reasonable length for display
+    previewContent = plainText.substring(0, 500);
+  }
+  
+  // Add ellipsis if the content was trimmed
+  if (previewContent && content && previewContent.length < content.replace(/<[^>]*>?/gm, '').length) {
+    // Add proper ellipsis, checking if the last character is already a period
+    if (previewContent.endsWith('.')) {
+      previewContent += '.';
+    } else {
+      previewContent += '...';
+    }
+  }
 
   const formattedDate = date 
     ? (() => {
@@ -44,10 +61,6 @@ export function NewsPreview({
   const validCategoryNames = (category_names || []).filter((name): name is string => 
     name !== null && name !== undefined && name !== ""
   );
-
-  // Log the filtered array
-  console.log("NewsPreview - validCategoryNames:", validCategoryNames);
-  console.log("NewsPreview - validCategoryNames.length:", validCategoryNames.length);
 
   return (
     <article className="news-card card-hover overflow-hidden animate-fade-in">
@@ -90,9 +103,10 @@ export function NewsPreview({
         
         {previewContent && (
           <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
+            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden line-clamp-10"
+          >
+            {previewContent}
+          </div>
         )}
         
         <div className="pt-0">
