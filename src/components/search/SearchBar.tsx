@@ -20,12 +20,12 @@ export function SearchBar({
 }: SearchBarProps) {
   const localInputRef = useRef<HTMLInputElement>(null);
   const activeRef = inputRef || localInputRef;
-
-  // Local state reflects exactly what's typed in the input
-  const [inputValue, setInputValue] = useState(searchQuery);
   
   // Track if we're processing an update to prevent loops
   const processingUpdate = useRef(false);
+
+  // Local state reflects exactly what's typed in the input
+  const [inputValue, setInputValue] = useState(searchQuery);
 
   // Update local input value ONLY if the EXTERNAL searchQuery prop changes
   // and we're not currently processing a user-initiated update
@@ -48,7 +48,7 @@ export function SearchBar({
     }
   };
 
-  // Submit search helper function
+  // Submit search helper function with added protection against update loops
   const submitSearch = () => {
     // Only update parent state if the input value is different from the last submitted query
     if (inputValue !== searchQuery) {
@@ -57,30 +57,37 @@ export function SearchBar({
       // Reset the flag after a short delay to allow state updates to propagate
       setTimeout(() => {
         processingUpdate.current = false;
-      }, 50);
+      }, 100);
     }
   };
 
-  // Handle explicit clear button click
+  // Handle explicit clear button click with protection against update loops
   const handleClear = () => {
-    setInputValue("");
-    
-    // Only update parent state if it wasn't already empty
-    if (searchQuery !== "") {
+    // Only clear if there's something to clear
+    if (!processingUpdate.current && inputValue !== "") {
+      setInputValue("");
       processingUpdate.current = true;
       setSearchQuery("");
+      
       setTimeout(() => {
         processingUpdate.current = false;
-      }, 50);
+        // Focus after state updates are complete
+        activeRef.current?.focus({ preventScroll: true });
+      }, 100);
+    } else {
+      // Just focus if nothing to clear
+      activeRef.current?.focus({ preventScroll: true });
     }
-    
-    activeRef.current?.focus({ preventScroll: true });
   };
 
   // Handle clicking the Search icon - submit current input value
   const handleSearchIconClick = () => {
-    submitSearch();
-    activeRef.current?.focus({ preventScroll: true }); 
+    if (!processingUpdate.current) {
+      submitSearch();
+      setTimeout(() => {
+        activeRef.current?.focus({ preventScroll: true }); 
+      }, 100);
+    }
   };
 
   return (

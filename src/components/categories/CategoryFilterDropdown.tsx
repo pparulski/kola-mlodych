@@ -26,6 +26,12 @@ export function CategoryFilterDropdown({
 }: CategoryFilterDropdownProps) {
   // Local state to track updates in progress
   const updatingRef = React.useRef(false);
+  
+  // Create a stable reference to the current selection for comparison
+  const previousSelectionRef = React.useRef<string[]>([]);
+  React.useEffect(() => {
+    previousSelectionRef.current = selectedCategories;
+  }, [selectedCategories]);
 
   const handleCategoryClick = (slug: string) => {
     // Prevent rapid successive updates
@@ -51,7 +57,7 @@ export function CategoryFilterDropdown({
     // Stop propagation to prevent dropdown from closing
     e.stopPropagation();
     
-    // Prevent duplicate updates
+    // Prevent duplicate updates or unnecessary updates if already empty
     if (updatingRef.current || selectedCategories.length === 0) return;
     
     updatingRef.current = true;
