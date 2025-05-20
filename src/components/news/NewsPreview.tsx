@@ -32,19 +32,29 @@ export function NewsPreview({
   
   // If preview_content is not available but content is, create a simplified preview
   if (!previewContent && content) {
-    // Remove HTML tags and get plain text
-    const plainText = content.replace(/<[^>]*>?/gm, '');
+    // Remove HTML tags and decode HTML entities to properly display Polish characters
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = content;
+    const plainText = tempElement.textContent || tempElement.innerText || '';
+    
     // Limit to a reasonable length for display
     previewContent = plainText.substring(0, 500);
   }
   
   // Add ellipsis if the content was trimmed
-  if (previewContent && content && previewContent.length < content.replace(/<[^>]*>?/gm, '').length) {
-    // Add proper ellipsis, checking if the last character is already a period
-    if (previewContent.endsWith('.')) {
-      previewContent += '.';
-    } else {
-      previewContent += '...';
+  if (previewContent && content) {
+    // For content comparison, we need to strip HTML from both
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = content;
+    const fullPlainText = tempElement.textContent || tempElement.innerText || '';
+    
+    if (previewContent.length < fullPlainText.length) {
+      // Add proper ellipsis, checking if the last character is already a period
+      if (previewContent.endsWith('.')) {
+        previewContent += '.';
+      } else {
+        previewContent += '...';
+      }
     }
   }
 
@@ -102,9 +112,7 @@ export function NewsPreview({
         </div>
         
         {previewContent && (
-          <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden line-clamp-10"
-          >
+          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden line-clamp-10">
             {previewContent}
           </div>
         )}

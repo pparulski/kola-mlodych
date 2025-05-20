@@ -1,6 +1,7 @@
 
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { EmptyNewsList } from "@/components/news/EmptyNewsList";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 interface NewsListProps {
   newsItems: any[];
@@ -14,13 +15,19 @@ export function NewsList({ newsItems }: NewsListProps) {
   return (
     <div className="space-y-6">
       {newsItems.map((article) => {
+        // Create clean preview content for the article if needed
+        let previewContent = article.preview_content;
+        if (!previewContent && article.content) {
+          previewContent = stripHtmlAndDecodeEntities(article.content).substring(0, 500);
+        }
+        
         return (
           <NewsPreview
             key={article.id}
             id={article.id}
             slug={article.slug}
             title={article.title}
-            preview_content={article.preview_content || ""}
+            preview_content={previewContent}
             content={article.content}
             date={article.date || article.created_at}
             featured_image={article.featured_image}

@@ -8,6 +8,7 @@ import { Category } from "@/types/categories";
 import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
@@ -112,19 +113,27 @@ export default function CategoryFeed() {
       
       {articles && articles.length > 0 ? (
         <div className="space-y-6 !mt-0">
-          {articles.map((article) => (
-            <NewsPreview 
-              key={article.id}
-              id={article.id}
-              slug={article.slug}
-              title={article.title}
-              content={article.content}
-              preview_content={article.preview_content}
-              date={article.date || undefined}
-              featured_image={article.featured_image || undefined}
-              category_names={[category.name]}
-            />
-          ))}
+          {articles.map((article) => {
+            // Create clean preview content for the article if needed
+            let previewContent = article.preview_content;
+            if (!previewContent && article.content) {
+              previewContent = stripHtmlAndDecodeEntities(article.content).substring(0, 500);
+            }
+            
+            return (
+              <NewsPreview 
+                key={article.id}
+                id={article.id}
+                slug={article.slug}
+                title={article.title}
+                content={article.content}
+                preview_content={previewContent}
+                date={article.date || undefined}
+                featured_image={article.featured_image || undefined}
+                category_names={[category.name]}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-10 content-box !mt-0">
