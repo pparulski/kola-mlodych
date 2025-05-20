@@ -32,7 +32,7 @@ export const useNewsSearch = () => {
     // Use explicit type assertion to avoid potential undefined issues
     const typedResult = rpcResult as unknown as SearchRpcResult | null;
 
-    // The search RPC already returns items with preview_content and category_names
+    // Use the common formatter to ensure consistency
     return {
       items: formatNewsItems(typedResult?.items || []), 
       total: typedResult?.total || 0   

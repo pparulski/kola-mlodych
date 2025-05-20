@@ -41,6 +41,7 @@ export const useNewsCategories = () => {
 
     console.log("Preview items by category:", previewItems);
     
+    // Use common formatter to ensure consistency
     return {
       items: formatNewsItems(previewItems),
       total: count || 0

@@ -21,6 +21,7 @@ export const useNewsDefault = () => {
 
     console.log("Preview news items from view:", previewNewsItems);
 
+    // Use the common formatter to ensure consistent processing
     return {
       items: formatNewsItems(previewNewsItems),
       total: count || 0
