@@ -54,7 +54,10 @@ const defaultInitOptions: CoreEditorOptions = {
   image_advtab: true,
   image_dimensions: false, // Don't let users specify dimensions
   height: 450,
-  menubar: true
+    menubar: true,
+  // Preserve important iframe attributes when saving content
+  extended_valid_elements:
+    'iframe[src|width|height|name|title|allowfullscreen|sandbox|allow|referrerpolicy|frameborder|scrolling|style]'
   // These might technically be present in CoreEditorOptions type, but we won't pass them
   // selector: undefined,
   // target: undefined,
