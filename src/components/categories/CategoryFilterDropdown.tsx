@@ -24,55 +24,37 @@ export function CategoryFilterDropdown({
   availableCategories,
   compactOnMobile = false,
 }: CategoryFilterDropdownProps) {
-  // Local state to track updates in progress
-  const updatingRef = React.useRef(false);
+  // Local state to track the selected categories
+  const [localSelectedCategories, setLocalSelectedCategories] = React.useState<string[]>(selectedCategories);
   
-  // Create a stable reference to the current selection for comparison
-  const previousSelectionRef = React.useRef<string[]>([]);
+  // Sync local state with props (one-way, parent to child)
   React.useEffect(() => {
-    previousSelectionRef.current = selectedCategories;
+    setLocalSelectedCategories(selectedCategories);
   }, [selectedCategories]);
+  
+  // Update function with debounce mechanism
+  const handleCategoryUpdate = React.useCallback((newCategories: string[]) => {
+    setLocalSelectedCategories(newCategories);
+    setSelectedCategories(newCategories);
+  }, [setSelectedCategories]);
 
+  // Handle category item click
   const handleCategoryClick = (slug: string) => {
-    // Prevent rapid successive updates
-    if (updatingRef.current) return;
+    const newCategories = localSelectedCategories.includes(slug)
+      ? localSelectedCategories.filter((c) => c !== slug)
+      : [...localSelectedCategories, slug];
     
-    updatingRef.current = true;
-    
-    // Update the categories
-    if (selectedCategories.includes(slug)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
-    } else {
-      setSelectedCategories([...selectedCategories, slug]);
-    }
-    
-    // Reset flag after short delay to prevent bouncing
-    setTimeout(() => {
-      updatingRef.current = false;
-    }, 100);
+    handleCategoryUpdate(newCategories);
   };
 
-  // Modified to ensure it properly clears categories
+  // Handle clear categories click
   const handleClearCategories = (e: React.MouseEvent) => {
-    // Stop propagation to prevent dropdown from closing
-    e.stopPropagation();
-    
-    // Prevent duplicate updates or unnecessary updates if already empty
-    if (updatingRef.current || selectedCategories.length === 0) return;
-    
-    updatingRef.current = true;
-    
-    // Clear selected categories by setting to empty array
-    setSelectedCategories([]);
-    
-    // Reset flag after short delay
-    setTimeout(() => {
-      updatingRef.current = false;
-    }, 100);
+    e.stopPropagation(); // Prevent dropdown from closing
+    handleCategoryUpdate([]);
   };
 
-  // Counter for selected items
-  const selectedCount = selectedCategories.length;
+  // Count for selected items
+  const selectedCount = localSelectedCategories.length;
   const hasSelectedItems = selectedCount > 0;
 
   return (
@@ -116,12 +98,12 @@ export function CategoryFilterDropdown({
               className="cursor-pointer flex items-center justify-between"
             >
               <span>{category.name}</span>
-              {selectedCategories.includes(category.slug) && (
+              {localSelectedCategories.includes(category.slug) && (
                 <span className="text-primary text-sm">✓</span>
               )}
             </DropdownMenuItem>
           ))}
-          {selectedCategories.length > 0 && (
+          {localSelectedCategories.length > 0 && (
             <DropdownMenuItem
               onClick={handleClearCategories}
               className="cursor-pointer text-destructive border-t mt-2 pt-2"

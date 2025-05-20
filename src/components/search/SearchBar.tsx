@@ -21,72 +21,75 @@ export function SearchBar({
   const localInputRef = useRef<HTMLInputElement>(null);
   const activeRef = inputRef || localInputRef;
   
-  // Track if we're processing an update to prevent loops
-  const processingUpdate = useRef(false);
-
-  // Local state reflects exactly what's typed in the input
+  // Local state for input value that user sees and types in
   const [inputValue, setInputValue] = useState(searchQuery);
+  
+  // Flag to track if we're currently processing an update from parent
+  const isUpdatingFromParent = useRef(false);
+  // Flag to track if we're processing a user input update
+  const isProcessingUserInput = useRef(false);
 
-  // Update local input value ONLY if the EXTERNAL searchQuery prop changes
-  // and we're not currently processing a user-initiated update
+  // Only update local input when parent state changes (but not due to our own updates)
   useEffect(() => {
-    if (!processingUpdate.current && searchQuery !== inputValue) {
-      setInputValue(searchQuery);
+    if (isUpdatingFromParent.current) {
+      return; // Skip if we're already processing an update
     }
-  }, [searchQuery, inputValue]);
+    
+    // Mark that we're updating from parent to avoid loops
+    isUpdatingFromParent.current = true;
+    
+    // Update local input value to match parent state
+    setInputValue(searchQuery);
+    
+    // Reset the flag after a short delay to allow rendering to complete
+    setTimeout(() => {
+      isUpdatingFromParent.current = false;
+    }, 50);
+  }, [searchQuery]);
 
-  // Update local state on every keystroke
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isUpdatingFromParent.current) return; // Skip if currently updating from parent
+    
+    isProcessingUserInput.current = true;
     setInputValue(e.target.value);
+    isProcessingUserInput.current = false;
   };
 
-  // Submit the search query ONLY on Enter
+  // Submit search only on Enter key
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault(); // Prevent form submission
       submitSearch();
     }
   };
 
-  // Submit search helper function with added protection against update loops
+  // Submit search to parent component
   const submitSearch = () => {
-    // Only update parent state if the input value is different from the last submitted query
-    if (inputValue !== searchQuery) {
-      processingUpdate.current = true;
+    if (inputValue !== searchQuery && !isUpdatingFromParent.current) {
       setSearchQuery(inputValue);
-      // Reset the flag after a short delay to allow state updates to propagate
-      setTimeout(() => {
-        processingUpdate.current = false;
-      }, 100);
     }
   };
 
-  // Handle explicit clear button click with protection against update loops
+  // Clear search
   const handleClear = () => {
-    // Only clear if there's something to clear
-    if (!processingUpdate.current && inputValue !== "") {
-      setInputValue("");
-      processingUpdate.current = true;
-      setSearchQuery("");
-      
-      setTimeout(() => {
-        processingUpdate.current = false;
-        // Focus after state updates are complete
-        activeRef.current?.focus({ preventScroll: true });
-      }, 100);
-    } else {
-      // Just focus if nothing to clear
+    if (isUpdatingFromParent.current) return;
+    
+    setInputValue("");
+    setSearchQuery("");
+    
+    setTimeout(() => {
       activeRef.current?.focus({ preventScroll: true });
-    }
+    }, 50);
   };
 
-  // Handle clicking the Search icon - submit current input value
+  // Submit search when clicking the search icon
   const handleSearchIconClick = () => {
-    if (!processingUpdate.current) {
+    if (!isUpdatingFromParent.current) {
       submitSearch();
       setTimeout(() => {
         activeRef.current?.focus({ preventScroll: true }); 
-      }, 100);
+      }, 50);
     }
   };
 
