@@ -1,3 +1,4 @@
+
 // PageLayout.tsx
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
@@ -16,7 +17,7 @@ const JOIN_BANNER_HEIGHT_CSS_VAL = `${JOIN_BANNER_HEIGHT_REM}rem`;
 const PAGE_HEADER_MAX_HEIGHT_CSS_VAL = `${PAGE_HEADER_MAX_HEIGHT_REM}rem`;
 
 export function PageLayout() {
-  const { searchQuery, setSearchQuery, selectedCategories, setSelectedCategories, isHomePage } = useSearchParams();
+  const { searchQuery, setSearchQuery, selectedCategories, setSelectedCategories, isHomePage, clearFilters } = useSearchParams();
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
   const location = useLocation();
@@ -27,16 +28,18 @@ export function PageLayout() {
     ? JOIN_BANNER_HEIGHT_CSS_VAL
     : `-${PAGE_HEADER_MAX_HEIGHT_CSS_VAL}`; // Slide up by its own max height
 
+  // Reset scroll position and clear filters when changing routes
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+    
+    // Only clear filters when navigating away from homepage
+    if (location.pathname !== '/' && (searchQuery || selectedCategories.length > 0)) {
+      clearFilters();
+    }
+  }, [location.pathname, clearFilters, searchQuery, selectedCategories]);
   
   return (
     <>
-      {/* CSS variables are not strictly needed for PageLayout anymore with inline styles,
-          but can be kept if other components reference them.
-          For this example, I'll remove the <style> tag to simplify.
-      */}
       <div className="flex-1 relative animate-fade-in"> {/* Overall page container */}
         
         {/* Sticky PageHeader Wrapper */}
@@ -59,22 +62,17 @@ export function PageLayout() {
         </div>
       
         {/* Main Content Area */}
-        {/* This div needs to account for the space taken by BOTH sticky elements when they are visible,
-            so content starts below them. */}
-  
-            <div className="pt-0 pb-3 pr-3 pl-3 md:pt-0 md:pb-3 md:pr-5 md:pl-5"> 
-                <CategorySection 
-                    isHomePage={isHomePage}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    categories={categories}
-                />
-                <div className="max-w-4xl mx-auto">
-                    <Outlet context={{ searchQuery, selectedCategories }} />
-                </div>
+        <div className="pt-0 pb-3 pr-3 pl-3 md:pt-0 md:pb-3 md:pr-5 md:pl-5"> 
+            <CategorySection 
+                isHomePage={isHomePage}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                categories={categories}
+            />
+            <div className="max-w-4xl mx-auto">
+                <Outlet context={{ searchQuery, selectedCategories }} />
             </div>
-        
-
+        </div>
       </div>
     </>
   );

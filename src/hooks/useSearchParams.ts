@@ -28,10 +28,21 @@ export function useSearchParams() {
         console.log(`useSearchParams: Updating state selectedCategories from URL:`, urlCategories);
         setSelectedCategories(urlCategories);
       }
+    } else {
+      // Clear search state when not on home page
+      if (searchQuery !== "") {
+        console.log("useSearchParams: Not on home page, clearing search query state.");
+        setSearchQuery("");
+      }
+      
+      // Clear category state when not on home page
+      if (selectedCategories.length > 0) {
+        console.log("useSearchParams: Not on home page, clearing category filter state.");
+        setSelectedCategories([]);
+      }
     }
-    // We ONLY want this to run when the location.search string changes externally
-    // or when we land on the home page.
-  }, [location.search, isHomePage]);
+    // We want this to run whenever the location changes or homepage status changes
+  }, [location.search, location.pathname, isHomePage, urlSearch, urlCategories]);
 
   // --- Effect 2: Update URL from STATE ---
   // This effect runs when the user *intends* to change the search/categories state
@@ -72,22 +83,21 @@ export function useSearchParams() {
             navigate(`${location.pathname}?${params.toString()}`, { replace: true });
         }
     }
-  }, [searchQuery, selectedCategories, isHomePage, location.pathname, navigate]);
+  }, [searchQuery, selectedCategories, isHomePage, location.pathname, navigate, location.search]);
 
-  // --- Effect 3: Clear search state when navigating AWAY from home page ---
-  useEffect(() => {
-    if (!isHomePage && searchQuery !== "") {
-      console.log("useSearchParams: Navigated away from home page, clearing search query state.");
-      setSearchQuery("");
-    }
-  }, [isHomePage, searchQuery]);
+  // Clear search function that can be called externally
+  const clearFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedCategories([]);
+  }, []);
 
-  // Return the state and setters
+  // Return the state, setters, and clear function
   return {
     searchQuery,
     setSearchQuery,
     selectedCategories,
     setSelectedCategories,
-    isHomePage
+    isHomePage,
+    clearFilters
   };
 }
