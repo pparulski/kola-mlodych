@@ -15,41 +15,36 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
     // Find all iframes in the rendered content
     const iframes = contentRef.current.querySelectorAll('iframe');
     
-    // Update each iframe to allow script execution and popups
+    // Update each iframe to ensure required permissions are present without overwriting existing ones
     iframes.forEach(iframe => {
-      // Add sandbox attribute with necessary permissions if it doesn't exist or is empty
-      if (!iframe.hasAttribute('sandbox') || iframe.getAttribute('sandbox') === '') {
-        iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox allow-same-origin');
-      } else {
-        // If sandbox exists but doesn't have all required permissions, add them
-        let sandboxValue = iframe.getAttribute('sandbox') || '';
-        
-        // Add necessary permissions that aren't already present
-        const requiredPermissions = ['allow-scripts', 'allow-popups', 'allow-popups-to-escape-sandbox', 'allow-same-origin'];
-        let newSandboxValue = sandboxValue;
-        
-        requiredPermissions.forEach(permission => {
-          if (!newSandboxValue.includes(permission)) {
-            newSandboxValue = newSandboxValue ? `${newSandboxValue} ${permission}` : permission;
-          }
-        });
-        
-        iframe.setAttribute('sandbox', newSandboxValue);
-      }
-      
-      // Ensure that the iframe allows fullscreen
+            // ----- sandbox -----
+      const requiredSandboxPermissions = [
+        'allow-scripts',
+        'allow-popups',
+        'allow-popups-to-escape-sandbox',
+        'allow-same-origin'
+      ];
+      const sandboxTokens = new Set(
+        (iframe.getAttribute('sandbox') || '')
+          .split(/\s+/)
+          .filter(Boolean)
+      );
+      requiredSandboxPermissions.forEach(token => sandboxTokens.add(token));
+      iframe.setAttribute('sandbox', Array.from(sandboxTokens).join(' '));
+
+      // ----- allow -----
+      const requiredAllowPermissions = ['fullscreen', 'payment', 'clipboard-write'];
+      const allowTokens = new Set(
+        (iframe.getAttribute('allow') || '')
+          .split(/;\s*/)
+          .filter(Boolean)
+      );
+      requiredAllowPermissions.forEach(token => allowTokens.add(token));
+      iframe.setAttribute('allow', Array.from(allowTokens).join('; '));
+
+      // ----- allowfullscreen -----
       if (!iframe.hasAttribute('allowfullscreen')) {
         iframe.setAttribute('allowfullscreen', 'true');
-      }
-      
-      // Add allow attribute for additional permissions if not present
-      if (!iframe.hasAttribute('allow')) {
-        iframe.setAttribute('allow', 'fullscreen; payment; clipboard-write');
-      } else {
-        const currentAllow = iframe.getAttribute('allow') || '';
-        if (!currentAllow.includes('fullscreen')) {
-          iframe.setAttribute('allow', `${currentAllow}; fullscreen; payment; clipboard-write`);
-        }
       }
 
       // Set referrerpolicy to avoid referrer restrictions
