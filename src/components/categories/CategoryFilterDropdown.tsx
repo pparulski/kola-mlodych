@@ -24,20 +24,45 @@ export function CategoryFilterDropdown({
   availableCategories,
   compactOnMobile = false,
 }: CategoryFilterDropdownProps) {
+  // Local state to track updates in progress
+  const updatingRef = React.useRef(false);
+
   const handleCategoryClick = (slug: string) => {
+    // Prevent rapid successive updates
+    if (updatingRef.current) return;
+    
+    updatingRef.current = true;
+    
+    // Update the categories
     if (selectedCategories.includes(slug)) {
       setSelectedCategories(selectedCategories.filter((c) => c !== slug));
     } else {
       setSelectedCategories([...selectedCategories, slug]);
     }
+    
+    // Reset flag after short delay to prevent bouncing
+    setTimeout(() => {
+      updatingRef.current = false;
+    }, 100);
   };
 
   // Modified to ensure it properly clears categories
   const handleClearCategories = (e: React.MouseEvent) => {
     // Stop propagation to prevent dropdown from closing
     e.stopPropagation();
+    
+    // Prevent duplicate updates
+    if (updatingRef.current || selectedCategories.length === 0) return;
+    
+    updatingRef.current = true;
+    
     // Clear selected categories by setting to empty array
     setSelectedCategories([]);
+    
+    // Reset flag after short delay
+    setTimeout(() => {
+      updatingRef.current = false;
+    }, 100);
   };
 
   // Counter for selected items

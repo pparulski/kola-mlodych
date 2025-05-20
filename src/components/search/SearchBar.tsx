@@ -1,18 +1,19 @@
+
 import { useRef, useEffect, KeyboardEvent, useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface SearchBarProps {
-  searchQuery: string; // Represents the *last submitted* query from parent
-  setSearchQuery: (query: string) => void; // Function to submit a *new* query to parent
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
   isCompact?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
   className?: string;
 }
 
 export function SearchBar({
-  searchQuery,      // Last submitted query
-  setSearchQuery,   // Function to SUBMIT a query
+  searchQuery,
+  setSearchQuery,
   isCompact = false,
   inputRef,
   className = "",
@@ -22,14 +23,17 @@ export function SearchBar({
 
   // Local state reflects exactly what's typed in the input
   const [inputValue, setInputValue] = useState(searchQuery);
+  
+  // Track if we're processing an update to prevent loops
+  const processingUpdate = useRef(false);
 
   // Update local input value ONLY if the EXTERNAL searchQuery prop changes
+  // and we're not currently processing a user-initiated update
   useEffect(() => {
-    if (searchQuery !== inputValue) {
-       setInputValue(searchQuery);
+    if (!processingUpdate.current && searchQuery !== inputValue) {
+      setInputValue(searchQuery);
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, inputValue]);
 
   // Update local state on every keystroke
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,56 +44,67 @@ export function SearchBar({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent default form submission
-      // Only update parent state if the input value is different from the last submitted query
-      // This prevents unnecessary updates if user hits Enter multiple times
-      if (inputValue !== searchQuery) {
-          setSearchQuery(inputValue);
-      }
+      submitSearch();
+    }
+  };
+
+  // Submit search helper function
+  const submitSearch = () => {
+    // Only update parent state if the input value is different from the last submitted query
+    if (inputValue !== searchQuery) {
+      processingUpdate.current = true;
+      setSearchQuery(inputValue);
+      // Reset the flag after a short delay to allow state updates to propagate
+      setTimeout(() => {
+        processingUpdate.current = false;
+      }, 50);
     }
   };
 
   // Handle explicit clear button click
   const handleClear = () => {
-    setInputValue("");       // Clear the visual input
+    setInputValue("");
+    
     // Only update parent state if it wasn't already empty
     if (searchQuery !== "") {
-        setSearchQuery("");  // Submit an empty query to parent immediately
+      processingUpdate.current = true;
+      setSearchQuery("");
+      setTimeout(() => {
+        processingUpdate.current = false;
+      }, 50);
     }
-    activeRef.current?.focus( {preventScroll: true}); // Optional: refocus input
+    
+    activeRef.current?.focus({ preventScroll: true });
   };
 
-    // Handle clicking the Search icon - submit current input value
-    const handleSearchIconClick = () => {
-        if (inputValue !== searchQuery) {
-            setSearchQuery(inputValue);
-        }
-        activeRef.current?.focus({ preventScroll: true }); 
-    };
-
+  // Handle clicking the Search icon - submit current input value
+  const handleSearchIconClick = () => {
+    submitSearch();
+    activeRef.current?.focus({ preventScroll: true }); 
+  };
 
   return (
     <div className={`relative ${className}`}>
       <Search
         className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer"
-        onClick={handleSearchIconClick} // Submit on icon click
+        onClick={handleSearchIconClick}
       />
       <Input
         type="search"
         placeholder="Szukaj..."
-        value={inputValue} // Controlled by local state
-        onChange={handleInputChange} // Update local state only
-        onKeyDown={handleKeyDown} // Submit on Enter
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
         className={`pl-8 w-full ${isCompact ? "h-9" : ""}`}
         ref={activeRef}
       />
-      {/* Show explicit clear button if there's text in the input */}
       {inputValue && (
-           <X
-             className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
-             onClick={handleClear}
-             aria-label="Clear search"
-           />
-       )}
+        <X
+          className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
+          onClick={handleClear}
+          aria-label="Clear search"
+        />
+      )}
     </div>
   );
 }
