@@ -22,7 +22,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     if (currentPage !== 1) {
       handlePageChange(1);
     }
-  }, [searchQuery, selectedCategories]);
+  }, [searchQuery, selectedCategories, handlePageChange, currentPage]);
 
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery({

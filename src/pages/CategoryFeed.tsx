@@ -5,14 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { Category } from "@/types/categories";
-import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
-import { formatNewsItems } from "@/hooks/news/useNewsBase";
+import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
+import { useNewsPagination } from "@/hooks/news/useNewsPagination";
+import { NewsPagination } from "@/components/news/NewsPagination";
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
+  const [totalArticles, setTotalArticles] = useState(0);
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -30,9 +32,12 @@ export default function CategoryFeed() {
       return data as Category;
     },
     enabled: !!slug,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
+
+  // Set up pagination
+  const { currentPage, totalPages, handlePageChange } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -42,39 +47,51 @@ export default function CategoryFeed() {
     }
   }, [category]);
   
-  // Fetch articles from this category
+  // Fetch articles from this category with pagination
   const { data: articlesRaw, isLoading: isArticlesLoading } = useQuery({
-    queryKey: ["category-articles", slug],
+    queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
-      if (!category) return [];
+      if (!category) return { articles: [], count: 0 };
       
+      // First get the total count
+      const { count, error: countError } = await supabase
+        .from("news_categories")
+        .select("*", { count: 'exact', head: true })
+        .eq("category_id", category.id);
+        
+      if (countError) throw countError;
+      
+      // Update total count state
+      setTotalArticles(count || 0);
+      
+      // Then get the paginated articles
       const { data, error } = await supabase
         .from("news_categories")
         .select(`
           news_id,
           news (*)
         `)
-        .eq("category_id", category.id);
+        .eq("category_id", category.id)
+        .order('news(created_at)', { ascending: false })
+        .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
       
       if (error) throw error;
       
-      // Return only the news articles, sorted by date descending
-      return data
-        .map(item => item.news)
-        .filter(article => article) // Remove any null items
-        .sort((a, b) => {
-          const dateA = a.date ? new Date(a.date).getTime() : 0;
-          const dateB = b.date ? new Date(b.date).getTime() : 0;
-          return dateB - dateA;
-        });
+      // Return only the news articles
+      return {
+        articles: data
+          .map(item => item.news)
+          .filter(article => article),
+        count: count || 0
+      };
     },
     enabled: !!category,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
   
   // Format the articles using our consistent formatter
-  const articles = articlesRaw ? formatNewsItems(articlesRaw) : [];
+  const articles = articlesRaw?.articles ? formatNewsItems(articlesRaw.articles) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -115,20 +132,31 @@ export default function CategoryFeed() {
       />
       
       {articles && articles.length > 0 ? (
-        <div className="space-y-6 !mt-0">
-          {articles.map((article) => (
-            <NewsPreview 
-              key={article.id}
-              id={article.id}
-              slug={article.slug}
-              title={article.title}
-              preview_content={article.preview_content}
-              date={article.date || undefined}
-              featured_image={article.featured_image || undefined}
-              category_names={[category.name]}
+        <>
+          <div className="space-y-6 !mt-0">
+            {articles.map((article) => (
+              <NewsPreview 
+                key={article.id}
+                id={article.id}
+                slug={article.slug}
+                title={article.title}
+                preview_content={article.preview_content}
+                date={article.date || undefined}
+                featured_image={article.featured_image || undefined}
+                category_names={[category.name]}
+              />
+            ))}
+          </div>
+          
+          {/* Add pagination */}
+          {totalPages > 1 && (
+            <NewsPagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              handlePageChange={handlePageChange} 
             />
-          ))}
-        </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-10 content-box !mt-0">
           <h2 className="text-xl font-medium">Brak artykułów</h2>

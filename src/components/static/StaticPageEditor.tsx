@@ -1,14 +1,8 @@
 
-// StaticPageEditor.tsx
-
 import { Button } from "../ui/button";
-// Removed useState as it wasn't used directly here
 import { StaticPage } from "@/types/staticPages";
 import { StaticPageImageUpload } from "./StaticPageImageUpload";
-// --- REMOVE OLD IMPORT ---
-// import { StaticPageTinyMCE } from "./StaticPageTinyMCE";
-// --- ADD NEW IMPORT ---
-import { RichTextEditor } from "@/components/news/editor/RichTextEditor"; // Adjust path
+import { RichTextEditor } from "@/components/news/editor/RichTextEditor";
 import { StaticPageSidebarOption } from "./StaticPageSidebarOption";
 import { usePageSubmit } from "@/hooks/usePageSubmit";
 
@@ -26,8 +20,8 @@ export function StaticPageEditor({
   const {
     title,
     setTitle,
-    content, // This holds the editor value
-    setContent, // This is the callback for the editor
+    content,
+    setContent,
     featuredImage,
     setFeaturedImage,
     showInSidebar,
@@ -42,7 +36,7 @@ export function StaticPageEditor({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Tytuł strony..."
-        className="w-full p-2 border rounded text-black bg-white" // Consider styling consistency
+        className="w-full p-2 border rounded text-black bg-white"
       />
 
       <StaticPageImageUpload
@@ -55,19 +49,15 @@ export function StaticPageEditor({
         setShowInSidebar={setShowInSidebar}
       />
 
-      {/* --- REPLACE USAGE --- */}
       <RichTextEditor
-        value={content} // Pass the current content
-        onEditorChange={setContent} // Pass the state update function
-        // --- Provide specific overrides if needed ---
+        value={content}
+        onEditorChange={setContent}
         height={500}
         menubar={true}
-        // You could also pass a more complex init object here if needed:
-        // init={{ menubar: true, height: 500, /* other overrides */ }}
       />
 
       <Button
-        onClick={() => handleSubmit([])} // Assuming handleSubmit expects categories (empty here?)
+        onClick={() => handleSubmit()}
         className="mt-4"
       >
         {existingPage ? "Zaktualizuj" : "Opublikuj"}

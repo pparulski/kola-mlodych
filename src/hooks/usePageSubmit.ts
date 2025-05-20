@@ -20,7 +20,7 @@ export function usePageSubmit(
   );
   const queryClient = useQueryClient();
 
-  const handleSubmit = async (selectedCategories: string[]) => {
+  const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -105,6 +105,7 @@ export function usePageSubmit(
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      queryClient.invalidateQueries({ queryKey: ['static-page', slug] }); // Add this to update the page if it's currently viewed
       
       if (!existingPage) {
         setTitle("");
