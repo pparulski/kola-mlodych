@@ -28,16 +28,12 @@ export function NewsPreview({
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  // Create clean preview content
+  // Use the provided preview content directly if available
   let previewContent = preview_content || "";
   
-  // If preview_content is not available but content is, create a simplified preview
+  // Only generate a preview if one wasn't provided but content exists
   if (!previewContent && content) {
     previewContent = stripHtmlAndDecodeEntities(content).substring(0, 500);
-  }
-  // If we have preview content, ensure it's clean
-  else if (previewContent) {
-    previewContent = stripHtmlAndDecodeEntities(previewContent);
   }
   
   // Add ellipsis if the content was trimmed

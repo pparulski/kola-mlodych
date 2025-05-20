@@ -19,7 +19,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   
   // Reset to page 1 when search query or categories change
   useEffect(() => {
-    // This is handled in useNewsPagination now when totalItems changes
+    if (currentPage !== 1) {
+      handlePageChange(1);
+    }
   }, [searchQuery, selectedCategories]);
 
   // Query for news data with server-side pagination and filtering
@@ -29,19 +31,34 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       const { from, to } = getPaginationIndices();
       
       let result;
+      console.log("Fetching news with params:", { 
+        searchQuery, 
+        selectedCategories, 
+        currentPage, 
+        from, 
+        to 
+      });
       
       // Handle search queries with the search_news function
       if (searchQuery) {
+        console.log("Using search news flow");
         result = await searchNews(searchQuery, ARTICLES_PER_PAGE, from);
       }
       // Server-side filtering and pagination for category filters
       else if (selectedCategories && selectedCategories.length > 0) {
+        console.log("Using category filter flow");
         result = await fetchNewsByCategories(selectedCategories, from, to);
       }
       // Standard pagination without filters
       else {
+        console.log("Using default news flow");
         result = await fetchDefaultNews(from, to);
       }
+      
+      console.log("Query result:", {
+        totalItems: result.total,
+        itemsCount: result.items.length
+      });
       
       // Update total items for pagination
       setTotalItems(result.total);

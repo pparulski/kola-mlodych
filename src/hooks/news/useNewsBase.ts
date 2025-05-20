@@ -10,7 +10,7 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
   if (!rawNewsItems) return [];
   
   return rawNewsItems.map(item => {
-    // Process the preview_content if it exists
+    // Always process the content to create consistent preview content
     const previewContent = item.preview_content
       ? stripHtmlAndDecodeEntities(item.preview_content)
       : item.content 

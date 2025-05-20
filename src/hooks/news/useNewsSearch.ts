@@ -33,8 +33,11 @@ export const useNewsSearch = () => {
     const typedResult = rpcResult as unknown as SearchRpcResult | null;
 
     // Use the common formatter to ensure consistency
+    const formattedItems = formatNewsItems(typedResult?.items || []);
+    console.log("Formatted search result items:", formattedItems);
+    
     return {
-      items: formatNewsItems(typedResult?.items || []), 
+      items: formattedItems, 
       total: typedResult?.total || 0   
     };
   };

@@ -39,11 +39,14 @@ export const useNewsCategories = () => {
       throw previewError;
     }
 
-    console.log("Preview items by category:", previewItems);
+    console.log("Category filtered news items:", previewItems);
     
     // Use common formatter to ensure consistency
+    const formattedItems = formatNewsItems(previewItems);
+    console.log("Formatted category news items:", formattedItems);
+    
     return {
-      items: formatNewsItems(previewItems),
+      items: formattedItems,
       total: count || 0
     };
   };
