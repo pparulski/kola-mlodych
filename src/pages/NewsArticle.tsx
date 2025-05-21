@@ -143,7 +143,7 @@ export default function NewsArticle() {
           />
         )}
 
-        <div className="p-5 md:p-6 space-y-4 md:space-y-5">
+        <div className="space-y-4 md:space-y-5">
           <h1 className="text-2xl md:text-4xl font-bold mt-2">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2 justify-between">
