@@ -12,9 +12,6 @@ export function usePageSubmit(
 ) {
   const [title, setTitle] = useState(existingPage?.title || "");
   const [content, setContent] = useState(existingPage?.content || "");
-  const [featuredImage, setFeaturedImage] = useState<string | null>(
-    existingPage?.featured_image || null
-  );
   const [showInSidebar, setShowInSidebar] = useState(
     existingPage?.show_in_sidebar ?? true
   );
@@ -48,16 +45,15 @@ export function usePageSubmit(
         }
       }
 
+      // Create basic update data structure - without featured_image which doesn't exist in the DB
       const updateData: {
         title: string;
         content: string;
-        featured_image: string | null;
         show_in_sidebar: boolean;
         slug?: string;
       } = {
         title,
         content,
-        featured_image: featuredImage,
         show_in_sidebar: showInSidebar,
       };
 
@@ -110,7 +106,6 @@ export function usePageSubmit(
       if (!existingPage) {
         setTitle("");
         setContent("");
-        setFeaturedImage(null);
         setShowInSidebar(true);
       }
       onSuccess?.();
@@ -125,8 +120,6 @@ export function usePageSubmit(
     setTitle,
     content, 
     setContent,
-    featuredImage,
-    setFeaturedImage,
     showInSidebar,
     setShowInSidebar,
     handleSubmit

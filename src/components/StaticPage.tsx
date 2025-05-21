@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,7 +94,6 @@ export function StaticPage() {
         <SEO
           title={page.title}
           description={generateExcerpt(page.content)}
-          image={page.featured_image}
         />
       )}
       

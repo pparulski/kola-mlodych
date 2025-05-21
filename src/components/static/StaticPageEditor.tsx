@@ -1,7 +1,6 @@
 
 import { Button } from "../ui/button";
 import { StaticPage } from "@/types/staticPages";
-import { StaticPageImageUpload } from "./StaticPageImageUpload";
 import { RichTextEditor } from "@/components/news/editor/RichTextEditor";
 import { StaticPageSidebarOption } from "./StaticPageSidebarOption";
 import { usePageSubmit } from "@/hooks/usePageSubmit";
@@ -22,8 +21,6 @@ export function StaticPageEditor({
     setTitle,
     content,
     setContent,
-    featuredImage,
-    setFeaturedImage,
     showInSidebar,
     setShowInSidebar,
     handleSubmit
@@ -37,11 +34,6 @@ export function StaticPageEditor({
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Tytuł strony..."
         className="w-full p-2 border rounded text-black bg-white"
-      />
-
-      <StaticPageImageUpload
-        featuredImage={featuredImage}
-        onImageUpload={(url) => setFeaturedImage(url)}
       />
 
       <StaticPageSidebarOption
