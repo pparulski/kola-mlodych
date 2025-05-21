@@ -1,12 +1,20 @@
 
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 
 // Hook for news pagination
 export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
   
   // Calculate total pages ensuring at least 1 page
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  
+  // Reset to page 1 when location changes (navigation between routes)
+  useEffect(() => {
+    console.log(`Route changed to ${location.pathname}, resetting page to 1`);
+    setCurrentPage(1);
+  }, [location.pathname]);
   
   // Reset to page 1 when total items changes
   useEffect(() => {
@@ -16,6 +24,34 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
       setCurrentPage(1);
     }
   }, [totalItems, itemsPerPage, currentPage]);
+
+  // Reset to page 1 on page reload
+  useEffect(() => {
+    const handlePageReload = () => {
+      if (currentPage !== 1) {
+        console.log("Page reloaded, resetting to page 1");
+        setCurrentPage(1);
+      }
+    };
+
+    // Check for page reload
+    if (performance.navigation && performance.navigation.type === 1) {
+      handlePageReload();
+    }
+
+    // Add event listener for visibility changes (another way to detect reloads)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handlePageReload();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [currentPage]);
 
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {

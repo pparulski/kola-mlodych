@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { ARTICLES_PER_PAGE } from "./news/useNewsBase";
 import { useNewsSearch } from "./news/useNewsSearch";
 import { useNewsCategories } from "./news/useNewsCategories";
@@ -15,6 +16,7 @@ interface NewsQueryResult {
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [totalItems, setTotalItems] = useState(0);
+  const location = useLocation();
   
   // Import individual hooks
   const { searchNews } = useNewsSearch();
@@ -33,9 +35,14 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     console.log("Filter key changed, resetting pagination:", filterKey);
   }, [filterKey]);
 
+  // Reset totalItems on location change or page reload
+  useEffect(() => {
+    setTotalItems(0);
+  }, [location.pathname]);
+
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
-    queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
+    queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage, location.pathname],
     queryFn: async () => {
       const { from, to } = getPaginationIndices();
       
@@ -45,7 +52,8 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         selectedCategories, 
         currentPage, 
         from, 
-        to 
+        to,
+        pathname: location.pathname 
       });
       
       try {

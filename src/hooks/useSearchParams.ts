@@ -10,6 +10,7 @@ export function useSearchParams() {
   // Track initialization
   const isInitialized = useRef(false);
   const isUpdatingURL = useRef(false);
+  const hasLoadedFromURL = useRef(false);
   
   // Parse URL params once on mount
   const searchParams = new URLSearchParams(location.search);
@@ -17,12 +18,56 @@ export function useSearchParams() {
   const urlCategories = (searchParams.get('categories') || '').split(',').filter(Boolean);
   
   // Initialize state from URL, only once on mount
-  const [searchQuery, setSearchQuery] = useState(urlSearch);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(urlCategories);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   
   // Additional state
   const isHomePage = location.pathname === '/';
   
+  // Effect to initialize state from URL parameters only once
+  useEffect(() => {
+    if (!hasLoadedFromURL.current && isHomePage) {
+      // Only load from URL params on first render
+      if (urlSearch) setSearchQuery(urlSearch);
+      if (urlCategories.length > 0) setSelectedCategories(urlCategories);
+      hasLoadedFromURL.current = true;
+      isInitialized.current = true;
+      
+      console.log("Initial URL parameters loaded:", { 
+        urlSearch, 
+        urlCategories 
+      });
+    }
+  }, [urlSearch, urlCategories, isHomePage]);
+
+  // Reset filters on hard page reload (check for page visibility changes)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && hasLoadedFromURL.current) {
+        console.log("Page visibility changed to visible, checking navigation type");
+        
+        // Check for page reload using navigation type
+        if (performance.navigation && performance.navigation.type === 1) {
+          console.log("Page was reloaded, resetting filters");
+          clearFilters();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also reset on component mount if it's not the initial load from URL
+    const isReload = performance.navigation && performance.navigation.type === 1;
+    if (isReload && hasLoadedFromURL.current) {
+      console.log("Component mounted after reload, resetting filters");
+      clearFilters();
+    }
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Effect to sync URL parameters to state (URL → state)
   // This runs when the URL changes (like on browser back/forward)
   useEffect(() => {
@@ -52,7 +97,7 @@ export function useSearchParams() {
       if (searchChanged) setSearchQuery(newSearchQuery);
       if (categoriesChanged) setSelectedCategories(newCategories);
     }
-  }, [location.search, isHomePage]);
+  }, [location.search, isHomePage, searchQuery, selectedCategories]);
 
   // Debounced function to update URL from state changes (state → URL)
   const updateURL = useCallback(
@@ -106,6 +151,7 @@ export function useSearchParams() {
   const clearFilters = useCallback(() => {
     if (isUpdatingURL.current) return;
     
+    console.log("Clearing all filters");
     setSearchQuery("");
     setSelectedCategories([]);
     
@@ -130,3 +176,4 @@ export function useSearchParams() {
     clearFilters
   };
 }
+

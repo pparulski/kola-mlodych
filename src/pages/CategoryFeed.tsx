@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -21,6 +21,12 @@ export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
+  const location = useLocation();
+  
+  // Reset total articles when the category changes
+  useEffect(() => {
+    setTotalArticles(0);
+  }, [slug, location.key]);
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -54,7 +60,7 @@ export default function CategoryFeed() {
   
   // Fetch articles from this category with pagination
   const { data: articlesData, isLoading: isArticlesLoading } = useQuery<CategoryArticlesResult>({
-    queryKey: ["category-articles", slug, currentPage],
+    queryKey: ["category-articles", slug, currentPage, location.key],
     queryFn: async () => {
       if (!category) return { articles: [], count: 0 };
       
