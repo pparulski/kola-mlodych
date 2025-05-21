@@ -55,7 +55,7 @@ export const useNewsCategories = () => {
       throw previewError;
     }
 
-    console.log(`Found ${totalCount} items total, returning items ${from}-${to}`);
+    console.log(`Category filter query: Found ${totalCount || 0} total items, returning ${previewItems?.length || 0} items`);
     
     // Use common formatter to ensure consistency
     const formattedItems = formatNewsItems(previewItems || []);

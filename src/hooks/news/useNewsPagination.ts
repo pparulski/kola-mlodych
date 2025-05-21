@@ -25,9 +25,14 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
     }
   }, [totalPages, currentPage]);
 
+  // Fixed calculation to ensure correct pagination ranges
   const getPaginationIndices = () => {
+    // Calculate proper zero-based indices for database queries
     const from = (currentPage - 1) * itemsPerPage;
-    const to = Math.min(from + itemsPerPage - 1, Math.max(0, totalItems - 1));
+    // Calculate proper 'to' index that includes the full page
+    const to = from + itemsPerPage - 1;
+    
+    console.log(`Pagination indices: from=${from}, to=${to}, page=${currentPage}/${totalPages}, itemsPerPage=${itemsPerPage}`);
     return { from, to };
   };
 

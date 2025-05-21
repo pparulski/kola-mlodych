@@ -48,30 +48,35 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         to 
       });
       
-      // Handle search queries with the search_news function
-      if (searchQuery) {
-        console.log("Using search news flow");
-        result = await searchNews(searchQuery, ARTICLES_PER_PAGE, from);
+      try {
+        // Handle search queries with the search_news function
+        if (searchQuery) {
+          console.log("Using search news flow");
+          result = await searchNews(searchQuery, ARTICLES_PER_PAGE, from);
+        }
+        // Server-side filtering and pagination for category filters
+        else if (selectedCategories && selectedCategories.length > 0) {
+          console.log("Using category filter flow");
+          result = await fetchNewsByCategories(selectedCategories, from, to);
+        }
+        // Standard pagination without filters
+        else {
+          console.log("Using default news flow");
+          result = await fetchDefaultNews(from, to);
+        }
+        
+        console.log("Query result:", {
+          totalItems: result.total,
+          itemsCount: result.items.length
+        });
+        
+        // Update total items for pagination
+        setTotalItems(result.total);
+        return result;
+      } catch (error) {
+        console.error("Error fetching news data:", error);
+        throw error;
       }
-      // Server-side filtering and pagination for category filters
-      else if (selectedCategories && selectedCategories.length > 0) {
-        console.log("Using category filter flow");
-        result = await fetchNewsByCategories(selectedCategories, from, to);
-      }
-      // Standard pagination without filters
-      else {
-        console.log("Using default news flow");
-        result = await fetchDefaultNews(from, to);
-      }
-      
-      console.log("Query result:", {
-        totalItems: result.total,
-        itemsCount: result.items.length
-      });
-      
-      // Update total items for pagination
-      setTotalItems(result.total);
-      return result;
     },
     staleTime: 10000, // Shorter stale time to refresh data more frequently
     gcTime: 30000, // Keep in cache for 30 seconds

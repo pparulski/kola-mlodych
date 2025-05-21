@@ -1,3 +1,4 @@
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -16,7 +17,7 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
     setIsChangingPage(false);
   }, [currentPage]);
   
-  // Don't render pagination if we only have 0 or 1 pages
+  // Don't render pagination if we only have 0 pages
   if (totalPages <= 0) {
     return null;
   }
@@ -69,6 +70,22 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
 
   // Get page numbers with potential ellipsis
   const pageNumbers = getPageNumbers();
+  
+  // For single page, just show the current page number without navigation buttons
+  if (totalPages === 1) {
+    return (
+      <div className="flex justify-center items-center mt-8">
+        <Button
+          variant="default"
+          size="sm"
+          disabled
+          className="h-8 w-8 p-0 pointer-events-none"
+        >
+          1
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center mt-8 space-x-2">

@@ -60,6 +60,8 @@ export default function CategoryFeed() {
       
       const { from, to } = getPaginationIndices();
       
+      console.log(`CategoryFeed: Fetching page ${currentPage} with range ${from}-${to}`);
+      
       // First get the total count
       const { count, error: countError } = await supabase
         .from("news_categories")
@@ -70,6 +72,8 @@ export default function CategoryFeed() {
       
       // Update total count state
       setTotalArticles(count || 0);
+      
+      console.log(`CategoryFeed: Found ${count} total articles for category ${category.name}`);
       
       // Then get the paginated articles
       const { data, error } = await supabase
@@ -84,11 +88,15 @@ export default function CategoryFeed() {
       
       if (error) throw error;
       
+      const articles = data
+        .map(item => item.news)
+        .filter(article => article);
+        
+      console.log(`CategoryFeed: Retrieved ${articles.length} articles for page ${currentPage}`);
+      
       // Return only the news articles
       return {
-        articles: data
-          .map(item => item.news)
-          .filter(article => article),
+        articles: articles,
         count: count || 0
       };
     },
@@ -107,7 +115,7 @@ export default function CategoryFeed() {
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {[1, 2, 3].map(i => (
+          {Array.from({ length: ARTICLES_PER_PAGE / 2 }).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
         </div>
@@ -171,13 +179,11 @@ export default function CategoryFeed() {
           </div>
           
           {/* Add pagination */}
-          {totalPages > 0 && (
-            <NewsPagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              handlePageChange={handlePageChange} 
-            />
-          )}
+          <NewsPagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            handlePageChange={handlePageChange} 
+          />
         </>
       ) : (
         <div className="text-center py-10 content-box !mt-0">
