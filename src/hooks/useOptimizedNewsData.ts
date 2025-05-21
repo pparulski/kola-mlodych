@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ARTICLES_PER_PAGE } from "./news/useNewsBase";
 import { useNewsSearch } from "./news/useNewsSearch";
 import { useNewsCategories } from "./news/useNewsCategories";
@@ -9,6 +9,7 @@ import { useNewsPagination } from "./news/useNewsPagination";
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [totalItems, setTotalItems] = useState(0);
+  const queryClient = useQueryClient();
   
   // Import individual hooks
   const { searchNews } = useNewsSearch();
@@ -57,17 +58,29 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       console.log("Query result:", {
         totalItems: result.total,
-        itemsCount: result.items.length
+        itemsCount: result.items.length,
+        currentPage
       });
       
       // Update total items for pagination
       setTotalItems(result.total);
       return result;
     },
+    // These options ensure proper cache management and re-fetching
+    refetchOnWindowFocus: false,
+    keepPreviousData: true, // Keep showing the previous page's data while loading
     staleTime: 30000,
     retry: 1,
     retryDelay: 1000,
   });
+
+  // When currentPage changes, force refetch to ensure new data
+  useEffect(() => {
+    console.log("Current page changed, invalidating query");
+    queryClient.invalidateQueries({
+      queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage]
+    });
+  }, [currentPage, queryClient, searchQuery, selectedCategories]);
 
   // Memoize the current page items to prevent unnecessary re-renders
   const currentPageItems = useMemo(() => newsData?.items || [], [newsData?.items]);

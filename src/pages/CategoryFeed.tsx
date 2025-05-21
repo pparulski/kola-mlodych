@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { Category } from "@/types/categories";
@@ -15,6 +15,7 @@ export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
+  const queryClient = useQueryClient();
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -36,8 +37,8 @@ export default function CategoryFeed() {
     refetchOnWindowFocus: true,
   });
 
-  // Set up pagination
-  const { currentPage, totalPages, handlePageChange } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
+  // Set up pagination with enhanced hook
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -47,11 +48,20 @@ export default function CategoryFeed() {
     }
   }, [category]);
   
+  // When currentPage changes, invalidate query to force refetch
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["category-articles", slug, currentPage]
+    });
+  }, [currentPage, queryClient, slug]);
+  
   // Fetch articles from this category with pagination
   const { data: articlesRaw, isLoading: isArticlesLoading } = useQuery({
     queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
       if (!category) return { articles: [], count: 0 };
+      
+      console.log(`Fetching category articles for page ${currentPage}`);
       
       // First get the total count
       const { count, error: countError } = await supabase
@@ -64,6 +74,11 @@ export default function CategoryFeed() {
       // Update total count state
       setTotalArticles(count || 0);
       
+      // Calculate pagination indices
+      const { from, to } = getPaginationIndices();
+      
+      console.log(`Category feed pagination: from=${from}, to=${to}, currentPage=${currentPage}`);
+      
       // Then get the paginated articles
       const { data, error } = await supabase
         .from("news_categories")
@@ -73,9 +88,11 @@ export default function CategoryFeed() {
         `)
         .eq("category_id", category.id)
         .order('news(created_at)', { ascending: false })
-        .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
+        .range(from, to);
       
       if (error) throw error;
+      
+      console.log(`Retrieved ${data.length} articles for category page ${currentPage}`);
       
       // Return only the news articles
       return {
@@ -86,6 +103,7 @@ export default function CategoryFeed() {
       };
     },
     enabled: !!category,
+    keepPreviousData: true,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
@@ -126,9 +144,9 @@ export default function CategoryFeed() {
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
       <SEO 
-        title={category.name}
-        description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
-        keywords={category.name}
+        title={category?.name || "Kategoria"}
+        description={`Przeglądaj artykuły z kategorii ${category?.name || ""} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
+        keywords={category?.name}
       />
       
       {articles && articles.length > 0 ? (
@@ -143,19 +161,21 @@ export default function CategoryFeed() {
                 preview_content={article.preview_content}
                 date={article.date || undefined}
                 featured_image={article.featured_image || undefined}
-                category_names={[category.name]}
+                category_names={[categoryName]}
               />
             ))}
           </div>
           
-          {/* Add pagination */}
-          {totalPages > 1 && (
-            <NewsPagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              handlePageChange={handlePageChange} 
-            />
-          )}
+          {/* Add pagination with debugging */}
+          <div className="mt-8">
+            {totalPages > 1 && (
+              <NewsPagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                handlePageChange={handlePageChange} 
+              />
+            )}
+          </div>
         </>
       ) : (
         <div className="text-center py-10 content-box !mt-0">

@@ -9,7 +9,7 @@ interface GalleryRendererProps {
   className?: string;         // To pass additional classes if needed
 }
 
-export function GalleryRenderer({ content, applyProseStyles = true, // Default to TRUE: renderer styles itself if not told otherwise
+export function GalleryRenderer({ content, applyProseStyles = true, 
   className  }: GalleryRendererProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -18,10 +18,11 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
     
     // Find all iframes in the rendered content
     const iframes = contentRef.current.querySelectorAll('iframe');
+    console.log(`Processing ${iframes.length} iframes in gallery content`);
     
     // Update each iframe to ensure required permissions are present without overwriting existing ones
     iframes.forEach(iframe => {
-            // ----- sandbox -----
+      // ----- sandbox -----
       const requiredSandboxPermissions = [
         'allow-scripts',
         'allow-popups',
@@ -58,7 +59,10 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
     });
   }, [content]);
   
-  if (!content) return null;
+  if (!content) {
+    console.log("No content to render in GalleryRenderer");
+    return null;
+  }
   
   // Configure DOMPurify to allow specific tags and attributes
   DOMPurify.addHook('beforeSanitizeElements', (node) => {
@@ -92,11 +96,16 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
     ]
   });
   
+  console.log("Gallery content sanitized and ready to render");
+  
+  const proseClasses = "prose prose-lg md:prose-base max-w-none dark:prose-invert";
+  
   return (
     <div 
       ref={contentRef}
       className={cn(
-        applyProseStyles && "hugerte-content", // Conditionally apply .hugerte-content
+        applyProseStyles && proseClasses, // Apply prose styling conditionally
+        "hugerte-content", // Always apply .hugerte-content
         className // Pass through any other classes
       )}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
