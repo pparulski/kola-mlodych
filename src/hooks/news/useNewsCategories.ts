@@ -9,6 +9,8 @@ export const useNewsCategories = () => {
     from: number,
     to: number
   ): Promise<NewsQueryResult> => {
+    console.log(`Fetching news by categories: ${selectedCategories.join(", ")} with range ${from}-${to}`);
+    
     // Step 1: Get category IDs from slugs
     const { data: categories, error: categoryError } = await supabase
       .from('categories')
@@ -16,15 +18,18 @@ export const useNewsCategories = () => {
       .in('slug', selectedCategories);
       
     if (categoryError) {
+      console.error("Error fetching category IDs:", categoryError);
       throw categoryError;
     }
     
     if (!categories || categories.length === 0) {
+      console.log("No matching categories found");
       // No matching categories found
       return { items: [], total: 0 };
     }
     
     const categoryIds = categories.map(cat => cat.id);
+    console.log("Category IDs:", categoryIds);
     
     // Step 2: Query the news_preview view with category filtering
     const { data: previewItems, count, error: previewError } = await supabase
@@ -39,11 +44,10 @@ export const useNewsCategories = () => {
       throw previewError;
     }
 
-    console.log("Category filtered news items (raw):", previewItems);
+    console.log(`Found ${count} items total, returning items ${from}-${to}`);
     
     // Use common formatter to ensure consistency
-    const formattedItems = formatNewsItems(previewItems);
-    console.log("Formatted category news items with proper previews:", formattedItems);
+    const formattedItems = formatNewsItems(previewItems || []);
     
     return {
       items: formattedItems,

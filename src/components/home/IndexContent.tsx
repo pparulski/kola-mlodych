@@ -17,6 +17,7 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
     currentPage,
     totalPages,
     handlePageChange,
+    totalItems,
     error
   } = useOptimizedNewsData(searchQuery, selectedCategories);
   
@@ -41,8 +42,9 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
             <div>
               <h3 className="font-medium">Filtrowanie według kategorii</h3>
               <p className="text-sm text-muted-foreground">
-                {currentPageItems.length > 0 
-                  ? `Znaleziono ${currentPageItems.length} artykułów` 
+                {totalItems > 0 
+                  ? `Znaleziono ${totalItems} ${totalItems === 1 ? 'artykuł' : 
+                     totalItems < 5 ? 'artykuły' : 'artykułów'}` 
                   : "Brak artykułów w wybranych kategoriach"}
               </p>
             </div>

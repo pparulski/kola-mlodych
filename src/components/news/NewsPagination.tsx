@@ -1,6 +1,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 interface NewsPaginationProps {
   currentPage: number;
@@ -9,17 +10,31 @@ interface NewsPaginationProps {
 }
 
 export function NewsPagination({ currentPage, totalPages, handlePageChange }: NewsPaginationProps) {
+  const [isChangingPage, setIsChangingPage] = useState(false);
+  
+  // Reset changing state when current page updates
+  useEffect(() => {
+    setIsChangingPage(false);
+  }, [currentPage]);
+  
   if (totalPages <= 1) {
     return null;
   }
+  
+  const onPageClick = (page: number) => {
+    if (page !== currentPage && !isChangingPage) {
+      setIsChangingPage(true);
+      handlePageChange(page);
+    }
+  };
 
   return (
     <div className="flex justify-center items-center mt-8 space-x-2">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        onClick={() => onPageClick(currentPage - 1)}
+        disabled={currentPage === 1 || isChangingPage}
         className="flex items-center"
       >
         <ChevronLeft className="h-4 w-4 mr-1" />
@@ -32,8 +47,9 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
             key={page}
             variant={page === currentPage ? "default" : "outline"}
             size="sm"
-            onClick={() => handlePageChange(page)}
-            className="h-8 w-8 p-0"
+            onClick={() => onPageClick(page)}
+            disabled={isChangingPage && page !== currentPage}
+            className={`h-8 w-8 p-0 ${page === currentPage ? "pointer-events-none" : ""}`}
           >
             {page}
           </Button>
@@ -43,8 +59,8 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        onClick={() => onPageClick(currentPage + 1)}
+        disabled={currentPage === totalPages || isChangingPage}
         className="flex items-center"
       >
         <span className="hidden sm:inline">Następna</span>

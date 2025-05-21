@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 // Hook for news pagination
 export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   
   // Reset to page 1 when total items changes
   useEffect(() => {
@@ -20,7 +20,7 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
 
   const getPaginationIndices = () => {
     const from = (currentPage - 1) * itemsPerPage;
-    const to = from + itemsPerPage - 1;
+    const to = Math.min(from + itemsPerPage - 1, totalItems - 1);
     return { from, to };
   };
 

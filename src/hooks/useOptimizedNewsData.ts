@@ -6,6 +6,12 @@ import { useNewsSearch } from "./news/useNewsSearch";
 import { useNewsCategories } from "./news/useNewsCategories";
 import { useNewsDefault } from "./news/useNewsDefault";
 import { useNewsPagination } from "./news/useNewsPagination";
+import { NewsArticle } from "@/types/news";
+
+interface NewsQueryResult {
+  items: NewsArticle[];
+  total: number;
+}
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [totalItems, setTotalItems] = useState(0);
@@ -17,15 +23,18 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const { currentPage, totalPages, handlePageChange, getPaginationIndices } = 
     useNewsPagination(totalItems, ARTICLES_PER_PAGE);
   
+  // Track filter changes to reset pagination
+  const filterKey = useMemo(() => {
+    return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
+  }, [searchQuery, selectedCategories]);
+
   // Reset to page 1 when search query or categories change
   useEffect(() => {
-    if (currentPage !== 1) {
-      handlePageChange(1);
-    }
-  }, [searchQuery, selectedCategories, handlePageChange, currentPage]);
+    setTotalItems(0); // Reset total to trigger pagination reset
+  }, [filterKey]);
 
   // Query for news data with server-side pagination and filtering
-  const { data: newsData, isLoading, error } = useQuery({
+  const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
     queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
       const { from, to } = getPaginationIndices();
@@ -64,9 +73,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       setTotalItems(result.total);
       return result;
     },
-    staleTime: 30000,
-    retry: 1,
-    retryDelay: 1000,
+    staleTime: 10000, // Shorter stale time to refresh data more frequently
+    gcTime: 30000, // Keep in cache for 30 seconds
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Memoize the current page items to prevent unnecessary re-renders
@@ -78,6 +87,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     currentPage,
     totalPages,
     handlePageChange,
+    totalItems: totalItems,
     error
   };
 }

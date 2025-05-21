@@ -10,6 +10,12 @@ import { SEO } from "@/components/seo/SEO";
 import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
+import { NewsArticle } from "@/types/news";
+
+interface CategoryArticlesResult {
+  articles: any[];
+  count: number;
+}
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
@@ -26,18 +32,17 @@ export default function CategoryFeed() {
         .from("categories")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data as Category;
     },
     enabled: !!slug,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 60000, // Cache category data for a minute
   });
 
   // Set up pagination
-  const { currentPage, totalPages, handlePageChange } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -48,10 +53,12 @@ export default function CategoryFeed() {
   }, [category]);
   
   // Fetch articles from this category with pagination
-  const { data: articlesRaw, isLoading: isArticlesLoading } = useQuery({
+  const { data: articlesData, isLoading: isArticlesLoading } = useQuery<CategoryArticlesResult>({
     queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
       if (!category) return { articles: [], count: 0 };
+      
+      const { from, to } = getPaginationIndices();
       
       // First get the total count
       const { count, error: countError } = await supabase
@@ -73,7 +80,7 @@ export default function CategoryFeed() {
         `)
         .eq("category_id", category.id)
         .order('news(created_at)', { ascending: false })
-        .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
+        .range(from, to);
       
       if (error) throw error;
       
@@ -86,12 +93,11 @@ export default function CategoryFeed() {
       };
     },
     enabled: !!category,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 10000, // Cache for 10 seconds
   });
   
   // Format the articles using our consistent formatter
-  const articles = articlesRaw?.articles ? formatNewsItems(articlesRaw.articles) : [];
+  const articles = articlesData?.articles ? formatNewsItems(articlesData.articles) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -130,6 +136,20 @@ export default function CategoryFeed() {
         description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
         keywords={category.name}
       />
+      
+      <div className="mb-6 p-4 bg-muted/30 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-medium">Kategoria: {category.name}</h3>
+            <p className="text-sm text-muted-foreground">
+              {totalArticles > 0 
+                ? `Znaleziono ${totalArticles} ${totalArticles === 1 ? 'artykuł' : 
+                   totalArticles < 5 ? 'artykuły' : 'artykułów'}` 
+                : "Brak artykułów w tej kategorii"}
+            </p>
+          </div>
+        </div>
+      </div>
       
       {articles && articles.length > 0 ? (
         <>
