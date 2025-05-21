@@ -1,3 +1,4 @@
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -69,6 +70,23 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
 
   // Get page numbers with potential ellipsis
   const pageNumbers = getPageNumbers();
+
+  // For a single page, just show "1" as the current page
+  if (totalPages === 1) {
+    return (
+      <div className="flex justify-center items-center mt-8 space-x-2">
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 w-8 p-0 pointer-events-none"
+          >
+            1
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center mt-8 space-x-2">

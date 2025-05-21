@@ -20,14 +20,16 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const { searchNews } = useNewsSearch();
   const { fetchNewsByCategories } = useNewsCategories();
   const { fetchDefaultNews } = useNewsDefault();
-  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = 
-    useNewsPagination(totalItems, ARTICLES_PER_PAGE);
   
   // Track filter changes to reset pagination
   const filterKey = useMemo(() => {
     return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
   }, [searchQuery, selectedCategories]);
-
+  
+  // Initialize pagination with total items and items per page
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = 
+    useNewsPagination(totalItems, ARTICLES_PER_PAGE);
+  
   // Reset to page 1 when search query or categories change
   useEffect(() => {
     console.log("Filter key changed, resetting pagination:", filterKey);
@@ -42,7 +44,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       let result: NewsQueryResult;
       console.log("Fetching news with params:", { 
         searchQuery, 
-        selectedCategories, 
+        selectedCategories,
         currentPage, 
         from, 
         to 

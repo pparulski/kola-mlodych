@@ -1,7 +1,6 @@
 
-import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { NewsQueryResult, formatNewsItems } from "./useNewsBase";
+import { NewsQueryResult, formatNewsItems, ARTICLES_PER_PAGE } from "./useNewsBase";
 
 // Define search RPC result type
 export interface SearchRpcResult {
@@ -13,9 +12,11 @@ export interface SearchRpcResult {
 export const useNewsSearch = () => {
   const searchNews = async (
     searchTerm: string,
-    limit: number,
-    offset: number
+    limit: number = ARTICLES_PER_PAGE,
+    offset: number = 0
   ): Promise<NewsQueryResult> => {
+    console.log(`Searching news with term "${searchTerm}", limit ${limit}, offset ${offset}`);
+    
     const { data: rpcResult, error } = await supabase
       .rpc('search_news', {
         search_term: searchTerm,
@@ -35,7 +36,7 @@ export const useNewsSearch = () => {
 
     // Use the common formatter to ensure consistency
     const formattedItems = formatNewsItems(typedResult?.items || []);
-    console.log("Formatted search result items with proper previews:", formattedItems);
+    console.log(`Search returned ${formattedItems.length} items out of total ${typedResult?.total || 0}`);
     
     return {
       items: formattedItems, 

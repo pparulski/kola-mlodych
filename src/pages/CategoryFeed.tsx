@@ -11,6 +11,7 @@ import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { NewsArticle } from "@/types/news";
+import { EmptyNewsList } from "@/components/news/EmptyNewsList";
 
 interface CategoryArticlesResult {
   articles: any[];
@@ -60,6 +61,8 @@ export default function CategoryFeed() {
       
       const { from, to } = getPaginationIndices();
       
+      console.log(`Fetching category ${slug} articles, page ${currentPage}, range ${from}-${to}`);
+      
       // First get the total count
       const { count, error: countError } = await supabase
         .from("news_categories")
@@ -70,6 +73,8 @@ export default function CategoryFeed() {
       
       // Update total count state
       setTotalArticles(count || 0);
+      
+      console.log(`Category ${slug} has ${count} total articles`);
       
       // Then get the paginated articles
       const { data, error } = await supabase
@@ -84,11 +89,15 @@ export default function CategoryFeed() {
       
       if (error) throw error;
       
+      const articles = data
+        .map(item => item.news)
+        .filter(article => article);
+        
+      console.log(`Fetched ${articles.length} articles for page ${currentPage}`);
+      
       // Return only the news articles
       return {
-        articles: data
-          .map(item => item.news)
-          .filter(article => article),
+        articles,
         count: count || 0
       };
     },
@@ -107,7 +116,7 @@ export default function CategoryFeed() {
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {[1, 2, 3].map(i => (
+          {Array(ARTICLES_PER_PAGE).fill(0).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
         </div>
@@ -170,22 +179,15 @@ export default function CategoryFeed() {
             ))}
           </div>
           
-          {/* Add pagination */}
-          {totalPages > 0 && (
-            <NewsPagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              handlePageChange={handlePageChange} 
-            />
-          )}
+          {/* Always show pagination with at least page "1" */}
+          <NewsPagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            handlePageChange={handlePageChange} 
+          />
         </>
       ) : (
-        <div className="text-center py-10 content-box !mt-0">
-          <h2 className="text-xl font-medium">Brak artykułów</h2>
-          <p className="text-muted-foreground mt-2">
-            W tej kategorii nie ma jeszcze żadnych artykułów.
-          </p>
-        </div>
+        <EmptyNewsList />
       )}
     </div>
   );

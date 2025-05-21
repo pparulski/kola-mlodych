@@ -1,66 +1,41 @@
 
-import { NewsArticle } from '@/types/news';
-import { stripHtmlAndDecodeEntities } from '@/lib/utils';
+import { NewsArticle } from "@/types/news";
 
-// Constants used across news-related hooks
+// Define the number of articles to display per page
 export const ARTICLES_PER_PAGE = 8;
-export const PREVIEW_LENGTH = 500; // Increased from 300 to 500 characters
 
-// Helper function to format news items by flattening categories
-export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
-  if (!rawNewsItems) return [];
-  
-  return rawNewsItems.map(item => {
-    // Process content to create consistent preview content with proper length
-    let previewContent = '';
-    
-    // Use provided preview_content if available, otherwise generate from content
-    if (item.preview_content) {
-      previewContent = stripHtmlAndDecodeEntities(item.preview_content);
-    } else if (item.content) {
-      // Process the full content to get plain text, preserving all elements with proper spacing
-      previewContent = stripHtmlAndDecodeEntities(item.content);
-    }
-    
-    // Make sure we don't exceed our preview length
-    if (previewContent.length > PREVIEW_LENGTH) {
-      previewContent = previewContent.substring(0, PREVIEW_LENGTH).trim();
-      
-      // Always add ellipsis at the end when we truncate content
-      previewContent += '...';
-    }
-
-    // If the data comes from news_preview view, it already has category_names as an array
-    if (item.category_names) {
-      return {
-        ...item,
-        preview_content: previewContent,
-        category_names: item.category_names.filter((name): name is string => 
-          name !== null && name !== undefined && name !== ""
-        )
-      };
-    }
-    
-    // For data from the regular news table, process the category data
-    const categoryNames = item.news_categories?.map(
-      (nc: any) => nc.categories?.name
-    ).filter((name): name is string => 
-      name !== null && name !== undefined && name !== ""
-    ) || [];
-    
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { news_categories, ...restOfItem } = item;
-
-    return {
-      ...restOfItem,
-      preview_content: previewContent,
-      category_names: categoryNames
-    };
-  });
-};
-
-// Interface for news query results
+// Define the shape of the news query result
 export interface NewsQueryResult {
   items: NewsArticle[];
   total: number;
 }
+
+// Format news items to clean up HTML content for previews
+export const formatNewsItems = (newsItems: any[]): NewsArticle[] => {
+  return newsItems.map(item => {
+    // Create a clean preview from HTML content if needed
+    let preview = item.preview_content;
+    
+    // If preview_content is HTML, clean it up
+    if (preview && (preview.includes('<') || preview.includes('&'))) {
+      // Remove HTML tags
+      preview = preview.replace(/<\/?[^>]+(>|$)/g, " ")
+        // Replace HTML entities
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, "\"")
+        .replace(/&#39;/g, "'")
+        // Remove extra whitespace
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+    
+    // Return formatted news item
+    return {
+      ...item,
+      preview_content: preview
+    };
+  });
+};
