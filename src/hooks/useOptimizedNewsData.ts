@@ -7,6 +7,11 @@ import { useNewsCategories } from "./news/useNewsCategories";
 import { useNewsDefault } from "./news/useNewsDefault";
 import { useNewsPagination } from "./news/useNewsPagination";
 
+interface NewsDataResult {
+  items: any[];
+  total: number;
+}
+
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [totalItems, setTotalItems] = useState(0);
   const queryClient = useQueryClient();
@@ -64,11 +69,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
       
       // Update total items for pagination
       setTotalItems(result.total);
-      return result;
+      return result as NewsDataResult;
     },
-    // These options ensure proper cache management and re-fetching
+    // Updated options to match the newer React Query API
     refetchOnWindowFocus: false,
-    keepPreviousData: true, // Keep showing the previous page's data while loading
+    placeholderData: (previousData) => previousData, // This replaces keepPreviousData
     staleTime: 30000,
     retry: 1,
     retryDelay: 1000,
@@ -83,7 +88,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   }, [currentPage, queryClient, searchQuery, selectedCategories]);
 
   // Memoize the current page items to prevent unnecessary re-renders
-  const currentPageItems = useMemo(() => newsData?.items || [], [newsData?.items]);
+  const currentPageItems = useMemo(() => {
+    return (newsData as NewsDataResult)?.items || [];
+  }, [newsData]);
 
   return {
     currentPageItems,

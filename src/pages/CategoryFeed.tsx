@@ -11,6 +11,11 @@ import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
 
+interface CategoryArticlesResult {
+  articles: any[];
+  count: number;
+}
+
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
@@ -103,13 +108,15 @@ export default function CategoryFeed() {
       };
     },
     enabled: !!category,
-    keepPreviousData: true,
+    // Updated options to match the newer React Query API
+    placeholderData: (previousData) => previousData, // This replaces keepPreviousData
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
   
   // Format the articles using our consistent formatter
-  const articles = articlesRaw?.articles ? formatNewsItems(articlesRaw.articles) : [];
+  const articles = (articlesRaw as CategoryArticlesResult)?.articles ? 
+    formatNewsItems((articlesRaw as CategoryArticlesResult).articles) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
