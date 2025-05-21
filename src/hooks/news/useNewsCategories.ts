@@ -31,10 +31,21 @@ export const useNewsCategories = () => {
     const categoryIds = categories.map(cat => cat.id);
     console.log("Category IDs:", categoryIds);
     
-    // Step 2: Query the news_preview view with category filtering
-    const { data: previewItems, count, error: previewError } = await supabase
+    // Step 2: First get the total count of all matching articles
+    const { count: totalCount, error: countError } = await supabase
       .from('news_preview')
-      .select('*', { count: 'exact' })
+      .select('*', { count: 'exact', head: true })
+      .contains('category_ids', categoryIds);
+    
+    if (countError) {
+      console.error("Error getting total count:", countError);
+      throw countError;
+    }
+    
+    // Step 3: Query the news_preview view with category filtering and pagination
+    const { data: previewItems, error: previewError } = await supabase
+      .from('news_preview')
+      .select('*')
       .contains('category_ids', categoryIds)
       .order('date', { ascending: false })
       .range(from, to);
@@ -44,14 +55,14 @@ export const useNewsCategories = () => {
       throw previewError;
     }
 
-    console.log(`Found ${count} items total, returning items ${from}-${to}`);
+    console.log(`Found ${totalCount} items total, returning items ${from}-${to}`);
     
     // Use common formatter to ensure consistency
     const formattedItems = formatNewsItems(previewItems || []);
     
     return {
       items: formattedItems,
-      total: count || 0
+      total: totalCount || 0
     };
   };
 

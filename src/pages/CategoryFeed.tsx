@@ -79,7 +79,7 @@ export default function CategoryFeed() {
           news (*)
         `)
         .eq("category_id", category.id)
-        .order('news(created_at)', { ascending: false })
+        .order('news(date)', { ascending: false })
         .range(from, to);
       
       if (error) throw error;
@@ -143,8 +143,10 @@ export default function CategoryFeed() {
             <h3 className="font-medium">Kategoria: {category.name}</h3>
             <p className="text-sm text-muted-foreground">
               {totalArticles > 0 
-                ? `Znaleziono ${totalArticles} ${totalArticles === 1 ? 'artykuł' : 
-                   totalArticles < 5 ? 'artykuły' : 'artykułów'}` 
+                ? `Znaleziono ${totalArticles} ${
+                    totalArticles === 1 ? 'artykuł' : 
+                    totalArticles < 5 ? 'artykuły' : 'artykułów'
+                  }` 
                 : "Brak artykułów w tej kategorii"}
             </p>
           </div>
@@ -169,7 +171,7 @@ export default function CategoryFeed() {
           </div>
           
           {/* Add pagination */}
-          {totalPages > 1 && (
+          {totalPages > 0 && (
             <NewsPagination 
               currentPage={currentPage} 
               totalPages={totalPages} 

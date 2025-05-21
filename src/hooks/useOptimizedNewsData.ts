@@ -30,7 +30,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
 
   // Reset to page 1 when search query or categories change
   useEffect(() => {
-    setTotalItems(0); // Reset total to trigger pagination reset
+    console.log("Filter key changed, resetting pagination:", filterKey);
   }, [filterKey]);
 
   // Query for news data with server-side pagination and filtering
@@ -39,7 +39,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     queryFn: async () => {
       const { from, to } = getPaginationIndices();
       
-      let result;
+      let result: NewsQueryResult;
       console.log("Fetching news with params:", { 
         searchQuery, 
         selectedCategories, 
