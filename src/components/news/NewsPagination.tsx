@@ -1,7 +1,6 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 
 interface NewsPaginationProps {
   currentPage: number;
@@ -13,18 +12,13 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
   if (totalPages <= 1) {
     return null;
   }
-  
-  // Prevent default scroll behavior when clicking pagination buttons
-  const handlePageClick = (newPage: number) => {
-    handlePageChange(newPage);
-  };
 
   return (
     <div className="flex justify-center items-center mt-8 space-x-2">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handlePageClick(currentPage - 1)}
+        onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="flex items-center"
       >
@@ -38,7 +32,7 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
             key={page}
             variant={page === currentPage ? "default" : "outline"}
             size="sm"
-            onClick={() => handlePageClick(page)}
+            onClick={() => handlePageChange(page)}
             className="h-8 w-8 p-0"
           >
             {page}
@@ -49,7 +43,7 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handlePageClick(currentPage + 1)}
+        onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="flex items-center"
       >

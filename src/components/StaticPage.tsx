@@ -100,10 +100,9 @@ export function StaticPage() {
       <div className="relative">
         {page && page.content ? (
           <div className="prose prose-lg md:prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
-            <h1 className="mb-6">{page.title}</h1>
             <GalleryRenderer 
               content={page.content}
-              applyProseStyles={false} // Let the parent container handle prose styling
+              applyProseStyles={false}
               />
           </div>
         ) : (

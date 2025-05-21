@@ -14,11 +14,7 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      
-      // Scroll to top with a slight delay to ensure state updates first
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [totalPages]);
 
