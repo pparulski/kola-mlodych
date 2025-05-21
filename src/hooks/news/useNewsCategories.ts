@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NewsQueryResult, formatNewsItems, ARTICLES_PER_PAGE } from "./useNewsBase";
+import { NewsQueryResult, formatNewsItems } from "./useNewsBase";
 
 // Hook for filtering news by categories
 export const useNewsCategories = () => {
@@ -55,7 +55,7 @@ export const useNewsCategories = () => {
       throw previewError;
     }
 
-    console.log(`Found ${totalCount} items total, returning items ${from}-${to}, got ${previewItems?.length || 0} items`);
+    console.log(`Found ${totalCount} items total, returning items ${from}-${to}`);
     
     // Use common formatter to ensure consistency
     const formattedItems = formatNewsItems(previewItems || []);
