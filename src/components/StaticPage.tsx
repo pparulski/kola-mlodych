@@ -88,13 +88,6 @@ export function StaticPage() {
     );
   }
 
-  // Log content status to help debug rendering issues
-  if (page?.content) {
-    console.log(`Static page content loaded, length: ${page.content.length}`);
-  } else {
-    console.log("Static page has no content to render");
-  }
-
   return (
     <div className="relative">
       {page && (
@@ -105,13 +98,9 @@ export function StaticPage() {
       )}
       
       <div className="relative">
-        {page && page.content ? (
-          <div className="bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
-            <GalleryRenderer 
-              content={page.content}
-              applyProseStyles={true}
-              className="static-page-content"
-            />
+        {page ? (
+          <div className="prose prose-lg md:prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+            <GalleryRenderer content={page.content} />
           </div>
         ) : (
           <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { Category } from "@/types/categories";
@@ -11,16 +11,10 @@ import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
 
-interface CategoryArticlesResult {
-  articles: any[];
-  count: number;
-}
-
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
-  const queryClient = useQueryClient();
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -42,8 +36,8 @@ export default function CategoryFeed() {
     refetchOnWindowFocus: true,
   });
 
-  // Set up pagination with enhanced hook
-  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
+  // Set up pagination
+  const { currentPage, totalPages, handlePageChange } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -53,20 +47,11 @@ export default function CategoryFeed() {
     }
   }, [category]);
   
-  // When currentPage changes, invalidate query to force refetch
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["category-articles", slug, currentPage]
-    });
-  }, [currentPage, queryClient, slug]);
-  
   // Fetch articles from this category with pagination
   const { data: articlesRaw, isLoading: isArticlesLoading } = useQuery({
     queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
       if (!category) return { articles: [], count: 0 };
-      
-      console.log(`Fetching category articles for page ${currentPage}`);
       
       // First get the total count
       const { count, error: countError } = await supabase
@@ -79,11 +64,6 @@ export default function CategoryFeed() {
       // Update total count state
       setTotalArticles(count || 0);
       
-      // Calculate pagination indices
-      const { from, to } = getPaginationIndices();
-      
-      console.log(`Category feed pagination: from=${from}, to=${to}, currentPage=${currentPage}`);
-      
       // Then get the paginated articles
       const { data, error } = await supabase
         .from("news_categories")
@@ -93,11 +73,9 @@ export default function CategoryFeed() {
         `)
         .eq("category_id", category.id)
         .order('news(created_at)', { ascending: false })
-        .range(from, to);
+        .range((currentPage - 1) * ARTICLES_PER_PAGE, currentPage * ARTICLES_PER_PAGE - 1);
       
       if (error) throw error;
-      
-      console.log(`Retrieved ${data.length} articles for category page ${currentPage}`);
       
       // Return only the news articles
       return {
@@ -108,15 +86,12 @@ export default function CategoryFeed() {
       };
     },
     enabled: !!category,
-    // Updated options to match the newer React Query API
-    placeholderData: (previousData) => previousData, // This replaces keepPreviousData
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
   
   // Format the articles using our consistent formatter
-  const articles = (articlesRaw as CategoryArticlesResult)?.articles ? 
-    formatNewsItems((articlesRaw as CategoryArticlesResult).articles) : [];
+  const articles = articlesRaw?.articles ? formatNewsItems(articlesRaw.articles) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -151,9 +126,9 @@ export default function CategoryFeed() {
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
       <SEO 
-        title={category?.name || "Kategoria"}
-        description={`Przeglądaj artykuły z kategorii ${category?.name || ""} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
-        keywords={category?.name}
+        title={category.name}
+        description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
+        keywords={category.name}
       />
       
       {articles && articles.length > 0 ? (
@@ -168,21 +143,19 @@ export default function CategoryFeed() {
                 preview_content={article.preview_content}
                 date={article.date || undefined}
                 featured_image={article.featured_image || undefined}
-                category_names={[categoryName]}
+                category_names={[category.name]}
               />
             ))}
           </div>
           
-          {/* Add pagination with debugging */}
-          <div className="mt-8">
-            {totalPages > 1 && (
-              <NewsPagination 
-                currentPage={currentPage} 
-                totalPages={totalPages} 
-                handlePageChange={handlePageChange} 
-              />
-            )}
-          </div>
+          {/* Add pagination */}
+          {totalPages > 1 && (
+            <NewsPagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              handlePageChange={handlePageChange} 
+            />
+          )}
         </>
       ) : (
         <div className="text-center py-10 content-box !mt-0">
