@@ -1,12 +1,16 @@
 
 import React, { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";
+import { cn } from "@/lib/utils";
 
 interface GalleryRendererProps {
   content?: string;
+  applyProseStyles?: boolean; // Prop to control prose application
+  className?: string;         // To pass additional classes if needed
 }
 
-export function GalleryRenderer({ content }: GalleryRendererProps) {
+export function GalleryRenderer({ content, applyProseStyles = true, // Default to TRUE: renderer styles itself if not told otherwise
+  className  }: GalleryRendererProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -91,7 +95,10 @@ export function GalleryRenderer({ content }: GalleryRendererProps) {
   return (
     <div 
       ref={contentRef}
-      className="hugerte-content"
+      className={cn(
+        applyProseStyles && "hugerte-content", // Conditionally apply .hugerte-content
+        className // Pass through any other classes
+      )}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
