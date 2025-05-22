@@ -11,9 +11,9 @@ interface FileUploadProps {
   acceptedFileTypes?: string;
   currentValue?: string | null;
   onUpload?: (url: string) => void;
-  uploadId?: string; // Add a unique identifier for each upload component
-  compress?: boolean; // New prop to enable/disable compression
-  quality?: number; // Optional quality setting for compression (1-100)
+  uploadId?: string;
+  compress?: boolean;
+  quality?: number;
 }
 
 export function FileUpload({ 
@@ -22,9 +22,9 @@ export function FileUpload({
   acceptedFileTypes, 
   currentValue,
   onUpload,
-  uploadId = "default", // Default value for backward compatibility
-  compress = true, // Default to using compression for all images
-  quality = 80 // Default quality level
+  uploadId = "default",
+  compress = true,
+  quality = 80
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -47,18 +47,23 @@ export function FileUpload({
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
-      let filename = file.name;
-      // Allow letters, numbers, spaces, dots, hyphens, underscores
-      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9 ._-]/g, '');
+      let originalFilename = file.name;
+      // Properly sanitize the filename - only allow alphanumeric characters, dots, underscores, and hyphens
+      // Replace spaces with underscores for better storage compatibility
+      const fileExt = originalFilename.split('.').pop() || '';
+      const baseName = originalFilename.replace(`.${fileExt}`, '');
       
-      // Ensure the filename is unique by adding a timestamp if needed
+      // Create sanitized base name - remove any special characters
+      const sanitizedBaseName = baseName
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .replace(/_+/g, '_'); // Replace multiple underscores with a single one
+        
+      // Add timestamp to ensure uniqueness
       const timestamp = new Date().getTime();
-      const fileExt = filename.split('.').pop();
-      const baseName = filename.replace(`.${fileExt}`, '');
-      // Only add timestamp if there are sanitized characters (filename changed)
-      if (sanitizedFilename !== filename) {
-        filename = `${baseName}_${timestamp}.${fileExt}`;
-      }
+      const newFilename = `${sanitizedBaseName}_${timestamp}.${fileExt}`;
+      
+      console.log(`Original filename: ${originalFilename}`);
+      console.log(`Sanitized filename: ${newFilename}`);
       
       // Determine if we should use compression (only for images and when compress is true)
       const isImage = file.type.startsWith('image/');
@@ -68,7 +73,7 @@ export function FileUpload({
       
       if (useCompression) {
         // Use edge function for compression
-        console.log(`Using compression for ${filename}`);
+        console.log(`Using compression for ${newFilename}`);
         
         // Create form data to send to the edge function
         const formData = new FormData();
@@ -102,15 +107,14 @@ export function FileUpload({
           throw new Error("Failed to compress and upload file");
         }
         
-        filename = data.name;
         publicUrl = data.url;
         
       } else {
         // Original direct upload to Supabase storage
-        console.log(`Using direct upload for ${filename}`);
+        console.log(`Using direct upload for ${newFilename}`);
         const { error: uploadError, data } = await supabase.storage
           .from(bucket)
-          .upload(filename, file, { upsert: true });
+          .upload(newFilename, file, { upsert: true });
 
         if (uploadError) {
           throw uploadError;
@@ -121,7 +125,7 @@ export function FileUpload({
         // Get public URL
         const { data: { publicUrl: directUrl } } = supabase.storage
           .from(bucket)
-          .getPublicUrl(filename);
+          .getPublicUrl(newFilename);
           
         publicUrl = directUrl;
       }
@@ -130,7 +134,7 @@ export function FileUpload({
       
       // Support both callback styles
       if (onSuccess) {
-        onSuccess(filename, publicUrl);
+        onSuccess(newFilename, publicUrl);
       }
       
       if (onUpload) {
@@ -162,7 +166,7 @@ export function FileUpload({
       )}
       <input
         type="file"
-        id={`file-${uploadId}`} // Use unique ID for each file input
+        id={`file-${uploadId}`}
         className="hidden"
         onChange={handleFileUpload}
         accept={acceptedFileTypes}

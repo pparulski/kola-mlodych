@@ -13,18 +13,20 @@ export const imageUploadHandler = async (
   
   try {
     const file = blobInfo.blob();
-    let filename = blobInfo.filename();
+    const originalFilename = blobInfo.filename();
     
-    // Sanitize filename
-    const sanitizedFilename = filename.replace(/[^a-zA-Z0-9 ._-]/g, '');
+    // Sanitize filename - only allow alphanumeric characters, dots, underscores, and hyphens
+    const fileExt = originalFilename.split('.').pop() || '';
+    const baseName = originalFilename.replace(`.${fileExt}`, '');
     
-    // Add unique timestamp if needed
+    // Create sanitized base name
+    const sanitizedBaseName = baseName
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .replace(/_+/g, '_'); // Replace multiple underscores with a single one
+      
+    // Add timestamp to ensure uniqueness
     const timestamp = new Date().getTime();
-    const fileExt = filename.split('.').pop();
-    const baseName = filename.replace(`.${fileExt}`, '');
-    
-    // Only add timestamp if there are sanitized characters or always to ensure uniqueness
-    filename = `${baseName}_${timestamp}.${fileExt}`;
+    const newFilename = `${sanitizedBaseName}_${timestamp}.${fileExt}`;
     
     // Show starting progress
     progress(10);
@@ -73,13 +75,20 @@ export const imageUploadHandler = async (
     // Try direct upload fallback if compression fails
     try {
       const file = blobInfo.blob();
-      const filename = `editor_${new Date().getTime()}_${blobInfo.filename()}`;
+      const originalFilename = blobInfo.filename();
+      
+      // Sanitize filename
+      const fileExt = originalFilename.split('.').pop() || '';
+      const baseName = originalFilename.replace(`.${fileExt}`, '');
+      const sanitizedBaseName = baseName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const timestamp = new Date().getTime();
+      const newFilename = `editor_${sanitizedBaseName}_${timestamp}.${fileExt}`;
       
       progress(40);
       
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(filename, file, { upsert: true });
+        .upload(newFilename, file, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -89,7 +98,7 @@ export const imageUploadHandler = async (
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(filename);
+        .getPublicUrl(newFilename);
       
       progress(100);
       console.log("Editor direct upload fallback:", publicUrl);
