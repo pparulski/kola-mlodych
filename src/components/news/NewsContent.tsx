@@ -25,7 +25,7 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
           src={featured_image}
           aspectRatio={16/9} // Using 16:9 aspect ratio
           objectFit="cover"
-          className="w-full mb-6"
+          className="w-full mb-3" // Reduced from mb-6 to mb-3
           priority // Main content image should load immediately
         />
       )}

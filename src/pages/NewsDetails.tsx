@@ -113,8 +113,8 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-4 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
-        <div className="space-y-3">
+      <article className="space-y-3 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
+        <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">
@@ -139,7 +139,7 @@ export function NewsDetails() {
               aspectRatio={16/9}
               objectFit="cover"
               priority
-              className="w-full"
+              className="w-full mb-2"
             />
           )}
           
