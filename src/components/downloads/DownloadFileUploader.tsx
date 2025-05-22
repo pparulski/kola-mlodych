@@ -49,6 +49,7 @@ export function DownloadFileUploader({ onFileUploaded }: DownloadFileUploaderPro
             onSuccess={handleUploadSuccess}
             acceptedFileTypes="*/*"
             uploadId="downloads-main"
+            compress={false} // Don't compress non-image files
           />
         </div>
       )}

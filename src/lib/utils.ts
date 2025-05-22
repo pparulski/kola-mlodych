@@ -74,3 +74,32 @@ export function stripHtmlAndDecodeEntities(html?: string): string {
   
   return result;
 }
+
+/**
+ * Sanitizes a filename by replacing Polish characters with their Latin equivalents
+ * and replacing spaces with underscores
+ * @param filename The filename to sanitize
+ * @returns Sanitized filename
+ */
+export function sanitizeFilename(filename: string): string {
+  if (!filename) return '';
+  
+  // Define character mapping for Polish characters
+  const polishChars: Record<string, string> = {
+    'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+    'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
+  };
+  
+  // Replace Polish characters
+  let sanitized = filename;
+  for (const [polish, latin] of Object.entries(polishChars)) {
+    sanitized = sanitized.replace(new RegExp(polish, 'g'), latin);
+  }
+  
+  // Replace spaces with underscores and remove problematic chars
+  sanitized = sanitized
+    .replace(/\s+/g, '_') // Replace spaces with underscores
+    .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_'); // Replace invalid filename chars
+    
+  return sanitized;
+}

@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sanitizeFilename } from "@/lib/utils";
 
 interface FileUploadProps {
   onSuccess?: (name: string, url: string) => void;
@@ -52,15 +53,12 @@ export function FileUpload({
       const fileExt = originalFilename.split('.').pop() || '';
       const baseName = originalFilename.replace(`.${fileExt}`, '');
       
-      // Create a sanitized filename that preserves Polish characters
-      // but replaces spaces with underscores and removes problematic chars
-      const sanitizedBaseName = baseName
-        .replace(/\s+/g, '_') // Replace spaces with underscores
-        .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_'); // Replace invalid filename chars
-        
-      // Add timestamp to ensure uniqueness (for storage, not display)
-      const timestamp = new Date().getTime();
-      const newFilename = `${sanitizedBaseName}_${timestamp}.${fileExt}`;
+      // Create a sanitized filename that replaces Polish characters
+      // and replaces spaces with underscores
+      const sanitizedBaseName = sanitizeFilename(baseName);
+      
+      // Final filename with extension 
+      const newFilename = `${sanitizedBaseName}.${fileExt}`;
       
       console.log(`Original filename: ${originalFilename}`);
       console.log(`Sanitized filename: ${newFilename}`);
@@ -81,6 +79,8 @@ export function FileUpload({
         formData.append('bucket', bucket);
         formData.append('uploadId', uploadId);
         formData.append('quality', quality.toString());
+        formData.append('originalFilename', originalFilename);
+        formData.append('sanitizedFilename', newFilename);
         
         // Call the edge function - get authentication token properly
         const { data: sessionData } = await supabase.auth.getSession();

@@ -7,6 +7,25 @@ import { corsHeaders } from './utils/corsHeaders.ts';
 import { processImage } from './utils/imageProcessing.ts';
 import { supabase, uploadToStorage, getContentTypeFromFilename } from './utils/storageUtils.ts';
 
+// Simple function to sanitize filenames by replacing Polish characters
+function sanitizeFilename(filename: string): string {
+  if (!filename) return '';
+  
+  // Define character mapping for Polish characters
+  const polishChars: Record<string, string> = {
+    'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
+    'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
+  };
+  
+  // Replace Polish characters
+  let sanitized = filename;
+  for (const [polish, latin] of Object.entries(polishChars)) {
+    sanitized = sanitized.replace(new RegExp(polish, 'g'), latin);
+  }
+  
+  return sanitized;
+}
+
 // Serve function
 serve(async (req: Request) => {
   // Handle CORS preflight requests
@@ -32,6 +51,8 @@ serve(async (req: Request) => {
     const bucketName = formData.get('bucket') as string;
     const uploadId = formData.get('uploadId') as string;
     const userQuality = Number(formData.get('quality') || '80'); // Default quality 80%
+    const originalFilename = formData.get('originalFilename') as string || file.name;
+    let sanitizedFilename = formData.get('sanitizedFilename') as string;
 
     if (!file || !bucketName) {
       return new Response(
@@ -47,8 +68,23 @@ serve(async (req: Request) => {
     const fileSize = file.size;
     console.log(`Original file size: ${fileSize} bytes (${(fileSize / 1024 / 1024).toFixed(2)}MB)`);
     
-    // Process file name
-    const originalFilename = file.name;
+    // Process file name if sanitizedFilename not provided
+    if (!sanitizedFilename) {
+      // Get file extension
+      const fileExt = originalFilename.split('.').pop() || '';
+      const baseName = originalFilename.replace(`.${fileExt}`, '');
+      
+      // Create a sanitized filename that replaces Polish characters
+      // and replaces spaces with underscores
+      const sanitizedBaseName = sanitizeFilename(baseName);
+      
+      // Replace spaces with underscores and remove problematic chars
+      const cleanedBaseName = sanitizedBaseName
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_'); // Replace invalid filename chars
+        
+      sanitizedFilename = `${cleanedBaseName}.${fileExt}`;
+    }
     
     // Read file as ArrayBuffer and convert to Uint8Array
     const fileBuffer = new Uint8Array(await file.arrayBuffer());
@@ -57,7 +93,7 @@ serve(async (req: Request) => {
       // Process the image
       const { buffer: processedImageBuffer, filename: outputFilename } = await processImage(
         fileBuffer, 
-        originalFilename, 
+        sanitizedFilename,  // Use sanitized filename
         fileSize
       );
       
@@ -71,7 +107,7 @@ serve(async (req: Request) => {
         // Upload original file instead
         const publicUrl = await uploadToStorage(
           bucketName,
-          originalFilename,
+          sanitizedFilename,  // Use sanitized filename
           fileBuffer,
           file.type
         );
@@ -111,7 +147,7 @@ serve(async (req: Request) => {
         JSON.stringify({
           success: true,
           uploadId,
-          name: outputFilename, 
+          name: originalFilename, 
           url: publicUrl
         }),
         {
@@ -125,7 +161,7 @@ serve(async (req: Request) => {
       // If image processing fails, upload the original file
       const publicUrl = await uploadToStorage(
         bucketName,
-        originalFilename,
+        sanitizedFilename,  // Use sanitized filename
         fileBuffer,
         file.type
       );
