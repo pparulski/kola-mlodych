@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -167,31 +168,6 @@
 
   .hugerte-content ol {
     @apply list-decimal pl-5 my-4;
-  }
-  
-  /* Footnotes styling - updated to use hugerte-content */
-  .hugerte-content .mce-footnotes hr {
-    margin-inline-end: auto;
-    margin-inline-start: 0;
-    width: 25%;
-  }
-
-  .hugerte-content .mce-footnotes li > a.mce-footnotes-backlink {
-    text-decoration: none;
-  }
-
-  @media print {
-    .hugerte-content sup.mce-footnote a {
-      color: black;
-      text-decoration: none;
-    }
-    .hugerte-content .mce-footnotes {
-      break-inside: avoid;
-      width: 100%;
-    }
-    .hugerte-content .mce-footnotes li > a.mce-footnotes-backlink {
-      display: none;
-    }
   }
   
   /* Table styles with improved readability */
