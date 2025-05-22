@@ -248,11 +248,10 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
                   ) : galleryImages && galleryImages.length > 0 ? (
                     galleryImages.map((image) => {
                       const filename = getFileNameFromUrl(image.url);
-                      // Use the custom formatted filename hook
+                      // Use the custom formatted filename hook with the correct parameters
                       const { displayText, isTruncated } = useFormattedFilename({
                         filename,
-                        mobileBaseNameMaxLength: 20,
-                        desktopBaseNameMaxLength: 25,
+                        maxLength: 25, // Using a single maxLength parameter that the hook accepts
                       });
                       
                       return (
