@@ -20,9 +20,15 @@ export const useUnionsData = () => {
       // Add coordinates based on city
       const unionsWithCoordinates = data.map(union => {
         // If the union has a city field and we have coordinates for that city
-        const coordinates = union.city && cityCoordinates[union.city] 
-          ? cityCoordinates[union.city] 
-          : null; // Don't use default to avoid clustering non-located unions
+        let coordinates = null;
+        
+        if (union.city && cityCoordinates[union.city]) {
+          coordinates = cityCoordinates[union.city];
+        } else if (union.city) {
+          // If we don't have coordinates for this specific city, use default Poland coordinates
+          coordinates = cityCoordinates["default"];
+          console.warn(`Missing coordinates for city: ${union.city}, using default`);
+        }
         
         return {
           ...union,
