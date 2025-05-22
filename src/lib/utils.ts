@@ -103,3 +103,13 @@ export function sanitizeFilename(filename: string): string {
     
   return sanitized;
 }
+
+/**
+ * Generate a mailto link with proper formatting
+ * @param email Email address
+ * @returns Formatted mailto link or empty string if email is empty
+ */
+export function formatMailto(email: string): string {
+  if (!email) return '';
+  return `mailto:${email.trim()}`;
+}

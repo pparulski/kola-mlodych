@@ -13,7 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger 
 } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
+import { cn, formatMailto } from "@/lib/utils";
 import { Union } from "./types";
 import { useState } from "react";
 
@@ -91,7 +91,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
         <div className="flex items-center space-x-1">
           {union.contact && (
             <a 
-              href={`mailto:${union.contact}`}
+              href={formatMailto(union.contact)}
               className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               title={union.contact}
             >
