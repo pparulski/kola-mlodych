@@ -63,6 +63,12 @@ export function FeaturedImageUpload({
         Zalecane wymiary: 1200×675 px (16:9) lub 1680x720 px (21:9). 
         Zdjęcie będzie wyświetlane w proporcjach 16:9 w widoku artykułu i 21:9 na liście.
         Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
+        Preferujemy zdjęcia z lokalnych wydarzeń, przedstawiające aktywność związkową.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Pamiętaj, że dobrej jakości zdjęcie przyciąga uwagę czytelników. Wybieraj zdjęcia ostre, 
+        dobrze oświetlone i o odpowiedniej rozdzielczości. Unikaj zdjęć zamazanych, zbyt ciemnych 
+        lub o niskiej jakości.
       </p>
     </div>
   );
