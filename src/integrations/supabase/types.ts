@@ -372,10 +372,7 @@ export type Database = {
           facebook_url: string | null
           id: string
           instagram_url: string | null
-          logo_url: string | null
           name: string
-          region: string | null
-          year_created: number
         }
         Insert: {
           bio?: string | null
@@ -385,10 +382,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
           name: string
-          region?: string | null
-          year_created: number
         }
         Update: {
           bio?: string | null
@@ -398,10 +392,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
           name?: string
-          region?: string | null
-          year_created?: number
         }
         Relationships: []
       }
@@ -445,6 +436,10 @@ export type Database = {
       }
     }
     Functions: {
+      convert_polish_chars: {
+        Args: { input_text: string }
+        Returns: string
+      }
       generate_unique_slug: {
         Args: { title: string; attempt?: number }
         Returns: string
@@ -456,6 +451,15 @@ export type Database = {
       get_recent_login_attempts: {
         Args: { ip_addr: string; minutes_ago: number }
         Returns: number
+      }
+      get_updated_articles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          title: string
+          slug: string
+          date: string
+        }[]
       }
       is_admin: {
         Args: { user_id: string }

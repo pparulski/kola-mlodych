@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -78,6 +79,16 @@ export default function NewsArticle() {
     }
   }, [article]);
 
+  // Format the date for display
+  const formattedDate = article?.date
+    ? (() => {
+        const parsedDate = new Date(article.date);
+        return isValid(parsedDate)
+          ? format(parsedDate, "d MMMM yyyy", { locale: pl })
+          : "";
+      })()
+    : "";
+
   if (isLoading) {
     return (
       <div className="space-y-4 mt-2 animate-pulse">
@@ -105,15 +116,6 @@ export default function NewsArticle() {
     );
   }
 
-  const formattedDate = article.date
-    ? (() => {
-        const parsedDate = new Date(article.date);
-        return isValid(parsedDate)
-          ? format(parsedDate, "d MMMM yyyy", { locale: pl })
-          : "";
-      })()
-    : "";
-
   // Extract category names for SEO keywords
   const categoryNames = categories?.map(cat => cat.name).filter(Boolean) || [];
   
@@ -136,7 +138,7 @@ export default function NewsArticle() {
           <FeaturedImage 
             src={article.featured_image}
             aspectRatio={16/9}
-            adaptiveAspectRatio={true} // Add adaptive aspect ratio
+            adaptiveAspectRatio={true}
             priority
             objectFit="cover"
             className="w-full"

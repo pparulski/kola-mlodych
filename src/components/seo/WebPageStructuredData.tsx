@@ -73,6 +73,7 @@ export function WebPageStructuredData({
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageData) }}
+      data-seo="true"
     />
   );
 }

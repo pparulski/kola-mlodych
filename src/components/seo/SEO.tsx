@@ -39,6 +39,13 @@ export function SEO({
     ? `${description.substring(0, 157)}...`
     : description;
 
+  // Set page title in document directly as this is important for accessibility
+  React.useEffect(() => {
+    if (title) {
+      document.title = isArticle ? `${title} - Młodzi IP` : title;
+    }
+  }, [title, isArticle]);
+
   return (
     <>
       <HeadTags
@@ -54,6 +61,7 @@ export function SEO({
         twitterTitle={title}
         twitterDescription={socialDescription}
         keywords={keywords}
+        injectNow={true} // Force immediate injection for crawlers
       >
         {children}
       </HeadTags>

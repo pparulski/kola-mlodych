@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +25,7 @@ export function NewsDetails() {
         .from('news')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -49,22 +50,16 @@ export function NewsDetails() {
     enabled: !!article?.id,
   });
 
-  useEffect(() => {
-    if (article?.title) {
-      document.title = `${article.title} - Młodzi IP`;
-    }
-  }, [article]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   // Generate description for SEO
   const generateDescription = (content?: string): string => {
     if (!content) return '';
     // Use our improved HTML stripping function with proper spacing
     const plainText = stripHtmlAndDecodeEntities(content);
     return plainText.substring(0, 150);
+  };
+
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   if (isLoading) {
@@ -94,7 +89,9 @@ export function NewsDetails() {
     );
   }
 
-  const formattedDate = article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "";
+  const formattedDate = article.date 
+    ? format(new Date(article.date), "d MMMM yyyy", { locale: pl }) 
+    : (article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "");
   
   // Extract category names for SEO keywords
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
@@ -106,8 +103,8 @@ export function NewsDetails() {
         description={generateDescription(article.content)}
         image={article.featured_image || undefined}
         article={{
-          publishedAt: article.created_at || undefined,
-          modifiedAt: article.created_at || undefined,
+          publishedAt: article.date || article.created_at || undefined,
+          modifiedAt: article.date || article.created_at || undefined,
           categories: categoryNames,
         }}
         keywords={categoryNames.join(', ')}
@@ -137,7 +134,7 @@ export function NewsDetails() {
             <FeaturedImage
               src={article.featured_image}
               aspectRatio={16/9}
-              adaptiveAspectRatio={true} // Add adaptive aspect ratio
+              adaptiveAspectRatio={true}
               objectFit="cover"
               priority
               className="w-full mb-2"

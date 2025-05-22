@@ -14,6 +14,7 @@ interface HeadTagsProps {
   twitterDescription?: string;
   twitterImage?: string;
   keywords?: string;
+  injectNow?: boolean; // New prop to control immediate injection
   children?: React.ReactNode;
 }
 
@@ -30,6 +31,7 @@ export function HeadTags({
   twitterDescription,
   twitterImage,
   keywords,
+  injectNow = false,
   children
 }: HeadTagsProps) {
   const baseUrl = 'https://mlodzi.ozzip.pl';
@@ -41,20 +43,24 @@ export function HeadTags({
   const fullOgImage = ogImage && !ogImage.startsWith('http') ? `${baseUrl}${ogImage}` : ogImage;
   const fullTwitterImage = twitterImage && !twitterImage.startsWith('http') ? `${baseUrl}${twitterImage}` : twitterImage;
 
-  useEffect(() => {
-    // Update title
-    if (title) {
-      document.title = pageTitle;
-    }
-
-    // Add meta tags
-    const metaTags: HTMLMetaElement[] = [];
+  // Function to create and inject meta tags
+  const createAndInjectMetaTags = () => {
+    // Clean up any previously injected meta tags with our data-seo attribute
+    const previousTags = document.head.querySelectorAll('meta[data-seo="true"], link[data-seo="true"]');
+    previousTags.forEach(tag => {
+      if (tag.parentNode === document.head) {
+        document.head.removeChild(tag);
+      }
+    });
+    
+    const metaTags: (HTMLMetaElement | HTMLLinkElement)[] = [];
     
     // Description
     if (description) {
       const descTag = document.createElement('meta');
       descTag.name = 'description';
       descTag.content = description;
+      descTag.setAttribute('data-seo', 'true');
       document.head.appendChild(descTag);
       metaTags.push(descTag);
     }
@@ -64,17 +70,19 @@ export function HeadTags({
       const keywordsTag = document.createElement('meta');
       keywordsTag.name = 'keywords';
       keywordsTag.content = keywords;
+      keywordsTag.setAttribute('data-seo', 'true');
       document.head.appendChild(keywordsTag);
       metaTags.push(keywordsTag);
     }
     
     // Canonical URL
-    let canonicalTag: HTMLLinkElement | null = null;
     if (fullCanonicalUrl) {
-      canonicalTag = document.createElement('link');
+      const canonicalTag = document.createElement('link');
       canonicalTag.rel = 'canonical';
       canonicalTag.href = fullCanonicalUrl;
+      canonicalTag.setAttribute('data-seo', 'true');
       document.head.appendChild(canonicalTag);
+      metaTags.push(canonicalTag);
     }
     
     // Open Graph tags
@@ -86,15 +94,15 @@ export function HeadTags({
       { property: 'og:description', content: ogDescription || description || defaultDescription }
     ];
     
+    if (fullCanonicalUrl) {
+      ogTags.push({ property: 'og:url', content: fullCanonicalUrl });
+    }
+    
     if (fullOgImage) {
       ogTags.push({ property: 'og:image', content: fullOgImage });
       ogTags.push({ property: 'og:image:width', content: '1200' });
       ogTags.push({ property: 'og:image:height', content: '630' });
       ogTags.push({ property: 'og:image:alt', content: ogTitle || title || 'Koła Młodych OZZ IP' });
-    }
-    
-    if (fullCanonicalUrl) {
-      ogTags.push({ property: 'og:url', content: fullCanonicalUrl });
     }
     
     // Twitter tags
@@ -114,6 +122,7 @@ export function HeadTags({
       const metaTag = document.createElement('meta');
       metaTag.setAttribute('property', tag.property);
       metaTag.content = tag.content || '';
+      metaTag.setAttribute('data-seo', 'true');
       document.head.appendChild(metaTag);
       metaTags.push(metaTag);
     });
@@ -123,21 +132,30 @@ export function HeadTags({
       const metaTag = document.createElement('meta');
       metaTag.setAttribute('name', tag.name);
       metaTag.content = tag.content || '';
+      metaTag.setAttribute('data-seo', 'true');
       document.head.appendChild(metaTag);
       metaTags.push(metaTag);
     });
     
-    // Cleanup function to remove all added tags when component unmounts
+    return metaTags;
+  };
+
+  useEffect(() => {
+    // Update title
+    if (title) {
+      document.title = pageTitle;
+    }
+
+    // Create and inject meta tags
+    const metaTags = createAndInjectMetaTags();
+    
+    // Return cleanup function
     return () => {
       metaTags.forEach(tag => {
         if (tag.parentNode === document.head) {
           document.head.removeChild(tag);
         }
       });
-      
-      if (canonicalTag && canonicalTag.parentNode === document.head) {
-        document.head.removeChild(canonicalTag);
-      }
     };
   }, [
     title, 
@@ -155,6 +173,64 @@ export function HeadTags({
     fullTwitterImage,
     defaultDescription
   ]);
+
+  // If injectNow is true, we also inject the tags server-side for crawlers
+  if (injectNow) {
+    // Create a special "safe" version of the meta tags that can be rendered directly in the head
+    const createStaticMetaTags = () => {
+      const tags = [];
+      
+      // Basic meta tags
+      if (description) {
+        tags.push(<meta key="desc" name="description" content={description} data-seo="true" />);
+      }
+      
+      if (keywords) {
+        tags.push(<meta key="keywords" name="keywords" content={keywords} data-seo="true" />);
+      }
+      
+      if (fullCanonicalUrl) {
+        tags.push(<link key="canonical" rel="canonical" href={fullCanonicalUrl} data-seo="true" />);
+      }
+      
+      // Open Graph tags
+      tags.push(<meta key="og:site_name" property="og:site_name" content="Koła Młodych OZZ IP" data-seo="true" />);
+      tags.push(<meta key="og:locale" property="og:locale" content="pl_PL" data-seo="true" />);
+      tags.push(<meta key="og:type" property="og:type" content={ogType} data-seo="true" />);
+      tags.push(<meta key="og:title" property="og:title" content={ogTitle || title || 'Koła Młodych OZZ IP'} data-seo="true" />);
+      tags.push(<meta key="og:description" property="og:description" content={ogDescription || description || defaultDescription} data-seo="true" />);
+      
+      if (fullCanonicalUrl) {
+        tags.push(<meta key="og:url" property="og:url" content={fullCanonicalUrl} data-seo="true" />);
+      }
+      
+      if (fullOgImage) {
+        tags.push(<meta key="og:image" property="og:image" content={fullOgImage} data-seo="true" />);
+        tags.push(<meta key="og:image:width" property="og:image:width" content="1200" data-seo="true" />);
+        tags.push(<meta key="og:image:height" property="og:image:height" content="630" data-seo="true" />);
+        tags.push(<meta key="og:image:alt" property="og:image:alt" content={ogTitle || title || 'Koła Młodych OZZ IP'} data-seo="true" />);
+      }
+      
+      // Twitter tags
+      tags.push(<meta key="twitter:card" name="twitter:card" content={twitterCard} data-seo="true" />);
+      tags.push(<meta key="twitter:title" name="twitter:title" content={twitterTitle || ogTitle || title || 'Koła Młodych OZZ IP'} data-seo="true" />);
+      tags.push(<meta key="twitter:description" name="twitter:description" content={twitterDescription || ogDescription || description || defaultDescription} data-seo="true" />);
+      
+      if (fullTwitterImage || fullOgImage) {
+        tags.push(<meta key="twitter:image" name="twitter:image" content={fullTwitterImage || fullOgImage || ''} data-seo="true" />);
+        tags.push(<meta key="twitter:image:alt" name="twitter:image:alt" content={twitterTitle || ogTitle || title || 'Koła Młodych OZZ IP'} data-seo="true" />);
+      }
+      
+      return tags;
+    };
+    
+    return (
+      <>
+        {createStaticMetaTags()}
+        {children}
+      </>
+    );
+  }
   
   return <>{children}</>;
 }
