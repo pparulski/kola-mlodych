@@ -69,15 +69,10 @@ export const MapView = ({
         minZoom={3.5}
         maxZoom={10}
         style={{ width: '100%', height: '100%' }}
-        locale={{
-          'NavigationControl.ZoomIn': 'Przybliż',
-          'NavigationControl.ZoomOut': 'Oddal',
-          'NavigationControl.ResetBearing': 'Obróć na północ',
-        }}
       >
         <NavigationControl position="top-right" />
         
-        {/* Map Markers - always render markers with valid coordinates */}
+        {/* Map Markers - only render markers with valid coordinates */}
         {unions
           .filter(union => union.coordinates)
           .map((union) => (
@@ -94,23 +89,6 @@ export const MapView = ({
                 selectedUnion === union.id ? "text-primary scale-125" : "text-accent"
               )}>
                 <MapPin size={28} strokeWidth={selectedUnion === union.id ? 3 : 2} />
-              </div>
-            </Marker>
-          ))
-        }
-        
-        {/* City labels - always visible */}
-        {unions
-          .filter(union => union.coordinates && union.city)
-          .map((union) => (
-            <Marker
-              key={`city-${union.id}`}
-              longitude={union.coordinates!.lng}
-              latitude={union.coordinates!.lat + 0.04} // Position slightly above the pin
-              anchor="bottom"
-            >
-              <div className="bg-white bg-opacity-75 px-2 py-0.5 rounded text-xs font-medium shadow-sm">
-                {union.city}
               </div>
             </Marker>
           ))
