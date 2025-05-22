@@ -23,9 +23,10 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
       {featured_image && (
         <FeaturedImage
           src={featured_image}
-          aspectRatio={16/9} // Using 16:9 aspect ratio
+          aspectRatio={16/9}
+          adaptiveAspectRatio={true} // Use the natural aspect ratio of the image
           objectFit="cover"
-          className="w-full mb-3" // Reduced from mb-6 to mb-3
+          className="w-full mb-2" // Reduced margin even further
           priority // Main content image should load immediately
         />
       )}

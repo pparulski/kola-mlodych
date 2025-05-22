@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -47,6 +48,7 @@ export function NewsPreview({
         <FeaturedImage
           src={featured_image}
           aspectRatio={21/9} 
+          adaptiveAspectRatio={true} // Add adaptive aspect ratio
           objectFit="cover"
           className="w-full"
           lazyload={true}

@@ -136,6 +136,7 @@ export default function NewsArticle() {
           <FeaturedImage 
             src={article.featured_image}
             aspectRatio={16/9}
+            adaptiveAspectRatio={true} // Add adaptive aspect ratio
             priority
             objectFit="cover"
             className="w-full"
