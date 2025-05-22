@@ -15,11 +15,11 @@ export function DownloadFileUploader({ onFileUploaded }: DownloadFileUploaderPro
 
   const handleUploadSuccess = async (name: string, url: string) => {
     try {
-      // Use the uploaded filename as the display name
-      const filename = url.split('/').pop() || name;
+      // Use the original name provided, not the URL
+      // This preserves the user-friendly name for display
       
       const { error } = await supabase.from("downloads").insert({
-        name: filename,
+        name: name, // Use the original filename provided by FileUpload
         url,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });

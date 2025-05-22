@@ -48,17 +48,17 @@ export function FileUpload({
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
       let originalFilename = file.name;
-      // Properly sanitize the filename - only allow alphanumeric characters, dots, underscores, and hyphens
-      // Replace spaces with underscores for better storage compatibility
+      // Get file extension
       const fileExt = originalFilename.split('.').pop() || '';
       const baseName = originalFilename.replace(`.${fileExt}`, '');
       
-      // Create sanitized base name - remove any special characters
+      // Create a sanitized filename that preserves Polish characters
+      // but replaces spaces with underscores and removes problematic chars
       const sanitizedBaseName = baseName
-        .replace(/[^a-zA-Z0-9_-]/g, '_')
-        .replace(/_+/g, '_'); // Replace multiple underscores with a single one
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_'); // Replace invalid filename chars
         
-      // Add timestamp to ensure uniqueness
+      // Add timestamp to ensure uniqueness (for storage, not display)
       const timestamp = new Date().getTime();
       const newFilename = `${sanitizedBaseName}_${timestamp}.${fileExt}`;
       
@@ -134,7 +134,7 @@ export function FileUpload({
       
       // Support both callback styles
       if (onSuccess) {
-        onSuccess(newFilename, publicUrl);
+        onSuccess(originalFilename, publicUrl);
       }
       
       if (onUpload) {

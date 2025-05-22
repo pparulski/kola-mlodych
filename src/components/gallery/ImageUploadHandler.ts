@@ -15,16 +15,17 @@ export const imageUploadHandler = async (
     const file = blobInfo.blob();
     const originalFilename = blobInfo.filename();
     
-    // Sanitize filename - only allow alphanumeric characters, dots, underscores, and hyphens
+    // Get file extension
     const fileExt = originalFilename.split('.').pop() || '';
     const baseName = originalFilename.replace(`.${fileExt}`, '');
     
-    // Create sanitized base name
+    // Create a sanitized filename that preserves Polish characters
+    // but replaces spaces with underscores and removes problematic chars
     const sanitizedBaseName = baseName
-      .replace(/[^a-zA-Z0-9_-]/g, '_')
-      .replace(/_+/g, '_'); // Replace multiple underscores with a single one
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_'); // Replace invalid filename chars
       
-    // Add timestamp to ensure uniqueness
+    // Add timestamp to ensure uniqueness (for storage, not display)
     const timestamp = new Date().getTime();
     const newFilename = `${sanitizedBaseName}_${timestamp}.${fileExt}`;
     
@@ -77,10 +78,15 @@ export const imageUploadHandler = async (
       const file = blobInfo.blob();
       const originalFilename = blobInfo.filename();
       
-      // Sanitize filename
+      // Get file extension
       const fileExt = originalFilename.split('.').pop() || '';
       const baseName = originalFilename.replace(`.${fileExt}`, '');
-      const sanitizedBaseName = baseName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      
+      // Create sanitized filename
+      const sanitizedBaseName = baseName
+        .replace(/\s+/g, '_')
+        .replace(/[\/\\:*?"<>|#%&{}+`'=@$^!]/g, '_');
+      
       const timestamp = new Date().getTime();
       const newFilename = `editor_${sanitizedBaseName}_${timestamp}.${fileExt}`;
       
