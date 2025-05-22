@@ -31,6 +31,13 @@ export function SEO({
   const location = useLocation();
   const canonicalUrl = location.pathname;
   const isArticle = !!article;
+  const baseUrl = 'https://mlodzi.ozzip.pl';
+  const fullImageUrl = image && !image.startsWith('http') ? `${baseUrl}${image}` : image;
+
+  // Enhanced description handling for social media
+  const socialDescription = description && description.length > 160 
+    ? `${description.substring(0, 157)}...`
+    : description;
 
   return (
     <>
@@ -38,12 +45,14 @@ export function SEO({
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
-        ogImage={image}
+        ogImage={fullImageUrl}
         ogType={isArticle ? 'article' : 'website'}
         ogTitle={title}
-        ogDescription={description}
+        ogDescription={socialDescription}
         twitterCard={image ? 'summary_large_image' : 'summary'}
-        twitterImage={image}
+        twitterImage={fullImageUrl}
+        twitterTitle={title}
+        twitterDescription={socialDescription}
         keywords={keywords}
       >
         {children}
@@ -54,7 +63,7 @@ export function SEO({
       {isArticle ? (
         <ArticleStructuredData
           title={title || ''}
-          image={image}
+          image={fullImageUrl}
           datePublished={article.publishedAt}
           dateModified={article.modifiedAt}
           description={description}
@@ -67,7 +76,7 @@ export function SEO({
           title={title || 'Koła Młodych OZZ IP'}
           description={description}
           url={canonicalUrl}
-          image={image}
+          image={fullImageUrl}
           breadcrumbs={generateBreadcrumbs(canonicalUrl)}
         />
       )}

@@ -37,6 +37,10 @@ export function HeadTags({
   const pageTitle = title ? `${title} - Młodzi IP` : 'Koła Młodych OZZ IP';
   const defaultDescription = 'Koła Młodych OZZ Inicjatywy Pracowniczej – oficjalna strona struktur młodzieżowych związku zawodowego.';
   
+  // Ensure full URLs for social media images
+  const fullOgImage = ogImage && !ogImage.startsWith('http') ? `${baseUrl}${ogImage}` : ogImage;
+  const fullTwitterImage = twitterImage && !twitterImage.startsWith('http') ? `${baseUrl}${twitterImage}` : twitterImage;
+
   useEffect(() => {
     // Update title
     if (title) {
@@ -82,8 +86,11 @@ export function HeadTags({
       { property: 'og:description', content: ogDescription || description || defaultDescription }
     ];
     
-    if (ogImage || twitterImage) {
-      ogTags.push({ property: 'og:image', content: ogImage || twitterImage as string });
+    if (fullOgImage) {
+      ogTags.push({ property: 'og:image', content: fullOgImage });
+      ogTags.push({ property: 'og:image:width', content: '1200' });
+      ogTags.push({ property: 'og:image:height', content: '630' });
+      ogTags.push({ property: 'og:image:alt', content: ogTitle || title || 'Koła Młodych OZZ IP' });
     }
     
     if (fullCanonicalUrl) {
@@ -97,8 +104,9 @@ export function HeadTags({
       { name: 'twitter:description', content: twitterDescription || ogDescription || description || defaultDescription }
     ];
     
-    if (twitterImage || ogImage) {
-      twitterTags.push({ name: 'twitter:image', content: twitterImage || ogImage as string });
+    if (fullTwitterImage || fullOgImage) {
+      twitterTags.push({ name: 'twitter:image', content: fullTwitterImage || fullOgImage || '' });
+      twitterTags.push({ name: 'twitter:image:alt', content: twitterTitle || ogTitle || title || 'Koła Młodych OZZ IP' });
     }
     
     // Append all Open Graph tags
@@ -140,11 +148,11 @@ export function HeadTags({
     ogType,
     ogTitle,
     ogDescription,
-    ogImage,
+    fullOgImage,
     twitterCard,
     twitterTitle,
     twitterDescription,
-    twitterImage,
+    fullTwitterImage,
     defaultDescription
   ]);
   

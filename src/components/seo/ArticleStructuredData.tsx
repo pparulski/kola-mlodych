@@ -26,6 +26,9 @@ export function ArticleStructuredData({
   const publishDate = datePublished || new Date().toISOString();
   const modifiedDate = dateModified || publishDate;
   
+  // Ensure full URL for image
+  const fullImageUrl = image && !image.startsWith('http') ? `${baseUrl}${image}` : image;
+  
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -34,7 +37,7 @@ export function ArticleStructuredData({
       "@id": url ? `${baseUrl}${url}` : `${baseUrl}/news`
     },
     "headline": title,
-    "image": image ? [image] : [],
+    "image": fullImageUrl ? [fullImageUrl] : [],
     "datePublished": publishDate,
     "dateModified": modifiedDate,
     "author": {

@@ -59,17 +59,26 @@ export function FeaturedImageUpload({
         />
       </div>
       
-      <p className="text-sm text-muted-foreground mt-2">
-        Zalecane wymiary: 1200×675 px (16:9) lub 1680x720 px (21:9). 
-        Zdjęcie będzie wyświetlane w proporcjach 16:9 w widoku artykułu i 21:9 na liście.
-        Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
-        Preferujemy zdjęcia z lokalnych wydarzeń, przedstawiające aktywność związkową.
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Pamiętaj, że dobrej jakości zdjęcie przyciąga uwagę czytelników. Wybieraj zdjęcia ostre, 
-        dobrze oświetlone i o odpowiedniej rozdzielczości. Unikaj zdjęć zamazanych, zbyt ciemnych 
-        lub o niskiej jakości.
-      </p>
+      <div className="space-y-2 text-sm text-muted-foreground mt-2 p-3 bg-muted/50 rounded-md border border-border">
+        <h4 className="font-medium text-foreground">Wskazówki dotyczące zdjęć:</h4>
+        <p>
+          <strong>Zalecane wymiary:</strong> 1200×675 px (16:9) lub 1680×720 px (21:9)
+        </p>
+        <p>
+          <strong>Jak będzie wyświetlane:</strong> W proporcjach 16:9 w widoku artykułu i 21:9 na liście aktualności.
+        </p>
+        <p>
+          <strong>Format:</strong> Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
+        </p>
+        <p>
+          <strong>Zalecenia:</strong> Preferujemy zdjęcia z lokalnych wydarzeń, przedstawiające aktywność związkową.
+          Wybieraj zdjęcia ostre, dobrze oświetlone i o odpowiedniej rozdzielczości.
+        </p>
+        <p>
+          <strong>Uwaga:</strong> Zdjęcie wyróżniające będzie wykorzystywane w podglądach na portalach społecznościowych
+          (Open Graph) i jest kluczowym elementem przyciągającym uwagę czytelników.
+        </p>
+      </div>
     </div>
   );
 }
