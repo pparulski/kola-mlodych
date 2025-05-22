@@ -473,6 +473,10 @@ export type Database = {
         Args: { search_term: string; page_limit: number; page_offset: number }
         Returns: Json
       }
+      update_all_news_slugs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       page_position: "top" | "sidebar" | "none"
