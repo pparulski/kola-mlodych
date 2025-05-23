@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { useParams, useLocation, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -8,8 +7,8 @@ import { Category } from "@/types/categories";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
 import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
-import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
+import { useEnhancedSearchParams } from "@/hooks/useEnhancedSearchParams";
 import { NewsArticle } from "@/types/news";
 
 interface CategoryArticlesResult {
@@ -19,9 +18,10 @@ interface CategoryArticlesResult {
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
-  const [searchParams] = useSearchParams();
   const [categoryName, setCategoryName] = useState("");
-  const [totalArticles, setTotalArticles] = useState(0);
+  
+  // Get pagination state from enhanced hook
+  const { currentPage, setCurrentPage, setTotal, getPaginationIndices, totalPages } = useEnhancedSearchParams();
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -41,12 +41,6 @@ export default function CategoryFeed() {
     enabled: !!slug,
     staleTime: 60000, // Cache category data for a minute
   });
-
-  // Parse page from URL or use default
-  const initialPage = parseInt(searchParams.get("page") || "1", 10);
-
-  // Set up pagination - important to do this after we have a category
-  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -61,10 +55,10 @@ export default function CategoryFeed() {
   
   useEffect(() => {
     if (slug !== previousSlug) {
-      setTotalArticles(0);
+      setTotal(0);
       setPreviousSlug(slug);
     }
-  }, [slug, previousSlug]);
+  }, [slug, previousSlug, setTotal]);
   
   // Fetch articles from this category with pagination
   const { data: articlesData, isLoading: isArticlesLoading } = useQuery<CategoryArticlesResult>({
@@ -84,8 +78,8 @@ export default function CategoryFeed() {
         
       if (countError) throw countError;
       
-      // Update total count state
-      setTotalArticles(count || 0);
+      // Update total count in enhanced hook
+      setTotal(count || 0, ARTICLES_PER_PAGE);
       
       console.log(`CategoryFeed: Found ${count} total articles for category ${category.name}`);
       
@@ -122,6 +116,7 @@ export default function CategoryFeed() {
   const articles = articlesData?.articles ? formatNewsItems(articlesData.articles) : [];
   
   const isLoading = isCategoryLoading || isArticlesLoading;
+  const totalItems = articlesData?.count || 0;
   
   if (isLoading) {
     return (
@@ -164,10 +159,10 @@ export default function CategoryFeed() {
           <div>
             <h3 className="font-medium">Kategoria: {category.name}</h3>
             <p className="text-sm text-muted-foreground">
-              {totalArticles > 0 
-                ? `Znaleziono ${totalArticles} ${
-                    totalArticles === 1 ? 'artykuł' : 
-                    totalArticles < 5 ? 'artykuły' : 'artykułów'
+              {totalItems > 0 
+                ? `Znaleziono ${totalItems} ${
+                    totalItems === 1 ? 'artykuł' : 
+                    totalItems < 5 ? 'artykuły' : 'artykułów'
                   }` 
                 : "Brak artykułów w tej kategorii"}
             </p>
@@ -195,7 +190,7 @@ export default function CategoryFeed() {
           <NewsPagination 
             currentPage={currentPage} 
             totalPages={totalPages} 
-            handlePageChange={handlePageChange} 
+            handlePageChange={setCurrentPage} 
           />
         </>
       ) : (

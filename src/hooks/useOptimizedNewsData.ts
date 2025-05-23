@@ -1,12 +1,11 @@
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "react-router-dom";
 import { ARTICLES_PER_PAGE } from "./news/useNewsBase";
 import { useNewsSearch } from "./news/useNewsSearch";
 import { useNewsCategories } from "./news/useNewsCategories";
 import { useNewsDefault } from "./news/useNewsDefault";
-import { useNewsPagination } from "./news/useNewsPagination";
+import { useEnhancedSearchParams } from "./useEnhancedSearchParams";
 import { NewsArticle } from "@/types/news";
 
 interface NewsQueryResult {
@@ -14,46 +13,26 @@ interface NewsQueryResult {
   total: number;
 }
 
-export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
-  const [totalItems, setTotalItems] = useState(0);
-  const location = useLocation();
-  const previousFilterKey = useRef('');
-  const initialLoadCompleted = useRef(false);
+export function useOptimizedNewsData() {
+  // Get all params from our enhanced hook
+  const {
+    searchQuery,
+    selectedCategories,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+    setTotal,
+    getPaginationIndices
+  } = useEnhancedSearchParams();
   
-  // Import individual hooks
+  // Import individual data fetching hooks
   const { searchNews } = useNewsSearch();
   const { fetchNewsByCategories } = useNewsCategories();
   const { fetchDefaultNews } = useNewsDefault();
-  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = 
-    useNewsPagination(totalItems, ARTICLES_PER_PAGE);
-  
-  // Track filter changes to reset pagination
-  const filterKey = useMemo(() => {
-    return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
-  }, [searchQuery, selectedCategories]);
-
-  // When filter key changes, log it but don't reset pagination automatically
-  useEffect(() => {
-    if (previousFilterKey.current !== filterKey) {
-      console.log("Filter key changed, resetting pagination:", filterKey);
-      previousFilterKey.current = filterKey;
-    }
-  }, [filterKey]);
-
-  // Reset totalItems only on pathname change (actual route change), not on search param changes
-  useEffect(() => {
-    const pathOnly = location.pathname;
-    if (initialLoadCompleted.current) {
-      console.log(`Path changed to ${pathOnly}, resetting totalItems`);
-      setTotalItems(0);
-    } else {
-      initialLoadCompleted.current = true;
-    }
-  }, [location.pathname]); // Only dependent on pathname, not full location
 
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
-    queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage, location.pathname],
+    queryKey: ['optimized-news', searchQuery, selectedCategories, currentPage],
     queryFn: async () => {
       const { from, to } = getPaginationIndices();
       
@@ -63,12 +42,11 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         selectedCategories, 
         currentPage, 
         from, 
-        to,
-        pathname: location.pathname 
+        to
       });
       
       try {
-        // Handle search queries with the search_news function
+        // Handle search queries
         if (searchQuery) {
           console.log("Using search news flow");
           result = await searchNews(searchQuery, ARTICLES_PER_PAGE, from);
@@ -76,10 +54,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         // Server-side filtering and pagination for category filters
         else if (selectedCategories && selectedCategories.length > 0) {
           console.log("Using category filter flow");
-          
-          // Log which categories we're filtering by for debugging
           console.log(`Fetching news by categories: ${selectedCategories.join(", ")} with range ${from}-${to}`);
-          
           result = await fetchNewsByCategories(selectedCategories, from, to);
         }
         // Standard pagination without filters
@@ -93,8 +68,8 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           itemsCount: result.items.length
         });
         
-        // Update total items for pagination
-        setTotalItems(result.total);
+        // Update total items for pagination in the enhanced hook
+        setTotal(result.total, ARTICLES_PER_PAGE);
         return result;
       } catch (error) {
         console.error("Error fetching news data:", error);
@@ -108,14 +83,17 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
 
   // Memoize the current page items to prevent unnecessary re-renders
   const currentPageItems = useMemo(() => newsData?.items || [], [newsData?.items]);
+  
+  // Get the total count for display
+  const totalItems = newsData?.total || 0;
 
   return {
     currentPageItems,
     isLoading,
     currentPage,
     totalPages,
-    handlePageChange,
-    totalItems: totalItems,
+    handlePageChange: setCurrentPage,
+    totalItems,
     error
   };
 }
