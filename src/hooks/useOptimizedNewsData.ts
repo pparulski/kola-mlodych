@@ -18,6 +18,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   const [totalItems, setTotalItems] = useState(0);
   const location = useLocation();
   const previousFilterKey = useRef('');
+  const initialLoadCompleted = useRef(false);
   
   // Import individual hooks
   const { searchNews } = useNewsSearch();
@@ -31,7 +32,7 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
   }, [searchQuery, selectedCategories]);
 
-  // Note filter key changes but don't reset anything here
+  // When filter key changes, log it but don't reset pagination automatically
   useEffect(() => {
     if (previousFilterKey.current !== filterKey) {
       console.log("Filter key changed, resetting pagination:", filterKey);
@@ -42,7 +43,12 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
   // Reset totalItems only on pathname change (actual route change), not on search param changes
   useEffect(() => {
     const pathOnly = location.pathname;
-    setTotalItems(0);
+    if (initialLoadCompleted.current) {
+      console.log(`Path changed to ${pathOnly}, resetting totalItems`);
+      setTotalItems(0);
+    } else {
+      initialLoadCompleted.current = true;
+    }
   }, [location.pathname]); // Only dependent on pathname, not full location
 
   // Query for news data with server-side pagination and filtering
@@ -70,6 +76,10 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         // Server-side filtering and pagination for category filters
         else if (selectedCategories && selectedCategories.length > 0) {
           console.log("Using category filter flow");
+          
+          // Log which categories we're filtering by for debugging
+          console.log(`Fetching news by categories: ${selectedCategories.join(", ")} with range ${from}-${to}`);
+          
           result = await fetchNewsByCategories(selectedCategories, from, to);
         }
         // Standard pagination without filters

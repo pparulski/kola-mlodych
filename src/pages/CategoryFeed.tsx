@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ interface CategoryArticlesResult {
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
   
@@ -39,6 +41,9 @@ export default function CategoryFeed() {
     enabled: !!slug,
     staleTime: 60000, // Cache category data for a minute
   });
+
+  // Parse page from URL or use default
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
 
   // Set up pagination - important to do this after we have a category
   const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);

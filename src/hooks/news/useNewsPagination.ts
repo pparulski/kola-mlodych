@@ -6,8 +6,10 @@ import { useLocation, useSearchParams } from "react-router-dom";
 export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  
   // Store previous pathname to detect true navigation (not just search param changes)
   const previousPathname = useRef(location.pathname);
+  const previousSearch = useRef(location.search);
   
   // Initialize from URL param or default to 1
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -32,26 +34,32 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
       // Only update URL if needed to avoid loops
       const currentPageParam = searchParams.get("page") || "1";
       if (currentPageParam !== currentPage.toString() && (currentPage !== 1 || currentPageParam !== "1")) {
+        console.log(`Updating URL page param from ${currentPageParam} to ${currentPage}`);
         setSearchParams(newSearchParams, { replace: true });
       }
     }
   }, [currentPage, totalPages, searchParams, setSearchParams]);
   
   // Reset to page 1 ONLY when actual navigation between different routes occurs
-  // Not when search params or filter params change
+  // Not when search params, filter params, or other query parameters change
   useEffect(() => {
-    if (location.pathname !== previousPathname.current) {
+    const pathChanged = location.pathname !== previousPathname.current;
+    
+    if (pathChanged) {
       console.log(`Route changed from ${previousPathname.current} to ${location.pathname}, resetting page to 1`);
       setCurrentPage(1);
       previousPathname.current = location.pathname;
+      previousSearch.current = location.search;
     }
+    // Don't reset page when only search params change
   }, [location.pathname]);
   
   // Reset to page 1 when total items changes and current page would be out of bounds
   useEffect(() => {
     // Only reset if we have a valid total and we're on a page that would be out of bounds
-    if (totalItems >= 0 && (currentPage > Math.max(1, Math.ceil(totalItems / itemsPerPage)) || currentPage < 1)) {
-      console.log(`Resetting page to 1 (was ${currentPage}) because totalItems changed to ${totalItems}`);
+    const maxPage = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    if (totalItems >= 0 && currentPage > maxPage) {
+      console.log(`Resetting page to 1 (was ${currentPage}) because totalItems changed to ${totalItems}, max page is now ${maxPage}`);
       setCurrentPage(1);
     }
   }, [totalItems, itemsPerPage, currentPage]);

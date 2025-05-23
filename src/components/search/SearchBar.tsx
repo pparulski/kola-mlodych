@@ -24,16 +24,22 @@ export function SearchBar({
   // Local state for input value that user sees and types in
   const [inputValue, setInputValue] = useState(searchQuery);
   
-  // Flag to track if we're currently processing an update from parent
+  // Refs to track state update sources and prevent loops
   const isUpdatingFromParent = useRef(false);
-  // Flag to track if we initiated a submit
   const isSubmitting = useRef(false);
+  const ignoreNextParentUpdate = useRef(false);
 
   // Synchronize from parent state to local state, but avoid loops
   useEffect(() => {
-    // Skip if we just updated the parent ourselves
+    // Skip if we just submitted a value ourselves
     if (isSubmitting.current) {
       isSubmitting.current = false;
+      return;
+    }
+    
+    // Skip if we explicitly want to ignore a parent update
+    if (ignoreNextParentUpdate.current) {
+      ignoreNextParentUpdate.current = false;
       return;
     }
     
@@ -42,21 +48,23 @@ export function SearchBar({
       return;
     }
     
-    // Only update local state when parent state changes
+    // Only update local state when parent state changes and is different
     if (searchQuery !== inputValue) {
       isUpdatingFromParent.current = true;
-      
       setInputValue(searchQuery);
       
+      // Reset the flag after a short delay
       setTimeout(() => {
         isUpdatingFromParent.current = false;
-      }, 50);
+      }, 100);
     }
   }, [searchQuery, inputValue]);
 
   // Handle input changes - only update local state
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isUpdatingFromParent.current) return;
+    
+    // We just want to update the local input value, not submit
     setInputValue(e.target.value);
   };
 
@@ -76,7 +84,12 @@ export function SearchBar({
     // Only update parent state if the value actually changed
     if (inputValue !== searchQuery) {
       console.log(`Submitting search: "${inputValue}"`);
+      
+      // Set flags to prevent loops
       isSubmitting.current = true;
+      ignoreNextParentUpdate.current = true;
+      
+      // Actually update the parent state
       setSearchQuery(inputValue);
     }
   };
@@ -87,10 +100,13 @@ export function SearchBar({
     
     setInputValue("");
     isSubmitting.current = true;
+    ignoreNextParentUpdate.current = true;
     setSearchQuery("");
     
     setTimeout(() => {
-      activeRef.current?.focus({ preventScroll: true });
+      if (activeRef.current) {
+        activeRef.current.focus({ preventScroll: true });
+      }
     }, 50);
   };
 
@@ -99,7 +115,9 @@ export function SearchBar({
     if (isUpdatingFromParent.current) return;
     submitSearch();
     setTimeout(() => {
-      activeRef.current?.focus({ preventScroll: true });
+      if (activeRef.current) {
+        activeRef.current.focus({ preventScroll: true });
+      }
     }, 50);
   };
 
@@ -115,6 +133,12 @@ export function SearchBar({
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        onBlur={() => {
+          // Only submit on blur if value has changed
+          if (inputValue !== searchQuery) {
+            submitSearch();
+          }
+        }}
         className={`pl-8 w-full ${isCompact ? "h-9" : ""}`}
         ref={activeRef}
       />

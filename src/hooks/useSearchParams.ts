@@ -19,8 +19,8 @@ export function useSearchParams() {
   const urlCategories = (searchParams.get('categories') || '').split(',').filter(Boolean);
   
   // Initialize state from URL, only once on mount
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(urlCategories);
   
   // Additional state
   const isHomePage = location.pathname === '/';
@@ -28,23 +28,24 @@ export function useSearchParams() {
   // Effect to initialize state from URL parameters only once
   useEffect(() => {
     if (!hasLoadedFromURL.current) {
-      // Only load from URL params on first render
-      if (urlSearch) setSearchQuery(urlSearch);
-      if (urlCategories.length > 0) setSelectedCategories(urlCategories);
-      hasLoadedFromURL.current = true;
-      isInitialized.current = true;
-      
       console.log("Initial URL parameters loaded:", { 
         urlSearch, 
         urlCategories 
       });
+      
+      // Only load from URL params on first render if there's something to load
+      if (urlSearch) setSearchQuery(urlSearch);
+      if (urlCategories.length > 0) setSelectedCategories(urlCategories);
+      
+      hasLoadedFromURL.current = true;
+      isInitialized.current = true;
     }
   }, [urlSearch, urlCategories]);
 
   // Effect to sync URL parameters to state (URL → state)
   useEffect(() => {
-    // Skip on initial load or when not on homepage
-    if (!isInitialized.current || !isHomePage) return;
+    // Skip on initial load
+    if (!isInitialized.current) return;
     
     // Skip if we're currently updating URL from state changes
     if (isUpdatingURL.current) return;
@@ -54,6 +55,9 @@ export function useSearchParams() {
       ignoreNextURLUpdate.current = false;
       return;
     }
+    
+    // Only process URL updates when on the homepage
+    if (!isHomePage) return;
     
     const params = new URLSearchParams(location.search);
     const newSearchQuery = params.get('search') || '';
@@ -66,12 +70,19 @@ export function useSearchParams() {
     if (searchChanged || categoriesChanged) {
       console.log("URL changed, updating state:", { 
         newSearchQuery, 
-        newCategories 
+        newCategories,
+        currentSearch: searchQuery,
+        currentCategories: selectedCategories
       });
       
       // Update state without triggering the state→URL effect
-      if (searchChanged) setSearchQuery(newSearchQuery);
-      if (categoriesChanged) setSelectedCategories(newCategories);
+      if (searchChanged) {
+        setSearchQuery(newSearchQuery);
+      }
+      
+      if (categoriesChanged) {
+        setSelectedCategories(newCategories);
+      }
     }
   }, [location.search, isHomePage, searchQuery, selectedCategories]);
 
@@ -80,6 +91,12 @@ export function useSearchParams() {
     debounce((query: string, categories: string[]) => {
       // Don't update URL if not on homepage or not initialized
       if (!isHomePage || !isInitialized.current) return;
+      
+      console.log("State changed, updating URL:", { 
+        query, 
+        categories,
+        currentSearch: location.search
+      });
       
       // Mark that we're updating URL to prevent loops
       isUpdatingURL.current = true;
@@ -95,10 +112,7 @@ export function useSearchParams() {
       
       // Only navigate if the parameters actually changed
       if (newQueryString !== currentQueryString) {
-        console.log("State changed, updating URL:", { 
-          query, 
-          categories 
-        });
+        console.log(`Updating URL from "${currentQueryString}" to "${newQueryString}"`);
         
         navigate(`${location.pathname}${newQueryString ? `?${newQueryString}` : ''}`, { 
           replace: true // Replace to avoid stacking history entries
@@ -108,18 +122,15 @@ export function useSearchParams() {
       // Reset flag after a delay to allow for state updates
       setTimeout(() => {
         isUpdatingURL.current = false;
-      }, 100);
-    }, 300),
-    [location.pathname, navigate, isHomePage]
+      }, 200);
+    }, 400), // Use a longer debounce time
+    [location.pathname, location.search, navigate, isHomePage]
   );
 
   // Effect to update URL when state changes
   useEffect(() => {
-    if (isInitialized.current && !isUpdatingURL.current) {
+    if (isInitialized.current && !isUpdatingURL.current && isHomePage) {
       updateURL(searchQuery, selectedCategories);
-    } else if (!isInitialized.current && isHomePage) {
-      // Mark as initialized after first render
-      isInitialized.current = true;
     }
   }, [searchQuery, selectedCategories, updateURL, isHomePage]);
 
@@ -128,20 +139,25 @@ export function useSearchParams() {
     if (isUpdatingURL.current) return;
     
     console.log("Clearing all filters");
+    
+    // Set ignoreNextURLUpdate to prevent the URL update from triggering a state update
+    ignoreNextURLUpdate.current = true;
+    
+    // Update our state
     setSearchQuery("");
     setSelectedCategories([]);
     
     if (isHomePage) {
       // Clear URL params
       isUpdatingURL.current = true;
-      // Mark to ignore the next URL update to avoid race condition
-      ignoreNextURLUpdate.current = true;
       
+      // Go to the current pathname without query params
       navigate(location.pathname, { replace: true });
       
+      // Reset after a delay
       setTimeout(() => {
         isUpdatingURL.current = false;
-      }, 100);
+      }, 200);
     }
   }, [isHomePage, navigate, location.pathname]);
 
