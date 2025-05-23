@@ -62,21 +62,13 @@ export function FeaturedImageUpload({
       <div className="space-y-2 text-sm text-muted-foreground mt-2 p-3 bg-muted/50 rounded-md border border-border">
         <h4 className="font-medium text-foreground">Wskazówki dotyczące zdjęć:</h4>
         <p>
-          <strong>Zalecane wymiary:</strong> 1200×675 px (16:9) lub 1680×720 px (21:9)
+          <strong>Zalecane wymiary:</strong> 1200×675 px (16:9) lub 1680×720 px (21:9). Ogólnie horyzontalne.
         </p>
         <p>
           <strong>Jak będzie wyświetlane:</strong> W proporcjach 16:9 w widoku artykułu i 21:9 na liście aktualności.
         </p>
         <p>
           <strong>Format:</strong> Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
-        </p>
-        <p>
-          <strong>Zalecenia:</strong> Preferujemy zdjęcia z lokalnych wydarzeń, przedstawiające aktywność związkową.
-          Wybieraj zdjęcia ostre, dobrze oświetlone i o odpowiedniej rozdzielczości.
-        </p>
-        <p>
-          <strong>Uwaga:</strong> Zdjęcie wyróżniające będzie wykorzystywane w podglądach na portalach społecznościowych
-          (Open Graph) i jest kluczowym elementem przyciągającym uwagę czytelników.
         </p>
       </div>
     </div>
