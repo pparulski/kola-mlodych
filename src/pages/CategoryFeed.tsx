@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -21,13 +20,6 @@ export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  
-  // Reset total articles when the category changes, not on any location change
-  useEffect(() => {
-    setTotalArticles(0);
-  }, [slug]);
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -48,7 +40,7 @@ export default function CategoryFeed() {
     staleTime: 60000, // Cache category data for a minute
   });
 
-  // Set up pagination
+  // Set up pagination - important to do this after we have a category
   const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
@@ -59,9 +51,19 @@ export default function CategoryFeed() {
     }
   }, [category]);
   
+  // Keep track of previous slug to reset pagination when category changes
+  const [previousSlug, setPreviousSlug] = useState<string | undefined>(slug);
+  
+  useEffect(() => {
+    if (slug !== previousSlug) {
+      setTotalArticles(0);
+      setPreviousSlug(slug);
+    }
+  }, [slug, previousSlug]);
+  
   // Fetch articles from this category with pagination
   const { data: articlesData, isLoading: isArticlesLoading } = useQuery<CategoryArticlesResult>({
-    queryKey: ["category-articles", slug, currentPage, searchParams.toString()],
+    queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
       if (!category) return { articles: [], count: 0 };
       
@@ -101,7 +103,7 @@ export default function CategoryFeed() {
         
       console.log(`CategoryFeed: Retrieved ${articles.length} articles for page ${currentPage}`);
       
-      // Return only the news articles
+      // Return articles and count for pagination
       return {
         articles: articles,
         count: count || 0

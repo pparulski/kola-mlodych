@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { ARTICLES_PER_PAGE } from "./news/useNewsBase";
@@ -17,6 +17,7 @@ interface NewsQueryResult {
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
   const [totalItems, setTotalItems] = useState(0);
   const location = useLocation();
+  const previousFilterKey = useRef('');
   
   // Import individual hooks
   const { searchNews } = useNewsSearch();
@@ -30,15 +31,19 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
   }, [searchQuery, selectedCategories]);
 
-  // Reset to page 1 when search query or categories change
+  // Note filter key changes but don't reset anything here
   useEffect(() => {
-    console.log("Filter key changed, resetting pagination:", filterKey);
+    if (previousFilterKey.current !== filterKey) {
+      console.log("Filter key changed, resetting pagination:", filterKey);
+      previousFilterKey.current = filterKey;
+    }
   }, [filterKey]);
 
-  // Reset totalItems on location change or page reload
+  // Reset totalItems only on pathname change (actual route change), not on search param changes
   useEffect(() => {
+    const pathOnly = location.pathname;
     setTotalItems(0);
-  }, [location.pathname]);
+  }, [location.pathname]); // Only dependent on pathname, not full location
 
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
@@ -86,9 +91,9 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
         throw error;
       }
     },
-    staleTime: 10000, // Shorter stale time to refresh data more frequently
-    gcTime: 30000, // Keep in cache for 30 seconds
-    refetchOnWindowFocus: false, // Don't refetch on window focus
+    staleTime: 10000,
+    gcTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   // Memoize the current page items to prevent unnecessary re-renders

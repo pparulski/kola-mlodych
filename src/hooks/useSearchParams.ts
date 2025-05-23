@@ -8,10 +8,11 @@ export function useSearchParams() {
   const navigate = useNavigate();
   const [searchParams] = useRouterSearchParams();
   
-  // Track initialization
+  // Track initialization and state sync
   const isInitialized = useRef(false);
   const isUpdatingURL = useRef(false);
   const hasLoadedFromURL = useRef(false);
+  const ignoreNextURLUpdate = useRef(false);
   
   // Parse URL params once on mount
   const urlSearch = searchParams.get('search') || '';
@@ -41,12 +42,18 @@ export function useSearchParams() {
   }, [urlSearch, urlCategories]);
 
   // Effect to sync URL parameters to state (URL → state)
-  // This runs when the URL changes (like on browser back/forward)
   useEffect(() => {
-    if (!isHomePage) return;
+    // Skip on initial load or when not on homepage
+    if (!isInitialized.current || !isHomePage) return;
     
-    // Don't process if currently updating URL from state changes
+    // Skip if we're currently updating URL from state changes
     if (isUpdatingURL.current) return;
+    
+    // Skip if we've explicitly marked to ignore the next update
+    if (ignoreNextURLUpdate.current) {
+      ignoreNextURLUpdate.current = false;
+      return;
+    }
     
     const params = new URLSearchParams(location.search);
     const newSearchQuery = params.get('search') || '';
@@ -62,9 +69,6 @@ export function useSearchParams() {
         newCategories 
       });
       
-      // Mark as initialized
-      isInitialized.current = true;
-      
       // Update state without triggering the state→URL effect
       if (searchChanged) setSearchQuery(newSearchQuery);
       if (categoriesChanged) setSelectedCategories(newCategories);
@@ -74,7 +78,7 @@ export function useSearchParams() {
   // Debounced function to update URL from state changes (state → URL)
   const updateURL = useCallback(
     debounce((query: string, categories: string[]) => {
-      // Don't update URL if not on homepage
+      // Don't update URL if not on homepage or not initialized
       if (!isHomePage || !isInitialized.current) return;
       
       // Mark that we're updating URL to prevent loops
@@ -105,7 +109,7 @@ export function useSearchParams() {
       setTimeout(() => {
         isUpdatingURL.current = false;
       }, 100);
-    }, 300), // Increased debounce time to reduce rapid updates
+    }, 300),
     [location.pathname, navigate, isHomePage]
   );
 
@@ -130,6 +134,9 @@ export function useSearchParams() {
     if (isHomePage) {
       // Clear URL params
       isUpdatingURL.current = true;
+      // Mark to ignore the next URL update to avoid race condition
+      ignoreNextURLUpdate.current = true;
+      
       navigate(location.pathname, { replace: true });
       
       setTimeout(() => {

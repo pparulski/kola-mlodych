@@ -26,47 +26,57 @@ export function SearchBar({
   
   // Flag to track if we're currently processing an update from parent
   const isUpdatingFromParent = useRef(false);
-  // Flag to track if we're processing a user input update
-  const isProcessingUserInput = useRef(false);
+  // Flag to track if we initiated a submit
+  const isSubmitting = useRef(false);
 
-  // Only update local input when parent state changes (but not due to our own updates)
+  // Synchronize from parent state to local state, but avoid loops
   useEffect(() => {
-    if (isUpdatingFromParent.current) {
-      return; // Skip if we're already processing an update
+    // Skip if we just updated the parent ourselves
+    if (isSubmitting.current) {
+      isSubmitting.current = false;
+      return;
     }
     
-    // Mark that we're updating from parent to avoid loops
-    isUpdatingFromParent.current = true;
+    // Skip if we're already processing an update from parent
+    if (isUpdatingFromParent.current) {
+      return;
+    }
     
-    // Update local input value to match parent state
-    setInputValue(searchQuery);
-    
-    // Reset the flag after a short delay to allow rendering to complete
-    setTimeout(() => {
-      isUpdatingFromParent.current = false;
-    }, 50);
-  }, [searchQuery]);
+    // Only update local state when parent state changes
+    if (searchQuery !== inputValue) {
+      isUpdatingFromParent.current = true;
+      
+      setInputValue(searchQuery);
+      
+      setTimeout(() => {
+        isUpdatingFromParent.current = false;
+      }, 50);
+    }
+  }, [searchQuery, inputValue]);
 
-  // Handle input changes
+  // Handle input changes - only update local state
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isUpdatingFromParent.current) return; // Skip if currently updating from parent
-    
-    isProcessingUserInput.current = true;
+    if (isUpdatingFromParent.current) return;
     setInputValue(e.target.value);
-    isProcessingUserInput.current = false;
   };
 
   // Submit search only on Enter key
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
+      e.preventDefault();
       submitSearch();
     }
   };
 
   // Submit search to parent component
   const submitSearch = () => {
-    if (inputValue !== searchQuery && !isUpdatingFromParent.current) {
+    // Skip if we're currently processing an update from parent
+    if (isUpdatingFromParent.current) return;
+    
+    // Only update parent state if the value actually changed
+    if (inputValue !== searchQuery) {
+      console.log(`Submitting search: "${inputValue}"`);
+      isSubmitting.current = true;
       setSearchQuery(inputValue);
     }
   };
@@ -76,6 +86,7 @@ export function SearchBar({
     if (isUpdatingFromParent.current) return;
     
     setInputValue("");
+    isSubmitting.current = true;
     setSearchQuery("");
     
     setTimeout(() => {
@@ -85,12 +96,11 @@ export function SearchBar({
 
   // Submit search when clicking the search icon
   const handleSearchIconClick = () => {
-    if (!isUpdatingFromParent.current) {
-      submitSearch();
-      setTimeout(() => {
-        activeRef.current?.focus({ preventScroll: true }); 
-      }, 50);
-    }
+    if (isUpdatingFromParent.current) return;
+    submitSearch();
+    setTimeout(() => {
+      activeRef.current?.focus({ preventScroll: true });
+    }, 50);
   };
 
   return (

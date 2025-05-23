@@ -1,6 +1,6 @@
 
 // PageLayout.tsx
-import React, { useState, useEffect, useRef } from "react"; // Added useState, useRef
+import React, { useState, useEffect, useRef } from "react"; 
 import { Outlet, useLocation } from "react-router-dom";
 import { useSearchParams } from "@/hooks/useSearchParams";
 import { useCategories } from "@/hooks/useCategories";
@@ -8,7 +8,7 @@ import { PageHeader } from "./PageHeader";
 import { CategorySection } from "./CategorySection";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
-import { debounce } from "@/utils/debounce"; // Assuming you have this utility
+import { debounce } from "@/utils/debounce"; 
 
 // Max height of PageHeader in REMs (when search is open: 120px / 16px/rem = 7.5rem)
 const PAGE_HEADER_MAX_HEIGHT_REM_STR = "7.5rem";
@@ -28,41 +28,29 @@ export function PageLayout() {
   const previousPathname = useRef(location.pathname);
 
   // State to hold the measured height of the JoinBanner in pixels
-  // Initialize with a sensible default (e.g., 40px which is 2.5rem if JoinBanner is often that height)
-  // This helps reduce initial layout shift before the first measurement.
   const [joinBannerHeightPx, setJoinBannerHeightPx] = useState(40); 
 
   // Effect to measure JoinBanner height
   useEffect(() => {
     const measureBannerHeight = () => {
-      const bannerElement = document.getElementById("join-banner"); // Ensure JoinBanner has id="join-banner"
+      const bannerElement = document.getElementById("join-banner");
       if (bannerElement) {
         const height = bannerElement.offsetHeight;
-        if (height > 0) { // Only update if a valid height is measured
+        if (height > 0) {
             setJoinBannerHeightPx(height);
         }
-        // console.log("Measured JoinBanner height (px):", height);
-      } else {
-        // Fallback or warning if banner not found, though it should be there
-        // console.warn("JoinBanner element not found for height measurement.");
-        // You might set a default pixel height here if the banner is optional
-        // For now, it will keep the initial useState value or last measured value.
       }
     };
 
-    measureBannerHeight(); // Initial measure on mount
+    measureBannerHeight();
 
     const debouncedMeasure = debounce(measureBannerHeight, 200);
     window.addEventListener("resize", debouncedMeasure);
 
-    // Optional: If JoinBanner's content could change causing height change without resize
-    // you might need a MutationObserver or a more complex way to trigger re-measure.
-    // For now, resize is the primary trigger.
-
     return () => {
       window.removeEventListener("resize", debouncedMeasure);
     };
-  }, []); // Runs once on mount to set up listeners
+  }, []);
 
   const isHeaderVisible = scrollDirection !== "down";
 
@@ -74,62 +62,60 @@ export function PageLayout() {
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
 
-  // Reset scroll position and clear filters when changing routes, but be selective
+  // Reset scroll position when changing routes, but be selective about clearing filters
   useEffect(() => {
-    // Only reset when actually changing content sections (not just query params)
+    // Only act when actually changing content routes (not just query params)
     if (previousPathname.current !== location.pathname) {
       window.scrollTo(0, 0);
       
-      // Only clear filters when navigating away from home page or to a completely different section
-      // Don't clear when staying within category pages or pagination changes
-      const fromCategory = previousPathname.current.startsWith('/category/');
-      const toCategory = location.pathname.startsWith('/category/');
+      // ONLY clear filters when:
+      // 1. Moving from home page to a non-category page
+      // 2. Moving from category page to a non-home, non-category page
+      const isFromHomepage = previousPathname.current === '/';
+      const isToHomepage = location.pathname === '/';
+      const isFromCategoryPage = previousPathname.current.startsWith('/category/');
+      const isToCategoryPage = location.pathname.startsWith('/category/');
       
-      // Only clear filters on section changes (not within same section)
-      if (previousPathname.current === '/' || 
-          (!fromCategory && !toCategory && 
-           location.pathname !== '/' && 
-           (searchQuery || (selectedCategories && selectedCategories.length > 0)))) {
+      // Only clear filters on specific content section changes
+      if ((isFromHomepage && !isToCategoryPage && !isToHomepage) || 
+          (isFromCategoryPage && !isToCategoryPage && !isToHomepage)) {
+        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: clearing filters`);
         clearFilters();
+      } else {
+        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: keeping filters`);
       }
       
-      // Update the previous pathname ref for the next comparison
+      // Update the previous pathname ref for next comparison
       previousPathname.current = location.pathname;
     }
-  }, [location.pathname, clearFilters, searchQuery, selectedCategories]);
+  }, [location.pathname, clearFilters]);
   
   return (
-    <> {/* Using React.Fragment as root, or <div className="flex flex-col min-h-screen"> if this is the app root layout */}
-      {/* 
-        The outermost div of PageLayout should NOT have horizontal padding (p-3/px-3)
-        if the sticky header within it needs to be truly full-width edge-to-edge for its background.
-        The padding for content alignment should be applied *inside* the PageHeader and *inside* the main content area.
-      */}
-      <div className="flex-1 relative animate-fade-in"> {/* This div is the positioning context for sticky header */}
+    <> 
+      <div className="flex-1 relative animate-fade-in"> 
         
         {/* Sticky PageHeader Wrapper */}
         <div 
-          id="sticky-page-header-wrapper" // ID for debugging if needed
+          id="sticky-page-header-wrapper" 
           className={cn(
             "w-full sticky bg-background z-[9]", 
             "transition-all duration-300 ease-in-out"
           )}
-          style={{ top: pageHeaderTopPosition }} // Dynamic top for animation
+          style={{ top: pageHeaderTopPosition }} 
         >
           <PageHeader 
-            applyPagePadding={true} // PageHeader handles its own internal p-3 md:p-5
+            applyPagePadding={true} 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             categories={categories}
-            // Pass any other necessary props to PageHeader
           />
         </div>
       
-        {/* Main Content Area Wrapper - This div gets dynamic top padding */}
+        {/* Main Content Area Wrapper */}
         <div 
-          className="transition-all duration-300 ease-in-out" // For smooth padding animation
+          className="transition-all duration-300 ease-in-out" 
         >
           {/* This inner div now handles the consistent page padding for content */}
           <div className="p-3 md:p-5"> 
@@ -139,7 +125,7 @@ export function PageLayout() {
                 setSelectedCategories={setSelectedCategories}
                 categories={categories}
             />
-            <div className="max-w-4xl mx-auto"> {/* Constrains width of Outlet content */}
+            <div className="max-w-4xl mx-auto"> 
                 <Outlet context={{ searchQuery, selectedCategories }} />
             </div>
           </div>

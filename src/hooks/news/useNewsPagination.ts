@@ -1,11 +1,14 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 
 // Hook for news pagination
 export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  // Store previous pathname to detect true navigation (not just search param changes)
+  const previousPathname = useRef(location.pathname);
+  
   // Initialize from URL param or default to 1
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -34,11 +37,14 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
     }
   }, [currentPage, totalPages, searchParams, setSearchParams]);
   
-  // Reset to page 1 when location pathname changes (e.g., moving between different routes)
-  // But NOT when only search params change (which happens during pagination)
+  // Reset to page 1 ONLY when actual navigation between different routes occurs
+  // Not when search params or filter params change
   useEffect(() => {
-    console.log(`Route changed to ${location.pathname}, resetting page to 1`);
-    setCurrentPage(1);
+    if (location.pathname !== previousPathname.current) {
+      console.log(`Route changed from ${previousPathname.current} to ${location.pathname}, resetting page to 1`);
+      setCurrentPage(1);
+      previousPathname.current = location.pathname;
+    }
   }, [location.pathname]);
   
   // Reset to page 1 when total items changes and current page would be out of bounds
