@@ -1,3 +1,4 @@
+
 // PageLayout.tsx
 import React, { useState, useEffect, useRef } from "react"; // Added useState, useRef
 import { Outlet, useLocation } from "react-router-dom";
@@ -24,6 +25,7 @@ export function PageLayout() {
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
   const location = useLocation();
+  const previousPathname = useRef(location.pathname);
 
   // State to hold the measured height of the JoinBanner in pixels
   // Initialize with a sensible default (e.g., 40px which is 2.5rem if JoinBanner is often that height)
@@ -72,11 +74,27 @@ export function PageLayout() {
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
 
-  // Reset scroll position and clear filters when changing routes
+  // Reset scroll position and clear filters when changing routes, but be selective
   useEffect(() => {
-    window.scrollTo(0, 0);
-    if (location.pathname !== '/' && (searchQuery || (selectedCategories && selectedCategories.length > 0))) {
-      clearFilters();
+    // Only reset when actually changing content sections (not just query params)
+    if (previousPathname.current !== location.pathname) {
+      window.scrollTo(0, 0);
+      
+      // Only clear filters when navigating away from home page or to a completely different section
+      // Don't clear when staying within category pages or pagination changes
+      const fromCategory = previousPathname.current.startsWith('/category/');
+      const toCategory = location.pathname.startsWith('/category/');
+      
+      // Only clear filters on section changes (not within same section)
+      if (previousPathname.current === '/' || 
+          (!fromCategory && !toCategory && 
+           location.pathname !== '/' && 
+           (searchQuery || (selectedCategories && selectedCategories.length > 0)))) {
+        clearFilters();
+      }
+      
+      // Update the previous pathname ref for the next comparison
+      previousPathname.current = location.pathname;
     }
   }, [location.pathname, clearFilters, searchQuery, selectedCategories]);
   

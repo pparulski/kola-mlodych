@@ -1,22 +1,47 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 // Hook for news pagination
 export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
-  const [currentPage, setCurrentPage] = useState(1);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Initialize from URL param or default to 1
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   
   // Calculate total pages ensuring at least 1 page
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   
-  // Reset to page 1 when location changes (navigation between routes)
+  // Update URL when page changes
+  useEffect(() => {
+    // Only update if valid page
+    if (currentPage >= 1 && currentPage <= totalPages) {
+      // Don't trigger for initial state or invalid pages
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (currentPage === 1) {
+        // Remove page param if it's page 1 (cleaner URLs)
+        newSearchParams.delete("page");
+      } else {
+        newSearchParams.set("page", currentPage.toString());
+      }
+      
+      // Only update URL if needed to avoid loops
+      const currentPageParam = searchParams.get("page") || "1";
+      if (currentPageParam !== currentPage.toString() && (currentPage !== 1 || currentPageParam !== "1")) {
+        setSearchParams(newSearchParams, { replace: true });
+      }
+    }
+  }, [currentPage, totalPages, searchParams, setSearchParams]);
+  
+  // Reset to page 1 when location pathname changes (e.g., moving between different routes)
+  // But NOT when only search params change (which happens during pagination)
   useEffect(() => {
     console.log(`Route changed to ${location.pathname}, resetting page to 1`);
     setCurrentPage(1);
   }, [location.pathname]);
   
-  // Reset to page 1 when total items changes
+  // Reset to page 1 when total items changes and current page would be out of bounds
   useEffect(() => {
     // Only reset if we have a valid total and we're on a page that would be out of bounds
     if (totalItems >= 0 && (currentPage > Math.max(1, Math.ceil(totalItems / itemsPerPage)) || currentPage < 1)) {
@@ -24,34 +49,6 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
       setCurrentPage(1);
     }
   }, [totalItems, itemsPerPage, currentPage]);
-
-  // Reset to page 1 on page reload
-  useEffect(() => {
-    const handlePageReload = () => {
-      if (currentPage !== 1) {
-        console.log("Page reloaded, resetting to page 1");
-        setCurrentPage(1);
-      }
-    };
-
-    // Check for page reload
-    if (performance.navigation && performance.navigation.type === 1) {
-      handlePageReload();
-    }
-
-    // Add event listener for visibility changes (another way to detect reloads)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        handlePageReload();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [currentPage]);
 
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
