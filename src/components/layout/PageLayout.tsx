@@ -1,8 +1,7 @@
 
-// PageLayout.tsx
 import React, { useState, useEffect, useRef } from "react"; 
 import { Outlet, useLocation } from "react-router-dom";
-import { useSearchParams } from "@/hooks/useSearchParams";
+import { useEnhancedSearchParams } from "@/hooks/useEnhancedSearchParams";
 import { useCategories } from "@/hooks/useCategories";
 import { PageHeader } from "./PageHeader";
 import { CategorySection } from "./CategorySection";
@@ -18,10 +17,17 @@ export function PageLayout() {
     searchQuery, 
     setSearchQuery, 
     selectedCategories, 
-    setSelectedCategories, 
+    setSelectedCategories,
+    currentPage,
+    totalPages,
+    handlePageChange,
+    getPaginationIndices,
+    updateTotalItems,
+    itemsPerPage,
     isHomePage, 
     clearFilters 
-  } = useSearchParams();
+  } = useEnhancedSearchParams();
+  
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
   const location = useLocation();
@@ -62,7 +68,7 @@ export function PageLayout() {
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
 
-  // Reset scroll position when changing routes, but be MUCH more selective about clearing filters
+  // Reset scroll position when changing routes, but be selective about clearing filters
   useEffect(() => {
     // Only act when actually changing content routes (not just query params)
     if (previousPathname.current !== location.pathname) {
@@ -90,6 +96,18 @@ export function PageLayout() {
       previousPathname.current = location.pathname;
     }
   }, [location.pathname, clearFilters]);
+  
+  // Create a consolidated context value to pass down to child components
+  const outletContext = {
+    searchQuery,
+    selectedCategories,
+    currentPage,
+    totalPages,
+    handlePageChange,
+    getPaginationIndices,
+    updateTotalItems,
+    itemsPerPage
+  };
   
   return (
     <> 
@@ -127,7 +145,7 @@ export function PageLayout() {
                 categories={categories}
             />
             <div className="max-w-4xl mx-auto"> 
-                <Outlet context={{ searchQuery, selectedCategories }} />
+                <Outlet context={outletContext} />
             </div>
           </div>
         </div>

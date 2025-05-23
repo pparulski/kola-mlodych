@@ -7,22 +7,29 @@ import { memo, useEffect } from "react";
 interface IndexContext {
   searchQuery: string;
   selectedCategories: string[];
+  currentPage: number;
+  handlePageChange: (newPage: number) => void;
+  updateTotalItems: (count: number) => void;
 }
 
 const Index = memo(function Index() {
   const context = useOutletContext<IndexContext>();
   const searchQuery = context?.searchQuery || "";
   const selectedCategories = context?.selectedCategories || [];
+  const currentPage = context?.currentPage || 1;
+  const handlePageChange = context?.handlePageChange || (() => {});
+  const updateTotalItems = context?.updateTotalItems || (() => {});
   
   // Log when index loads with search params for debugging
   useEffect(() => {
     if (searchQuery || (selectedCategories && selectedCategories.length > 0)) {
       console.log("Index loaded with search params:", { 
         searchQuery, 
-        selectedCategories 
+        selectedCategories,
+        currentPage 
       });
     }
-  }, [searchQuery, selectedCategories]);
+  }, [searchQuery, selectedCategories, currentPage]);
   
   return (
     <>
@@ -34,7 +41,13 @@ const Index = memo(function Index() {
       />
       
       <div className="animate-enter">
-        <IndexContent searchQuery={searchQuery} selectedCategories={selectedCategories} />
+        <IndexContent 
+          searchQuery={searchQuery} 
+          selectedCategories={selectedCategories} 
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+          updateTotalItems={updateTotalItems}
+        />
       </div>
     </>
   );
