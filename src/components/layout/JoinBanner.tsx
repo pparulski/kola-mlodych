@@ -28,7 +28,8 @@ export const JoinBanner = () => {
   const bannerText = joinPage?.title || "Dołącz do nas!";
 
   return (
-    <Link 
+    <Link
+      id="join-banner"
       to="/dolacz-do-nas"
       className="bg-primary p-2 text-primary-foreground text-center font-bold shadow-lg sticky top-0 z-10 hover:bg-accent transition-colors"
     >
