@@ -4,11 +4,13 @@ import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
-import { useEnhancedSearchParams } from "@/hooks/useEnhancedSearchParams";
 
-export function IndexContent() {
-  const { searchQuery, selectedCategories } = useEnhancedSearchParams();
-  
+interface IndexContentProps {
+  searchQuery: string;
+  selectedCategories: string[];
+}
+
+export function IndexContent({ searchQuery, selectedCategories }: IndexContentProps) {
   const {
     currentPageItems,
     isLoading,
@@ -17,7 +19,7 @@ export function IndexContent() {
     handlePageChange,
     totalItems,
     error
-  } = useOptimizedNewsData();
+  } = useOptimizedNewsData(searchQuery, selectedCategories);
   
   if (isLoading) {
     return <LoadingIndicator />;

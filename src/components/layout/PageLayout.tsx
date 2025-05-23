@@ -2,7 +2,7 @@
 // PageLayout.tsx
 import React, { useState, useEffect, useRef } from "react"; 
 import { Outlet, useLocation } from "react-router-dom";
-import { useEnhancedSearchParams } from "@/hooks/useEnhancedSearchParams";
+import { useSearchParams } from "@/hooks/useSearchParams";
 import { useCategories } from "@/hooks/useCategories";
 import { PageHeader } from "./PageHeader";
 import { CategorySection } from "./CategorySection";
@@ -21,8 +21,7 @@ export function PageLayout() {
     setSelectedCategories, 
     isHomePage, 
     clearFilters 
-  } = useEnhancedSearchParams();
-  
+  } = useSearchParams();
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
   const location = useLocation();
@@ -63,15 +62,34 @@ export function PageLayout() {
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
 
-  // Reset scroll position when changing routes
+  // Reset scroll position when changing routes, but be MUCH more selective about clearing filters
   useEffect(() => {
     // Only act when actually changing content routes (not just query params)
     if (previousPathname.current !== location.pathname) {
       window.scrollTo(0, 0);
-      // Route change handling now happens in the useEnhancedSearchParams hook
+      
+      // ONLY clear filters when:
+      // 1. Moving FROM home page TO a non-category page
+      // 2. Moving FROM category page TO a non-home, non-category page
+      const isFromHomepage = previousPathname.current === '/';
+      const isToHomepage = location.pathname === '/';
+      const isFromCategoryPage = previousPathname.current.startsWith('/category/');
+      const isToCategoryPage = location.pathname.startsWith('/category/');
+      
+      // Only clear filters on specific content section changes
+      // Do NOT clear filters when navigating between content-related pages
+      if ((isFromHomepage && !isToCategoryPage && !isToHomepage) || 
+          (isFromCategoryPage && !isToCategoryPage && !isToHomepage)) {
+        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: clearing filters`);
+        clearFilters();
+      } else {
+        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: keeping filters`);
+      }
+      
+      // Update the previous pathname ref for next comparison
       previousPathname.current = location.pathname;
     }
-  }, [location.pathname]);
+  }, [location.pathname, clearFilters]);
   
   return (
     <> 
