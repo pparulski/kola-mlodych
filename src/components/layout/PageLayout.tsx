@@ -10,7 +10,7 @@ import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
 
 // Heights for animation and positioning
-const JOIN_BANNER_HEIGHT_REM = 2.5; // 40px / 16 = 2.5rem (ACCURATE)
+const JOIN_BANNER_HEIGHT_REM = 4; // 40px / 16 = 2.5rem (ACCURATE)
 const PAGE_HEADER_MAX_HEIGHT_REM = 7.5; // 120px / 16 = 7.5rem (when search is open)
 
 const JOIN_BANNER_HEIGHT_CSS_VAL = `${JOIN_BANNER_HEIGHT_REM}rem`;
