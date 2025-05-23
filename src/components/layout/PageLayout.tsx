@@ -72,11 +72,6 @@ export function PageLayout() {
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
 
-  // Dynamic padding top for the main content area
-const contentWrapperPaddingTop = isHeaderVisible 
-    ? PAGE_HEADER_MAX_HEIGHT_REM_STR // Space for the PageHeader itself
-    : "0rem";
-
   // Reset scroll position and clear filters when changing routes
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -117,7 +112,6 @@ const contentWrapperPaddingTop = isHeaderVisible
         {/* Main Content Area Wrapper - This div gets dynamic top padding */}
         <div 
           className="transition-all duration-300 ease-in-out" // For smooth padding animation
-          style={{ paddingTop: contentWrapperPaddingTop }}
         >
           {/* This inner div now handles the consistent page padding for content */}
           <div className="p-3 md:p-5"> 
