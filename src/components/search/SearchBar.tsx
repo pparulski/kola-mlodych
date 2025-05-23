@@ -28,7 +28,6 @@ export function SearchBar({
   const isUpdatingFromParent = useRef(false);
   const isSubmitting = useRef(false);
   const ignoreNextParentUpdate = useRef(false);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Synchronize from parent state to local state, but avoid loops
   useEffect(() => {
@@ -67,11 +66,6 @@ export function SearchBar({
     
     // We just want to update the local input value, not submit
     setInputValue(e.target.value);
-
-    // Reset the debounce timeout if it exists
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
   };
 
   // Submit search only on Enter key
@@ -109,7 +103,6 @@ export function SearchBar({
     ignoreNextParentUpdate.current = true;
     setSearchQuery("");
     
-    // Focus input after clearing
     setTimeout(() => {
       if (activeRef.current) {
         activeRef.current.focus({ preventScroll: true });
@@ -121,30 +114,11 @@ export function SearchBar({
   const handleSearchIconClick = () => {
     if (isUpdatingFromParent.current) return;
     submitSearch();
-    
-    // Focus input after search
     setTimeout(() => {
       if (activeRef.current) {
         activeRef.current.focus({ preventScroll: true });
       }
     }, 50);
-  };
-
-  // Submit search on blur with debounce to prevent immediate refreshes
-  const handleBlur = () => {
-    // Only submit on blur if value has changed and we're not updating from parent
-    if (inputValue !== searchQuery && !isUpdatingFromParent.current) {
-      // Clear any existing timeout
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-      }
-      
-      // Set a short delay before submitting to prevent rapid submission during focus changes
-      debounceTimeout.current = setTimeout(() => {
-        submitSearch();
-        debounceTimeout.current = null;
-      }, 200);
-    }
   };
 
   return (
@@ -159,7 +133,12 @@ export function SearchBar({
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
+        onBlur={() => {
+          // Only submit on blur if value has changed
+          if (inputValue !== searchQuery) {
+            submitSearch();
+          }
+        }}
         className={`pl-8 w-full ${isCompact ? "h-9" : ""}`}
         ref={activeRef}
       />

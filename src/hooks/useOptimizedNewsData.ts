@@ -14,63 +14,42 @@ interface NewsQueryResult {
   total: number;
 }
 
-interface UseOptimizedNewsDataProps {
-  searchQuery: string;
-  selectedCategories: string[];
-  currentPage: number;
-  handlePageChange: (newPage: number) => void;
-  updateTotalItems: (count: number) => void;
-}
-
-export function useOptimizedNewsData({
-  searchQuery,
-  selectedCategories,
-  currentPage,
-  handlePageChange,
-  updateTotalItems
-}: UseOptimizedNewsDataProps) {
+export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
+  const [totalItems, setTotalItems] = useState(0);
   const location = useLocation();
   const previousFilterKey = useRef('');
   const initialLoadCompleted = useRef(false);
-  const [totalItems, setLocalTotalItems] = useState(0);
   
   // Import individual hooks
   const { searchNews } = useNewsSearch();
   const { fetchNewsByCategories } = useNewsCategories();
   const { fetchDefaultNews } = useNewsDefault();
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = 
+    useNewsPagination(totalItems, ARTICLES_PER_PAGE);
   
-  // Use the pagination utility (not managing URL anymore)
-  const { getPaginationIndices, totalPages } = useNewsPagination(
-    currentPage,
-    totalItems,
-    ARTICLES_PER_PAGE,
-    handlePageChange
-  );
-  
-  // Track filter changes
+  // Track filter changes to reset pagination
   const filterKey = useMemo(() => {
     return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
   }, [searchQuery, selectedCategories]);
 
-  // When filter key changes, log it
+  // When filter key changes, log it but don't reset pagination automatically
   useEffect(() => {
     if (previousFilterKey.current !== filterKey) {
-      console.log("Filter key changed:", filterKey);
+      console.log("Filter key changed, resetting pagination:", filterKey);
       previousFilterKey.current = filterKey;
     }
   }, [filterKey]);
 
-  // Reset totalItems only on pathname change (actual route change)
+  // Reset totalItems only on pathname change (actual route change), not on search param changes
   useEffect(() => {
     const pathOnly = location.pathname;
     if (initialLoadCompleted.current) {
       console.log(`Path changed to ${pathOnly}, resetting totalItems`);
-      setLocalTotalItems(0);
-      updateTotalItems(0);
+      setTotalItems(0);
     } else {
       initialLoadCompleted.current = true;
     }
-  }, [location.pathname, updateTotalItems]); 
+  }, [location.pathname]); // Only dependent on pathname, not full location
 
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
@@ -115,8 +94,7 @@ export function useOptimizedNewsData({
         });
         
         // Update total items for pagination
-        setLocalTotalItems(result.total);
-        updateTotalItems(result.total);
+        setTotalItems(result.total);
         return result;
       } catch (error) {
         console.error("Error fetching news data:", error);
@@ -134,7 +112,9 @@ export function useOptimizedNewsData({
   return {
     currentPageItems,
     isLoading,
+    currentPage,
     totalPages,
+    handlePageChange,
     totalItems: totalItems,
     error
   };

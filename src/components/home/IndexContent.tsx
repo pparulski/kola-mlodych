@@ -8,31 +8,18 @@ import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 interface IndexContentProps {
   searchQuery: string;
   selectedCategories: string[];
-  currentPage: number;
-  handlePageChange: (newPage: number) => void;
-  updateTotalItems: (count: number) => void;
 }
 
-export function IndexContent({
-  searchQuery,
-  selectedCategories,
-  currentPage,
-  handlePageChange,
-  updateTotalItems
-}: IndexContentProps) {
+export function IndexContent({ searchQuery, selectedCategories }: IndexContentProps) {
   const {
     currentPageItems,
     isLoading,
+    currentPage,
     totalPages,
+    handlePageChange,
     totalItems,
     error
-  } = useOptimizedNewsData({
-    searchQuery,
-    selectedCategories,
-    currentPage,
-    handlePageChange,
-    updateTotalItems
-  });
+  } = useOptimizedNewsData(searchQuery, selectedCategories);
   
   if (isLoading) {
     return <LoadingIndicator />;

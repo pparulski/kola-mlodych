@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -10,26 +10,18 @@ import { SEO } from "@/components/seo/SEO";
 import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
+import { NewsArticle } from "@/types/news";
 
 interface CategoryArticlesResult {
   articles: any[];
   count: number;
 }
 
-interface CategoryFeedContext {
-  currentPage: number;
-  handlePageChange: (newPage: number) => void;
-}
-
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const [categoryName, setCategoryName] = useState("");
   const [totalArticles, setTotalArticles] = useState(0);
-  
-  // Get pagination data from context
-  const context = useOutletContext<CategoryFeedContext>();
-  const currentPage = context?.currentPage || 1;
-  const handlePageChange = context?.handlePageChange || (() => {});
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -50,13 +42,11 @@ export default function CategoryFeed() {
     staleTime: 60000, // Cache category data for a minute
   });
 
-  // Set up pagination utility - not managing URL directly anymore
-  const { getPaginationIndices, totalPages } = useNewsPagination(
-    currentPage,
-    totalArticles,
-    ARTICLES_PER_PAGE,
-    handlePageChange
-  );
+  // Parse page from URL or use default
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+
+  // Set up pagination - important to do this after we have a category
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
