@@ -1,74 +1,68 @@
-
-import { useRef, useEffect, KeyboardEvent, useState } from "react";
+import React, { useRef, useEffect, KeyboardEvent, useState, RefObject } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface SearchBarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  searchQuery: string; // This is the "source of truth" from the parent (e.g., from URL)
+  setSearchQuery: (query: string) => void; // Function to update the parent's source of truth
   isCompact?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
   className?: string;
 }
 
 export function SearchBar({
-  searchQuery,
-  setSearchQuery,
+  searchQuery: parentSearchQuery, // Rename prop for clarity internally
+  setSearchQuery: setParentSearchQuery,
   isCompact = false,
   inputRef,
   className = "",
 }: SearchBarProps) {
   const localInputRef = useRef<HTMLInputElement>(null);
   const activeRef = inputRef || localInputRef;
-  
-  // Local state for input value that user sees and types in
-  const [inputValue, setInputValue] = useState(searchQuery);
-  
-  // Refs to track state update sources and prevent loops
-  const isUpdatingFromParent = useRef(false);
-  const isSubmitting = useRef(false);
-  const ignoreNextParentUpdate = useRef(false);
 
-  // Synchronize from parent state to local state, but avoid loops
+  // inputValue is what the user is currently typing.
+  // It's initialized from parentSearchQuery but then becomes independent until submission.
+  const [inputValue, setInputValue] = useState(parentSearchQuery);
+
+  // Ref to track the previous value of parentSearchQuery to detect external changes.
+  const prevParentSearchQueryRef = useRef(parentSearchQuery);
+
+  // Effect to update inputValue ONLY when parentSearchQuery changes externally
+  // (e.g., URL change via back/forward, filters cleared by parent).
+  // This should NOT run just because the parent re-rendered with the same parentSearchQuery.
   useEffect(() => {
-    // Skip if we just submitted a value ourselves
-    if (isSubmitting.current) {
-      isSubmitting.current = false;
-      return;
+    // If the parentSearchQuery prop has actually changed its value since the last render,
+    // and it's different from what the user is currently typing, then update.
+    // This handles external resets or changes to the search term.
+    if (parentSearchQuery !== prevParentSearchQueryRef.current) {
+      // console.log(`SearchBar: parentSearchQuery prop changed from "${prevParentSearchQueryRef.current}" to "${parentSearchQuery}". Current inputValue: "${inputValue}"`);
+      if (parentSearchQuery !== inputValue) {
+        // console.log(`SearchBar: Syncing inputValue to new parentSearchQuery: "${parentSearchQuery}"`);
+        setInputValue(parentSearchQuery);
+      }
     }
-    
-    // Skip if we explicitly want to ignore a parent update
-    if (ignoreNextParentUpdate.current) {
-      ignoreNextParentUpdate.current = false;
-      return;
-    }
-    
-    // Skip if we're already processing an update from parent
-    if (isUpdatingFromParent.current) {
-      return;
-    }
-    
-    // Only update local state when parent state changes and is different
-    if (searchQuery !== inputValue) {
-      isUpdatingFromParent.current = true;
-      setInputValue(searchQuery);
-      
-      // Reset the flag after a short delay
-      setTimeout(() => {
-        isUpdatingFromParent.current = false;
-      }, 100);
-    }
-  }, [searchQuery, inputValue]);
+    // Always update the ref to the current prop value for the next comparison.
+    prevParentSearchQueryRef.current = parentSearchQuery;
+  }, [parentSearchQuery, inputValue]); // Re-run if parentSearchQuery or local inputValue changes to re-evaluate sync
 
-  // Handle input changes - only update local state
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isUpdatingFromParent.current) return;
-    
-    // We just want to update the local input value, not submit
-    setInputValue(e.target.value);
+    // console.log(`SearchBar: User typed, new inputValue: "${e.target.value}"`);
+    setInputValue(e.target.value); // Only update local state while typing
   };
 
-  // Submit search only on Enter key
+  const submitSearch = () => {
+    // console.log(`SearchBar: Attempting to submit search. inputValue: "${inputValue}", parentSearchQuery: "${parentSearchQuery}"`);
+    // Only call parent's setSearchQuery if the current input value
+    // is different from what the parent already thinks the query is.
+    // This prevents unnecessary updates if user hits enter on an unchanged query.
+    if (inputValue !== parentSearchQuery) {
+      // console.log(`SearchBar: Submitting to parent: "${inputValue}"`);
+      setParentSearchQuery(inputValue);
+    }
+    // Note: After setParentSearchQuery is called, the parentSearchQuery prop
+    // will eventually update, and the useEffect above will sync prevParentSearchQueryRef.current.
+  };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -76,49 +70,23 @@ export function SearchBar({
     }
   };
 
-  // Submit search to parent component
-  const submitSearch = () => {
-    // Skip if we're currently processing an update from parent
-    if (isUpdatingFromParent.current) return;
-    
-    // Only update parent state if the value actually changed
-    if (inputValue !== searchQuery) {
-      console.log(`Submitting search: "${inputValue}"`);
-      
-      // Set flags to prevent loops
-      isSubmitting.current = true;
-      ignoreNextParentUpdate.current = true;
-      
-      // Actually update the parent state
-      setSearchQuery(inputValue);
-    }
-  };
-
-  // Clear search
   const handleClear = () => {
-    if (isUpdatingFromParent.current) return;
+    // console.log("SearchBar: Clearing search.");
+    setInputValue("");        // Clear visual input immediately
+    setParentSearchQuery(""); // Submit empty query to parent immediately
     
-    setInputValue("");
-    isSubmitting.current = true;
-    ignoreNextParentUpdate.current = true;
-    setSearchQuery("");
-    
+    // Refocus after a tick to ensure input is visible if it was part of a conditional render
     setTimeout(() => {
-      if (activeRef.current) {
-        activeRef.current.focus({ preventScroll: true });
-      }
-    }, 50);
+      activeRef.current?.focus({ preventScroll: true });
+    }, 0);
   };
 
-  // Submit search when clicking the search icon
   const handleSearchIconClick = () => {
-    if (isUpdatingFromParent.current) return;
+    // console.log("SearchBar: Search icon clicked.");
     submitSearch();
     setTimeout(() => {
-      if (activeRef.current) {
-        activeRef.current.focus({ preventScroll: true });
-      }
-    }, 50);
+      activeRef.current?.focus({ preventScroll: true });
+    }, 0); // Refocus after submission
   };
 
   return (
@@ -126,19 +94,16 @@ export function SearchBar({
       <Search
         className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer"
         onClick={handleSearchIconClick}
+        aria-label="Submit search"
       />
       <Input
         type="search"
         placeholder="Szukaj..."
-        value={inputValue}
+        value={inputValue} // Controlled by local state
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        onBlur={() => {
-          // Only submit on blur if value has changed
-          if (inputValue !== searchQuery) {
-            submitSearch();
-          }
-        }}
+        // Removed onBlur submission as it can be premature if user is tabbing.
+        // Submission should be explicit (Enter or click Search icon).
         className={`pl-8 w-full ${isCompact ? "h-9" : ""}`}
         ref={activeRef}
       />
