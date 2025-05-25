@@ -52,22 +52,43 @@ export function StaticPage() {
       }
     },
     enabled: !!slug,
-    staleTime: 0, // Always get fresh data when component mounts
-    refetchOnWindowFocus: true // Refetch when the window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 
-  // Generate a clean excerpt for SEO description
+  // Generate a clean excerpt for SEO description (standardized to 160 chars)
   const generateExcerpt = (content?: string): string => {
     if (!content) return '';
     
     // Use our improved HTML stripping function with proper spacing
     const plainText = stripHtmlAndDecodeEntities(content);
     
-    // Limit to ~160 characters for SEO meta description
-    const excerpt = plainText.substring(0, 160);
+    // Limit to exactly 160 characters for SEO meta description
+    if (plainText.length > 160) {
+      return `${plainText.substring(0, 157)}...`;
+    }
     
-    // Add ellipsis if text was truncated
-    return plainText.length > 160 ? `${excerpt}...` : excerpt;
+    return plainText;
+  };
+
+  // Extract first image from content for SEO
+  const extractFirstImage = (content?: string): string | undefined => {
+    if (!content) return undefined;
+    
+    // Look for image tags in the content
+    const imgRegex = /<img[^>]+src="([^"]+)"/i;
+    const match = content.match(imgRegex);
+    
+    if (match && match[1]) {
+      // If it's already a full URL, return as is
+      if (match[1].startsWith('http')) {
+        return match[1];
+      }
+      // If it's a relative URL, make it absolute
+      return match[1];
+    }
+    
+    return undefined;
   };
 
   if (error) {
@@ -94,6 +115,7 @@ export function StaticPage() {
         <SEO
           title={page.title}
           description={generateExcerpt(page.content)}
+          image={extractFirstImage(page.content)}
         />
       )}
       

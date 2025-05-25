@@ -39,7 +39,7 @@ export default function CategoryFeed() {
       return data as Category;
     },
     enabled: !!slug,
-    staleTime: 60000, // Cache category data for a minute
+    staleTime: 60000,
   });
 
   // Parse page from URL or use default
@@ -51,8 +51,6 @@ export default function CategoryFeed() {
   useEffect(() => {
     if (category) {
       setCategoryName(category.name);
-      // Update document title when category is loaded
-      document.title = `${category.name} - Młodzi IP`;
     }
   }, [category]);
   
@@ -115,11 +113,31 @@ export default function CategoryFeed() {
       };
     },
     enabled: !!category,
-    staleTime: 10000, // Cache for 10 seconds
+    staleTime: 10000,
   });
   
   // Format the articles using our consistent formatter
   const articles = articlesData?.articles ? formatNewsItems(articlesData.articles) : [];
+  
+  // Generate standardized description for category
+  const generateCategoryDescription = (categoryName: string, articleCount: number): string => {
+    const baseDescription = `Przeglądaj artykuły z kategorii ${categoryName} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`;
+    
+    // Ensure exactly 160 characters
+    if (baseDescription.length > 160) {
+      return `${baseDescription.substring(0, 157)}...`;
+    }
+    
+    return baseDescription;
+  };
+
+  // Extract featured image from first article for category SEO
+  const getCategoryImage = (): string | undefined => {
+    if (articles && articles.length > 0 && articles[0].featured_image) {
+      return articles[0].featured_image;
+    }
+    return undefined;
+  };
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -155,8 +173,9 @@ export default function CategoryFeed() {
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
       <SEO 
         title={category.name}
-        description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
+        description={generateCategoryDescription(category.name, totalArticles)}
         keywords={category.name}
+        image={getCategoryImage()}
       />
       
       <div className="mb-6 p-4 bg-muted/30 rounded-lg">

@@ -14,7 +14,7 @@ interface HeadTagsProps {
   twitterDescription?: string;
   twitterImage?: string;
   keywords?: string;
-  injectNow?: boolean; // New prop to control immediate injection
+  injectNow?: boolean;
   children?: React.ReactNode;
 }
 
@@ -36,7 +36,6 @@ export function HeadTags({
 }: HeadTagsProps) {
   const baseUrl = 'https://mlodzi.ozzip.pl';
   const fullCanonicalUrl = canonicalUrl ? `${baseUrl}${canonicalUrl}` : undefined;
-  const pageTitle = title ? `${title} - Młodzi IP` : 'Koła Młodych OZZ IP';
   const defaultDescription = 'Koła Młodych OZZ Inicjatywy Pracowniczej – oficjalna strona struktur młodzieżowych związku zawodowego.';
   
   // Ensure full URLs for social media images
@@ -141,12 +140,7 @@ export function HeadTags({
   };
 
   useEffect(() => {
-    // Update title
-    if (title) {
-      document.title = pageTitle;
-    }
-
-    // Create and inject meta tags
+    // Create and inject meta tags - removed title setting as it's now handled in SEO component
     const metaTags = createAndInjectMetaTags();
     
     // Return cleanup function
@@ -158,8 +152,6 @@ export function HeadTags({
       });
     };
   }, [
-    title, 
-    pageTitle, 
     description, 
     keywords, 
     fullCanonicalUrl,

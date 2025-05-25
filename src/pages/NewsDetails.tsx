@@ -50,12 +50,18 @@ export function NewsDetails() {
     enabled: !!article?.id,
   });
 
-  // Generate description for SEO
+  // Generate standardized description for SEO (exactly 160 characters)
   const generateDescription = (content?: string): string => {
     if (!content) return '';
     // Use our improved HTML stripping function with proper spacing
     const plainText = stripHtmlAndDecodeEntities(content);
-    return plainText.substring(0, 150);
+    
+    // Ensure exactly 160 characters
+    if (plainText.length > 160) {
+      return `${plainText.substring(0, 157)}...`;
+    }
+    
+    return plainText;
   };
 
   const handleGoBack = () => {

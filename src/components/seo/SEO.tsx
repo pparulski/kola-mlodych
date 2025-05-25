@@ -34,34 +34,88 @@ export function SEO({
   const baseUrl = 'https://mlodzi.ozzip.pl';
   const fullImageUrl = image && !image.startsWith('http') ? `${baseUrl}${image}` : image;
 
-  // Enhanced description handling for social media
-  const socialDescription = description && description.length > 160 
-    ? `${description.substring(0, 157)}...`
-    : description;
-
-  // Set page title in document directly as this is important for accessibility
-  React.useEffect(() => {
-    if (title) {
-      document.title = isArticle ? `${title} - Młodzi IP` : title;
+  // Standardize description to exactly 160 characters
+  const standardizeDescription = (desc?: string): string => {
+    if (!desc) return '';
+    
+    // If description is longer than 160 characters, truncate and add ellipsis
+    if (desc.length > 160) {
+      return `${desc.substring(0, 157)}...`;
     }
-  }, [title, isArticle]);
+    
+    return desc;
+  };
+
+  const standardizedDescription = standardizeDescription(description);
+
+  // Generate page title with consistent format
+  const generatePageTitle = (pageTitle?: string): string => {
+    const baseSiteTitle = "Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza";
+    
+    if (!pageTitle) {
+      return baseSiteTitle;
+    }
+    
+    // For homepage, use the full title as provided
+    if (location.pathname === '/') {
+      return pageTitle;
+    }
+    
+    // For other pages, append the base title
+    return `${pageTitle} – ${baseSiteTitle}`;
+  };
+
+  const finalTitle = generatePageTitle(title);
+
+  // Set page title in document - this is the single source of truth
+  React.useEffect(() => {
+    document.title = finalTitle;
+  }, [finalTitle]);
+
+  // Generate breadcrumbs with proper titles
+  const generateBreadcrumbs = (path: string) => {
+    if (path === '/') return undefined;
+    
+    const segments = path.split('/').filter(Boolean);
+    const breadcrumbs = [];
+    
+    // Add home page with the official title
+    breadcrumbs.push({
+      position: 1,
+      name: 'Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza',
+      item: '/'
+    });
+    
+    // Add segments
+    let currentPath = '';
+    segments.forEach((segment, index) => {
+      currentPath += `/${segment}`;
+      breadcrumbs.push({
+        position: index + 2,
+        name: prettifySlug(segment),
+        item: currentPath
+      });
+    });
+    
+    return breadcrumbs;
+  };
 
   return (
     <>
       <HeadTags
         title={title}
-        description={description}
+        description={standardizedDescription}
         canonicalUrl={canonicalUrl}
         ogImage={fullImageUrl}
         ogType={isArticle ? 'article' : 'website'}
         ogTitle={title}
-        ogDescription={socialDescription}
+        ogDescription={standardizedDescription}
         twitterCard={image ? 'summary_large_image' : 'summary'}
         twitterImage={fullImageUrl}
         twitterTitle={title}
-        twitterDescription={socialDescription}
+        twitterDescription={standardizedDescription}
         keywords={keywords}
-        injectNow={true} // Force immediate injection for crawlers
+        injectNow={true}
       >
         {children}
       </HeadTags>
@@ -74,15 +128,15 @@ export function SEO({
           image={fullImageUrl}
           datePublished={article.publishedAt}
           dateModified={article.modifiedAt}
-          description={description}
+          description={standardizedDescription}
           author={article.author}
           categories={article.categories}
           url={canonicalUrl}
         />
       ) : (
         <WebPageStructuredData
-          title={title || 'Koła Młodych OZZ IP'}
-          description={description}
+          title={finalTitle}
+          description={standardizedDescription}
           url={canonicalUrl}
           image={fullImageUrl}
           breadcrumbs={generateBreadcrumbs(canonicalUrl)}
@@ -90,34 +144,6 @@ export function SEO({
       )}
     </>
   );
-}
-
-// Helper function to generate breadcrumbs
-function generateBreadcrumbs(path: string) {
-  if (path === '/') return undefined;
-  
-  const segments = path.split('/').filter(Boolean);
-  const breadcrumbs = [];
-  
-  // Add home page
-  breadcrumbs.push({
-    position: 1,
-    name: 'Strona główna',
-    item: '/'
-  });
-  
-  // Add segments
-  let currentPath = '';
-  segments.forEach((segment, index) => {
-    currentPath += `/${segment}`;
-    breadcrumbs.push({
-      position: index + 2, // +2 because we start at 1 and already added home
-      name: prettifySlug(segment),
-      item: currentPath
-    });
-  });
-  
-  return breadcrumbs;
 }
 
 // Helper to make slug more readable
