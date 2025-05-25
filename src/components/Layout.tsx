@@ -4,9 +4,12 @@ import { LayoutContent } from "./layout/LayoutContent";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { useState, useEffect } from "react";
 import { PasswordOverlay } from "./home/PasswordOverlay";
+import { config } from "@/config";
 
 export function Layout() {
-  const [showPasswordOverlay, setShowPasswordOverlay] = useState(true);
+  const [showPasswordOverlay, setShowPasswordOverlay] = useState(
+  config.security.passwordProtectionEnabled
+);
   
   useEffect(() => {
     // Check if the password has been entered in this session
@@ -25,7 +28,7 @@ export function Layout() {
       <SidebarProvider>
         {showPasswordOverlay && (
           <PasswordOverlay 
-            correctPassword="testing090920" 
+            correctPassword={config.security.password} 
             onPasswordCorrect={handlePasswordCorrect} 
           />
         )}
