@@ -44,8 +44,17 @@ export function HeadTags({
 
   // Function to create and inject meta tags
   const createAndInjectMetaTags = () => {
+    console.log('HeadTags: Injecting meta tags for:', { 
+      title: ogTitle || title, 
+      description: ogDescription || description,
+      image: fullOgImage,
+      canonicalUrl: fullCanonicalUrl,
+      ogType 
+    });
+
     // Clean up any previously injected meta tags with our data-seo attribute
     const previousTags = document.head.querySelectorAll('meta[data-seo="true"], link[data-seo="true"]');
+    console.log('HeadTags: Removing', previousTags.length, 'previous tags');
     previousTags.forEach(tag => {
       if (tag.parentNode === document.head) {
         document.head.removeChild(tag);
@@ -87,7 +96,7 @@ export function HeadTags({
     // Open Graph tags
     const ogTags = [
       { property: 'og:site_name', content: 'Koła Młodych OZZ IP' },
-      { property: 'og:locale', content: 'pl_PL' },
+      { property: 'og:locale', content: 'pl' }, // Fixed: changed from 'pl_PL' to 'pl'
       { property: 'og:type', content: ogType },
       { property: 'og:title', content: ogTitle || title || 'Koła Młodych OZZ IP' },
       { property: 'og:description', content: ogDescription || description || defaultDescription }
@@ -135,21 +144,30 @@ export function HeadTags({
       document.head.appendChild(metaTag);
       metaTags.push(metaTag);
     });
+
+    console.log('HeadTags: Successfully injected', metaTags.length, 'meta tags');
     
     return metaTags;
   };
 
   useEffect(() => {
-    // Create and inject meta tags - removed title setting as it's now handled in SEO component
-    const metaTags = createAndInjectMetaTags();
-    
-    // Return cleanup function
+    // Add a small delay to ensure DOM is ready and any static tags are loaded
+    const timeoutId = setTimeout(() => {
+      const metaTags = createAndInjectMetaTags();
+      
+      // Return cleanup function for the timeout
+      return () => {
+        metaTags.forEach(tag => {
+          if (tag.parentNode === document.head) {
+            document.head.removeChild(tag);
+          }
+        });
+      };
+    }, 50);
+
+    // Return cleanup function for useEffect
     return () => {
-      metaTags.forEach(tag => {
-        if (tag.parentNode === document.head) {
-          document.head.removeChild(tag);
-        }
-      });
+      clearTimeout(timeoutId);
     };
   }, [
     description, 
@@ -187,7 +205,7 @@ export function HeadTags({
       
       // Open Graph tags
       tags.push(<meta key="og:site_name" property="og:site_name" content="Koła Młodych OZZ IP" data-seo="true" />);
-      tags.push(<meta key="og:locale" property="og:locale" content="pl_PL" data-seo="true" />);
+      tags.push(<meta key="og:locale" property="og:locale" content="pl" data-seo="true" />);
       tags.push(<meta key="og:type" property="og:type" content={ogType} data-seo="true" />);
       tags.push(<meta key="og:title" property="og:title" content={ogTitle || title || 'Koła Młodych OZZ IP'} data-seo="true" />);
       tags.push(<meta key="og:description" property="og:description" content={ogDescription || description || defaultDescription} data-seo="true" />);

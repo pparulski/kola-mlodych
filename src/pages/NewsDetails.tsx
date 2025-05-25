@@ -68,6 +68,20 @@ export function NewsDetails() {
     navigate(-1);
   };
 
+  // Add debugging for SEO data
+  useEffect(() => {
+    if (article) {
+      console.log('NewsDetails: Article data for SEO:', {
+        title: article.title,
+        featured_image: article.featured_image,
+        content_length: article.content?.length,
+        slug: article.slug,
+        date: article.date,
+        created_at: article.created_at
+      });
+    }
+  }, [article]);
+
   if (isLoading) {
     return (
       <div className="space-y-4 container mx-auto px-4 mt-4 animate-pulse">
@@ -102,16 +116,21 @@ export function NewsDetails() {
   // Extract category names for SEO keywords
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
 
+  // Debug the image URL handling
+  const featuredImageUrl = article.featured_image;
+  console.log('NewsDetails: Featured image URL:', featuredImageUrl);
+
   return (
     <div className="space-y-4 container mx-auto px-4 mt-4 animate-enter">
       <SEO 
         title={article.title}
         description={generateDescription(article.content)}
-        image={article.featured_image || undefined}
+        image={featuredImageUrl}
         article={{
           publishedAt: article.date || article.created_at || undefined,
           modifiedAt: article.date || article.created_at || undefined,
           categories: categoryNames,
+          author: "Koła Młodych OZZ IP"
         }}
         keywords={categoryNames.join(', ')}
       />

@@ -70,6 +70,7 @@ export function SEO({
   // Set page title in document - this is the single source of truth
   React.useEffect(() => {
     document.title = finalTitle;
+    console.log('SEO: Setting document title to:', finalTitle);
   }, [finalTitle]);
 
   // Generate breadcrumbs with proper titles
@@ -100,19 +101,31 @@ export function SEO({
     return breadcrumbs;
   };
 
+  // Debug SEO data being passed
+  React.useEffect(() => {
+    console.log('SEO: Rendering with data:', {
+      finalTitle,
+      standardizedDescription,
+      fullImageUrl,
+      canonicalUrl,
+      isArticle,
+      article
+    });
+  }, [finalTitle, standardizedDescription, fullImageUrl, canonicalUrl, isArticle, article]);
+
   return (
     <>
       <HeadTags
-        title={title}
+        title={finalTitle}
         description={standardizedDescription}
         canonicalUrl={canonicalUrl}
         ogImage={fullImageUrl}
         ogType={isArticle ? 'article' : 'website'}
-        ogTitle={title}
+        ogTitle={finalTitle}
         ogDescription={standardizedDescription}
-        twitterCard={image ? 'summary_large_image' : 'summary'}
+        twitterCard={fullImageUrl ? 'summary_large_image' : 'summary'}
         twitterImage={fullImageUrl}
-        twitterTitle={title}
+        twitterTitle={finalTitle}
         twitterDescription={standardizedDescription}
         keywords={keywords}
         injectNow={true}
@@ -124,7 +137,7 @@ export function SEO({
 
       {isArticle ? (
         <ArticleStructuredData
-          title={title || ''}
+          title={finalTitle}
           image={fullImageUrl}
           datePublished={article.publishedAt}
           dateModified={article.modifiedAt}
