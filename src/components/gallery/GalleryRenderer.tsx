@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
+import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
 
 interface GalleryRendererProps {
   content?: string;
@@ -9,8 +10,7 @@ interface GalleryRendererProps {
   className?: string;         // To pass additional classes if needed
 }
 
-export function GalleryRenderer({ content, applyProseStyles = true, // Default to TRUE: renderer styles itself if not told otherwise
-  className  }: GalleryRendererProps) {
+export function GalleryRenderer({ content, applyProseStyles = true, className }: GalleryRendererProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -21,7 +21,7 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
     
     // Update each iframe to ensure required permissions are present without overwriting existing ones
     iframes.forEach(iframe => {
-            // ----- sandbox -----
+      // ----- sandbox -----
       const requiredSandboxPermissions = [
         'allow-scripts',
         'allow-popups',
@@ -60,6 +60,24 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
   
   if (!content) return null;
   
+  // Check if content contains social media embeds
+  const hasSocialEmbeds = /\[social-embed|class="social-embed-placeholder"/.test(content);
+  
+  if (hasSocialEmbeds) {
+    console.log('GalleryRenderer detected social media embeds, using SocialMediaRenderer');
+    return (
+      <div 
+        ref={contentRef}
+        className={cn(
+          applyProseStyles && "hugerte-content",
+          className
+        )}
+      >
+        <SocialMediaRenderer content={content} />
+      </div>
+    );
+  }
+  
   // Configure DOMPurify to allow specific tags and attributes
   DOMPurify.addHook('beforeSanitizeElements', (node) => {
     // Cast the Node to HTMLElement to access tagName and hasAttribute
@@ -96,8 +114,8 @@ export function GalleryRenderer({ content, applyProseStyles = true, // Default t
     <div 
       ref={contentRef}
       className={cn(
-        applyProseStyles && "hugerte-content", // Conditionally apply .hugerte-content
-        className // Pass through any other classes
+        applyProseStyles && "hugerte-content",
+        className
       )}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />

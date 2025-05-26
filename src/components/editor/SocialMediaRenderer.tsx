@@ -21,13 +21,23 @@ interface SocialEmbedMatch {
 }
 
 export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
-  // Parse social media embed shortcodes
+  console.log('SocialMediaRenderer - Processing content:', content.substring(0, 200));
+  
+  // Parse both shortcodes AND HTML placeholders
   const renderSocialEmbeds = (htmlContent: string) => {
+    // First handle shortcodes
     const socialEmbedRegex = /\[social-embed platform="([^"]+)" url="([^"]+)"\]/g;
+    // Then handle HTML placeholders that might exist in saved content
+    const placeholderRegex = /<div[^>]*class="social-embed-placeholder"[^>]*data-platform="([^"]+)"[^>]*data-url="([^"]+)"[^>]*>[\s\S]*?<\/div>/g;
+    
+    let processedContent = htmlContent;
     const matches: SocialEmbedMatch[] = [];
     let match;
 
-    while ((match = socialEmbedRegex.exec(htmlContent)) !== null) {
+    // Find shortcode matches
+    const shortcodeRegex = /\[social-embed platform="([^"]+)" url="([^"]+)"\]/g;
+    while ((match = shortcodeRegex.exec(htmlContent)) !== null) {
+      console.log('Found shortcode match:', match[1], match[2]);
       matches.push({
         platform: match[1],
         url: match[2],
@@ -36,9 +46,27 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
       });
     }
 
+    // Find placeholder matches
+    const placeholderMatches = /(<div[^>]*class="social-embed-placeholder"[^>]*data-platform="([^"]+)"[^>]*data-url="([^"]+)"[^>]*>[\s\S]*?<\/div>)/g;
+    while ((match = placeholderMatches.exec(htmlContent)) !== null) {
+      console.log('Found placeholder match:', match[2], match[3]);
+      matches.push({
+        platform: match[2],
+        url: match[3],
+        fullMatch: match[1],
+        index: match.index
+      });
+    }
+
     if (matches.length === 0) {
+      console.log('No social media embeds found, rendering as HTML');
       return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
     }
+
+    console.log('Found', matches.length, 'social media embeds');
+
+    // Sort matches by index to process them in order
+    matches.sort((a, b) => a.index - b.index);
 
     // Split content and insert React components
     const parts = [];
@@ -85,6 +113,8 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
   };
 
   const renderSocialEmbed = (platform: string, url: string) => {
+    console.log('Rendering social embed:', platform, url);
+    
     const commonProps = {
       url,
       width: '100%',
