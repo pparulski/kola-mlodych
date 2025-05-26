@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   TwitterEmbed,
@@ -115,10 +114,9 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
   const renderSocialEmbed = (platform: string, url: string) => {
     console.log('Rendering social embed:', platform, url);
     
+    // Use default package settings instead of forcing width
     const commonProps = {
-      url,
-      width: '100%',
-      height: 'auto'
+      url
     };
 
     try {
