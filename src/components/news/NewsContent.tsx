@@ -1,5 +1,6 @@
 
 import { GalleryRenderer } from "../gallery/GalleryRenderer";
+import { SocialMediaRenderer } from "../editor/SocialMediaRenderer";
 import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 
@@ -18,20 +19,27 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
     }
   }, [title]);
 
+  // First process galleries, then social media embeds
+  const processContent = (htmlContent: string) => {
+    // This will be handled by GalleryRenderer for galleries
+    // and SocialMediaRenderer for social embeds
+    return htmlContent;
+  };
+
   return (
     <div className="news-content max-w-full overflow-hidden">
       {featured_image && (
         <FeaturedImage
           src={featured_image}
           aspectRatio={16/9}
-          adaptiveAspectRatio={true} // Use the natural aspect ratio of the image
+          adaptiveAspectRatio={true}
           objectFit="cover"
-          className="w-full mb-2" // Reduced margin even further
-          priority // Main content image should load immediately
+          className="w-full mb-2"
+          priority
         />
       )}
       <div className="prose prose-lg dark:prose-invert hugerte-content">
-        <GalleryRenderer content={content} />
+        <SocialMediaRenderer content={content} />
       </div>
     </div>
   );
