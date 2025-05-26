@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   TwitterEmbed,
@@ -85,9 +86,9 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
         }
       }
 
-      // Add the social media embed
+      // Add the social media embed with max width constraint
       parts.push(
-        <div key={`embed-${index}`} className="my-4">
+        <div key={`embed-${index}`} className="my-4 max-w-lg mx-auto">
           {renderSocialEmbed(embedMatch.platform, embedMatch.url)}
         </div>
       );
@@ -114,7 +115,7 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
   const renderSocialEmbed = (platform: string, url: string) => {
     console.log('Rendering social embed:', platform, url);
     
-    // Use default package settings instead of forcing width
+    // Use default package settings without any styling overrides
     const commonProps = {
       url
     };
