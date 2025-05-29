@@ -6,10 +6,10 @@ import { useState, useEffect } from "react";
 import { PasswordOverlay } from "./home/PasswordOverlay";
 import { config } from "@/config";
 
-export function Layout() {
+export function Layout({ children }: { children: React.ReactNode }) {
   const [showPasswordOverlay, setShowPasswordOverlay] = useState(
-  config.security.passwordProtectionEnabled
-);
+    config.security.passwordProtectionEnabled
+  );
   
   useEffect(() => {
     // Check if the password has been entered in this session
@@ -33,7 +33,9 @@ export function Layout() {
           />
         )}
         <div className="flex w-full">
-          <LayoutContent />
+          <LayoutContent>
+            {children}
+          </LayoutContent>
         </div>
       </SidebarProvider>
     </ThemeProvider>
