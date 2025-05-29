@@ -1,7 +1,6 @@
 
 // PageLayout.tsx
 import React, { useState, useEffect, useRef } from "react"; 
-import { Outlet, useLocation } from "react-router-dom";
 import { useSearchParams } from "@/hooks/useSearchParams";
 import { useCategories } from "@/hooks/useCategories";
 import { PageHeader } from "./PageHeader";
@@ -13,7 +12,7 @@ import { debounce } from "@/utils/debounce";
 // Max height of PageHeader in REMs (when search is open: 120px / 16px/rem = 7.5rem)
 const PAGE_HEADER_MAX_HEIGHT_REM_STR = "7.5rem";
 
-export function PageLayout() {
+export function PageLayout({ children }: { children: React.ReactNode }) {
   const { 
     searchQuery, 
     setSearchQuery, 
@@ -24,8 +23,6 @@ export function PageLayout() {
   } = useSearchParams();
   const { data: categories } = useCategories();
   const scrollDirection = useScrollDirection();
-  const location = useLocation();
-  const previousPathname = useRef(location.pathname);
 
   // State to hold the measured height of the JoinBanner in pixels
   const [joinBannerHeightPx, setJoinBannerHeightPx] = useState(40); 
@@ -61,35 +58,6 @@ export function PageLayout() {
   const pageHeaderTopPosition = isHeaderVisible
     ? pageHeaderVisibleTopPxStr
     : pageHeaderHiddenTopRemStr;
-
-  // Reset scroll position when changing routes, but be MUCH more selective about clearing filters
-  useEffect(() => {
-    // Only act when actually changing content routes (not just query params)
-    if (previousPathname.current !== location.pathname) {
-      window.scrollTo(0, 0);
-      
-      // ONLY clear filters when:
-      // 1. Moving FROM home page TO a non-category page
-      // 2. Moving FROM category page TO a non-home, non-category page
-      const isFromHomepage = previousPathname.current === '/';
-      const isToHomepage = location.pathname === '/';
-      const isFromCategoryPage = previousPathname.current.startsWith('/category/');
-      const isToCategoryPage = location.pathname.startsWith('/category/');
-      
-      // Only clear filters on specific content section changes
-      // Do NOT clear filters when navigating between content-related pages
-      if ((isFromHomepage && !isToCategoryPage && !isToHomepage) || 
-          (isFromCategoryPage && !isToCategoryPage && !isToHomepage)) {
-        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: clearing filters`);
-        clearFilters();
-      } else {
-        console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: keeping filters`);
-      }
-      
-      // Update the previous pathname ref for next comparison
-      previousPathname.current = location.pathname;
-    }
-  }, [location.pathname, clearFilters]);
   
   return (
     <> 
@@ -127,7 +95,7 @@ export function PageLayout() {
                 categories={categories}
             />
             <div className="max-w-4xl mx-auto"> 
-                <Outlet context={{ searchQuery, selectedCategories }} />
+                {children}
             </div>
           </div>
         </div>
