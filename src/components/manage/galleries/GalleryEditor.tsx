@@ -338,6 +338,7 @@ export function GalleryEditor({ gallery, onCancel }: GalleryEditorProps) {
                   bucket="news_images"
                   uploadId={`gallery-upload-${gallery?.id || newGallery?.id}`}
                   compress={true}
+                  quality={85}
                 />
               </div>
             </div>
