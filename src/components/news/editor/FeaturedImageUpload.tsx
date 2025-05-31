@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface FeaturedImageUploadProps {
   featuredImage: string | null;
   setFeaturedImage: (url: string) => void;
-  quality?: number; // Add quality option for featured images
+  quality?: number;
 }
 
 export function FeaturedImageUpload({ 
@@ -31,7 +31,7 @@ export function FeaturedImageUpload({
                 src={featuredImage} 
                 aspectRatio={16/9}
                 className={cn("border border-border")}
-                lazyload={false} // Don't lazy load previews
+                lazyload={false}
               />
             </div>
             <div>
@@ -40,7 +40,7 @@ export function FeaturedImageUpload({
                 src={featuredImage} 
                 aspectRatio={21/9}
                 className={cn("border border-border")}
-                lazyload={false} // Don't lazy load previews
+                lazyload={false}
               />
             </div>
           </div>
@@ -68,7 +68,7 @@ export function FeaturedImageUpload({
           <strong>Jak będzie wyświetlane:</strong> W proporcjach 16:9 w widoku artykułu i 21:9 na liście aktualności.
         </p>
         <p>
-          <strong>Format:</strong> Zdjęcie zostanie automatycznie zoptymalizowane i przekonwertowane do formatu WebP.
+          <strong>Format:</strong> Zdjęcie zostanie automatycznie zoptymalizowane podczas wgrywania.
         </p>
       </div>
     </div>

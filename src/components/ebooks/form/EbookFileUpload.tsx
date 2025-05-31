@@ -13,8 +13,8 @@ interface EbookFileUploadProps {
   acceptedFileTypes?: string;
   showPreview?: boolean;
   fieldName?: "fileUrl" | "coverUrl";
-  compress?: boolean; // Add compression option
-  quality?: number; // Add quality option
+  compress?: boolean;
+  quality?: number;
 }
 
 export function EbookFileUpload({ 
@@ -25,8 +25,8 @@ export function EbookFileUpload({
   acceptedFileTypes,
   showPreview = false,
   fieldName = "fileUrl",
-  compress = false, // Default to no compression
-  quality = 85 // Default quality if compression is enabled
+  compress = false, // Default to no compression for PDFs
+  quality = 85
 }: EbookFileUploadProps) {
   const form = useFormContext<EbookFormValues>();
   

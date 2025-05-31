@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { sanitizeFilename } from "@/lib/utils";
+import imageCompression from 'browser-image-compression';
 
 interface FileUploadProps {
   onSuccess?: (name: string, url: string) => void;
@@ -28,6 +29,24 @@ export function FileUpload({
   quality = 80
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      initialQuality: quality / 100,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(`Image compressed from ${file.size} bytes to ${compressedFile.size} bytes`);
+      return compressedFile;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      return file; // Return original file if compression fails
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -63,72 +82,30 @@ export function FileUpload({
       console.log(`Original filename: ${originalFilename}`);
       console.log(`Sanitized filename: ${newFilename}`);
       
-      // Determine if we should use compression (only for images and when compress is true)
+      // Determine if we should compress (only for images and when compress is true)
       const isImage = file.type.startsWith('image/');
-      const useCompression = compress && isImage;
-
-      let publicUrl = '';
+      let fileToUpload = file;
       
-      if (useCompression) {
-        // Use edge function for compression
-        console.log(`Using compression for ${newFilename}`);
-        
-        // Create form data to send to the edge function
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('bucket', bucket);
-        formData.append('uploadId', uploadId);
-        formData.append('quality', quality.toString());
-        formData.append('originalFilename', originalFilename);
-        formData.append('sanitizedFilename', newFilename);
-        
-        // Call the edge function - get authentication token properly
-        const { data: sessionData } = await supabase.auth.getSession();
-        const accessToken = sessionData?.session?.access_token || '';
-        
-        const response = await fetch(`https://zhxajqfwzevtrazipwlg.supabase.co/functions/v1/compress-image`, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            // No need for Content-Type header with FormData
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Compression failed: ${errorData.error || response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log("Compression result:", data);
-        
-        if (!data.success) {
-          throw new Error("Failed to compress and upload file");
-        }
-        
-        publicUrl = data.url;
-        
-      } else {
-        // Original direct upload to Supabase storage
-        console.log(`Using direct upload for ${newFilename}`);
-        const { error: uploadError, data } = await supabase.storage
-          .from(bucket)
-          .upload(newFilename, file, { upsert: true });
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        console.log("File uploaded successfully:", data);
-
-        // Get public URL
-        const { data: { publicUrl: directUrl } } = supabase.storage
-          .from(bucket)
-          .getPublicUrl(newFilename);
-          
-        publicUrl = directUrl;
+      if (compress && isImage) {
+        console.log('Compressing image client-side...');
+        fileToUpload = await compressImage(file);
       }
+
+      // Direct upload to Supabase storage
+      const { error: uploadError, data } = await supabase.storage
+        .from(bucket)
+        .upload(newFilename, fileToUpload, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      console.log("File uploaded successfully:", data);
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(newFilename);
 
       console.log("Public URL generated:", publicUrl);
       
