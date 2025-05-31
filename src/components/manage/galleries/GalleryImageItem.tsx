@@ -33,13 +33,13 @@ export function GalleryImageItem({ image, onDelete }: GalleryImageItemProps) {
   const filename = getFileNameFromUrl(image.url);
   const { displayText, isTruncated } = useFormattedFilename({
     filename,
-    maxLength: 25, 
+    maxLength: 30, 
   });
 
   return (
-    <div className="flex items-center justify-between border rounded p-3 bg-white dark:bg-zinc-800">
-      <div className="flex items-center gap-3">
-        <div className="h-12 w-12 bg-gray-100 dark:bg-zinc-700 rounded flex-shrink-0 overflow-hidden">
+    <div className="border rounded p-3 bg-white dark:bg-zinc-800">
+      <div className="flex items-start gap-3">
+        <div className="relative h-16 w-16 bg-gray-100 dark:bg-zinc-700 rounded flex-shrink-0 overflow-hidden">
           <img 
             src={image.url} 
             alt="" 
@@ -56,8 +56,21 @@ export function GalleryImageItem({ image, onDelete }: GalleryImageItemProps) {
               }
             }}
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm('Czy na pewno chcesz usunąć to zdjęcie z galerii?')) {
+                onDelete(image.id);
+              }
+            }}
+            className="absolute -top-1 -right-1 h-6 w-6 bg-red-500 hover:bg-red-600 text-white rounded-full p-0 shadow-sm"
+          >
+            <X className="h-3 w-3" />
+            <span className="sr-only">Usuń zdjęcie</span>
+          </Button>
         </div>
-        <div className="overflow-hidden max-w-[calc(100%-80px)]">
+        <div className="flex-1 min-w-0">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -77,19 +90,6 @@ export function GalleryImageItem({ image, onDelete }: GalleryImageItemProps) {
           </div>
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => {
-          if (confirm('Czy na pewno chcesz usunąć to zdjęcie z galerii?')) {
-            onDelete(image.id);
-          }
-        }}
-        className="text-destructive hover:bg-destructive/10 ml-2 flex-shrink-0"
-      >
-        <X className="h-4 w-4" />
-        <span className="sr-only">Usuń zdjęcie</span>
-      </Button>
     </div>
   );
 }
