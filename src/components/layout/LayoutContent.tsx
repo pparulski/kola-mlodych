@@ -6,7 +6,7 @@ import { JoinBanner } from "./JoinBanner";
 import { SidebarOverlay } from "./SidebarOverlay";
 import { MainContent } from "./MainContent";
 
-export const LayoutContent = memo(function LayoutContent({ children }: { children: React.ReactNode }) {
+export const LayoutContent = memo(function LayoutContent() {
   const { isOpen, setIsOpen } = useSidebar();
 
   const handleOverlayClick = useCallback(() => {
@@ -18,9 +18,7 @@ export const LayoutContent = memo(function LayoutContent({ children }: { childre
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full">
         <JoinBanner />
-        <MainContent>
-          {children}
-        </MainContent>
+        <MainContent />
       </div>
       <SidebarOverlay isOpen={isOpen} handleOverlayClick={handleOverlayClick} />
     </>
