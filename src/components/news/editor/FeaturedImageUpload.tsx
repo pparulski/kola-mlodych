@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
 interface FeaturedImageUploadProps {
   featuredImage: string | null;
   setFeaturedImage: (url: string) => void;
+  quality?: number;
 }
 
 export function FeaturedImageUpload({ 
   featuredImage, 
-  setFeaturedImage 
+  setFeaturedImage,
+  quality = 85 // Higher quality for featured images
 }: FeaturedImageUploadProps) {
   return (
     <div className="space-y-4">
@@ -29,7 +31,7 @@ export function FeaturedImageUpload({
                 src={featuredImage} 
                 aspectRatio={16/9}
                 className={cn("border border-border")}
-                lazyload={false} // Don't lazy load previews
+                lazyload={false}
               />
             </div>
             <div>
@@ -38,7 +40,7 @@ export function FeaturedImageUpload({
                 src={featuredImage} 
                 aspectRatio={21/9}
                 className={cn("border border-border")}
-                lazyload={false} // Don't lazy load previews
+                lazyload={false}
               />
             </div>
           </div>
@@ -50,13 +52,25 @@ export function FeaturedImageUpload({
           onUpload={(url) => setFeaturedImage(url)}
           currentValue={featuredImage}
           acceptedFileTypes="image/*"
+          bucket="news_images"
+          compress={true}
+          quality={quality}
+          uploadId="featured-image"
         />
       </div>
       
-      <p className="text-sm text-muted-foreground mt-2">
-        Zalecane wymiary: 1200×675 px (16:9) lub 1680x720 px (21:9). 
-        Zdjęcie będzie wyświetlane w proporcjach 16:9 w widoku artykułu i 21:9 na liście.
-      </p>
+      <div className="space-y-2 text-sm text-muted-foreground mt-2 p-3 bg-muted/50 rounded-md border border-border">
+        <h4 className="font-medium text-foreground">Wskazówki dotyczące zdjęć:</h4>
+        <p>
+          <strong>Zalecane wymiary:</strong> 1200×675 px (16:9) lub 1680×720 px (21:9). Ogólnie horyzontalne.
+        </p>
+        <p>
+          <strong>Jak będzie wyświetlane:</strong> W proporcjach 16:9 w widoku artykułu i 21:9 na liście aktualności.
+        </p>
+        <p>
+          <strong>Format:</strong> Zdjęcie zostanie automatycznie zoptymalizowane podczas wgrywania.
+        </p>
+      </div>
     </div>
   );
 }

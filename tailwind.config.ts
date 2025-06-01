@@ -174,7 +174,7 @@ export default {
             ol: {
               marginTop: '0.8em',     // Reduced from 1.25em
               marginBottom: '0.8em',  // Reduced from 1.25em
-              paddingLeft: '1.3em', // Reduced from 1.625em
+              paddingLeft: '2.25em',
               li: {
                 marginTop: '0.25em',    // Reduced from 0.5em
                 marginBottom: '0.25em', // Reduced from 0.5em
@@ -188,7 +188,7 @@ export default {
             ul: {
               marginTop: '0.8em',     // Reduced from 1.25em
               marginBottom: '0.8em',  // Reduced from 1.25em
-              paddingLeft: '1.1em', // Reduced from 1.625em (ul usually has less padding than ol)
+              paddingLeft: '2em',
               listStyleType: 'disc',
               li: {
                 marginTop: '0.25em',    // Reduced from 0.5em
@@ -284,6 +284,48 @@ export default {
             // And no default bottom margin on the very last
             ':last-child': {
               marginBottom: '0',
+            },
+          },
+        },
+        base: { // For ".prose-base"
+          css: {
+            // You only need to list the properties you want to override from the plugin's "base" defaults.
+            // If other properties (like h1 font size for prose-base) are fine, no need to repeat them.
+            ol: {
+              paddingLeft: '2.25em', // <<< YOUR DESIRED PADDING FOR <ol> in .prose-base
+              // If you want your tighter margins to also apply specifically to prose-base lists:
+              // marginTop: '0.8em',
+              // marginBottom: '0.8em',
+              // li: { marginTop: '0.25em', marginBottom: '0.25em', paddingLeft: '0.25em' },
+            },
+            ul: {
+              paddingLeft: '2em',   // <<< YOUR DESIRED PADDING FOR <ul> in .prose-base
+              // If you want your tighter margins to also apply specifically to prose-base lists:
+              // marginTop: '0.8em',
+              // marginBottom: '0.8em',
+              // li: { marginTop: '0.25em', marginBottom: '0.25em', paddingLeft: '0.25em' },
+            },
+          },
+        },
+        lg: { // For ".prose-lg"
+          css: {
+            ol: {
+              paddingLeft: '2.35em', // Example: slightly larger for lg, adjust as needed
+                                     // This should be larger than prose-lg default of ~1.55em
+            },
+            ul: {
+              paddingLeft: '2.1em',   // Example: slightly larger for lg, adjust as needed
+            },
+          },
+        },
+        md: { // For ".prose-md"
+          css: {
+            ol: {
+              paddingLeft: '2.30em', // Example: slightly larger for lg, adjust as needed
+                                     // This should be larger than prose-lg default of ~1.55em
+            },
+            ul: {
+              paddingLeft: '2.05em',   // Example: slightly larger for lg, adjust as needed
             },
           },
         },

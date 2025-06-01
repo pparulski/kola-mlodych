@@ -7,13 +7,7 @@ import {
   CardTitle, 
   CardFooter,
 } from "@/components/ui/card";
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger 
-} from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
+import { cn, formatMailto } from "@/lib/utils";
 import { Union } from "./types";
 import { useState } from "react";
 
@@ -27,19 +21,15 @@ interface UnionCardProps {
  * UnionCard component to display a union's information in card format
  */
 export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
-  const [isOpen, setIsOpen] = useState<string | undefined>(undefined);
   
-  // Handle card click - expand accordion and select card
+  // Handle card click - select card
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't trigger if clicking on footer elements (contact links)
     if ((e.target as HTMLElement).closest('.card-footer')) {
       return;
     }
     
-    // Toggle accordion state
-    setIsOpen(isOpen ? undefined : "bio");
-    
-    // Always select the card
+    // Select the card
     onSelect();
   };
 
@@ -60,38 +50,13 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-2 pt-1 px-3 cursor-pointer">
-        <Accordion 
-          type="single" 
-          collapsible 
-          className="w-full"
-          value={isOpen}
-          onValueChange={setIsOpen}
-        >
-          <AccordionItem value="bio" className="border-0">
-            <AccordionTrigger className="py-0.5 text-xs text-primary hover:no-underline">
-              O nas
-            </AccordionTrigger>
-            <AccordionContent>
-              {union.bio ? (
-                <p className="text-xs text-muted-foreground">
-                  {union.bio}
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground italic">
-                  Brak szczegółowego opisu.
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </CardContent>
+      {/* CardContent section removed since we're hiding the "O nas" accordion */}
 
       <CardFooter className="flex justify-between items-center pt-2 pb-2 px-3 border-t card-footer">
         <div className="flex items-center space-x-1">
           {union.contact && (
             <a 
-              href={`mailto:${union.contact}`}
+              href={formatMailto(union.contact)}
               className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               title={union.contact}
             >

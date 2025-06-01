@@ -25,6 +25,9 @@ export function WebPageStructuredData({
   const baseUrl = 'https://mlodzi.ozzip.pl';
   const fullUrl = `${baseUrl}${url}`;
   
+  // Ensure full URL for image
+  const fullImageUrl = image && !image.startsWith('http') ? `${baseUrl}${image}` : image;
+  
   const webPageData: any = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -46,10 +49,10 @@ export function WebPageStructuredData({
     webPageData.dateModified = lastModified;
   }
   
-  if (image) {
+  if (fullImageUrl) {
     webPageData.primaryImageOfPage = {
       "@type": "ImageObject",
-      "contentUrl": image
+      "contentUrl": fullImageUrl
     };
   }
 
@@ -70,6 +73,7 @@ export function WebPageStructuredData({
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageData) }}
+      data-seo="true"
     />
   );
 }

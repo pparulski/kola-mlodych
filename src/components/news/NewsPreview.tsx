@@ -11,7 +11,6 @@ interface NewsPreviewProps {
   slug: string;
   title: string;
   preview_content?: string;
-  content?: string;
   date?: string;
   featured_image?: string;
   category_names?: (string | null)[];
@@ -22,17 +21,13 @@ export function NewsPreview({
   slug,
   title,
   preview_content,
-  content,
   date,
   featured_image,
   category_names = [],
 }: NewsPreviewProps) {
-  console.log("NewsPreview - category_names prop:", category_names);
-  // Use pre-processed preview_content from the view, or fall back to processing content
-  const previewContent = preview_content || (content && content.length > 300 
-    ? `${content.replace(/\[gallery id="([^"]+)"\]/g, '').substring(0, 300)}...`
-    : content);
-
+  // The preview_content should already be processed by formatNewsItems
+  const previewContent = preview_content || "";
+  
   const formattedDate = date 
     ? (() => {
         const parsedDate = new Date(date);
@@ -47,16 +42,13 @@ export function NewsPreview({
     name !== null && name !== undefined && name !== ""
   );
 
-  // Log the filtered array
-  console.log("NewsPreview - validCategoryNames:", validCategoryNames);
-  console.log("NewsPreview - validCategoryNames.length:", validCategoryNames.length);
-
   return (
     <article className="news-card card-hover overflow-hidden animate-fade-in">
       {featured_image && (
         <FeaturedImage
           src={featured_image}
           aspectRatio={21/9} 
+          adaptiveAspectRatio={true} // Add adaptive aspect ratio
           objectFit="cover"
           className="w-full"
           lazyload={true}
@@ -91,10 +83,9 @@ export function NewsPreview({
         </div>
         
         {previewContent && (
-          <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
+          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden">
+            {previewContent}
+          </div>
         )}
         
         <div className="pt-0">

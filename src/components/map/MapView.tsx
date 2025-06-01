@@ -10,6 +10,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Set the Mapbox token
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
+
+
 interface MapViewProps {
   unions: Union[];
   selectedUnion: string | null;

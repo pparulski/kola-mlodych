@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -20,9 +20,10 @@ export interface FeaturedImageProps {
   onClick?: () => void;
   rounded?: boolean;
   containerClassName?: string;
-  lazyload?: boolean; // New prop for controlling lazy loading
+  lazyload?: boolean; // For controlling lazy loading
   lazyloadHeight?: number; // Height for the lazy load placeholder
   lazyloadOffset?: number; // Offset for triggering the lazy load
+  adaptiveAspectRatio?: boolean; // New prop to dynamically adapt to image's natural ratio
 }
 
 export function FeaturedImage({
@@ -39,12 +40,29 @@ export function FeaturedImage({
   onClick,
   rounded = true,
   containerClassName,
-  lazyload = true, // Default to lazy loading enabled
+  lazyload = true,
   lazyloadHeight = 200,
   lazyloadOffset = 100,
+  adaptiveAspectRatio = false, // Default to false for backward compatibility
 }: FeaturedImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
+  const [naturalAspectRatio, setNaturalAspectRatio] = useState<number | null>(null);
+
+  // If adaptiveAspectRatio is true, preload the image to get its natural dimensions
+  useEffect(() => {
+    if (adaptiveAspectRatio && src) {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = img.width / img.height;
+        setNaturalAspectRatio(ratio);
+      };
+      img.src = src;
+    }
+  }, [src, adaptiveAspectRatio]);
+
+  // Determine which aspect ratio to use
+  const effectiveAspectRatio = adaptiveAspectRatio && naturalAspectRatio ? naturalAspectRatio : aspectRatio;
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -117,10 +135,10 @@ export function FeaturedImage({
   };
 
   // If using aspect ratio
-  if (aspectRatio) {
+  if (effectiveAspectRatio) {
     return (
       <div className={cn("relative overflow-hidden", containerClassName)}>
-        <AspectRatio ratio={aspectRatio}>
+        <AspectRatio ratio={effectiveAspectRatio}>
           {isLoading && lazyload && !priority && (
             <Skeleton className="absolute inset-0 z-0 h-full w-full" />
           )}

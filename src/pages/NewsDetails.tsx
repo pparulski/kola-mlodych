@@ -12,6 +12,8 @@ import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
+import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -24,7 +26,7 @@ export function NewsDetails() {
         .from('news')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -49,15 +51,37 @@ export function NewsDetails() {
     enabled: !!article?.id,
   });
 
-  useEffect(() => {
-    if (article?.title) {
-      document.title = `${article.title} - Młodzi IP`;
+  // Generate standardized description for SEO (exactly 160 characters)
+  const generateDescription = (content?: string): string => {
+    if (!content) return '';
+    // Use our improved HTML stripping function with proper spacing
+    const plainText = stripHtmlAndDecodeEntities(content);
+    
+    // Ensure exactly 160 characters
+    if (plainText.length > 160) {
+      return `${plainText.substring(0, 157)}...`;
     }
-  }, [article]);
+    
+    return plainText;
+  };
 
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  // Add debugging for SEO data
+  useEffect(() => {
+    if (article) {
+      console.log('NewsDetails: Article data for SEO:', {
+        title: article.title,
+        featured_image: article.featured_image,
+        content_length: article.content?.length,
+        slug: article.slug,
+        date: article.date,
+        created_at: article.created_at
+      });
+    }
+  }, [article]);
 
   if (isLoading) {
     return (
@@ -86,27 +110,34 @@ export function NewsDetails() {
     );
   }
 
-  const formattedDate = article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "";
+  const formattedDate = article.date 
+    ? format(new Date(article.date), "d MMMM yyyy", { locale: pl }) 
+    : (article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "");
   
   // Extract category names for SEO keywords
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
+
+  // Debug the image URL handling
+  const featuredImageUrl = article.featured_image;
+  console.log('NewsDetails: Featured image URL:', featuredImageUrl);
 
   return (
     <div className="space-y-4 container mx-auto px-4 mt-4 animate-enter">
       <SEO 
         title={article.title}
-        description={article.content?.substring(0, 150).replace(/<[^>]*>?/gm, '')}
-        image={article.featured_image || undefined}
+        description={generateDescription(article.content)}
+        image={featuredImageUrl}
         article={{
-          publishedAt: article.created_at || undefined,
-          modifiedAt: article.created_at || undefined,
+          publishedAt: article.date || article.created_at || undefined,
+          modifiedAt: article.date || article.created_at || undefined,
           categories: categoryNames,
+          author: "Koła Młodych OZZ IP"
         }}
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-4 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
-        <div className="space-y-3">
+      <article className="space-y-3 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
+        <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">
@@ -129,16 +160,16 @@ export function NewsDetails() {
             <FeaturedImage
               src={article.featured_image}
               aspectRatio={16/9}
+              adaptiveAspectRatio={true}
               objectFit="cover"
               priority
-              className="w-full"
+              className="w-full mb-2"
             />
           )}
           
-          <div 
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-sm"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-sm">
+            <SocialMediaRenderer content={article.content} />
+          </div>
         </div>
       </article>
     </div>

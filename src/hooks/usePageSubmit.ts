@@ -12,15 +12,12 @@ export function usePageSubmit(
 ) {
   const [title, setTitle] = useState(existingPage?.title || "");
   const [content, setContent] = useState(existingPage?.content || "");
-  const [featuredImage, setFeaturedImage] = useState<string | null>(
-    existingPage?.featured_image || null
-  );
   const [showInSidebar, setShowInSidebar] = useState(
     existingPage?.show_in_sidebar ?? true
   );
   const queryClient = useQueryClient();
 
-  const handleSubmit = async (selectedCategories: string[]) => {
+  const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -48,16 +45,15 @@ export function usePageSubmit(
         }
       }
 
+      // Create basic update data structure - without featured_image which doesn't exist in the DB
       const updateData: {
         title: string;
         content: string;
-        featured_image: string | null;
         show_in_sidebar: boolean;
         slug?: string;
       } = {
         title,
         content,
-        featured_image: featuredImage,
         show_in_sidebar: showInSidebar,
       };
 
@@ -105,11 +101,11 @@ export function usePageSubmit(
       queryClient.invalidateQueries({ queryKey: ['static-pages'] });
       queryClient.invalidateQueries({ queryKey: ['static-pages-sidebar'] });
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      queryClient.invalidateQueries({ queryKey: ['static-page', slug] }); // Add this to update the page if it's currently viewed
       
       if (!existingPage) {
         setTitle("");
         setContent("");
-        setFeaturedImage(null);
         setShowInSidebar(true);
       }
       onSuccess?.();
@@ -124,8 +120,6 @@ export function usePageSubmit(
     setTitle,
     content, 
     setContent,
-    featuredImage,
-    setFeaturedImage,
     showInSidebar,
     setShowInSidebar,
     handleSubmit

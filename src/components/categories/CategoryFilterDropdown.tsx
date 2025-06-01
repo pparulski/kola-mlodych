@@ -24,24 +24,37 @@ export function CategoryFilterDropdown({
   availableCategories,
   compactOnMobile = false,
 }: CategoryFilterDropdownProps) {
+  // Local state to track the selected categories
+  const [localSelectedCategories, setLocalSelectedCategories] = React.useState<string[]>(selectedCategories);
+  
+  // Sync local state with props (one-way, parent to child)
+  React.useEffect(() => {
+    setLocalSelectedCategories(selectedCategories);
+  }, [selectedCategories]);
+  
+  // Update function with debounce mechanism
+  const handleCategoryUpdate = React.useCallback((newCategories: string[]) => {
+    setLocalSelectedCategories(newCategories);
+    setSelectedCategories(newCategories);
+  }, [setSelectedCategories]);
+
+  // Handle category item click
   const handleCategoryClick = (slug: string) => {
-    if (selectedCategories.includes(slug)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
-    } else {
-      setSelectedCategories([...selectedCategories, slug]);
-    }
+    const newCategories = localSelectedCategories.includes(slug)
+      ? localSelectedCategories.filter((c) => c !== slug)
+      : [...localSelectedCategories, slug];
+    
+    handleCategoryUpdate(newCategories);
   };
 
-  // Modified to ensure it properly clears categories
+  // Handle clear categories click
   const handleClearCategories = (e: React.MouseEvent) => {
-    // Stop propagation to prevent dropdown from closing
-    e.stopPropagation();
-    // Clear selected categories by setting to empty array
-    setSelectedCategories([]);
+    e.stopPropagation(); // Prevent dropdown from closing
+    handleCategoryUpdate([]);
   };
 
-  // Counter for selected items
-  const selectedCount = selectedCategories.length;
+  // Count for selected items
+  const selectedCount = localSelectedCategories.length;
   const hasSelectedItems = selectedCount > 0;
 
   return (
@@ -85,12 +98,12 @@ export function CategoryFilterDropdown({
               className="cursor-pointer flex items-center justify-between"
             >
               <span>{category.name}</span>
-              {selectedCategories.includes(category.slug) && (
+              {localSelectedCategories.includes(category.slug) && (
                 <span className="text-primary text-sm">✓</span>
               )}
             </DropdownMenuItem>
           ))}
-          {selectedCategories.length > 0 && (
+          {localSelectedCategories.length > 0 && (
             <DropdownMenuItem
               onClick={handleClearCategories}
               className="cursor-pointer text-destructive border-t mt-2 pt-2"

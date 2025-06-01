@@ -1,17 +1,27 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NewsPreview } from "@/components/news/NewsPreview";
 import { Category } from "@/types/categories";
-import { NewsArticle } from "@/types/news";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
+import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
+import { useNewsPagination } from "@/hooks/news/useNewsPagination";
+import { NewsPagination } from "@/components/news/NewsPagination";
+import { NewsArticle } from "@/types/news";
+
+interface CategoryArticlesResult {
+  articles: any[];
+  count: number;
+}
 
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
   const [categoryName, setCategoryName] = useState("");
+  const [totalArticles, setTotalArticles] = useState(0);
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -23,54 +33,111 @@ export default function CategoryFeed() {
         .from("categories")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data as Category;
     },
     enabled: !!slug,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 60000,
   });
+
+  // Parse page from URL or use default
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+
+  // Set up pagination - important to do this after we have a category
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
       setCategoryName(category.name);
-      // Update document title when category is loaded
-      document.title = `${category.name} - Młodzi IP`;
     }
   }, [category]);
   
-  // Fetch articles from this category
-  const { data: articles, isLoading: isArticlesLoading } = useQuery({
-    queryKey: ["category-articles", slug],
+  // Keep track of previous slug to reset pagination when category changes
+  const [previousSlug, setPreviousSlug] = useState<string | undefined>(slug);
+  
+  useEffect(() => {
+    if (slug !== previousSlug) {
+      setTotalArticles(0);
+      setPreviousSlug(slug);
+    }
+  }, [slug, previousSlug]);
+  
+  // Fetch articles from this category with pagination
+  const { data: articlesData, isLoading: isArticlesLoading } = useQuery<CategoryArticlesResult>({
+    queryKey: ["category-articles", slug, currentPage],
     queryFn: async () => {
-      if (!category) return [];
+      if (!category) return { articles: [], count: 0 };
       
+      const { from, to } = getPaginationIndices();
+      
+      console.log(`CategoryFeed: Fetching page ${currentPage} with range ${from}-${to}`);
+      
+      // First get the total count
+      const { count, error: countError } = await supabase
+        .from("news_categories")
+        .select("*", { count: 'exact', head: true })
+        .eq("category_id", category.id);
+        
+      if (countError) throw countError;
+      
+      // Update total count state
+      setTotalArticles(count || 0);
+      
+      console.log(`CategoryFeed: Found ${count} total articles for category ${category.name}`);
+      
+      // Then get the paginated articles
       const { data, error } = await supabase
         .from("news_categories")
         .select(`
           news_id,
           news (*)
         `)
-        .eq("category_id", category.id);
+        .eq("category_id", category.id)
+        .order('news(date)', { ascending: false })
+        .range(from, to);
       
       if (error) throw error;
       
-      // Return only the news articles, sorted by date descending
-      return data
+      const articles = data
         .map(item => item.news)
-        .filter(article => article) // Remove any null items
-        .sort((a, b) => {
-          const dateA = a.date ? new Date(a.date).getTime() : 0;
-          const dateB = b.date ? new Date(b.date).getTime() : 0;
-          return dateB - dateA;
-        }) as NewsArticle[];
+        .filter(article => article);
+        
+      console.log(`CategoryFeed: Retrieved ${articles.length} articles for page ${currentPage}`);
+      
+      // Return articles and count for pagination
+      return {
+        articles: articles,
+        count: count || 0
+      };
     },
     enabled: !!category,
-    staleTime: 0, // Ensure we always get fresh data
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 10000,
   });
+  
+  // Format the articles using our consistent formatter
+  const articles = articlesData?.articles ? formatNewsItems(articlesData.articles) : [];
+  
+  // Generate standardized description for category
+  const generateCategoryDescription = (categoryName: string, articleCount: number): string => {
+    const baseDescription = `Przeglądaj artykuły z kategorii ${categoryName} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`;
+    
+    // Ensure exactly 160 characters
+    if (baseDescription.length > 160) {
+      return `${baseDescription.substring(0, 157)}...`;
+    }
+    
+    return baseDescription;
+  };
+
+  // Extract featured image from first article for category SEO
+  const getCategoryImage = (): string | undefined => {
+    if (articles && articles.length > 0 && articles[0].featured_image) {
+      return articles[0].featured_image;
+    }
+    return undefined;
+  };
   
   const isLoading = isCategoryLoading || isArticlesLoading;
   
@@ -80,7 +147,7 @@ export default function CategoryFeed() {
         <Skeleton className="h-12 w-2/3 max-w-md" />
         <Skeleton className="h-6 w-full max-w-lg" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {[1, 2, 3].map(i => (
+          {Array.from({ length: ARTICLES_PER_PAGE / 2 }).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full" />
           ))}
         </div>
@@ -106,25 +173,50 @@ export default function CategoryFeed() {
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
       <SEO 
         title={category.name}
-        description={`Przeglądaj artykuły z kategorii ${category.name} na stronie Kół Młodych OZZ Inicjatywy Pracowniczej.`}
+        description={generateCategoryDescription(category.name, totalArticles)}
         keywords={category.name}
+        image={getCategoryImage()}
       />
       
-      {articles && articles.length > 0 ? (
-        <div className="space-y-6 !mt-0">
-          {articles.map((article) => (
-            <NewsPreview 
-              key={article.id}
-              id={article.id}
-              slug={article.slug}
-              title={article.title}
-              content={article.content}
-              date={article.date || undefined}
-              featured_image={article.featured_image || undefined}
-              category_names={[category.name]}
-            />
-          ))}
+      <div className="mb-6 p-4 bg-muted/30 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-medium">Kategoria: {category.name}</h3>
+            <p className="text-sm text-muted-foreground">
+              {totalArticles > 0 
+                ? `Znaleziono ${totalArticles} ${
+                    totalArticles === 1 ? 'artykuł' : 
+                    totalArticles < 5 ? 'artykuły' : 'artykułów'
+                  }` 
+                : "Brak artykułów w tej kategorii"}
+            </p>
+          </div>
         </div>
+      </div>
+      
+      {articles && articles.length > 0 ? (
+        <>
+          <div className="space-y-6 !mt-0">
+            {articles.map((article) => (
+              <NewsPreview 
+                key={article.id}
+                id={article.id}
+                slug={article.slug}
+                title={article.title}
+                preview_content={article.preview_content}
+                date={article.date || undefined}
+                featured_image={article.featured_image || undefined}
+                category_names={[category.name]}
+              />
+            ))}
+          </div>
+          
+          <NewsPagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            handlePageChange={handlePageChange} 
+          />
+        </>
       ) : (
         <div className="text-center py-10 content-box !mt-0">
           <h2 className="text-xl font-medium">Brak artykułów</h2>

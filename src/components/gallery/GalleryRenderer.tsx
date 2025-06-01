@@ -1,111 +1,123 @@
 
-import { useEffect, useState, Fragment } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { GalleryView } from "./GalleryView";
-import { GalleryInitializer } from "./GalleryInitializer";
-import { useIsMobile } from "@/hooks/use-mobile";
+import React, { useEffect, useRef } from "react";
+import DOMPurify from "dompurify";
+import { cn } from "@/lib/utils";
+import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
 
 interface GalleryRendererProps {
-  content: string;
-  onProcessedContent?: (content: string) => void;
+  content?: string;
+  applyProseStyles?: boolean; // Prop to control prose application
+  className?: string;         // To pass additional classes if needed
 }
 
-export function GalleryRenderer({ content, onProcessedContent }: GalleryRendererProps) {
-  const [processedContent, setProcessedContent] = useState(content);
-  const isMobile = useIsMobile();
+export function GalleryRenderer({ content, applyProseStyles = true, className }: GalleryRendererProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
   
-  // Find all gallery shortcodes in the content
-  const galleryMatches = content.match(/\[gallery id="([^"]+)"\]/g) || [];
-  const galleryIds = galleryMatches.map(match => match.match(/id="([^"]+)"/)?.[1]).filter(Boolean) as string[];
-
-  // Fetch gallery data from Supabase
-  const { data: galleries } = useQuery({
-    queryKey: ['galleries-for-content', galleryIds],
-    queryFn: async () => {
-      if (!galleryIds.length) return [];
-      
-      const { data: galleryData, error } = await supabase
-        .from('article_galleries')
-        .select(`
-          id,
-          title,
-          gallery_images (
-            id,
-            url,
-            caption,
-            position
-          )
-        `)
-        .in('id', galleryIds)
-        .order('position', { foreignTable: 'gallery_images' });
-
-      if (error) throw error;
-      return galleryData;
-    },
-    enabled: galleryIds.length > 0,
-  });
-
-  // Process the content to place galleries in the right positions
   useEffect(() => {
-    if (!galleries || galleries.length === 0) {
-      setProcessedContent(content);
-      if (onProcessedContent) onProcessedContent(content);
-      return;
-    }
+    if (!contentRef.current || !content) return;
+    
+    // Find all iframes in the rendered content
+    const iframes = contentRef.current.querySelectorAll('iframe');
+    
+    // Update each iframe to ensure required permissions are present without overwriting existing ones
+    iframes.forEach(iframe => {
+      // ----- sandbox -----
+      const requiredSandboxPermissions = [
+        'allow-scripts',
+        'allow-popups',
+        'allow-popups-to-escape-sandbox',
+        'allow-same-origin'
+      ];
+      const sandboxTokens = new Set(
+        (iframe.getAttribute('sandbox') || '')
+          .split(/\s+/)
+          .filter(Boolean)
+      );
+      requiredSandboxPermissions.forEach(token => sandboxTokens.add(token));
+      iframe.setAttribute('sandbox', Array.from(sandboxTokens).join(' '));
 
-    // For both mobile and desktop, replace gallery shortcodes with placeholder divs
-    let newContent = content;
-    galleries.forEach(gallery => {
-      const shortcode = `[gallery id="${gallery.id}"]`;
-      const replacement = `
-        <div class="my-6 gallery-wrapper w-full" data-gallery-id="${gallery.id}">
-          <div class="gallery-placeholder"></div>
-        </div>
-      `;
-      newContent = newContent.replace(shortcode, replacement);
+      // ----- allow -----
+      const requiredAllowPermissions = ['fullscreen', 'payment', 'clipboard-write'];
+      const allowTokens = new Set(
+        (iframe.getAttribute('allow') || '')
+          .split(/;\s*/)
+          .filter(Boolean)
+      );
+      requiredAllowPermissions.forEach(token => allowTokens.add(token));
+      iframe.setAttribute('allow', Array.from(allowTokens).join('; '));
+
+      // ----- allowfullscreen -----
+      if (!iframe.hasAttribute('allowfullscreen')) {
+        iframe.setAttribute('allowfullscreen', 'true');
+      }
+
+      // Set referrerpolicy to avoid referrer restrictions
+      if (!iframe.hasAttribute('referrerpolicy')) {
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      }
     });
-
-    setProcessedContent(newContent);
-    if (onProcessedContent) {
-      onProcessedContent(newContent);
-    }
-  }, [content, galleries, onProcessedContent]);
-
-  if (!galleries || galleries.length === 0) {
-    // No galleries, just render content
+  }, [content]);
+  
+  if (!content) return null;
+  
+  // Check if content contains social media embeds
+  const hasSocialEmbeds = /\[social-embed|class="social-embed-placeholder"/.test(content);
+  
+  if (hasSocialEmbeds) {
+    console.log('GalleryRenderer detected social media embeds, using SocialMediaRenderer');
     return (
       <div 
-        className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>p]:mb-3 md:[&>p]:mb-4"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+        ref={contentRef}
+        className={cn(
+          applyProseStyles && "hugerte-content",
+          className
+        )}
+      >
+        <SocialMediaRenderer content={content} />
+      </div>
     );
   }
-
+  
+  // Configure DOMPurify to allow specific tags and attributes
+  DOMPurify.addHook('beforeSanitizeElements', (node) => {
+    // Cast the Node to HTMLElement to access tagName and hasAttribute
+    const element = node as HTMLElement;
+    
+    // For iframe elements, handle sandbox attribute
+    if (element.tagName === 'IFRAME') {
+      // Don't modify the node here, this is just pre-sanitization check
+      // The actual modification happens in the useEffect hook above
+      return node;
+    }
+    return node;
+  });
+  
+  // Sanitize the HTML content but allow iframes with necessary attributes
+  const sanitizedContent = DOMPurify.sanitize(content, {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: [
+      'allow', 
+      'allowfullscreen', 
+      'frameborder', 
+      'scrolling', 
+      'sandbox', 
+      'src', 
+      'style',
+      'target',
+      'width',
+      'height',
+      'referrerpolicy'
+    ]
+  });
+  
   return (
-    <>
-      {/* Render content with gallery placeholders */}
-      <div 
-        className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>p]:mb-3 md:[&>p]:mb-4"
-        dangerouslySetInnerHTML={{ __html: processedContent }}
-      />
-      
-      {/* For all devices, use the initializer to find and populate placeholders */}
-      <GalleryInitializer />
-      
-      {/* Hidden elements containing gallery data */}
-      {galleries.map(gallery => (
-        <div 
-          key={gallery.id} 
-          className="gallery-component hidden" 
-          data-id={gallery.id}
-        >
-          <div 
-            className="gallery-data" 
-            data-images={JSON.stringify(gallery.gallery_images)}
-          />
-        </div>
-      ))}
-    </>
+    <div 
+      ref={contentRef}
+      className={cn(
+        applyProseStyles && "hugerte-content",
+        className
+      )}
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+    />
   );
 }

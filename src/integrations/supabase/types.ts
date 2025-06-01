@@ -372,10 +372,7 @@ export type Database = {
           facebook_url: string | null
           id: string
           instagram_url: string | null
-          logo_url: string | null
           name: string
-          region: string | null
-          year_created: number
         }
         Insert: {
           bio?: string | null
@@ -385,10 +382,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
           name: string
-          region?: string | null
-          year_created: number
         }
         Update: {
           bio?: string | null
@@ -398,10 +392,7 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
           name?: string
-          region?: string | null
-          year_created?: number
         }
         Relationships: []
       }
@@ -419,10 +410,36 @@ export type Database = {
           slug: string | null
           title: string | null
         }
+        Insert: {
+          category_ids?: never
+          category_names?: never
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string | null
+          preview_content?: never
+          slug?: string | null
+          title?: string | null
+        }
+        Update: {
+          category_ids?: never
+          category_names?: never
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string | null
+          preview_content?: never
+          slug?: string | null
+          title?: string | null
+        }
         Relationships: []
       }
     }
     Functions: {
+      convert_polish_chars: {
+        Args: { input_text: string }
+        Returns: string
+      }
       generate_unique_slug: {
         Args: { title: string; attempt?: number }
         Returns: string
@@ -434,6 +451,15 @@ export type Database = {
       get_recent_login_attempts: {
         Args: { ip_addr: string; minutes_ago: number }
         Returns: number
+      }
+      get_updated_articles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          title: string
+          slug: string
+          date: string
+        }[]
       }
       is_admin: {
         Args: { user_id: string }
@@ -450,6 +476,10 @@ export type Database = {
       search_news: {
         Args: { search_term: string; page_limit: number; page_offset: number }
         Returns: Json
+      }
+      update_all_news_slugs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
     }
     Enums: {

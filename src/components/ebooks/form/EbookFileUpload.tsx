@@ -13,6 +13,8 @@ interface EbookFileUploadProps {
   acceptedFileTypes?: string;
   showPreview?: boolean;
   fieldName?: "fileUrl" | "coverUrl";
+  compress?: boolean;
+  quality?: number;
 }
 
 export function EbookFileUpload({ 
@@ -22,7 +24,9 @@ export function EbookFileUpload({
   bucket = "ebooks",
   acceptedFileTypes,
   showPreview = false,
-  fieldName = "fileUrl"
+  fieldName = "fileUrl",
+  compress = false, // Default to no compression for PDFs
+  quality = 85
 }: EbookFileUploadProps) {
   const form = useFormContext<EbookFormValues>();
   
@@ -49,8 +53,9 @@ export function EbookFileUpload({
           bucket={bucket}
           onSuccess={handleUploadSuccess}
           acceptedFileTypes={acceptedFileTypes}
-          // Add a unique identifier for each upload component
           uploadId={fieldName}
+          compress={compress && acceptedFileTypes === "image/*"} // Only compress images
+          quality={quality}
         />
       ) : (
         <div className="flex items-center gap-2">

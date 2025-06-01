@@ -1,93 +1,125 @@
-
-import { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// src/hooks/useSearchParams.ts
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation, useNavigate, useSearchParams as useRouterSearchParams } from "react-router-dom";
+import { debounce } from "@/utils/debounce";
 
 export function useSearchParams() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [actualSearchParams] = useRouterSearchParams();
 
-  // --- State derived from location ---
+  const isMounted = useRef(false);
+
+  // Initialize state from URL ONLY ONCE
+  const [searchQuery, setSearchQueryState] = useState(() => actualSearchParams.get('search') || '');
+  const [selectedCategories, setSelectedCategoriesState] = useState<string[]>(() =>
+    (actualSearchParams.get('categories') || '').split(',').filter(Boolean)
+  );
+
   const isHomePage = location.pathname === '/';
-  const currentParams = new URLSearchParams(location.search);
-  const urlSearch = currentParams.get('search') || '';
-  const urlCategories = (currentParams.get('categories') || '').split(',').filter(Boolean);
 
-  // --- Effect 1: Update STATE from URL ---
-  // This effect runs when the component mounts or the actual URL search string changes
   useEffect(() => {
-    if (isHomePage) {
-      // Update state only if it differs from the current URL parameters
-      if (urlSearch !== searchQuery) {
-        console.log(`useSearchParams: Updating state searchQuery from URL: "${urlSearch}"`);
-        setSearchQuery(urlSearch);
+    if (!isMounted.current) {
+      console.log("useSearchParams: Initialized from URL.", {
+        initialSearch: searchQuery,
+        initialCategories: selectedCategories,
+      });
+      isMounted.current = true;
+    }
+  }, [searchQuery, selectedCategories]); // Log initial state
+
+
+  // Debounced function to update URL from state (State -> URL)
+  const updateURL = useCallback(
+    debounce((currentQuery: string, currentCategories: string[]) => {
+      if (!isHomePage || !isMounted.current) return;
+
+      const params = new URLSearchParams();
+      if (currentQuery) params.set('search', currentQuery);
+      if (currentCategories.length > 0) params.set('categories', currentCategories.join(','));
+      
+      const newQueryString = params.toString();
+      const currentPathWithQuery = `${location.pathname}${newQueryString ? `?${newQueryString}` : ''}`;
+      const currentFullURL = `${location.pathname}${location.search}`;
+
+      if (currentPathWithQuery !== currentFullURL) {
+        console.log(`useSearchParams (State -> URL): Navigating. New query string: "?${newQueryString}"`);
+        navigate(currentPathWithQuery, { replace: true });
       }
-      // Compare arrays carefully
-      if (JSON.stringify(urlCategories) !== JSON.stringify(selectedCategories)) {
-        console.log(`useSearchParams: Updating state selectedCategories from URL:`, urlCategories);
-        setSelectedCategories(urlCategories);
-      }
-    }
-    // We ONLY want this to run when the location.search string changes externally
-    // or when we land on the home page.
-  }, [location.search, isHomePage]);
+    }, 300),
+    [navigate, isHomePage, location.pathname] // Removed location.search
+  );
 
-  // --- Effect 2: Update URL from STATE ---
-  // This effect runs when the user *intends* to change the search/categories state
+  // Effect to trigger URL update when local state changes
   useEffect(() => {
-    // Only trigger URL update if on the home page
-    if (isHomePage) {
-        const params = new URLSearchParams(location.search);
-        const currentUrlSearch = params.get('search') || '';
-        const currentUrlCategories = params.get('categories') || '';
-        const newCategoriesString = selectedCategories.join(',');
-
-        let needsUpdate = false;
-
-        // Compare desired state with current URL state
-        if (searchQuery !== currentUrlSearch) {
-            if (searchQuery) {
-                params.set('search', searchQuery);
-            } else {
-                params.delete('search');
-            }
-            needsUpdate = true;
-        }
-
-        // Compare desired state with current URL state
-        if (newCategoriesString !== currentUrlCategories) {
-             if (selectedCategories.length > 0) {
-                params.set('categories', newCategoriesString);
-            } else {
-                params.delete('categories');
-            }
-            needsUpdate = true;
-        }
-
-        // Only update URL if something actually needs to change
-        if (needsUpdate) {
-            console.log("useSearchParams: Updating URL from state change.");
-            // Use navigate with replace: true to update URL without adding history entries
-            navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-        }
+    if (isMounted.current && isHomePage) {
+      // console.log("useSearchParams (State -> URL): State changed, queueing URL update", { searchQuery, selectedCategories });
+      updateURL(searchQuery, selectedCategories);
     }
-  }, [searchQuery, selectedCategories, isHomePage, location.pathname, navigate]);
+  }, [searchQuery, selectedCategories, updateURL, isHomePage]);
 
-  // --- Effect 3: Clear search state when navigating AWAY from home page ---
+
+  // Effect to sync URL to State (e.g., for browser back/forward)
+  // Let's make this one MUCH simpler for now, or even temporarily disable its write-back
   useEffect(() => {
-    if (!isHomePage && searchQuery !== "") {
-      console.log("useSearchParams: Navigated away from home page, clearing search query state.");
-      setSearchQuery("");
-    }
-  }, [isHomePage, searchQuery]);
+    if (!isMounted.current || !isHomePage) return;
 
-  // Return the state and setters
+    // This effect now only logs what it sees from the URL.
+    // It WON'T update the state for now to prevent the reset.
+    const paramsFromURL = new URLSearchParams(location.search);
+    const urlSearch = paramsFromURL.get('search') || '';
+    const urlCategories = (paramsFromURL.get('categories') || '').split(',').filter(Boolean);
+
+    console.log("useSearchParams (URL -> State - READ ONLY): Detected URL params:", {
+      urlSearch,
+      urlCategories,
+      currentStateSearch: searchQuery,
+      currentStateCategories: selectedCategories,
+    });
+
+    // TEMPORARILY DISABLE STATE UPDATE FROM THIS EFFECT
+    /*
+    const searchNeedsUpdate = urlSearch !== searchQuery;
+    const categoriesNeedUpdate = JSON.stringify(urlCategories) !== JSON.stringify(selectedCategories);
+
+    if (searchNeedsUpdate || categoriesNeedUpdate) {
+      console.log("useSearchParams (URL -> State): Would update state if enabled:", {
+        newUrlSearch: urlSearch,
+        newUrlCategories: urlCategories,
+      });
+      // if (searchNeedsUpdate) setSearchQueryState(urlSearch);
+      // if (categoriesNeedUpdate) setSelectedCategoriesState(urlCategories);
+    }
+    */
+
+  }, [location.search, isHomePage]); // Removed searchQuery, selectedCategories from deps for now during this test
+                                     // to make it purely reactive to URL changes
+
+
+  const setMainSearchQuery = useCallback((query: string) => {
+    setSearchQueryState(query);
+  }, []);
+
+  const setMainSelectedCategories = useCallback((categories: string[]) => {
+    setSelectedCategoriesState(categories);
+  }, []);
+  
+  const clearFilters = useCallback(() => {
+    setSearchQueryState("");
+    setSelectedCategoriesState([]);
+    // updateURL will handle clearing the URL if on homepage
+    // If not on homepage and URL has params, navigate to clean path
+    if (!isHomePage && location.search) {
+        navigate(location.pathname, {replace: true});
+    }
+  }, [isHomePage, navigate, location.pathname, location.search]);
+
   return {
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: setMainSearchQuery,
     selectedCategories,
-    setSelectedCategories,
-    isHomePage
+    setSelectedCategories: setMainSelectedCategories,
+    isHomePage,
+    clearFilters,
   };
 }

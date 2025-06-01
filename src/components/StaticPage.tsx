@@ -4,9 +4,10 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
-import { GalleryRenderer } from "./gallery/GalleryRenderer";
+import { UnifiedContentRenderer } from "./content/UnifiedContentRenderer";
 import { toast } from "sonner";
 import { SEO } from "@/components/seo/SEO";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export function StaticPage() {
   const { slug } = useParams();
@@ -51,20 +52,43 @@ export function StaticPage() {
       }
     },
     enabled: !!slug,
-    staleTime: 0, // Always get fresh data when component mounts
-    refetchOnWindowFocus: true // Refetch when the window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 
-  // Generate a clean excerpt for SEO description
+  // Generate a clean excerpt for SEO description (standardized to 160 chars)
   const generateExcerpt = (content?: string): string => {
     if (!content) return '';
     
-    // Remove HTML tags and limit to ~160 characters
-    const plainText = content.replace(/<[^>]*>?/gm, '');
-    const excerpt = plainText.substring(0, 160);
+    // Use our improved HTML stripping function with proper spacing
+    const plainText = stripHtmlAndDecodeEntities(content);
     
-    // Add ellipsis if text was truncated
-    return plainText.length > 160 ? `${excerpt}...` : excerpt;
+    // Limit to exactly 160 characters for SEO meta description
+    if (plainText.length > 160) {
+      return `${plainText.substring(0, 157)}...`;
+    }
+    
+    return plainText;
+  };
+
+  // Extract first image from content for SEO
+  const extractFirstImage = (content?: string): string | undefined => {
+    if (!content) return undefined;
+    
+    // Look for image tags in the content
+    const imgRegex = /<img[^>]+src="([^"]+)"/i;
+    const match = content.match(imgRegex);
+    
+    if (match && match[1]) {
+      // If it's already a full URL, return as is
+      if (match[1].startsWith('http')) {
+        return match[1];
+      }
+      // If it's a relative URL, make it absolute
+      return match[1];
+    }
+    
+    return undefined;
   };
 
   if (error) {
@@ -91,14 +115,17 @@ export function StaticPage() {
         <SEO
           title={page.title}
           description={generateExcerpt(page.content)}
-          image={page.featured_image}
+          image={extractFirstImage(page.content)}
         />
       )}
       
       <div className="relative">
-        {page ? (
-          <div className="prose prose-lg md: prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
-            <GalleryRenderer content={page.content} />
+        {page && page.content ? (
+          <div className="prose prose-lg md:prose-base max-w-none dark:prose-invert bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+            <UnifiedContentRenderer 
+              content={page.content}
+              applyProseStyles={false}
+            />
           </div>
         ) : (
           <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">

@@ -3,7 +3,7 @@ export function getPageTitle(pathname: string, staticPageTitle?: string): string
   // Default titles for known routes
   const titles: { [key: string]: string } = {
     '/': 'Aktualności',
-    '/struktury': 'Lista Struktur',
+    '/struktury': 'Struktury',
     '/downloads': 'Pliki do pobrania',
     '/ebooks': 'Publikacje',
     '/auth': 'Logowanie',

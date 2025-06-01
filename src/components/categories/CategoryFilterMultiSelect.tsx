@@ -19,20 +19,30 @@ export function CategoryFilterMultiSelect({
   availableCategories,
 }: CategoryFilterMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
-
+  const [localCategories, setLocalCategories] = React.useState<string[]>(selectedCategories);
+  
+  // Sync from props to local state, but only on prop changes
+  React.useEffect(() => {
+    setLocalCategories(selectedCategories);
+  }, [selectedCategories]);
+  
   const handleSelect = (slug: string) => {
-    if (selectedCategories.includes(slug)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== slug));
-    } else {
-      setSelectedCategories([...selectedCategories, slug]);
-    }
+    const updatedCategories = localCategories.includes(slug)
+      ? localCategories.filter((c) => c !== slug)
+      : [...localCategories, slug];
+    
+    setLocalCategories(updatedCategories);
+    setSelectedCategories(updatedCategories);
   };
 
   const handleRemove = (slug: string) => {
-    setSelectedCategories(selectedCategories.filter((c) => c !== slug));
+    const updatedCategories = localCategories.filter((c) => c !== slug);
+    setLocalCategories(updatedCategories);
+    setSelectedCategories(updatedCategories);
   };
 
   const clearCategories = () => {
+    setLocalCategories([]);
     setSelectedCategories([]);
   };
 
@@ -57,13 +67,13 @@ export function CategoryFilterMultiSelect({
                   className="flex items-center justify-between px-4"
                 >
                   <div className="flex-1">{category.name}</div>
-                  {selectedCategories.includes(category.slug) && (
+                  {localCategories.includes(category.slug) && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
                 </CommandItem>
               ))}
 
-              {selectedCategories.length > 0 && (
+              {localCategories.length > 0 && (
                 <CommandItem
                   onSelect={clearCategories}
                   className="text-destructive mt-1 px-4"
@@ -76,9 +86,9 @@ export function CategoryFilterMultiSelect({
         </PopoverContent>
       </Popover>
 
-      {selectedCategories.length > 0 && (
+      {localCategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {selectedCategories.map((slug) => {
+          {localCategories.map((slug) => {
             const category = availableCategories.find((c) => c.slug === slug);
             return (
               <Badge key={slug} variant="secondary" className="gap-1 pl-2 pr-1 py-1">

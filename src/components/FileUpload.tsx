@@ -4,6 +4,8 @@ import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sanitizeFilename } from "@/lib/utils";
+import imageCompression from 'browser-image-compression';
 
 interface FileUploadProps {
   onSuccess?: (name: string, url: string) => void;
@@ -11,7 +13,9 @@ interface FileUploadProps {
   acceptedFileTypes?: string;
   currentValue?: string | null;
   onUpload?: (url: string) => void;
-  uploadId?: string; // Add a unique identifier for each upload component
+  uploadId?: string;
+  compress?: boolean;
+  quality?: number;
 }
 
 export function FileUpload({ 
@@ -20,9 +24,29 @@ export function FileUpload({
   acceptedFileTypes, 
   currentValue,
   onUpload,
-  uploadId = "default" // Default value for backward compatibility
+  uploadId = "default",
+  compress = true,
+  quality = 80
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      initialQuality: quality / 100,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(`Image compressed from ${file.size} bytes to ${compressedFile.size} bytes`);
+      return compressedFile;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      return file; // Return original file if compression fails
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,23 +67,34 @@ export function FileUpload({
     try {
       console.log(`Uploading file to ${bucket} bucket:`, file.name);
       
-      let filename = file.name;
-      // Allow letters, numbers, spaces, dots, hyphens, underscores
-      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9 ._-]/g, '');
+      let originalFilename = file.name;
+      // Get file extension
+      const fileExt = originalFilename.split('.').pop() || '';
+      const baseName = originalFilename.replace(`.${fileExt}`, '');
       
-      // Ensure the filename is unique by adding a timestamp if needed
-      const timestamp = new Date().getTime();
-      const fileExt = filename.split('.').pop();
-      const baseName = filename.replace(`.${fileExt}`, '');
-      // Only add timestamp if there are sanitized characters (filename changed)
-      if (sanitizedFilename !== filename) {
-        filename = `${baseName}_${timestamp}.${fileExt}`;
+      // Create a sanitized filename that replaces Polish characters
+      // and replaces spaces with underscores
+      const sanitizedBaseName = sanitizeFilename(baseName);
+      
+      // Final filename with extension 
+      const newFilename = `${sanitizedBaseName}.${fileExt}`;
+      
+      console.log(`Original filename: ${originalFilename}`);
+      console.log(`Sanitized filename: ${newFilename}`);
+      
+      // Determine if we should compress (only for images and when compress is true)
+      const isImage = file.type.startsWith('image/');
+      let fileToUpload = file;
+      
+      if (compress && isImage) {
+        console.log('Compressing image client-side...');
+        fileToUpload = await compressImage(file);
       }
-      
-      // Upload file to storage using original filename
+
+      // Direct upload to Supabase storage
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(filename, file, { upsert: true });
+        .upload(newFilename, fileToUpload, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -70,13 +105,13 @@ export function FileUpload({
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(filename);
+        .getPublicUrl(newFilename);
 
       console.log("Public URL generated:", publicUrl);
       
       // Support both callback styles
       if (onSuccess) {
-        onSuccess(filename, publicUrl);
+        onSuccess(originalFilename, publicUrl);
       }
       
       if (onUpload) {
@@ -108,7 +143,7 @@ export function FileUpload({
       )}
       <input
         type="file"
-        id={`file-${uploadId}`} // Use unique ID for each file input
+        id={`file-${uploadId}`}
         className="hidden"
         onChange={handleFileUpload}
         accept={acceptedFileTypes}

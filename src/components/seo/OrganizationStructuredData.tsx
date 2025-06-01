@@ -28,6 +28,7 @@ export function OrganizationStructuredData() {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+      data-seo="true"
     />
   );
 }
