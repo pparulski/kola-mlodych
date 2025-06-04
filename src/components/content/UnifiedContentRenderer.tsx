@@ -1,6 +1,5 @@
 
 import React from "react";
-import { GalleryRenderer } from "@/components/gallery/GalleryRenderer";
 import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
 import { cn } from "@/lib/utils";
 
@@ -15,22 +14,27 @@ export function UnifiedContentRenderer({
   applyProseStyles = true, 
   className 
 }: UnifiedContentRendererProps) {
-  console.log('UnifiedContentRenderer - Processing content with social media and galleries');
+  console.log('UnifiedContentRenderer - Processing content with galleries and social media');
   
   if (!content) return null;
 
-  // First process social media embeds, then galleries
-  // This component combines both renderers for complete content processing
+  // Process gallery shortcodes first, then let SocialMediaRenderer handle the rest
+  const processGalleries = (htmlContent: string) => {
+    // Replace gallery shortcodes with actual gallery components
+    return htmlContent.replace(/\[gallery id="([^"]+)"\]/g, (match, galleryId) => {
+      // Return a placeholder that will be processed by GalleryRenderer
+      return `<div class="gallery-embed" data-gallery-id="${galleryId}"></div>`;
+    });
+  };
+
+  const processedContent = processGalleries(content);
+
   return (
     <div className={cn(
       applyProseStyles && "hugerte-content",
       className
     )}>
-      <GalleryRenderer 
-        content={content}
-        applyProseStyles={false} // We're already applying prose styles at the wrapper level
-        className="social-media-aware"
-      />
+      <SocialMediaRenderer content={processedContent} />
     </div>
   );
 }

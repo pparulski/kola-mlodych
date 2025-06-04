@@ -8,6 +8,9 @@ import {
   YouTubeEmbed,
   TikTokEmbed
 } from 'react-social-media-embed';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { GalleryView } from '@/components/gallery/GalleryView';
 
 interface SocialMediaRendererProps {
   content: string;
@@ -20,25 +23,63 @@ interface SocialEmbedMatch {
   index: number;
 }
 
+interface GalleryEmbedMatch {
+  galleryId: string;
+  fullMatch: string;
+  index: number;
+}
+
 export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
   console.log('SocialMediaRenderer - Processing content:', content.substring(0, 200));
   
-  // Parse both shortcodes AND HTML placeholders
-  const renderSocialEmbeds = (htmlContent: string) => {
-    // First handle shortcodes
+  // Fetch gallery data for any gallery embeds in the content
+  const galleryIds = [...content.matchAll(/<div[^>]*class="gallery-embed"[^>]*data-gallery-id="([^"]+)"[^>]*><\/div>/g)]
+    .map(match => match[1]);
+
+  const { data: galleries } = useQuery({
+    queryKey: ['gallery-embeds', galleryIds],
+    queryFn: async () => {
+      if (galleryIds.length === 0) return {};
+      
+      const { data, error } = await supabase
+        .from('article_galleries')
+        .select(`
+          id,
+          title,
+          gallery_images(id, url, caption, position)
+        `)
+        .in('id', galleryIds);
+
+      if (error) throw error;
+      
+      // Convert to object for easy lookup
+      return data.reduce((acc, gallery) => {
+        acc[gallery.id] = gallery;
+        return acc;
+      }, {} as Record<string, any>);
+    },
+    enabled: galleryIds.length > 0,
+  });
+
+  // Parse social media embeds, gallery embeds, and HTML placeholders
+  const renderContent = (htmlContent: string) => {
+    // Find social media shortcodes
     const socialEmbedRegex = /\[social-embed platform="([^"]+)" url="([^"]+)"\]/g;
-    // Then handle HTML placeholders that might exist in saved content
-    const placeholderRegex = /<div[^>]*class="social-embed-placeholder"[^>]*data-platform="([^"]+)"[^>]*data-url="([^"]+)"[^>]*>[\s\S]*?<\/div>/g;
+    // Find social media HTML placeholders
+    const socialPlaceholderRegex = /<div[^>]*class="social-embed-placeholder"[^>]*data-platform="([^"]+)"[^>]*data-url="([^"]+)"[^>]*>[\s\S]*?<\/div>/g;
+    // Find gallery embeds
+    const galleryEmbedRegex = /<div[^>]*class="gallery-embed"[^>]*data-gallery-id="([^"]+)"[^>]*><\/div>/g;
     
     let processedContent = htmlContent;
-    const matches: SocialEmbedMatch[] = [];
+    const socialMatches: SocialEmbedMatch[] = [];
+    const galleryMatches: GalleryEmbedMatch[] = [];
     let match;
 
-    // Find shortcode matches
+    // Find social media shortcode matches
     const shortcodeRegex = /\[social-embed platform="([^"]+)" url="([^"]+)"\]/g;
     while ((match = shortcodeRegex.exec(htmlContent)) !== null) {
-      console.log('Found shortcode match:', match[1], match[2]);
-      matches.push({
+      console.log('Found social shortcode match:', match[1], match[2]);
+      socialMatches.push({
         platform: match[1],
         url: match[2],
         fullMatch: match[0],
@@ -46,11 +87,11 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
       });
     }
 
-    // Find placeholder matches
+    // Find social media placeholder matches
     const placeholderMatches = /(<div[^>]*class="social-embed-placeholder"[^>]*data-platform="([^"]+)"[^>]*data-url="([^"]+)"[^>]*>[\s\S]*?<\/div>)/g;
     while ((match = placeholderMatches.exec(htmlContent)) !== null) {
-      console.log('Found placeholder match:', match[2], match[3]);
-      matches.push({
+      console.log('Found social placeholder match:', match[2], match[3]);
+      socialMatches.push({
         platform: match[2],
         url: match[3],
         fullMatch: match[1],
@@ -58,21 +99,34 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
       });
     }
 
-    if (matches.length === 0) {
-      console.log('No social media embeds found, rendering as HTML');
+    // Find gallery embed matches
+    while ((match = galleryEmbedRegex.exec(htmlContent)) !== null) {
+      console.log('Found gallery embed match:', match[1]);
+      galleryMatches.push({
+        galleryId: match[1],
+        fullMatch: match[0],
+        index: match.index
+      });
+    }
+
+    // Combine all matches and sort by index
+    const allMatches = [
+      ...socialMatches.map(m => ({ ...m, type: 'social' as const })),
+      ...galleryMatches.map(m => ({ ...m, type: 'gallery' as const }))
+    ].sort((a, b) => a.index - b.index);
+
+    if (allMatches.length === 0) {
+      console.log('No embeds found, rendering as HTML');
       return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
     }
 
-    console.log('Found', matches.length, 'social media embeds');
-
-    // Sort matches by index to process them in order
-    matches.sort((a, b) => a.index - b.index);
+    console.log('Found', allMatches.length, 'total embeds');
 
     // Split content and insert React components
     const parts = [];
     let lastIndex = 0;
 
-    matches.forEach((embedMatch, index) => {
+    allMatches.forEach((embedMatch, index) => {
       // Add HTML content before this embed
       if (embedMatch.index > lastIndex) {
         const htmlPart = htmlContent.substring(lastIndex, embedMatch.index);
@@ -86,12 +140,29 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
         }
       }
 
-      // Add the social media embed with max width constraint
-      parts.push(
-        <div key={`embed-${index}`} className="my-4 max-w-lg mx-auto">
-          {renderSocialEmbed(embedMatch.platform, embedMatch.url)}
-        </div>
-      );
+      // Add the appropriate embed
+      if (embedMatch.type === 'social') {
+        const socialMatch = embedMatch as SocialEmbedMatch & { type: 'social' };
+        parts.push(
+          <div key={`embed-${index}`} className="my-4 max-w-lg mx-auto">
+            {renderSocialEmbed(socialMatch.platform, socialMatch.url)}
+          </div>
+        );
+      } else if (embedMatch.type === 'gallery') {
+        const galleryMatch = embedMatch as GalleryEmbedMatch & { type: 'gallery' };
+        const gallery = galleries?.[galleryMatch.galleryId];
+        if (gallery && gallery.gallery_images) {
+          const sortedImages = gallery.gallery_images
+            .sort((a: any, b: any) => a.position - b.position)
+            .map((img: any) => ({ url: img.url, caption: img.caption }));
+          
+          parts.push(
+            <div key={`gallery-${index}`} className="my-6">
+              <GalleryView images={sortedImages} />
+            </div>
+          );
+        }
+      }
 
       lastIndex = embedMatch.index + embedMatch.fullMatch.length;
     });
@@ -163,7 +234,7 @@ export function SocialMediaRenderer({ content }: SocialMediaRendererProps) {
 
   return (
     <div className="social-media-content">
-      {renderSocialEmbeds(content)}
+      {renderContent(content)}
     </div>
   );
 };

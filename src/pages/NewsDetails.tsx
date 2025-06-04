@@ -13,7 +13,7 @@ import { FeaturedImage } from "@/components/common/FeaturedImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo/SEO";
 import { stripHtmlAndDecodeEntities } from "@/lib/utils";
-import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
+import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -168,7 +168,7 @@ export function NewsDetails() {
           )}
           
           <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-sm">
-            <SocialMediaRenderer content={article.content} />
+            <UnifiedContentRenderer content={article.content} />
           </div>
         </div>
       </article>
