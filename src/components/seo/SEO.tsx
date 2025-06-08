@@ -1,10 +1,20 @@
-
+// src/components/SEO.tsx (or wherever you prefer)
 import React from 'react';
-import { HeadTags } from './HeadTags';
+import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+
+// Your Structured Data components can remain as they are
 import { ArticleStructuredData } from './ArticleStructuredData';
 import { WebPageStructuredData } from './WebPageStructuredData';
 import { OrganizationStructuredData } from './OrganizationStructuredData';
-import { useLocation } from 'react-router-dom';
+
+// Helper to make slug more readable
+function prettifySlug(slug: string) {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
 interface SEOProps {
   title?: string;
@@ -17,124 +27,75 @@ interface SEOProps {
     author?: string;
   };
   keywords?: string;
-  children?: React.ReactNode;
 }
 
-export function SEO({
-  title,
-  description,
-  image,
-  article,
-  keywords,
-  children
-}: SEOProps) {
+export function SEO({ title, description, image, article, keywords }: SEOProps) {
   const location = useLocation();
-  const canonicalUrl = location.pathname;
-  const isArticle = !!article;
   const baseUrl = 'https://mlodzi.ozzip.pl';
+  const canonicalUrl = `${baseUrl}${location.pathname}`;
+  const isArticle = !!article;
+  
   const fullImageUrl = image && !image.startsWith('http') ? `${baseUrl}${image}` : image;
 
-  // Standardize description to exactly 160 characters
   const standardizeDescription = (desc?: string): string => {
-    if (!desc) return '';
-    
-    // If description is longer than 160 characters, truncate and add ellipsis
-    if (desc.length > 160) {
-      return `${desc.substring(0, 157)}...`;
-    }
-    
+    if (!desc) return 'Koła Młodych OZZ Inicjatywy Pracowniczej – oficjalna strona struktur młodzieżowych związku zawodowego.';
+    if (desc.length > 160) return `${desc.substring(0, 157)}...`;
     return desc;
   };
 
-  const standardizedDescription = standardizeDescription(description);
-
-  // Generate page title with consistent format
   const generatePageTitle = (pageTitle?: string): string => {
     const baseSiteTitle = "Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza";
-    
-    if (!pageTitle) {
-      return baseSiteTitle;
-    }
-    
-    // For homepage, use the full title as provided
-    if (location.pathname === '/') {
-      return pageTitle;
-    }
-    
-    // For other pages, append the base title
+    if (!pageTitle) return baseSiteTitle;
+    if (location.pathname === '/') return pageTitle;
     return `${pageTitle} – ${baseSiteTitle}`;
   };
 
   const finalTitle = generatePageTitle(title);
+  const standardizedDescription = standardizeDescription(description);
 
-  // Set page title in document - this is the single source of truth
-  React.useEffect(() => {
-    document.title = finalTitle;
-    console.log('SEO: Setting document title to:', finalTitle);
-  }, [finalTitle]);
-
-  // Generate breadcrumbs with proper titles
   const generateBreadcrumbs = (path: string) => {
     if (path === '/') return undefined;
-    
     const segments = path.split('/').filter(Boolean);
-    const breadcrumbs = [];
-    
-    // Add home page with the official title
-    breadcrumbs.push({
-      position: 1,
-      name: 'Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza',
-      item: '/'
-    });
-    
-    // Add segments
+    const breadcrumbs = [{ position: 1, name: 'Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza', item: `${baseUrl}/` }];
     let currentPath = '';
     segments.forEach((segment, index) => {
       currentPath += `/${segment}`;
-      breadcrumbs.push({
-        position: index + 2,
-        name: prettifySlug(segment),
-        item: currentPath
-      });
+      breadcrumbs.push({ position: index + 2, name: prettifySlug(segment), item: `${baseUrl}${currentPath}` });
     });
-    
     return breadcrumbs;
   };
 
-  // Debug SEO data being passed
-  React.useEffect(() => {
-    console.log('SEO: Rendering with data:', {
-      finalTitle,
-      standardizedDescription,
-      fullImageUrl,
-      canonicalUrl,
-      isArticle,
-      article
-    });
-  }, [finalTitle, standardizedDescription, fullImageUrl, canonicalUrl, isArticle, article]);
-
   return (
     <>
-      <HeadTags
-        title={finalTitle}
-        description={standardizedDescription}
-        canonicalUrl={canonicalUrl}
-        ogImage={fullImageUrl}
-        ogType={isArticle ? 'article' : 'website'}
-        ogTitle={finalTitle}
-        ogDescription={standardizedDescription}
-        twitterCard={fullImageUrl ? 'summary_large_image' : 'summary'}
-        twitterImage={fullImageUrl}
-        twitterTitle={finalTitle}
-        twitterDescription={standardizedDescription}
-        keywords={keywords}
-        injectNow={true}
-      >
-        {children}
-      </HeadTags>
+      <Helmet>
+        {/* Primary Meta Tags */}
+        <title>{finalTitle}</title>
+        <meta name="description" content={standardizedDescription} />
+        {keywords && <meta name="keywords" content={keywords} />}
+        <link rel="canonical" href={canonicalUrl} />
 
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content={isArticle ? 'article' : 'website'} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={finalTitle} />
+        <meta property="og:description" content={standardizedDescription} />
+        {fullImageUrl && <meta property="og:image" content={fullImageUrl} />}
+        {fullImageUrl && <meta property="og:image:width" content="1200" />}
+        {fullImageUrl && <meta property="og:image:height" content="630" />}
+        <meta property="og:site_name" content="Koła Młodych OZZ IP" />
+        <meta property="og:locale" content="pl" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content={fullImageUrl ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:url" content={canonicalUrl} />
+        <meta name="twitter:title" content={finalTitle} />
+        <meta name="twitter:description" content={standardizedDescription} />
+        {fullImageUrl && <meta name="twitter:image" content={fullImageUrl} />}
+        {fullImageUrl && <meta name="twitter:image:alt" content={finalTitle} />}
+      </Helmet>
+
+      {/* Render structured data components. These will render script tags. */}
       <OrganizationStructuredData />
-
       {isArticle ? (
         <ArticleStructuredData
           title={finalTitle}
@@ -152,18 +113,9 @@ export function SEO({
           description={standardizedDescription}
           url={canonicalUrl}
           image={fullImageUrl}
-          breadcrumbs={generateBreadcrumbs(canonicalUrl)}
+          breadcrumbs={generateBreadcrumbs(location.pathname)}
         />
       )}
     </>
   );
-}
-
-// Helper to make slug more readable
-function prettifySlug(slug: string) {
-  // Convert kebab-case to sentence case
-  return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }

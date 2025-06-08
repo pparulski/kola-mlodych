@@ -122,7 +122,7 @@ export function NewsDetails() {
   console.log('NewsDetails: Featured image URL:', featuredImageUrl);
 
   return (
-    <div className="space-y-4 container mx-auto px-4 mt-4 animate-enter">
+    <div className="mx-auto animate-enter">
       <SEO 
         title={article.title}
         description={generateDescription(article.content)}
@@ -136,7 +136,7 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="space-y-3 p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
+      <article className="p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
         <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           

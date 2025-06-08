@@ -3,6 +3,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { Layout } from "@/components/Layout";
 import Index from "@/pages/Index";
 import { ManageNews } from "@/pages/manage/ManageNews";
@@ -99,7 +100,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <RouterProvider router={router} />
+     <HelmetProvider> {/* Add the provider here */}
+      <RouterProvider router={router} />
+    </HelmetProvider>
   );
 }
 
