@@ -1,13 +1,13 @@
 <br />
 <div align="center">
   <a href="https://mlodzi.ozzip.pl">
-    <img src="https://mlodzi.ozzip.pl/images/logo-mlodzi.svg" alt="Logo" width="120" height="120">
+    <img src="https://mlodzi.ozzip.pl/lovable-uploads/8bc5ecba-6aff-442e-81b0-0c51f2cc9cc7.png" alt="Logo" width="120" height="120">
   </a>
 
-  <h3 align="center">Młodzi OZZiP Web Platform</h3>
+  <h3 align="center">OZZIP's Student Union Web Platform</h3>
 
   <p align="center">
-    The official web platform for the youth section of the All-Poland Trade Union Workers' Initiative.
+    The official web platform for the youth structures of the All-Poland Trade Union Workers' Initiative.
     <br />
     <br />
     <a href="https://github.com/your_username/your_repository/issues">Report Bug</a>
