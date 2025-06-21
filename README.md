@@ -1,69 +1,132 @@
-# Welcome to your Lovable project
+<br />
+<div align="center">
+  <a href="https://mlodzi.ozzip.pl">
+    <img src="https://mlodzi.ozzip.pl/images/logo-mlodzi.svg" alt="Logo" width="120" height="120">
+  </a>
 
-## Project info
+  <h3 align="center">Młodzi OZZiP Web Platform</h3>
 
-**URL**: https://lovable.dev/projects/a5ca9e87-0242-4622-9df1-debb8cb931a8
+  <p align="center">
+    The official web platform for the youth section of the All-Poland Trade Union Workers' Initiative.
+    <br />
+    <br />
+    <a href="https://github.com/your_username/your_repository/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/your_username/your_repository/issues">Request Feature</a>
+  </p>
+</div>
 
-## How can I edit this code?
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#-about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#-built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li><a href="#-features">Features</a></li>
+    <li><a href="#-getting-started">Getting Started</a></li>
+    <li><a href="#-contributing">Contributing</a></li>
+    <li><a href="#-license">License</a></li>
+    <li><a href="#-contact">Contact</a></li>
+  </ol>
+</details>
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 📜 About The Project
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a5ca9e87-0242-4622-9df1-debb8cb931a8) and start prompting.
+This repository hosts the source code for the official web platform of **Młodzi OZZIP**, the youth section of the  All-Poland Trade Union Workers' Initiative (Ogólnopolski Związek Zawodowy "Inicjatywa Pracownicza").
 
-Changes made via Lovable will be committed automatically to this repo.
+As a non-profit, volunteer-driven project, I wanted to build a modern, secure, and user-friendly web app that presents organization activities.
 
-**Use your preferred IDE**
+### 💻 Built With
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The web application is built on a few known open-source technologies.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+*   [React](https://reactjs.org/)
+*   [Redux](https://redux.js.org/)
+*   [Vite](https://vitejs.dev/) (for fast development and optimized builds)
+*   [Supabase](https://supabase.com/) (as a Backend-as-a-Service for database and authentication)
+*   [Cloudflare Workers/Pages](https://workers.cloudflare.com/) (for deployment and middleware)
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## ✨ Features
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+My goal is to provide a comprehensive suite of features to meet the student union needs:
 
-# Step 3: Install the necessary dependencies.
-npm i
+*   **📢 News & Category Feeds :** The news and categories feeds, which can be pinned as a sidebar menu item.
+*   **🔍 Categories Filtering & Search :** Easily filter by categories or search keywords of the news articles.
+*   **📄 Static Pages :** Visible and hidden from sidebar navigation via setting.
+*   **📚 Resource Center:** Ebooks and downloads components with meta data fields and cover images.
+*   **🌐 Structures Listing:** A map showing local student unions with contact information.
+*   **🗓️ Customized RichTextEditor:** HugeRTE with custom plugins like gallery or social media embeds.
+*   **🔐 Secure Admin Panel:** Very user-friendly admin panel that lets you add/edit/remove content and change more general settings (like sidebar menu item ordering or Lucide icons)
+*   **🔗 Dynamic SEO and OG tags:** Integrate with a middleware to let crawlers properly render your content.
+*   **📱 Touch and Mobile Optimized:** Each component was tested on various devices and browsers for smooth and intuitive UX.
+*   **...and a lot more hidden inside!**
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🚀 Getting Started
 
-**Edit a file directly in GitHub**
+<details>
+  <summary>Click to expand for setup instructions for contributors</summary>
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+We welcome contributors who share our vision! To get a local copy up and running, please follow these simple steps.
 
-**Use GitHub Codespaces**
+### Prerequisites
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Make sure you have Node.js and npm installed on your system.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
 
-## What technologies are used for this project?
+### Installation
 
-This project is built with .
+1. Clone the repo
+   ```sh
+   git clone https://github.com/your_username/your_repository.git
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Run the development server
+   ```sh
+   npm run start
+   ```
+</details>
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 🤝 Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/a5ca9e87-0242-4622-9df1-debb8cb931a8) and click on Share -> Publish.
+Contributions are of course very welcomed. I'll be immensely grateful for any help from the community.
 
-## I want to use a custom domain - is that possible?
+If you have an idea to improve the app, please fork the repository and create a pull request. You can also open an issue with the tag "enhancement". Thank you for your support!
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See the `LICENSE` file for more information.
+
+---
+
+## 📬 Contact
+
+**Młodzi OZZiP**
+*   Website: https://mlodzi.ozzip.pl
+*   Email: piotr@parul.ski
+
+Project Link: https://github.com/pparulski/kola-mlodych
