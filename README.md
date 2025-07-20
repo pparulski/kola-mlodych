@@ -42,7 +42,6 @@ As a non-profit, volunteer-driven project, I wanted to build a modern, secure, a
 The web application is built on a few known open-source technologies.
 
 *   [React](https://reactjs.org/)
-*   [Redux](https://redux.js.org/)
 *   [Vite](https://vitejs.dev/) (for fast development and optimized builds)
 *   [Supabase](https://supabase.com/) (as a Backend-as-a-Service for database and authentication)
 *   [Cloudflare Workers/Pages](https://workers.cloudflare.com/) (for deployment and middleware)
