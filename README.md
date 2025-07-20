@@ -8,11 +8,6 @@
 
   <p align="center">
     The official web platform for the youth structures of the All-Poland Trade Union Workers' Initiative.
-    <br />
-    <br />
-    <a href="https://github.com/your_username/your_repository/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/your_username/your_repository/issues">Request Feature</a>
   </p>
 </div>
 
