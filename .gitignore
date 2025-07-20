@@ -39,3 +39,4 @@ node_modules/
 # Misc
 *.local # General local override files
 *.sw? # Vim swap files
+.dev.vars
