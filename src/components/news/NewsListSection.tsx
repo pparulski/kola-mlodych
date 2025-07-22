@@ -4,6 +4,8 @@ import { NewsAdminControls } from "@/components/news/NewsAdminControls";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
 
 interface NewsListSectionProps {
   news: NewsArticle[];
@@ -35,7 +37,12 @@ export function NewsListSection({ news, onEdit }: NewsListSectionProps) {
       <h2 className="text-xl">Wszystkie artykuły</h2>
       {news?.map((article: NewsArticle) => (
         <div key={article.id} className="relative border p-4 rounded-lg">
-          <h3 className="text-lg font-semibold">{article.title}</h3>
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg font-semibold">{article.title}</h3>
+            <p className="text-sm text-muted-foreground italic">
+              Dodano: {format(new Date(article.created_at || article.date), 'dd MMMM yyyy, HH:mm', { locale: pl })}
+            </p>
+          </div>
           <NewsAdminControls 
             onEdit={() => onEdit(article)}
             onDelete={() => handleDelete(article.id)}
