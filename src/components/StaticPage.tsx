@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { StaticPage as StaticPageType } from "@/types/staticPages";
@@ -11,6 +11,7 @@ import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 
 export function StaticPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("StaticPage component mounted with slug:", slug);
@@ -27,24 +28,47 @@ export function StaticPage() {
       
       console.log("Fetching static page with slug:", slug);
       try {
-        const { data, error } = await supabase
+        // First try to find a static page
+        const { data: staticPageData, error: staticPageError } = await supabase
           .from('static_pages')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching static page:", error);
-          throw error;
+        if (staticPageError) {
+          console.error("Error fetching static page:", staticPageError);
+          throw staticPageError;
         }
 
-        console.log("Static page data retrieved:", data ? "Found" : "Not found");
-        if (data) {
-          console.log("Page title:", data.title);
-          console.log("Content length:", data.content?.length || 0);
+        if (staticPageData) {
+          console.log("Static page data retrieved: Found");
+          console.log("Page title:", staticPageData.title);
+          console.log("Content length:", staticPageData.content?.length || 0);
+          return staticPageData as StaticPageType;
         }
-        
-        return data as StaticPageType;
+
+        // If no static page found, check for news article with short_url
+        console.log("Static page data retrieved: Not found, checking for news with short_url");
+        const { data: newsData, error: newsError } = await supabase
+          .from('news')
+          .select('slug')
+          .eq('short_url', slug)
+          .maybeSingle();
+
+        if (newsError) {
+          console.error("Error fetching news with short_url:", newsError);
+          // Don't throw here, just return null to show "page doesn't exist"
+        }
+
+        if (newsData) {
+          console.log("Found news article with short_url, redirecting to:", `/news/${newsData.slug}`);
+          // Redirect to the full news article URL
+          navigate(`/news/${newsData.slug}`, { replace: true });
+          return null;
+        }
+
+        console.log("No static page or news article found for slug:", slug);
+        return null;
       } catch (err) {
         console.error("Exception in static page query:", err);
         toast.error("Nie udało się załadować strony");
