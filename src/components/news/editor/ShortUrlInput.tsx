@@ -27,7 +27,7 @@ export function ShortUrlInput({ shortUrl, setShortUrl }: ShortUrlInputProps) {
           type="text"
           value={shortUrl}
           onChange={handleInputChange}
-          placeholder="custom-url"
+          placeholder={shortUrl || "custom-url"} // Use current value as placeholder if empty
           className="flex-1"
         />
       </div>

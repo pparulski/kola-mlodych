@@ -34,6 +34,7 @@ export function useNewsEditorForm({
       setTitle(existingNews.title);
       setContent(existingNews.content);
       setFeaturedImage(existingNews.featured_image);
+      setShortUrl(existingNews.short_url || "");
     }
   }, [existingNews]);
 
