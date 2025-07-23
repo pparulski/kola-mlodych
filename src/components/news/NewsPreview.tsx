@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -14,6 +13,7 @@ interface NewsPreviewProps {
   date?: string;
   featured_image?: string;
   category_names?: (string | null)[];
+  isAboveFold?: boolean; // Add this prop
 }
 
 export function NewsPreview({
@@ -24,6 +24,7 @@ export function NewsPreview({
   date,
   featured_image,
   category_names = [],
+  isAboveFold = false, // Default to false
 }: NewsPreviewProps) {
   // The preview_content should already be processed by formatNewsItems
   const previewContent = preview_content || "";
@@ -48,10 +49,11 @@ export function NewsPreview({
         <FeaturedImage
           src={featured_image}
           aspectRatio={21/9} 
-          adaptiveAspectRatio={true} // Add adaptive aspect ratio
+          adaptiveAspectRatio={true}
           objectFit="cover"
           className="w-full"
-          lazyload={true}
+          priority={isAboveFold} // Use priority for above-fold images
+          lazyload={!isAboveFold} // Disable lazy loading for above-fold images
           lazyloadHeight={150}
           alt={title}
         />

@@ -14,15 +14,15 @@ export function SidebarLogo() {
   
   // Determine the logo source based on the resolved theme
   const logoSrc = resolvedTheme === 'dark' 
-    ? "/lovable-uploads/8bc5ecba-6aff-442e-81b0-0c51f2cc9cc7.png"
-    : "/lovable-uploads/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png";
+    ? "/img/8bc5ecba-6aff-442e-81b0-0c51f2cc9cc7.png"
+    : "/img/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png";
   
   return (
     <div className="p-4 flex justify-center">
       <Link to="/">
         <img 
           src={logoSrc}
-          alt="Logo Koła Młodych" 
+          alt="Logo Kół Młodych Inicjatywy Pracowniczej" 
           className={`w-48 h-48 object-contain transition-transform hover:scale-105 ${
             isLoaded ? 'transition-opacity duration-300 opacity-100' : 'opacity-0'
           }`}

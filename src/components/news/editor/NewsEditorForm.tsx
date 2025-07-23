@@ -5,6 +5,7 @@ import { useNewsEditorForm } from "@/hooks/useNewsEditorForm";
 import { TitleInput } from "./TitleInput";
 import { FeaturedImageUpload } from "./FeaturedImageUpload";
 import { CategorySelector } from "./CategorySelector";
+import { ShortUrlInput } from "./ShortUrlInput";
 import { RichTextEditor } from "@/components/news/editor/RichTextEditor"; // Adjust path
 import { SubmitButton } from "./SubmitButton";
 
@@ -28,6 +29,8 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
     setContent,
     featuredImage,
     setFeaturedImage,
+    shortUrl,
+    setShortUrl,
     isSubmitting,
     handleSubmit
   } = useNewsEditorForm({
@@ -55,6 +58,11 @@ export function NewsEditorForm({ existingNews, onSuccess }: NewsEditorFormProps)
         selectedCategories={selectedCategories} 
         setSelectedCategories={setSelectedCategories}
         categories={categories || []}
+      />
+
+      <ShortUrlInput 
+        shortUrl={shortUrl}
+        setShortUrl={setShortUrl}
       />
 
       <RichTextEditor 

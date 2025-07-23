@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,7 +42,7 @@ export function FeaturedImage({
   lazyload = true,
   lazyloadHeight = 200,
   lazyloadOffset = 100,
-  adaptiveAspectRatio = false, // Default to false for backward compatibility
+  adaptiveAspectRatio = false,
 }: FeaturedImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
@@ -80,8 +79,8 @@ export function FeaturedImage({
 
   // Create the image element
   const renderImage = () => {
+    // Force eager loading for priority images or when lazyload is disabled
     if (priority || !lazyload) {
-      // Use regular img for priority images or when lazyload is disabled
       return (
         <img
           src={src}
@@ -102,6 +101,7 @@ export function FeaturedImage({
           onLoad={handleLoad}
           onError={handleError}
           loading="eager"
+          fetchPriority="high" // Add high priority hint for critical images
           onClick={onClick}
         />
       );
@@ -124,6 +124,8 @@ export function FeaturedImage({
             width 
           }}
           effect="opacity"
+          placeholderSrc=""
+          height={lazyloadHeight}
           afterLoad={handleLoad}
           onError={handleError}
           threshold={lazyloadOffset}

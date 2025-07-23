@@ -30,7 +30,7 @@ const Index = memo(function Index() {
         title="Koordynacja młodzieżowa OZZ Inicjatywa Pracownicza"
         description="Oficjalna strona struktur młodzieżowych OZZ Inicjatywa Pracownicza."
         keywords="związek zawodowy, studenci, młodzi pracownicy, inicjatywa pracownicza"
-        image="/lovable-uploads/a69f462f-ae71-40a5-a60a-babfda61840e.png"
+        image="/img/a69f462f-ae71-40a5-a60a-babfda61840e.png"
       />
       
       <div className="animate-enter">

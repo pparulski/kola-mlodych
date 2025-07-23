@@ -94,6 +94,7 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
         size="sm"
         onClick={() => onPageClick(currentPage - 1)}
         disabled={currentPage === 1 || isChangingPage}
+        aria-label="Poprzednia strona"
         className="flex items-center"
       >
         <ChevronLeft className="h-4 w-4 mr-1" />
@@ -134,6 +135,7 @@ export function NewsPagination({ currentPage, totalPages, handlePageChange }: Ne
         size="sm"
         onClick={() => onPageClick(currentPage + 1)}
         disabled={currentPage === totalPages || isChangingPage}
+        aria-label="Następna strona"
         className="flex items-center"
       >
         <span className="hidden sm:inline">Następna</span>

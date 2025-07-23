@@ -49,7 +49,7 @@ export function ArticleStructuredData({
       "name": "Koła Młodych OZZ Inicjatywy Pracowniczej",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://mlodzi.ozzip.pl/lovable-uploads/a69f462f-ae71-40a5-a60a-babfda61840e.png"
+        "url": "https://mlodzi.ozzip.pl/img/a69f462f-ae71-40a5-a60a-babfda61840e.png"
       }
     },
     "description": description || ""

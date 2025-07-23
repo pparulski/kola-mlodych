@@ -7,7 +7,7 @@ export function OrganizationStructuredData() {
     "@type": "Organization",
     "name": "Koła Młodych OZZ Inicjatywy Pracowniczej",
     "url": "https://mlodzi.ozzip.pl",
-    "logo": "https://mlodzi.ozzip.pl/lovable-uploads/a69f462f-ae71-40a5-a60a-babfda61840e.png",
+    "logo": "https://mlodzi.ozzip.pl/img/a69f462f-ae71-40a5-a60a-babfda61840e.png",
     "description": "Oficjalna strona struktur młodzieżowych związku zawodowego Inicjatywa Pracownicza",
     "sameAs": [
       "https://ozzip.pl"

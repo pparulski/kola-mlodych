@@ -25,6 +25,7 @@ export function useNewsEditorForm({
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
+  const [shortUrl, setShortUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
@@ -65,6 +66,7 @@ export function useNewsEditorForm({
             title,
             content,
             featured_image: featuredImage,
+            short_url: shortUrl || null,
           })
           .eq('id', existingNews.id);
 
@@ -103,6 +105,7 @@ export function useNewsEditorForm({
             featured_image: featuredImage,
             created_by: user?.id,
             slug,
+            short_url: shortUrl || null,
           })
           .select();
 
@@ -133,6 +136,7 @@ export function useNewsEditorForm({
         setTitle("");
         setContent("");
         setFeaturedImage(null);
+        setShortUrl("");
         setSelectedCategories([]);
       }
 
@@ -155,6 +159,8 @@ export function useNewsEditorForm({
     setContent,
     featuredImage,
     setFeaturedImage,
+    shortUrl,
+    setShortUrl,
     isSubmitting,
     handleSubmit
   };

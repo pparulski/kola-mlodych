@@ -57,7 +57,7 @@ export async function onRequest(context) {
 
     let seoData = { 
         canonicalUrl: url.href,
-        image: 'https://mlodzi.ozzip.pl/lovable-uploads/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png'
+        image: 'https://mlodzi.ozzip.pl/img/9b7922d9-f1dc-431e-a55d-1f5b63ebd5bf.png'
     };
 
     const newsMatch = url.pathname.match(/^\/news\/(.+)/);

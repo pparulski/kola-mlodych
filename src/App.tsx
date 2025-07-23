@@ -1,8 +1,8 @@
-
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from 'react-helmet-async';
 import { Layout } from "@/components/Layout";
 import Index from "@/pages/Index";
@@ -17,11 +17,24 @@ import Ebooks from "@/pages/Ebooks";
 import { ManageDownloads } from "@/pages/manage/ManageDownloads";
 import { ManageEbooks } from "@/pages/manage/ManageEbooks";
 import ErrorPage from "@/pages/ErrorPage";
-import Map from "@/pages/Map";
 import NewsArticle from "@/pages/NewsArticle";
 import Auth from "@/pages/Auth";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ManageGalleries } from "@/pages/manage/ManageGalleries";
+import { lazy, Suspense } from "react";
+
+// Lazy load the Struktury page (which contains MapBox)
+const Struktury = lazy(() => import("./pages/Map"));
+
+// Loading component for the lazy-loaded route
+const RouteLoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="text-center space-y-2">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+      <p className="text-sm text-muted-foreground">Wczytywanie...</p>
+    </div>
+  </div>
+);
 
 const router = createBrowserRouter([
   {
@@ -76,7 +89,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/struktury",
-        element: <Map />,
+        element: (
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Struktury />
+          </Suspense>
+        ),
       },
       {
         path: "/downloads",
