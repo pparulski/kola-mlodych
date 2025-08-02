@@ -3,6 +3,7 @@ import React from "react";
 import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
+import { ImagePreloader } from "@/components/common/ImagePreloader";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 
 interface IndexContentProps {
@@ -39,8 +40,20 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   const filterType = searchQuery ? "wyszukiwania" : "kategorii";
   const filterTitle = searchQuery ? `"${searchQuery}"` : "";
 
+  // Get the first article's featured image for preloading
+  const firstArticleImage = currentPageItems?.[0]?.featured_image;
+  const shouldPreload = !hasFilterOrSearch && currentPageItems && currentPageItems.length > 0;
+
   return (
     <div>
+      {/* Preload the first article's image for better LCP */}
+      {shouldPreload && (
+        <ImagePreloader
+          imageUrl={firstArticleImage}
+          priority={true}
+        />
+      )}
+      
       {hasFilterOrSearch && (
         <div className="mb-6 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center justify-between">

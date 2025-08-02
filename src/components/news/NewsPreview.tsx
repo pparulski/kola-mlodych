@@ -48,8 +48,8 @@ export function NewsPreview({
       {featured_image && (
         <FeaturedImage
           src={featured_image}
-          aspectRatio={21/9} 
-          adaptiveAspectRatio={true}
+          aspectRatio={21/9}
+          adaptiveAspectRatio={!isAboveFold} // Disable adaptive ratio for above-fold to reduce render delay
           objectFit="cover"
           className="w-full"
           priority={isAboveFold} // Use priority for above-fold images

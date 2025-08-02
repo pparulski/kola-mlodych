@@ -52,13 +52,17 @@ export function FeaturedImage({
   useEffect(() => {
     if (adaptiveAspectRatio && src) {
       const img = new Image();
+      // High priority for above-fold images
+      if (priority) {
+        img.fetchPriority = 'high';
+      }
       img.onload = () => {
         const ratio = img.width / img.height;
         setNaturalAspectRatio(ratio);
       };
       img.src = src;
     }
-  }, [src, adaptiveAspectRatio]);
+  }, [src, adaptiveAspectRatio, priority]);
 
   // Determine which aspect ratio to use
   const effectiveAspectRatio = adaptiveAspectRatio && naturalAspectRatio ? naturalAspectRatio : aspectRatio;
@@ -86,10 +90,11 @@ export function FeaturedImage({
           src={src}
           alt={alt}
           className={cn(
-            "transition-opacity",
+            // Remove transition-opacity for priority images to reduce render delay
+            !priority && "transition-opacity",
             objectFit && `object-${objectFit}`,
             rounded && "rounded-md",
-            isLoading ? "opacity-0" : "opacity-100",
+            isLoading && !priority ? "opacity-0" : "opacity-100",
             error ? "opacity-50" : "",
             className
           )}
@@ -101,7 +106,10 @@ export function FeaturedImage({
           onLoad={handleLoad}
           onError={handleError}
           loading="eager"
-          {...(priority && { fetchpriority: "high" as any })} // Use lowercase for DOM compatibility
+          {...(priority && {
+            fetchpriority: "high" as any,
+            decoding: "sync" as any // Synchronous decoding for LCP images
+          })}
           onClick={onClick}
         />
       );

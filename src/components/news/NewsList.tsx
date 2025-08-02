@@ -14,7 +14,7 @@ export function NewsList({ newsItems }: NewsListProps) {
 
   return (
     <div className="space-y-6">
-      {newsItems.map((article) => (
+      {newsItems.map((article, index) => (
         <NewsPreview
           key={article.id}
           id={article.id}
@@ -23,9 +23,10 @@ export function NewsList({ newsItems }: NewsListProps) {
           preview_content={article.preview_content}
           date={article.date || article.created_at}
           featured_image={article.featured_image}
-          category_names={Array.isArray(article.category_names) ? 
-            article.category_names.filter(name => name !== null && name !== undefined) : 
+          category_names={Array.isArray(article.category_names) ?
+            article.category_names.filter(name => name !== null && name !== undefined) :
             []}
+          isAboveFold={index === 0}
         />
       ))}
     </div>
