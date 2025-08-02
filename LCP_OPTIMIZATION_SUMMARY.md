@@ -15,24 +15,30 @@ Your PageSpeed Insights showed significant LCP issues:
 
 ## Optimizations Implemented
 
-### 1. **Above-Fold Prioritization** ✅
+### 1. **Enhanced Above-Fold Prioritization** ✅
 **File**: `src/components/news/NewsList.tsx`
 - Added `index` parameter to map function
-- Set `isAboveFold={index === 0}` for first article
-- This ensures the first article image gets priority treatment
+- Set `isAboveFold={index < 2}` for first TWO articles
+- Added `articleIndex={index}` for granular prioritization
+- This ensures the first two article images get priority treatment
 
-### 2. **FeaturedImage Component Optimization** ✅
+### 2. **Enhanced FeaturedImage Component Optimization** ✅
 **File**: `src/components/common/FeaturedImage.tsx`
+- Added `priorityLevel` prop for granular priority control ('high', 'medium', 'low')
 - Added `fetchPriority="high"` for priority images in preload
-- Added `decoding="sync"` for synchronous decoding of LCP images
+- Added `decoding="sync"` for highest priority images, `async` for medium priority
 - Removed `transition-opacity` class for priority images to reduce render overhead
-- Enhanced preload mechanism with high priority for above-fold images
+- Enhanced preload mechanism with tiered priority system
 
-### 3. **NewsPreview Component Enhancement** ✅
+### 3. **Enhanced NewsPreview Component** ✅
 **File**: `src/components/news/NewsPreview.tsx`
+- Added `articleIndex` prop for position-based optimization
 - Disabled `adaptiveAspectRatio` for above-fold images (`adaptiveAspectRatio={!isAboveFold}`)
-- This eliminates the extra image preload and dimension calculation for the LCP image
-- Uses fixed 21:9 aspect ratio for first article for faster rendering
+- Implemented tiered priority system:
+  - First article: `priority=true`, `priorityLevel='high'`
+  - Second article: `priority=false`, `priorityLevel='medium'`
+  - Other articles: `priority=false`, `priorityLevel='low'`
+- Uses fixed 21:9 aspect ratio for above-fold articles for faster rendering
 
 ### 4. **Dynamic Image Preloading** ✅
 **File**: `src/components/common/ImagePreloader.tsx` (NEW)
@@ -40,11 +46,12 @@ Your PageSpeed Insights showed significant LCP issues:
 - Adds `<link rel="preload" as="image" fetchPriority="high">` to HTML head
 - Also programmatically creates preload links for broader browser support
 
-### 5. **Homepage Integration** ✅
+### 5. **Enhanced Homepage Integration** ✅
 **File**: `src/components/home/IndexContent.tsx`
-- Added ImagePreloader for first article's featured image
+- Added ImagePreloader for first TWO articles' featured images
 - Only preloads on homepage (not during search/filtering)
-- Automatically detects and preloads the first article's image
+- Automatically detects and preloads the first two articles' images
+- Provides browser-level resource hints before React renders
 
 ## Expected Performance Improvements
 
@@ -67,6 +74,18 @@ Your PageSpeed Insights showed significant LCP issues:
 - **Preload hints**: Supported in all modern browsers
 - **FetchPriority**: Chrome 102+, Safari 17.2+, Firefox 119+
 - **Fallback**: Programmatic preload creation for older browsers
+
+## Why This Approach Works
+
+### The LCP Shift Problem
+When you optimize one element (first article), the LCP often shifts to the next largest element (second article). This is actually a **good sign** - it means your optimization worked! However, you need to optimize the new LCP element as well.
+
+### Our Tiered Solution
+1. **First article**: Highest priority (sync decoding, preload, no adaptive ratio)
+2. **Second article**: Medium priority (async decoding, preload, no adaptive ratio)
+3. **Other articles**: Low priority (lazy loading, adaptive ratio allowed)
+
+This prevents the "whack-a-mole" effect where optimizing one image just shifts the problem to the next one.
 
 ## Additional Recommendations
 

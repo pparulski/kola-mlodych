@@ -14,6 +14,7 @@ interface NewsPreviewProps {
   featured_image?: string;
   category_names?: (string | null)[];
   isAboveFold?: boolean; // Add this prop
+  articleIndex?: number; // Add index for more granular prioritization
 }
 
 export function NewsPreview({
@@ -25,6 +26,7 @@ export function NewsPreview({
   featured_image,
   category_names = [],
   isAboveFold = false, // Default to false
+  articleIndex = 0, // Default to 0
 }: NewsPreviewProps) {
   // The preview_content should already be processed by formatNewsItems
   const previewContent = preview_content || "";
@@ -52,7 +54,8 @@ export function NewsPreview({
           adaptiveAspectRatio={!isAboveFold} // Disable adaptive ratio for above-fold to reduce render delay
           objectFit="cover"
           className="w-full"
-          priority={isAboveFold} // Use priority for above-fold images
+          priority={articleIndex === 0} // Highest priority for first article
+          priorityLevel={articleIndex === 0 ? 'high' : articleIndex === 1 ? 'medium' : 'low'} // Granular priority
           lazyload={!isAboveFold} // Disable lazy loading for above-fold images
           lazyloadHeight={150}
           alt={title}

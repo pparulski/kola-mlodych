@@ -40,16 +40,23 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   const filterType = searchQuery ? "wyszukiwania" : "kategorii";
   const filterTitle = searchQuery ? `"${searchQuery}"` : "";
 
-  // Get the first article's featured image for preloading
+  // Get the first TWO articles' featured images for preloading
   const firstArticleImage = currentPageItems?.[0]?.featured_image;
+  const secondArticleImage = currentPageItems?.[1]?.featured_image;
   const shouldPreload = !hasFilterOrSearch && currentPageItems && currentPageItems.length > 0;
 
   return (
     <div>
-      {/* Preload the first article's image for better LCP */}
-      {shouldPreload && (
+      {/* Preload the first TWO articles' images for better LCP */}
+      {shouldPreload && firstArticleImage && (
         <ImagePreloader
           imageUrl={firstArticleImage}
+          priority={true}
+        />
+      )}
+      {shouldPreload && secondArticleImage && (
+        <ImagePreloader
+          imageUrl={secondArticleImage}
           priority={true}
         />
       )}

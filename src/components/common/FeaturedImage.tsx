@@ -16,6 +16,7 @@ export interface FeaturedImageProps {
   objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   objectPosition?: string;
   priority?: boolean; // For images above the fold
+  priorityLevel?: 'high' | 'medium' | 'low'; // For more granular priority control
   onClick?: () => void;
   rounded?: boolean;
   containerClassName?: string;
@@ -36,6 +37,7 @@ export function FeaturedImage({
   objectFit = "cover",
   objectPosition = "center",
   priority = false,
+  priorityLevel = 'low',
   onClick,
   rounded = true,
   containerClassName,
@@ -52,9 +54,11 @@ export function FeaturedImage({
   useEffect(() => {
     if (adaptiveAspectRatio && src) {
       const img = new Image();
-      // High priority for above-fold images
-      if (priority) {
+      // Set priority based on priorityLevel or priority boolean
+      if (priority || priorityLevel === 'high') {
         img.fetchPriority = 'high';
+      } else if (priorityLevel === 'medium') {
+        img.fetchPriority = 'high'; // Still use high for medium priority
       }
       img.onload = () => {
         const ratio = img.width / img.height;
@@ -106,9 +110,9 @@ export function FeaturedImage({
           onLoad={handleLoad}
           onError={handleError}
           loading="eager"
-          {...(priority && {
-            fetchpriority: "high" as any,
-            decoding: "sync" as any // Synchronous decoding for LCP images
+          {...((priority || priorityLevel === 'high' || priorityLevel === 'medium') && {
+            fetchpriority: (priority || priorityLevel === 'high') ? "high" as any : "high" as any,
+            decoding: (priority || priorityLevel === 'high') ? "sync" as any : "async" as any
           })}
           onClick={onClick}
         />
