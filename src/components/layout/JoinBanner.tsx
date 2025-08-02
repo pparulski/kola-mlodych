@@ -10,7 +10,7 @@ export const JoinBanner = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('static_pages')
-        .select('*')
+        .select('title')
         .eq('slug', 'dolacz-do-nas')
         .maybeSingle();
         
