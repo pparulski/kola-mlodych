@@ -37,6 +37,7 @@ export function SidebarFooterContent() {
         <Switch
           checked={resolvedTheme === "dark"}
           onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+          aria-label="Przełącz ciemny motyw"
         />
       </div>
       <div className="flex justify-center flex-col items-center gap-2">

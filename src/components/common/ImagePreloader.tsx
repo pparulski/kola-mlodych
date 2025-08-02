@@ -15,11 +15,14 @@ export function ImagePreloader({ imageUrl, priority = true }: ImagePreloaderProp
       link.as = 'image';
       link.href = imageUrl;
       link.setAttribute('fetchpriority', 'high');
+      link.crossOrigin = 'anonymous'; // Add crossorigin for external images
       document.head.appendChild(link);
 
       // Cleanup on unmount
       return () => {
-        document.head.removeChild(link);
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
       };
     }
   }, [imageUrl, priority]);
@@ -35,6 +38,7 @@ export function ImagePreloader({ imageUrl, priority = true }: ImagePreloaderProp
         as="image"
         href={imageUrl}
         fetchPriority="high"
+        crossOrigin="anonymous"
       />
     </Helmet>
   );
