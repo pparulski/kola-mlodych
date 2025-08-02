@@ -50,6 +50,9 @@ export function FileUpload({
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log("User before upload:", user);
+    console.log("User role:", user?.role);
     if (!file) return;
 
     // Validate file type based on acceptedFileTypes prop

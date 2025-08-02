@@ -93,15 +93,15 @@ export function FeaturedImage({
             error ? "opacity-50" : "",
             className
           )}
-          style={{ 
+          style={{
             objectPosition,
             height,
-            width 
+            width
           }}
           onLoad={handleLoad}
           onError={handleError}
           loading="eager"
-          fetchPriority="high" // Add high priority hint for critical images
+          {...(priority && { fetchpriority: "high" as any })} // Use lowercase for DOM compatibility
           onClick={onClick}
         />
       );

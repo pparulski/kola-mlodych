@@ -6,7 +6,7 @@ import { StaticPage } from "@/types/staticPages";
 
 export const JoinBanner = () => {
   const { data: joinPage, isLoading } = useQuery({
-    queryKey: ['static-page', 'dolacz-do-nas'],
+    queryKey: ['static-page-title', 'dolacz-do-nas'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('static_pages')
