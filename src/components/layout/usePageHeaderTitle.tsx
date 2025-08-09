@@ -41,7 +41,8 @@ export const usePageHeaderTitle = (pageTitle?: string, title?: string) => {
   
   const isHomePage = location.pathname === '/';
   const shouldShowBackButton = location.pathname.includes('/news/') || 
-                              location.pathname.includes('/article/');
+                              location.pathname.includes('/article/') ||
+                              location.pathname.includes('/ebooks/');
 
   return { 
     displayTitle, 

@@ -6,6 +6,7 @@ import { useUnionsData } from "@/components/map/hooks/useUnionsData";
 import { useMapState } from "@/components/map/hooks/useMapState";
 import { MapContainer } from "@/components/map/MapContainer";
 import { MapSkeleton } from "@/components/map/MapSkeleton";
+import { MapPageController } from "@/components/map/MapPageController";
 
 /**
  * UnionsMap page component that displays a map of union locations
@@ -31,7 +32,8 @@ const UnionsMap = () => {
   }
 
   return (
-    <div className="mx-auto w-full">
+    <div className="relative mx-auto w-full">
+
       <MapContainer
         isMobile={isMobile}
         mapComponent={
@@ -55,6 +57,13 @@ const UnionsMap = () => {
           )
         }
       />
+      {unions && (
+        <MapPageController 
+          selectedUnionId={selectedUnion}
+          unions={unions}
+          onOpenChange={() => {}}
+        />
+      )}
     </div>
   );
 };

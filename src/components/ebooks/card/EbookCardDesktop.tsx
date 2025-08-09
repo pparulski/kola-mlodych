@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { BookOpenText, BookText, Edit, Info, Tag } from "lucide-react";
+import { BookOpenText, BookText, Edit, Info, Tag, ArrowRight } from "lucide-react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Ebook } from "../types";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { slugify } from "@/utils/slugUtils";
 
 interface EbookCardDesktopProps {
   ebook: Ebook;
@@ -21,6 +23,8 @@ interface EbookCardDesktopProps {
   onEdit?: (ebook: Ebook) => void;
   adminMode?: boolean;
   showType?: boolean;
+  showMoreButton?: boolean;
+  truncateDescription?: boolean;
 }
 
 export function EbookCardDesktop({ 
@@ -28,7 +32,9 @@ export function EbookCardDesktop({
   onDelete, 
   onEdit, 
   adminMode = false,
-  showType = false 
+  showType = false,
+  showMoreButton = true,
+  truncateDescription = false,
 }: EbookCardDesktopProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   
@@ -37,7 +43,12 @@ export function EbookCardDesktop({
   };
 
   // Default placeholder description if none is provided
-  const description = ebook.description || "Ta publikacja nie zawiera jeszcze opisu. Kliknij przycisk 'Czytaj', aby przejść do treści.";
+  let descriptionText = ebook.description || "Ta publikacja nie zawiera jeszcze opisu. Kliknij przycisk 'Czytaj', aby przejść do treści.";
+
+  // Truncate description for listings if requested
+  if (truncateDescription && descriptionText.length > 600) {
+    descriptionText = descriptionText.substring(0, 600).trim() + '...';
+  }
 
   // Function to preserve line breaks in description
   const formatDescription = (text: string) => {
@@ -57,7 +68,7 @@ export function EbookCardDesktop({
         <div className="md:w-1/4 flex flex-col items-center h-fit">
           {ebook.cover_url ? (
             <div 
-              className="relative w-full bg-muted/20 rounded-md overflow-hidden mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative w-full bg-muted/20 rounded-md overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleOpenPdf}
             >
               {!imageLoaded && (
@@ -117,15 +128,36 @@ export function EbookCardDesktop({
               )}
             </div>
             
-            <div className="bg-muted/30 p-4 rounded-md">
+            <div className="bg-[hsl(var(--content-box))] rounded-md">
               <p className="text-foreground/90 whitespace-pre-line">
-                {formatDescription(description)}
+                {formatDescription(descriptionText)}
               </p>
             </div>
           </div>
           
+          {/* Action area: More button pinned to bottom-right of the card */}
+          {showMoreButton && (
+            <div className="absolute bottom-3 right-3">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="group text-primary hover:text-accent hover:bg-transparent p-0"
+              >
+                <Link
+                  to={`/ebooks/${ebook.slug || slugify(ebook.title)}`}
+                  className="inline-flex items-center no-underline"
+                  style={{ gap: 0 }}
+                >
+                  Więcej
+                  <ArrowRight className="ml-1 h-4 w-4 transition-all duration-300 ease-in-out group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
+          )}
+
           {adminMode && (
-            <div className="flex justify-end mt-6 gap-2">
+            <div className="flex justify-end gap-2 mt-6">
               {onEdit && (
                 <Button 
                   variant="outline" 

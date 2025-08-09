@@ -30,30 +30,42 @@ export const MapContainer = ({
               {mapComponent}
             </div>
           </AspectRatio>
+          {/* Hint pill inside map container */}
+          <div className="absolute left-3 top-3 md:left-4 md:top-4 z-[2] pointer-events-none">
+            <div className="text-foreground/90 bg-background/90 dark:bg-black border border-dashed border-foreground/50 px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-xl text-xs md:text-sm shadow-sm font-hand">
+              Kliknij w logo!
+            </div>
+          </div>
         </div>
         
-        {/* Unions List Section - Bottom position */}
-        <div className="w-full overflow-auto border rounded-lg h-[50vh]">
+        {/* Unions List Section - Bottom position (temporarily hidden) */}
+        <div className="hidden w-full overflow-auto border rounded-lg h-[50vh]">
           {listComponent}
         </div>
-      </div>
-    );
+     </div>
+   );
   }
   
   // Desktop layout - Side by side (map left, list right)
   return (
-    <div className="flex flex-row gap-1 items-start">
+    <div className="relative flex flex-row gap-1 items-start justify-center">
       {/* Map Section - Left position with square aspect ratio */}
-      <div className="w-4/6 relative rounded-lg overflow-hidden border">
+      <div className="w-full md:w-5/6 lg:w-4/6 relative rounded-lg overflow-hidden border">
         <AspectRatio ratio={1}>
           <div className="w-full h-full">
             {mapComponent}
           </div>
         </AspectRatio>
-      </div>
-      
-      {/* Unions List Section - Right position */}
-      <div className="w-2/6 overflow-auto border rounded-lg">
+       {/* Hint pill inside map container */}
+       <div className="absolute left-3 top-3 md:left-4 md:top-4 z-[2] pointer-events-none">
+         <div className="text-foreground/90 bg-background/90 dark:bg-black border border-dashed border-foreground/50 px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-xl text-xs md:text-sm shadow-sm font-hand">
+           Kliknij w logo!
+         </div>
+       </div>
+     </div>
+     
+     {/* Unions List Section - Right position */}
+      <div className="hidden w-2/6 overflow-auto border rounded-lg">
         {listComponent}
       </div>
     </div>

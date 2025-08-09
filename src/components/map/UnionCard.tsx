@@ -1,5 +1,5 @@
 
-import { Facebook, Instagram, Mail } from "lucide-react";
+import { Facebook, Instagram, Mail, Copy } from "lucide-react";
 import { 
   Card, 
   CardHeader, 
@@ -54,26 +54,38 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
 
       <CardFooter className="flex justify-between items-center pt-2 pb-2 px-3 border-t card-footer">
         <div className="flex items-center space-x-1">
-          {union.contact && (
-            <a 
-              href={formatMailto(union.contact)}
-              className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-              title={union.contact}
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">Kontakt</span>
-            </a>
-          )}
+         {union.contact && (
+           <button
+             onClick={async (e) => {
+               e.stopPropagation();
+               try {
+                 await navigator.clipboard.writeText(union.contact!);
+                 const btn = (e.currentTarget as HTMLButtonElement);
+                 btn.classList.add('animate-scale-in');
+                 setTimeout(() => btn.classList.remove('animate-scale-in'), 250);
+               } catch (err) {
+                 console.error('Copy failed');
+               }
+             }}
+             aria-label="Skopiuj adres e-mail"
+             title={union.contact}
+             className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+           >
+             <Mail className="h-3.5 w-3.5" />
+             <span className="hidden md:inline">Kopiuj e-mail</span>
+           </button>
+         )}
         </div>
 
         <div className="flex gap-1">
-          {union.facebook_url && (
+         {union.facebook_url && (
             <a 
               href={union.facebook_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:text-primary transition-colors p-0.5 rounded-full hover:bg-accent/10"
               title="Facebook"
+              aria-label="Otwórz stronę na Facebooku"
             >
               <Facebook className="h-4 w-4" />
             </a>
@@ -85,6 +97,7 @@ export const UnionCard = ({ union, isSelected, onSelect }: UnionCardProps) => {
               rel="noopener noreferrer"
               className="text-accent hover:text-primary transition-colors p-0.5 rounded-full hover:bg-accent/10"
               title="Instagram"
+              aria-label="Otwórz profil na Instagramie"
             >
               <Instagram className="h-4 w-4" />
             </a>

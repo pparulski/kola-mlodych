@@ -15,5 +15,10 @@ export function getPageTitle(pathname: string, staticPageTitle?: string): string
     return staticPageTitle;
   }
 
+  // Handle dynamic paths
+  if (pathname.startsWith('/ebooks')) {
+    return 'Publikacje';
+  }
+
   return titles[pathname] || 'Aktualności';
 }

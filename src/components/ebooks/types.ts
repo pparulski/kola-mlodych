@@ -2,6 +2,7 @@
 export interface Ebook {
   id: string;
   title: string;
+  slug?: string;
   file_url: string;
   cover_url?: string;
   created_at: string;

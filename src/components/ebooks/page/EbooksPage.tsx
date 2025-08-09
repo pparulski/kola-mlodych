@@ -94,8 +94,13 @@ export function EbooksPage({ adminMode = false }: EbooksPageProps) {
         page_count
       });
       
+      // Generate a unique, stable slug for the ebook
+      const { generateUniqueEbookSlug } = await import("@/utils/ebooksSlug");
+      const slug = await generateUniqueEbookSlug(title);
+
       const { error } = await supabase.from("ebooks").insert({
         title,
+        slug,
         file_url,
         cover_url,
         ebook_type,

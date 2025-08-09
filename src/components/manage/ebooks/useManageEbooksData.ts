@@ -117,9 +117,12 @@ export function useManageEbooksData() {
         if (error) throw error;
         toast.success("Publikacja zaktualizowana pomyślnie");
       } else {
-        // Add new ebook
+        // Add new ebook with a stable unique slug
+        const { generateUniqueEbookSlug } = await import("@/utils/ebooksSlug");
+        const slug = await generateUniqueEbookSlug(title);
         const { error } = await supabase.from('ebooks').insert({
           title,
+          slug,
           file_url,
           cover_url,
           ebook_type,

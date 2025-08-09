@@ -34,13 +34,15 @@ export const useMapState = (unions: Union[] | undefined) => {
     const union = unions?.find(u => u.id === unionId);
     if (union) setPopupInfo(union);
     
-    // Scroll to the union card in the list with a smooth animation
-    setTimeout(() => {
-      const element = document.getElementById(`union-card-${unionId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 100);
+    // Avoid scrolling the list when selecting from the map on mobile
+    if (!isMobile) {
+      setTimeout(() => {
+        const element = document.getElementById(`union-card-${unionId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
   };
 
   return {

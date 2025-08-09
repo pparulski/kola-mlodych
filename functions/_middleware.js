@@ -62,6 +62,7 @@ export async function onRequest(context) {
 
     const newsMatch = url.pathname.match(/^\/news\/(.+)/);
     const categoryMatch = url.pathname.match(/^\/category\/(.+)/);
+    const ebookMatch = url.pathname.match(/^\/ebooks\/(.+)/);
     const staticPageMatch = url.pathname.match(/^\/([^/.]+)$/);
 
     if (newsMatch) {
@@ -86,6 +87,15 @@ export async function onRequest(context) {
     } else if (url.pathname === '/downloads') {
         seoData.title = "Do pobrania";
         seoData.description = "Materiały, wzory pism i dokumenty do pobrania.";
+    } else if (ebookMatch) {
+        const slug = ebookMatch[1];
+        const data = await fetchFromSupabase(context, `ebooks?slug=eq.${slug}&select=title,description,cover_url`);
+        if (data) {
+            seoData.title = data.title;
+            seoData.description = data.description || "Publikacja do czytania online";
+            seoData.image = data.cover_url || seoData.image;
+            seoData.isArticle = true;
+        }
     } else if (url.pathname === '/ebooks') {
         seoData.title = "Ebooki";
         seoData.description = "Wydane publikacje i raporty dostępne za darmo.";

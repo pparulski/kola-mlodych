@@ -26,6 +26,8 @@ export function EbooksList({ ebooks, onDelete, onEdit, adminMode = false, showTy
           onEdit={onEdit}
           adminMode={adminMode}
           showType={showType}
+          showMoreButton={!adminMode}
+          truncateDescription={!adminMode}
         />
       ))}
     </div>
