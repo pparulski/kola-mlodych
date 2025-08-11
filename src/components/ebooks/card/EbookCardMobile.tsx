@@ -6,6 +6,7 @@ import { EbookDeleteButton } from "./EbookDeleteButton";
 import type { Ebook } from "../types";
 import { Link } from "react-router-dom";
 import { slugify } from "@/utils/slugUtils";
+import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
 
 interface EbookCardMobileProps {
   ebook: Ebook;
@@ -14,6 +15,7 @@ interface EbookCardMobileProps {
   adminMode?: boolean;
   showType?: boolean;
   showDetails?: boolean;
+  readLabel?: string;
 }
 
 export function EbookCardMobile({
@@ -22,7 +24,8 @@ export function EbookCardMobile({
   onEdit,
   adminMode = false,
   showType = false,
-  showDetails = false
+  showDetails = false,
+  readLabel = 'Czytaj'
 }: EbookCardMobileProps) {
   const handleOpenPdf = () => {
     window.open(ebook.file_url, '_blank', 'noopener,noreferrer');
@@ -57,7 +60,7 @@ export function EbookCardMobile({
             className="w-full transition-transform hover:scale-105"
           >
             <BookOpenText className="mr-2 h-4 w-4" />
-            Czytaj
+            {readLabel || 'Czytaj'}
           </Button>
         </div>
         
@@ -79,9 +82,13 @@ export function EbookCardMobile({
               )}
             </div>
             {ebook.description && (
-              <p className="text-sm whitespace-pre-line text-justify px-2">
-                {formatDescription(ebook.description)}
-              </p>
+              <div className="px-2">
+                <UnifiedContentRenderer 
+                  content={ebook.description} 
+                  applyProseStyles={true}
+                  className="prose prose-sm dark:prose-invert text-justify"
+                />
+              </div>
             )}
           </div>
         ) : (

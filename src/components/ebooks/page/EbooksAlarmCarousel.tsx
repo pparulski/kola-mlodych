@@ -11,6 +11,8 @@ import {
 import { EbookCover } from "../card/EbookCover"; // Your EbookCover
 import { Ebook } from "../types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link } from "react-router-dom";
+import { slugify } from "@/utils/slugUtils";
 
 interface EbooksAlarmCarouselProps {
   ebooks: Ebook[];
@@ -31,9 +33,6 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
 
   if (!sortedEbooks.length) return null;
 
-  const handleOpenPdf = (fileUrl: string) => {
-    window.open(fileUrl, '_blank', 'noopener,noreferrer');
-  };
 
   // --- Configuration for item sizing and peeking ---
   let itemBasis: string;
@@ -99,27 +98,18 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
               className={`${itemBasis} p-0.5`} // p-0.5 creates a 1px gap effectively if covers are edge-to-edge inside
             >
               {/* This inner div ensures EbookCover fills the CarouselItem correctly */}
-              <div
-                className="w-full h-full cursor-pointer" // Removed hover effects from here, EbookCover handles it
-                onClick={() => handleOpenPdf(ebook.file_url)}
-                role="button"
-                aria-label={`View ebook: ${ebook.title}`}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleOpenPdf(ebook.file_url);
-                  }
-                }}
+              <Link
+                to={`/ebooks/${ebook.slug || slugify(ebook.title)}`}
+                className="w-full h-full block"
+                aria-label={`Przejdź do strony publikacji: ${ebook.title}`}
               >
                 <EbookCover
                   coverUrl={ebook.cover_url}
                   title={ebook.title}
-                  size="fill" // Use the new 'fill' size (or whatever you named it)
-                  aspectRatioValue={180/240} // Example: maintain 3:4 aspect ratio
-                  // EbookCover's internal hover effects will apply
+                  size="fill"
+                  aspectRatioValue={180/240}
                 />
-              </div>
+              </Link>
             </CarouselItem>
           ))}
         </CarouselContent>

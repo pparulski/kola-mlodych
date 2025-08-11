@@ -14,6 +14,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Ebook } from "../types";
 import { Badge } from "@/components/ui/badge";
+import { TextWithLinks } from "@/components/common/TextWithLinks"; // legacy fallback (unused now)
+import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { slugify } from "@/utils/slugUtils";
 
@@ -25,6 +28,7 @@ interface EbookCardDesktopProps {
   showType?: boolean;
   showMoreButton?: boolean;
   truncateDescription?: boolean;
+  readLabel?: string;
 }
 
 export function EbookCardDesktop({ 
@@ -35,6 +39,7 @@ export function EbookCardDesktop({
   showType = false,
   showMoreButton = true,
   truncateDescription = false,
+  readLabel = 'Czytaj',
 }: EbookCardDesktopProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   
@@ -100,7 +105,7 @@ export function EbookCardDesktop({
                   className="w-full transition-transform hover:scale-105 mt-2"
                 >
                   <BookOpenText className="mr-2 h-4 w-4" />
-                  Czytaj
+                  {readLabel}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -129,9 +134,11 @@ export function EbookCardDesktop({
             </div>
             
             <div className="bg-[hsl(var(--content-box))] rounded-md">
-              <p className="text-foreground/90 whitespace-pre-line">
-                {formatDescription(descriptionText)}
-              </p>
+              <UnifiedContentRenderer 
+                content={descriptionText} 
+                applyProseStyles={true}
+                className="prose prose-sm md:prose-base dark:prose-invert"
+              />
             </div>
           </div>
           

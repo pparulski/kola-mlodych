@@ -1,7 +1,8 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/news/editor/RichTextEditor";
 import { 
   FormField,
   FormItem,
@@ -26,7 +27,7 @@ export function EbookFormFields() {
   // Get character count for description
   const description = form.watch("description") || "";
   const characterCount = description.length;
-  const maxCharacters = 1300;
+  const maxCharacters = undefined as unknown as number;
 
   return (
     <>
@@ -107,20 +108,16 @@ export function EbookFormFields() {
           <FormItem className="space-y-2">
             <FormLabel>Opis publikacji</FormLabel>
             <FormControl>
-              <Textarea
-                {...field}
-                placeholder="Wprowadź krótki opis publikacji..."
-                rows={4}
-                maxLength={maxCharacters}
-                className="transition-all duration-200 focus:ring-2 focus:ring-primary/25"
-              />
+              <div className="bg-background border rounded-md">
+                <RichTextEditor
+                  value={field.value || ""}
+                  onEditorChange={(html) => field.onChange(html)}
+                  height={400}
+                  menubar={true}
+                />
+              </div>
             </FormControl>
-            <FormDescription>
-              Możesz używać enterów do tworzenia akapitów - zostaną one zachowane na stronie publikacji.
-            </FormDescription>
-            <div className="text-xs text-right text-muted-foreground">
-              {characterCount}/{maxCharacters} znaków
-            </div>
+            <FormMessage />
             <FormMessage />
           </FormItem>
         )}

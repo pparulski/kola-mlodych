@@ -1,0 +1,1 @@
+Temporary note: TextWithLinks converts URLs and markdown-like links ([label](url)) to clickable anchors while preserving line breaks. Supported protocols: http, https, mailto. Remove this file after review.

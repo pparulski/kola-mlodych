@@ -15,6 +15,7 @@ export interface EbookCardProps {
   showDetails?: boolean; // for mobile detail view to show description
   showMoreButton?: boolean; // controls visibility of "Więcej"
   truncateDescription?: boolean; // truncate desktop description in listings
+  isDetailsPage?: boolean; // true on /ebooks/:slug pages
 }
 
 export function EbookCard({ 
@@ -26,6 +27,7 @@ export function EbookCard({
   showDetails = false,
   showMoreButton,
   truncateDescription,
+  isDetailsPage = false,
 }: EbookCardProps) {
   const isMobile = useIsMobile();
   
@@ -43,6 +45,7 @@ export function EbookCard({
           adminMode={adminMode} 
           showType={showType} 
           showDetails={showDetails} 
+          readLabel={isDetailsPage && ebook.ebook_type === 'Alarm' ? 'Czytaj PDF' : 'Czytaj'}
         />
       ) : (
         <EbookCardDesktop 
@@ -53,6 +56,7 @@ export function EbookCard({
           showType={showType} 
           showMoreButton={effectiveShowMore}
           truncateDescription={effectiveTruncate}
+          readLabel={isDetailsPage && ebook.ebook_type === 'Alarm' ? 'Czytaj PDF' : 'Czytaj'}
         />
       )}
     </Card>

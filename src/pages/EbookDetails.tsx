@@ -106,7 +106,15 @@ export default function EbookDetails() {
       />
 
       {/* Reuse the same card layout; show type and page count */}
-      <EbookCard ebook={ebook} adminMode={false} showType={true} showDetails={true} showMoreButton={false} truncateDescription={false} />
+      <EbookCard 
+        ebook={ebook} 
+        adminMode={false} 
+        showType={true} 
+        showDetails={true} 
+        showMoreButton={false} 
+        truncateDescription={false}
+        isDetailsPage={true}
+      />
     </div>
   );
 }
