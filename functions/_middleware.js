@@ -5,14 +5,10 @@ import crawlers from 'crawler-user-agents';
 const isCrawler = (userAgent) => {
     if (!userAgent) return false;
     const lowercasedUserAgent = userAgent.toLowerCase();
-
-    // 1. First, check for common, simple bot strings for robustness.
     const commonBots = ['googlebot', 'bingbot', 'yahoo', 'duckduckgo', 'facebookexternalhit', 'twitterbot', 'linkedinbot', 'pinterest'];
     if (commonBots.some(bot => lowercasedUserAgent.includes(bot))) {
         return true;
     }
-
-    // 2. Then, use the more comprehensive library as a fallback.
     return crawlers.some(crawler => lowercasedUserAgent.includes(crawler.pattern.toLowerCase()));
 };
 
@@ -43,7 +39,6 @@ export async function onRequest(context) {
     const { request, next } = context;
     const url = new URL(request.url);
 
-    // IMPROVEMENT: Ignore requests for static assets to improve efficiency
     const assetExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2'];
     if (assetExtensions.some(ext => url.pathname.endsWith(ext))) {
         return next();
@@ -65,12 +60,24 @@ export async function onRequest(context) {
     const ebookMatch = url.pathname.match(/^\/ebooks\/(.+)/);
     const staticPageMatch = url.pathname.match(/^\/([^/.]+)$/);
 
+    // --- Universal Description Generator ---
+    const generateDescription = (content, maxLength = 160) => {
+        if (!content) return null;
+        let plainText = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+        if (plainText.length > maxLength) {
+            let truncatedText = plainText.substring(0, maxLength);
+            truncatedText = truncatedText.substring(0, Math.min(truncatedText.length, truncatedText.lastIndexOf(" ")));
+            return truncatedText + '...';
+        }
+        return plainText;
+    };
+
     if (newsMatch) {
         const slug = newsMatch[1];
         const data = await fetchFromSupabase(context, `news?slug=eq.${slug}&select=title,content,featured_image`);
         if (data) {
             seoData.title = data.title;
-            seoData.description = data.content ? data.content.substring(0, 160).replace(/<[^>]*>?/gm, '') + '...' : null;
+            seoData.description = generateDescription(data.content);
             seoData.image = data.featured_image || seoData.image;
             seoData.isArticle = true;
         }
@@ -88,14 +95,16 @@ export async function onRequest(context) {
         seoData.title = "Do pobrania";
         seoData.description = "Materiały, wzory pism i dokumenty do pobrania.";
     } else if (ebookMatch) {
+        // --- START: EDITED EBOOK BLOCK ---
         const slug = ebookMatch[1];
         const data = await fetchFromSupabase(context, `ebooks?slug=eq.${slug}&select=title,description,cover_url`);
         if (data) {
-            seoData.title = data.title;
-            seoData.description = data.description || "Publikacja do czytania online";
+            seoData.title = `${data.title} – Publikacja`;
+            seoData.description = generateDescription(data.description);
             seoData.image = data.cover_url || seoData.image;
             seoData.isArticle = true;
         }
+        // --- END: EDITED EBOOK BLOCK ---
     } else if (url.pathname === '/ebooks') {
         seoData.title = "Ebooki";
         seoData.description = "Wydane publikacje i raporty dostępne za darmo.";
@@ -104,7 +113,7 @@ export async function onRequest(context) {
         const data = await fetchFromSupabase(context, `static_pages?slug=eq.${slug}&select=title,content`);
         if (data) {
             seoData.title = data.title;
-            seoData.description = data.content ? data.content.substring(0, 160).replace(/<[^>]*>?/gm, '') + '...' : null;
+            seoData.description = generateDescription(data.content);
         }
     }
 
