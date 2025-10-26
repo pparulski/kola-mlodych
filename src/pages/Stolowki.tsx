@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SEO } from "@/components/seo/SEO";
 import { useToast } from "@/components/ui/use-toast";
+import { Copy, ArrowLeft } from "lucide-react";
 
 interface Reason {
   id: string;
@@ -125,8 +126,13 @@ export default function Stolowki() {
     }
   };
 
+  // Scroll to top on step change (helps on mobile)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   return (
-    <div className="space-y-6 animate-enter">
+    <div className="space-y-4 sm:space-y-6 animate-enter -mt-2 sm:mt-0">
       <SEO
         title="Przywróćmy stołówki, wyślij apel do władz!"
         description="Napisz wiadomość w sprawie stołówek studenckich – wybierz powody i wyślij gotowego maila."
@@ -205,10 +211,8 @@ export default function Stolowki() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="justify-between">
-            <div className="text-sm text-muted-foreground">Krok 1 z 3</div>
+          <CardFooter className="justify-end">
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => setSelectedIds([])}>Wyczyść</Button>
               <Button onClick={() => setStep(2)} disabled={!canGoNextFromStep1}>Dalej</Button>
             </div>
           </CardFooter>
@@ -243,10 +247,12 @@ export default function Stolowki() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="justify-between">
-              <div className="text-sm text-muted-foreground">Krok 2 z 3</div>
+            <CardFooter className="justify-end">
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={() => setStep(1)}>Wstecz</Button>
+                <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center" onClick={() => setStep(1)}>
+                  <ArrowLeft className="h-4 w-4 sm:hidden" />
+                  <span className="hidden sm:inline">Wstecz</span>
+                </Button>
                 <Button onClick={() => setStep(3)} disabled={!canGoNextFromStep2}>Przejrzyj i wyślij</Button>
               </div>
             </CardFooter>
@@ -284,14 +290,25 @@ export default function Stolowki() {
               </pre>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-            <div className="text-sm text-muted-foreground">Krok 3 z 3</div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="secondary" className="flex-1 sm:flex-none" onClick={() => setStep(2)}>Wstecz</Button>
-              <a href={mailto}>
-                <Button className="flex-1 sm:flex-none">Otwórz e‑mail</Button>
+          <CardFooter className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+            <div className="grid grid-cols-[auto,1fr,auto] gap-1 w-full sm:flex sm:w-auto sm:items-stretch sm:gap-2">
+              <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center" onClick={() => setStep(2)}>
+                <ArrowLeft className="h-4 w-4 sm:hidden" />
+                <span className="hidden sm:inline">Wstecz</span>
+              </Button>
+              <a href={mailto} className="flex-1 sm:flex-none">
+                <Button className="w-full justify-center">Wyślij e‑mail</Button>
               </a>
-              <Button variant="outline" className="flex-1 sm:flex-none" onClick={copyBody}>Skopiuj treść</Button>
+              <Button
+                variant="outline"
+                className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center sm:inline-flex inline-flex"
+                onClick={copyBody}
+                title="Skopiuj treść"
+                aria-label="Skopiuj treść"
+              >
+                <Copy className="h-4 w-4 sm:hidden" />
+                <span className="hidden sm:inline">Skopiuj treść</span>
+              </Button>
             </div>
           </CardFooter>
         </Card>
