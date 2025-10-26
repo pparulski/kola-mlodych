@@ -27,6 +27,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { ManageGalleries } from "@/pages/manage/ManageGalleries";
 import { lazy, Suspense } from "react";
 import EbookDetails from "@/pages/EbookDetails";
+import Stolowki from "@/pages/Stolowki";
 // Lazy load the Struktury page (which contains MapBox)
 const Struktury = lazy(() => import("./pages/Map"));
 
@@ -116,9 +117,13 @@ const router = createBrowserRouter([
         element: <Auth />,
       },
       {
+        path: "/stolowki",
+        element: <Stolowki />,
+      },
+      {
         path: "/:slug",
         element: <StaticPage />,
-      },
+      }
     ],
   },
 ]);

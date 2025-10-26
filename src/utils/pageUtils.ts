@@ -8,6 +8,7 @@ export function getPageTitle(pathname: string, staticPageTitle?: string): string
     '/ebooks': 'Publikacje',
     '/auth': 'Logowanie',
     '/o-nas': 'O nas',
+    '/stolowki': 'Przywróćmy stołówki, wyślij apel do władz!',
   };
 
   // If we have a static page title from the database, use that
