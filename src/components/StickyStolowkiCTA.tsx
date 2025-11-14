@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
-const CTA_IMG = "https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//cta_stolowki-2.png";
+const CTA_IMG = "https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//cta_3.png";
 const LS_KEY = "stolowki_cta_closed";
 
 export default function StickyStolowkiCTA() {
