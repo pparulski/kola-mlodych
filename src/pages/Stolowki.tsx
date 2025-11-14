@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import { Copy, ArrowLeft, ArrowDown, PiggyBank, Scale, Users, HeartPulse, Clock3, Leaf, HelpCircle } from "lucide-react";
+import { Copy, ArrowLeft, ArrowDown, PiggyBank, Scale, Users, HeartPulse, Clock3, Leaf, HelpCircle, Mail, MailPlus } from "lucide-react";
 
 interface Reason {
   id: string;
@@ -79,9 +79,6 @@ const RECIPIENTS_BY_UNI: Record<string, { to: string[]; cc?: string[]; bcc?: str
   "Politechnika Przykładowa": {
     to: ["rektor@pp.pl"],
     cc: ["dziekan@pp.pl"],
-  },
-  "Inna uczelnia": {
-    to: ["kontakt@uczelnia.pl"],
   },
 };
 
@@ -529,6 +526,26 @@ export default function Stolowki() {
     [name, university, selectedReasons, customReasons, selectedIds]
   );
 
+  const gmailUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set('view', 'cm');
+    params.set('fs', '1');
+    if (recipients?.to?.length) params.set('to', recipients.to.join(','));
+    if (recipients?.cc?.length) params.set('cc', recipients.cc.join(','));
+    params.set('su', subject);
+    params.set('body', body);
+    return `https://mail.google.com/mail/?${params.toString()}`;
+  }, [recipients, subject, body]);
+
+  const outlookUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    if (recipients?.to?.length) params.set('to', recipients.to.join(','));
+    if (recipients?.cc?.length) params.set('cc', recipients.cc.join(','));
+    params.set('subject', subject);
+    params.set('body', body);
+    return `https://outlook.office.com/mail/deeplink/compose?${params.toString()}`;
+  }, [recipients, subject, body]);
+
   const canGoNextFromStep1 = selectedIds.length > 0 || customReasons.trim().length > 0;
   const canGoNextFromStep2 = true;
 
@@ -593,6 +610,7 @@ export default function Stolowki() {
           backgroundSize: "auto",
           backgroundPosition: "top left",
           textShadow: "0 1px 1px rgba(0,0,0,.5), 0 0 1px rgba(0,0,0,.3)",
+          textAlign: 'justify',
         }}
       >
         <h3 className="text-xl sm:text-2xl font-semibold">Zastanawialiście się kiedyś, gdzie się podziały uczelniane stołówki? My też.</h3>
@@ -810,7 +828,7 @@ export default function Stolowki() {
             </CardContent>
             <CardFooter className="justify-end">
               <div className="flex gap-2">
-                <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center" onClick={() => goToStep(1)}>
+                <Button variant="outline" className="col-start-1 row-start-1 px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center" onClick={() => goToStep(1)}>
                   <ArrowLeft className="h-4 w-4 sm:hidden" />
                   <span className="hidden sm:inline">Wstecz</span>
                 </Button>
@@ -855,8 +873,8 @@ export default function Stolowki() {
       {step === 3 && (
         <Card className="transition-all duration-300">
           <CardHeader>
-            <CardTitle>Ostatni podgląd</CardTitle>
-            <CardDescription>Sprawdź treść i wyślij wiadomość.</CardDescription>
+            <CardTitle>Sprawdź treść i wyślij wiadomość</CardTitle>
+            
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -894,15 +912,15 @@ export default function Stolowki() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
-            <div className="grid grid-cols-[auto,1fr,auto] gap-1 w-full sm:flex sm:w-auto sm:items-stretch sm:gap-2">
+            <div className="grid w-full grid-cols-[auto,1fr,auto] gap-2 sm:flex sm:w-auto sm:items-stretch sm:gap-2">
               <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center" onClick={() => setStep(2)}>
                 <ArrowLeft className="h-4 w-4 sm:hidden" />
                 <span className="hidden sm:inline">Wstecz</span>
               </Button>
               <a href={mailto} className="flex-1 sm:flex-none">
-                <Button className="w-full justify-center">Wyślij e‑mail</Button>
+                <Button className="w-full justify-center">Otwórz w mailu</Button>
               </a>
-              <Button
+                <Button
                 variant="outline"
                 className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center sm:inline-flex inline-flex"
                 onClick={copyBody}
@@ -912,6 +930,29 @@ export default function Stolowki() {
                 <Copy className="h-4 w-4 sm:hidden" />
                 <span className="hidden sm:inline">Skopiuj treść</span>
               </Button>
+              <div className="col-span-3 grid grid-cols-2 gap-1 sm:hidden">
+                <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Otwórz w Gmailu" aria-label="Otwórz w Gmailu" className="justify-self-end">
+                  <Button variant="outline" className="px-2 w-10 shrink-0 justify-center">
+                    <img src="https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//gmail.png" alt="Gmail" className="h-4 w-4" />
+                  </Button>
+                </a>
+                <a href={outlookUrl} target="_blank" rel="noopener noreferrer" title="Otwórz w Outlooku" aria-label="Otwórz w Outlooku" className="justify-self-start">
+                  <Button variant="outline" className="px-2 w-10 shrink-0 justify-center">
+                    <img src="https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//outlook.png" alt="Outlook" className="h-4 w-4" />
+                  </Button>
+                </a>
+              </div>
+
+              <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Otwórz w Gmailu" aria-label="Otwórz w Gmailu" className="hidden sm:block">
+                <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center">
+                  <img src="https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//gmail.png" alt="Gmail" className="h-4 w-4" />
+                </Button>
+              </a>
+              <a href={outlookUrl} target="_blank" rel="noopener noreferrer" title="Otwórz w Outlooku" aria-label="Otwórz w Outlooku" className="hidden sm:block">
+                <Button variant="outline" className="px-2 sm:px-3 w-10 sm:w-auto shrink-0 justify-center">
+                  <img src="https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//outlook.png" alt="Outlook" className="h-4 w-4" />
+                </Button>
+              </a>
             </div>
           </CardFooter>
         </Card>
