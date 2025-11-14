@@ -111,8 +111,8 @@ export async function onRequest(context) {
     } else if (url.pathname === '/stolowki') {
         seoData.title = "Przywróćmy stołówki, wyślij apel do władz!";
         seoData.description = "Stwórz i wyślij wiadomość w sprawie uruchomienia stołówek studenckich – wybierz argumenty i wyślij gotowego maila.";
-        // Open Graph/Twitter image override (placeholder)
-        seoData.image = 'https://mlodzi.ozzip.pl/img/8bc5ecba-6aff-442e-81b0-0c51f2cc9cc7.png';
+        // Open Graph/Twitter image override
+        seoData.image = 'https://supabase.mlodzi.ozzip.pl/storage/v1/object/public/news_images//akcja.png';
     } else if (staticPageMatch && !['auth', 'manage', 'ebooks', 'downloads', 'struktury'].includes(staticPageMatch[1])) {
         const slug = staticPageMatch[1];
         const data = await fetchFromSupabase(context, `static_pages?slug=eq.${slug}&select=title,content`);
