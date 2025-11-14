@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { PasswordOverlay } from "./home/PasswordOverlay";
 import { config } from "@/config";
 import { Helmet } from 'react-helmet-async';
+import StickyStolowkiCTA from "@/components/StickyStolowkiCTA";
 
 export function Layout() {
   const [showPasswordOverlay, setShowPasswordOverlay] = useState(
@@ -35,6 +36,7 @@ export function Layout() {
         )}
         <div className="flex w-full">
           <LayoutContent />
+          <StickyStolowkiCTA />
         </div>
       </SidebarProvider>
     </ThemeProvider>
