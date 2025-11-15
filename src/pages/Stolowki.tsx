@@ -70,136 +70,11 @@ const ALL_REASONS: Reason[] = [
   },
 ];
 
-// Proste mapowanie przykładowych adresów – zostaną podmienione później
-const RECIPIENTS_BY_UNI: Record<string, { to: string[]; cc?: string[]; bcc?: string[] }> = {
-  "Uniwersytet Testowy": {
-    to: ["rektor@uni-test.pl", "kanclerz@uni-test.pl"],
-    cc: ["samorzad@student.uit.pl"],
-  },
-  "Politechnika Przykładowa": {
-    to: ["rektor@pp.pl"],
-    cc: ["dziekan@pp.pl"],
-  },
-};
+// Mapa adresów uczelnianych (trafiają do CC)
+import { UNIVERSITY_CC } from "@/data/universityCc";
 
-const UNIVERSITIES_BASE = [
-  // Uczelnie artystyczne (dodane)
-  "Akademia Muzyczna im. Feliksa Nowowiejskiego w Bydgoszczy",
-  "Akademia Muzyczna im. Grażyny i Kiejstuta Bacewiczów w Łodzi",
-  "Akademia Muzyczna im. Karola Szymanowskiego w Katowicach",
-  "Akademia Muzyczna im. Krzysztofa Pendereckiego w Krakowie",
-  "Akademia Muzyczna im. K. Lipińskiego we Wrocławiu",
-  "Akademia Sztuk Pięknych im. Eugeniusza Gepperta we Wrocławiu",
-  "Akademia Sztuk Pięknych im. Jana Matejki w Krakowie",
-  "Akademia Sztuk Pięknych im. Władysława Strzemińskiego w Łodzi",
-  "Akademia Sztuk Pięknych w Gdańsku",
-  "Akademia Sztuk Pięknych w Katowicach",
-  "Akademia Sztuk Pięknych w Warszawie",
-  "Akademia Sztuk Teatralnych im. St. Wyspiańskiego w Krakowie",
-  "Akademia Sztuki w Szczecinie",
-  "Państwowa Wyższa Szkoła Filmowa, Telewizyjna i Teatralna im. L.Schillera w Łodzi",
-  "Uniwersytet Artystyczny im. Magdaleny Abakanowicz w Poznaniu",
-  "Uniwersytet Muzyczny Fryderyka Chopina",
 
-  "Akademia Bialska im. Jana Pawła II",
-  "Akademia Górniczo-Hutnicza im. Stanisława Staszica w Krakowie",
-  "Akademia im. Jakuba z Paradyża",
-  "Akademia Łomżyńska",
-  "Akademia Mazowiecka",
-  "Akademia Nauk Stosowanych Angelusa Silesiusa",
-  "Akademia Nauk Stosowanych im. Hipolita Cegielskiego w Gnieźnie Uczelnia Państwowa",
-  "Akademia Nauk Stosowanych im. Jana Amosa Komeńskiego w Lesznie",
-  "Akademia Nauk Stosowanych im. Stanisława Staszica w Pile",
-  "Akademia Nauk Stosowanych Stefana Batorego",
-  "Akademia Nauk Stosowanych w Elblągu",
-  "Akademia Nauk Stosowanych w Koninie",
-  "Akademia Nauk Stosowanych w Nowym Sączu",
-  "Akademia Nauk Stosowanych w Nowym Targu",
-  "Akademia Nauk Stosowanych w Raciborzu",
-  "Akademia Nauk Stosowanych w Wałczu",
-  "Akademia Pedagogiki Specjalnej im. Marii Grzegorzewskiej",
-  "Akademia Piotrkowska",
-  "Akademia Tarnowska",
-  "Akademia Wychowania Fizycznego i Sportu im. Jędrzeja Śniadeckiego w Gdańsku",
-  "Akademia Wychowania Fizycznego im. Bronisława Czecha w Krakowie",
-  "Akademia Wychowania Fizycznego im. Eugeniusza Piaseckiego w Poznaniu",
-  "Akademia Wychowania Fizycznego im. Jerzego Kukuczki w Katowicach",
-  "Akademia Wychowania Fizycznego im. Polskich Olimpijczyków we Wrocławiu",
-  "Akademia Wychowania Fizycznego Józefa Piłsudskiego w Warszawie",
-  "Akademia Zamojska",
-  "Chrześcijańska Akademia Teologiczna w Warszawie",
-  "Collegium Witelona Uczelnia Państwowa",
-  "Karkonoska Akademia Nauk Stosowanych w Jeleniej Górze",
-  "Katolicki Uniwersytet Lubelski Jana Pawła II",
-  "Małopolska Uczelnia Państwowa im. rotmistrza Witolda Pileckiego w Oświęcimiu",
-  "Państwowa Akademia Nauk Stosowanych im. Ignacego Mościckiego w Ciechanowie",
-  "Państwowa Akademia Nauk Stosowanych im. ks. Bronisława Markiewicza w Jarosławiu",
-  "Państwowa Akademia Nauk Stosowanych im. prof. Stanisława Tarnowskiego w Tarnobrzegu",
-  "Państwowa Akademia Nauk Stosowanych w Chełmie",
-  "Państwowa Akademia Nauk Stosowanych w Głogowie",
-  "Państwowa Akademia Nauk Stosowanych w Koszalinie",
-  "Państwowa Akademia Nauk Stosowanych w Krośnie",
-  "Państwowa Akademia Nauk Stosowanych w Nysie",
-  "Państwowa Akademia Nauk Stosowanych w Przemyślu",
-  "Państwowa Akademia Nauk Stosowanych we Włocławku",
-  "Państwowa Uczelnia Zawodowa im. prof. Edwarda F. Szczepanika w Suwałkach",
-  "Politechnika Białostocka",
-  "Politechnika Bydgoska im. Jana i Jędrzeja Śniadeckich",
-  "Politechnika Częstochowska",
-  "Politechnika Gdańska",
-  "Politechnika Koszalińska",
-  "Politechnika Krakowska im. Tadeusza Kościuszki",
-  "Politechnika Lubelska",
-  "Politechnika Łódzka",
-  "Politechnika Opolska",
-  "Politechnika Poznańska",
-  "Politechnika Rzeszowska imienia Ignacego Łukasiewicza",
-  "Politechnika Śląska",
-  "Politechnika Świętokrzyska",
-  "Politechnika Warszawska",
-  "Politechnika Wrocławska",
-  "Publiczna Uczelnia Zawodowa w Grudziądzu",
-  "Szkoła Główna Gospodarstwa Wiejskiego w Warszawie",
-  "Szkoła Główna Handlowa w Warszawie",
-  "Szkoła Główna Mikołaja Kopernika",
-  "Uczelnia Państwowa im. Jana Grodka w Sanoku",
-  "Uniwersytet Bielsko-Bialski",
-  "Uniwersytet Ekonomiczny w Katowicach",
-  "Uniwersytet Ekonomiczny w Krakowie",
-  "Uniwersytet Ekonomiczny w Poznaniu",
-  "Uniwersytet Ekonomiczny we Wrocławiu",
-  "Uniwersytet Gdański w Gdańsku",
-  "Uniwersytet im. Adama Mickiewicza w Poznaniu",
-  "Uniwersytet Jagielloński w Krakowie",
-  "Uniwersytet Jana Długosza w Częstochowie",
-  "Uniwersytet Jana Kochanowskiego w Kielcach",
-  "Uniwersytet Kaliski im. Prezydenta Stanisława Wojciechowskiego",
-  "Uniwersytet Kardynała Stefana Wyszyńskiego w Warszawie",
-  "Uniwersytet Kazimierza Wielkiego",
-  "Uniwersytet Komisji Edukacji Narodowej w Krakowie",
-  "Uniwersytet Łódzki",
-  "Uniwersytet Marii Curie-Skłodowskiej",
-  "Uniwersytet Mikołaja Kopernika w Toruniu",
-  "Uniwersytet Opolski",
-  "Uniwersytet Pomorski w Słupsku",
-  "Uniwersytet Przyrodniczy w Lublinie",
-  "Uniwersytet Przyrodniczy w Poznaniu",
-  "Uniwersytet Przyrodniczy we Wrocławiu",
-  "Uniwersytet Radomski im. Kazimierza Pułaskiego",
-  "Uniwersytet Rolniczy im. Hugona Kołłątaja w Krakowie",
-  "Uniwersytet Rzeszowski",
-  "Uniwersytet Szczeciński",
-  "Uniwersytet Śląski w Katowicach",
-  "Uniwersytet Warszawski",
-  "Uniwersytet Warmińsko-Mazurski w Olsztynie",
-  "Uniwersytet w Białymstoku",
-  "Uniwersytet w Siedlcach",
-  "Uniwersytet Wrocławski",
-  "Uniwersytet Zielonogórski w Zielonej Górze",
-  "Zachodniopomorski Uniwersytet Technologiczny w Szczecinie",
-];
-
-const UNIVERSITIES = [...UNIVERSITIES_BASE].sort((a, b) => a.localeCompare(b, 'pl', { sensitivity: 'base' }));
+const UNIVERSITIES = Object.keys(UNIVERSITY_CC).sort((a, b) => a.localeCompare(b, 'pl', { sensitivity: 'base' }));
 
 function encodeMailtoComponent(value: string) {
   return encodeURIComponent(value);
@@ -208,179 +83,6 @@ function encodeMailtoComponent(value: string) {
 function lowercaseFirst(s: string) {
   if (!s) return s;
   return s.charAt(0).toLowerCase() + s.slice(1);
-}
-
-const GENITIVE_BY_UNI: Record<string, string> = {
-  // Uczelnie artystyczne
-  "Akademia Muzyczna im. Feliksa Nowowiejskiego w Bydgoszczy": "Akademii Muzycznej im. Feliksa Nowowiejskiego w Bydgoszczy",
-  "Akademia Muzyczna im. Grażyny i Kiejstuta Bacewiczów w Łodzi": "Akademii Muzycznej im. Grażyny i Kiejstuta Bacewiczów w Łodzi",
-  "Akademia Muzyczna im. Karola Szymanowskiego w Katowicach": "Akademii Muzycznej im. Karola Szymanowskiego w Katowicach",
-  "Akademia Muzyczna im. Krzysztofa Pendereckiego w Krakowie": "Akademii Muzycznej im. Krzysztofa Pendereckiego w Krakowie",
-  "Akademia Muzyczna im. K. Lipińskiego we Wrocławiu": "Akademii Muzycznej im. K. Lipińskiego we Wrocławiu",
-  "Akademia Sztuk Pięknych im. Eugeniusza Gepperta we Wrocławiu": "Akademii Sztuk Pięknych im. Eugeniusza Gepperta we Wrocławiu",
-  "Akademia Sztuk Pięknych im. Jana Matejki w Krakowie": "Akademii Sztuk Pięknych im. Jana Matejki w Krakowie",
-  "Akademia Sztuk Pięknych im. Władysława Strzemińskiego w Łodzi": "Akademii Sztuk Pięknych im. Władysława Strzemińskiego w Łodzi",
-  "Akademia Sztuk Pięknych w Gdańsku": "Akademii Sztuk Pięknych w Gdańsku",
-  "Akademia Sztuk Pięknych w Katowicach": "Akademii Sztuk Pięknych w Katowicach",
-  "Akademia Sztuk Pięknych w Warszawie": "Akademii Sztuk Pięknych w Warszawie",
-  "Akademia Sztuk Teatralnych im. St. Wyspiańskiego w Krakowie": "Akademii Sztuk Teatralnych im. St. Wyspiańskiego w Krakowie",
-  "Akademia Sztuki w Szczecinie": "Akademii Sztuki w Szczecinie",
-  "Państwowa Wyższa Szkoła Filmowa, Telewizyjna i Teatralna im. L.Schillera w Łodzi": "Państwowej Wyższej Szkoły Filmowej, Telewizyjnej i Teatralnej im. L.Schillera w Łodzi",
-  "Uniwersytet Artystyczny im. Magdaleny Abakanowicz w Poznaniu": "Uniwersytetu Artystycznego im. Magdaleny Abakanowicz w Poznaniu",
-  "Uniwersytet Muzyczny Fryderyka Chopina": "Uniwersytetu Muzycznego Fryderyka Chopina",
-
-  "Akademia Górniczo-Hutnicza im. Stanisława Staszica w Krakowie": "Akademii Górniczo-Hutniczej im. Stanisława Staszica w Krakowie",
-  "Akademia im. Jakuba z Paradyża": "Akademii im. Jakuba z Paradyża",
-  "Akademia Mazowiecka": "Akademii Mazowieckiej",
-  "Akademia Pedagogiki Specjalnej im. Marii Grzegorzewskiej": "Akademii Pedagogiki Specjalnej im. Marii Grzegorzewskiej",
-  "Akademia Piotrkowska": "Akademii Piotrkowskiej",
-  "Akademia Wychowania Fizycznego i Sportu im. Jędrzeja Śniadeckiego w Gdańsku": "Akademii Wychowania Fizycznego i Sportu im. Jędrzeja Śniadeckiego w Gdańsku",
-  "Akademia Wychowania Fizycznego im. Bronisława Czecha w Krakowie": "Akademii Wychowania Fizycznego im. Bronisława Czecha w Krakowie",
-  "Akademia Wychowania Fizycznego im. Eugeniusza Piaseckiego w Poznaniu": "Akademii Wychowania Fizycznego im. Eugeniusza Piaseckiego w Poznaniu",
-  "Akademia Wychowania Fizycznego im. Jerzego Kukuczki w Katowicach": "Akademii Wychowania Fizycznego im. Jerzego Kukuczki w Katowicach",
-  "Akademia Wychowania Fizycznego im. Polskich Olimpijczyków we Wrocławiu": "Akademii Wychowania Fizycznego im. Polskich Olimpijczyków we Wrocławiu",
-  "Akademia Wychowania Fizycznego Józefa Piłsudskiego w Warszawie": "Akademii Wychowania Fizycznego Józefa Piłsudskiego w Warszawie",
-  "Chrześcijańska Akademia Teologiczna w Warszawie": "Chrześcijańskiej Akademii Teologicznej w Warszawie",
-  "Katolicki Uniwersytet Lubelski Jana Pawła II": "Katolickiego Uniwersytetu Lubelskiego Jana Pawła II",
-  "Politechnika Białostocka": "Politechniki Białostockiej",
-  "Politechnika Bydgoska im. Jana i Jędrzeja Śniadeckich": "Politechniki Bydgoskiej im. Jana i Jędrzeja Śniadeckich",
-  "Politechnika Częstochowska": "Politechniki Częstochowskiej",
-  "Politechnika Gdańska": "Politechniki Gdańskiej",
-  "Politechnika Koszalińska": "Politechniki Koszalińskiej",
-  "Politechnika Krakowska im. Tadeusza Kościuszki": "Politechniki Krakowskiej im. Tadeusza Kościuszki",
-  "Politechnika Lubelska": "Politechniki Lubelskiej",
-  "Politechnika Łódzka": "Politechniki Łódzkiej",
-  "Politechnika Opolska": "Politechniki Opolskiej",
-  "Politechnika Poznańska": "Politechniki Poznańskiej",
-  "Politechnika Rzeszowska imienia Ignacego Łukasiewicza": "Politechniki Rzeszowskiej imienia Ignacego Łukasiewicza",
-  "Politechnika Śląska": "Politechniki Śląskiej",
-  "Politechnika Świętokrzyska": "Politechniki Świętokrzyskiej",
-  "Politechnika Warszawska": "Politechniki Warszawskiej",
-  "Politechnika Wrocławska": "Politechniki Wrocławskiej",
-  "Szkoła Główna Gospodarstwa Wiejskiego w Warszawie": "Szkoły Głównej Gospodarstwa Wiejskiego w Warszawie",
-  "Szkoła Główna Handlowa w Warszawie": "Szkoły Głównej Handlowej w Warszawie",
-  "Szkoła Główna Mikołaja Kopernika": "Szkoły Głównej Mikołaja Kopernika",
-  "Uniwersytet Bielsko-Bialski": "Uniwersytetu Bielsko-Bialskiego",
-  "Uniwersytet Ekonomiczny w Katowicach": "Uniwersytetu Ekonomicznego w Katowicach",
-  "Uniwersytet Ekonomiczny w Krakowie": "Uniwersytetu Ekonomicznego w Krakowie",
-  "Uniwersytet Ekonomiczny w Poznaniu": "Uniwersytetu Ekonomicznego w Poznaniu",
-  "Uniwersytet Ekonomiczny we Wrocławiu": "Uniwersytetu Ekonomicznego we Wrocławiu",
-  "Uniwersytet Gdański w Gdańsku": "Uniwersytetu Gdańskiego w Gdańsku",
-  "Uniwersytet im. Adama Mickiewicza w Poznaniu": "Uniwersytetu im. Adama Mickiewicza w Poznaniu",
-  "Uniwersytet Jagielloński w Krakowie": "Uniwersytetu Jagiellońskiego w Krakowie",
-  "Uniwersytet Jana Długosza w Częstochowie": "Uniwersytetu Jana Długosza w Częstochowie",
-  "Uniwersytet Jana Kochanowskiego w Kielcach": "Uniwersytetu Jana Kochanowskiego w Kielcach",
-  "Uniwersytet Kaliski im. Prezydenta Stanisława Wojciechowskiego": "Uniwersytetu Kaliskiego im. Prezydenta Stanisława Wojciechowskiego",
-  "Uniwersytet Kardynała Stefana Wyszyńskiego w Warszawie": "Uniwersytetu Kardynała Stefana Wyszyńskiego w Warszawie",
-  "Uniwersytet Kazimierza Wielkiego": "Uniwersytetu Kazimierza Wielkiego",
-  "Uniwersytet Komisji Edukacji Narodowej w Krakowie": "Uniwersytetu Komisji Edukacji Narodowej w Krakowie",
-  "Uniwersytet Łódzki": "Uniwersytetu Łódzkiego",
-  "Uniwersytet Marii Curie-Skłodowskiej": "Uniwersytetu Marii Curie-Skłodowskiej",
-  "Uniwersytet Mikołaja Kopernika w Toruniu": "Uniwersytetu Mikołaja Kopernika w Toruniu",
-  "Uniwersytet Opolski": "Uniwersytetu Opolskiego",
-  "Uniwersytet Pomorski w Słupsku": "Uniwersytetu Pomorskiego w Słupsku",
-  "Uniwersytet Przyrodniczy w Lublinie": "Uniwersytetu Przyrodniczego w Lublinie",
-  "Uniwersytet Przyrodniczy w Poznaniu": "Uniwersytetu Przyrodniczego w Poznaniu",
-  "Uniwersytet Przyrodniczy we Wrocławiu": "Uniwersytetu Przyrodniczego we Wrocławiu",
-  "Uniwersytet Radomski im. Kazimierza Pułaskiego": "Uniwersytetu Radomskiego im. Kazimierza Pułaskiego",
-  "Uniwersytet Rolniczy im. Hugona Kołłątaja w Krakowie": "Uniwersytetu Rolniczego im. Hugona Kołłątaja w Krakowie",
-  "Uniwersytet Rzeszowski": "Uniwersytetu Rzeszowskiego",
-  "Uniwersytet Szczeciński": "Uniwersytetu Szczecińskiego",
-  "Uniwersytet Śląski w Katowicach": "Uniwersytetu Śląskiego w Katowicach",
-  "Uniwersytet w Białymstoku": "Uniwersytetu w Białymstoku",
-  "Uniwersytet w Siedlcach": "Uniwersytetu w Siedlcach",
-  "Uniwersytet Warmińsko-Mazurski w Olsztynie": "Uniwersytetu Warmińsko-Mazurskiego w Olsztynie",
-  "Uniwersytet Warszawski": "Uniwersytetu Warszawskiego",
-  "Uniwersytet Wrocławski": "Uniwersytetu Wrocławskiego",
-  "Uniwersytet Zielonogórski w Zielonej Górze": "Uniwersytetu Zielonogórskiego w Zielonej Górze",
-  "Zachodniopomorski Uniwersytet Technologiczny w Szczecinie": "Zachodniopomorskiego Uniwersytetu Technologicznego w Szczecinie",
-  "Akademia Bialska im. Jana Pawła II": "Akademii Bielskiej im. Jana Pawła II",
-  "Akademia Łomżyńska": "Akademii Łomżyńskiej",
-  "Akademia Nauk Stosowanych Angelusa Silesiusa": "Akademii Nauk Stosowanych Angelusa Silesiusa",
-  "Akademia Nauk Stosowanych im. Hipolita Cegielskiego w Gnieźnie Uczelnia Państwowa": "Akademii Nauk Stosowanych im. Hipolita Cegielskiego w Gnieźnie Uczelni Państwowej",
-  "Akademia Nauk Stosowanych im. Jana Amosa Komeńskiego w Lesznie": "Akademii Nauk Stosowanych im. Jana Amosa Komeńskiego w Lesznie",
-  "Akademia Nauk Stosowanych im. Stanisława Staszica w Pile": "Akademii Nauk Stosowanych im. Stanisława Staszica w Pile",
-  "Akademia Nauk Stosowanych Stefana Batorego": "Akademii Nauk Stosowanych Stefana Batorego",
-  "Akademia Nauk Stosowanych w Elblągu": "Akademii Nauk Stosowanych w Elblągu",
-  "Akademia Nauk Stosowanych w Koninie": "Akademii Nauk Stosowanych w Koninie",
-  "Akademia Nauk Stosowanych w Nowym Sączu": "Akademii Nauk Stosowanych w Nowym Sączu",
-  "Akademia Nauk Stosowanych w Nowym Targu": "Akademii Nauk Stosowanych w Nowym Targu",
-  "Akademia Nauk Stosowanych w Raciborzu": "Akademii Nauk Stosowanych w Raciborzu",
-  "Akademia Nauk Stosowanych w Wałczu": "Akademii Nauk Stosowanych w Wałczu",
-  "Akademia Tarnowska": "Akademii Tarnowskiej",
-  "Akademia Zamojska": "Akademii Zamojskiej",
-  "Collegium Witelona Uczelnia Państwowa": "Collegium Witelona Uczelni Państwowej",
-  "Karkonoska Akademia Nauk Stosowanych w Jeleniej Górze": "Karkonoskiej Akademii Nauk Stosowanych w Jeleniej Górze",
-  "Małopolska Uczelnia Państwowa im. rotmistrza Witolda Pileckiego w Oświęcimiu": "Małopolskiej Uczelni Państwowej im. rotmistrza Witolda Pileckiego w Oświęcimiu",
-  "Państwowa Akademia Nauk Stosowanych im. Ignacego Mościckiego w Ciechanowie": "Państwowej Akademii Nauk Stosowanych im. Ignacego Mościckiego w Ciechanowie",
-  "Państwowa Akademia Nauk Stosowanych im. ks. Bronisława Markiewicza w Jarosławiu": "Państwowej Akademii Nauk Stosowanych im. ks. Bronisława Markiewicza w Jarosławiu",
-  "Państwowa Akademia Nauk Stosowanych w Chełmie": "Państwowej Akademii Nauk Stosowanych w Chełmie",
-  "Państwowa Akademia Nauk Stosowanych w Głogowie": "Państwowej Akademii Nauk Stosowanych w Głogowie",
-  "Państwowa Akademia Nauk Stosowanych w Koszalinie": "Państwowej Akademii Nauk Stosowanych w Koszalinie",
-  "Państwowa Akademia Nauk Stosowanych w Krośnie": "Państwowej Akademii Nauk Stosowanych w Krośnie",
-  "Państwowa Akademia Nauk Stosowanych w Nysie": "Państwowej Akademii Nauk Stosowanych w Nysie",
-  "Państwowa Akademia Nauk Stosowanych w Przemyślu": "Państwowej Akademii Nauk Stosowanych w Przemyślu",
-  "Państwowa Akademia Nauk Stosowanych we Włocławku": "Państwowej Akademii Nauk Stosowanych we Włocławku",
-  "Państwowa Uczelnia Zawodowa im. prof. Edwarda F. Szczepanika w Suwałkach": "Państwowej Uczelni Zawodowej im. prof. Edwarda F. Szczepanika w Suwałkach",
-  "Publiczna Uczelnia Zawodowa w Grudziądzu": "Publicznej Uczelni Zawodowej w Grudziądzu",
-  "Uczelnia Państwowa im. Jana Grodka w Sanoku": "Uczelni Państwowej im. Jana Grodka w Sanoku",
-};
-
-function toGenitive(university: string) {
-  if (!university) return "naszej uczelni";
-  if (GENITIVE_BY_UNI[university]) return GENITIVE_BY_UNI[university];
-  const patterns: Array<{ re: RegExp; replace: string }> = [
-    { re: /^Państwowa Akademia Nauk Stosowanych/i, replace: "Państwowej Akademii Nauk Stosowanych" },
-    { re: /^Akademia Wychowania Fizycznego i Sportu/i, replace: "Akademii Wychowania Fizycznego i Sportu" },
-    { re: /^Akademia Wychowania Fizycznego Józefa Piłsudskiego/i, replace: "Akademii Wychowania Fizycznego Józefa Piłsudskiego" },
-    { re: /^Akademia Wychowania Fizycznego/i, replace: "Akademii Wychowania Fizycznego" },
-    { re: /^Akademia Nauk Stosowanych/i, replace: "Akademii Nauk Stosowanych" },
-    { re: /^Szkoła Główna/i, replace: "Szkoły Głównej" },
-    { re: /^Szkoła/i, replace: "Szkoły" },
-    { re: /^Uczelnia/i, replace: "Uczelni" },
-    { re: /^Uniwersytet/i, replace: "Uniwersytetu" },
-    { re: /^Politechnika/i, replace: "Politechniki" },
-    { re: /^Akademia/i, replace: "Akademii" },
-  ];
-  for (const { re, replace } of patterns) {
-    if (re.test(university)) {
-      return university.replace(re, replace);
-    }
-  }
-  return university; // fallback
-}
-
-function toPrepositional(university: string) {
-  // Build from genitive as base and adjust headword to locative; pick preposition
-  const gen = toGenitive(university);
-  let prep = "na";
-  let loc = gen;
-  if (/^Uniwersytetu/i.test(gen)) {
-    loc = gen.replace(/^Uniwersytetu/i, "Uniwersytecie");
-    prep = "na";
-  } else if (/^Politechniki/i.test(gen)) {
-    loc = gen.replace(/^Politechniki/i, "Politechnice");
-    prep = "na";
-  } else if (/^Akademii/i.test(gen)) {
-    // Akademii stays the same form; prefer "na"
-    loc = gen;
-    prep = "na";
-  } else if (/^Szkoły Głównej/i.test(gen)) {
-    loc = gen.replace(/^Szkoły Głównej/i, "Szkole Głównej");
-    prep = "w";
-  } else if (/^Szkoły/i.test(gen)) {
-    loc = gen.replace(/^Szkoły/i, "Szkole");
-    prep = "w";
-  } else if (/^Uczelni/i.test(gen)) {
-    // Uczelni (no change), prefer "w"
-    loc = gen;
-    prep = "w";
-  } else if (/^Collegium/i.test(gen)) {
-    // keep as is; prefer "w"
-    loc = gen;
-    prep = "w";
-  }
-  return `${prep} ${loc}`;
 }
 
 function buildEmail({
@@ -408,11 +110,12 @@ function buildEmail({
   const body = [
     "Szanowni Państwo,",
     "",
-    "apeluję o uruchomienie ogólnopolskiego funduszu stołówkowego dla szkolnictwa wyższego, który umożliwi prowadzenie stołówki studenckiej na uczelni, na której obecnie studiuję.",
+    "dołączam do apelu o uruchomienie ogólnopolskiego funduszu stołówkowego dla szkolnictwa wyższego, który umożliwi otrzymanie środków na prowadzenie publicznej stołówki na uczelni, na której obecnie studiuję. Liczę, że władze wywiążą się z deklaracji zawartych w porozumieniu strajkowym między studiującymi a MNiSW z czerwca br.",
     "",
     reasonsIntro,
     reasonsLines,
     customLine,
+    "",
     "Z wyrazami szacunku,",
     name || "Student/ka",
     university || "",
@@ -437,14 +140,16 @@ function buildEmail({
     "president@krasp.org.pl",
   ];
 
-  const baseRecipients = university && RECIPIENTS_BY_UNI[university]
-    ? RECIPIENTS_BY_UNI[university]
-    : { to: ["kontakt@przyklad.pl"], cc: [], bcc: [] };
+  const rawCc = university && UNIVERSITY_CC[university] ? UNIVERSITY_CC[university] : [];
+  const sanitize = (arr: string[]) => Array.from(new Set(arr
+    .map(s => (s || "").trim())
+    .filter(s => s && s !== "n/d" && s.toLowerCase() !== "n/d" && !s.toLowerCase().startsWith("kod błędu") && s.includes("@") && !s.includes(" "))
+  ));
 
   const recipients = {
-    to: Array.from(new Set([...(baseRecipients.to || []), ...commonTo])),
-    cc: baseRecipients.cc || [],
-    bcc: baseRecipients.bcc || [],
+    to: Array.from(new Set([...commonTo])),
+    cc: sanitize(rawCc),
+    bcc: [],
   };
 
   const mailto = `mailto:${recipients.to.join(",")}?subject=${encodeMailtoComponent(subject)}&body=${encodeMailtoComponent(body)}${
@@ -463,41 +168,53 @@ export default function Stolowki() {
   const [mobileDetails, setMobileDetails] = useState<string | null>(null);
   // Anchor to wizard/form
   const progressRef = useRef<HTMLDivElement | null>(null);
-  const scrollToForm = () => {
-    if (!progressRef.current) return;
+  // Re-implemented smooth scroll to the start of the form (progress bar)
+  const computeOffset = () => {
     const header = document.querySelector('.sticky-page-header-wrapper') as HTMLElement | null;
     const banner = document.getElementById('join-banner') as HTMLElement | null;
-
-    // Temporarily disable sticky behavior to avoid covering content during programmatic scroll
-    let restore: null | (() => void) = null;
-    if (header) {
-      const prevPosition = header.style.position;
-      const prevTop = header.style.top;
-      header.style.position = 'static';
-      header.style.top = '';
-      restore = () => {
-        header.style.position = prevPosition;
-        header.style.top = prevTop;
-      };
-    }
-
     const headerH = header ? header.getBoundingClientRect().height : 0;
     const bannerH = banner ? banner.getBoundingClientRect().height : 0;
-    const fallback = window.matchMedia('(max-width: 640px)').matches ? 100 : 120;
-    const offset = (headerH + bannerH) || fallback;
-    const rect = progressRef.current.getBoundingClientRect();
-    const target = rect.top + window.pageYOffset - offset;
-    window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+    // Small breathing space below sticky elements
+    return headerH + bannerH + 8;
+  };
 
-    // Restore sticky after scroll settles
-    if (restore) {
-      window.setTimeout(() => restore && restore(), 400);
+  const ensureScrollMargin = () => {
+    if (!progressRef.current) return;
+    const offset = computeOffset();
+    progressRef.current.style.scrollMarginTop = `${offset}px`;
+  };
+
+  useEffect(() => {
+    // Keep scroll-margin up to date on resize/orientation changes
+    ensureScrollMargin();
+    const onResize = () => ensureScrollMargin();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const scrollToForm = () => {
+    if (!progressRef.current) return;
+    ensureScrollMargin();
+    progressRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const goToStep = (s: 1 | 2 | 3) => {
+    // Pre-scroll instantly to establish a stable anchor before step change
+    ensureScrollMargin();
+    if (progressRef.current) {
+      progressRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
-  };
-  const goToStep = (s: 1|2|3) => {
-    // Do not auto-scroll between steps to avoid triggering sticky header behavior
+
     setStep(s);
+
+    // Post-scroll smoothly after the DOM updates and layout settles
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.setTimeout(scrollToForm, 60);
+      });
+    });
   };
+
 
   // filteredUniversities will be defined after university state is declared to avoid temporal dead zone.
   const { toast } = useToast();

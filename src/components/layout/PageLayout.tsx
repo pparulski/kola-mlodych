@@ -99,10 +99,11 @@ export function PageLayout() {
         <div 
           id="sticky-page-header-wrapper" 
           className={cn(
-            "w-full sticky bg-background z-[9]", 
+            "w-full bg-background z-[9]",
+            location.pathname === '/stolowki' ? 'relative' : 'sticky',
             "transition-all duration-300 ease-in-out"
           )}
-          style={{ top: pageHeaderTopPosition }} 
+          style={{ top: location.pathname === '/stolowki' ? undefined : pageHeaderTopPosition }} 
         >
           <PageHeader 
             applyPagePadding={true} 
