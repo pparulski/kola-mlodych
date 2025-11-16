@@ -63,7 +63,7 @@ const ALL_REASONS: Reason[] = [
   {
     id: "ekologia",
     title: "Środowisko",
-    summary: "Masowe żywienie jest przyjazne środowisku i ogranicza jednorazowe opakowania.",
+    summary: "Zorganizowana, masowa dystrybucja posiłków w miejscu nauki i pracy ogranicza marnowanie jedzenia i zużycie jednorazowych opakowań.",
     details:
       "Zorganizowane, masowe posiłki w miejscu nauki i pracy to rozwiązanie przyjazne środowisku. Ograniczają marnowanie jedzenia i zużycie jednorazowych opakowań. Uczelnie mogą też decydować o jadłospisie, biorąc pod uwagę kwestie ekologiczne.",
     Icon: Leaf,
