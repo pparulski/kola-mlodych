@@ -66,11 +66,32 @@ export async function onRequest(context) {
         // Strip HTML and normalize whitespace
         let plainText = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
 
+        // Decode common HTML entities so regex matches even if CMS stores diacritics as entities
+        const decodeHtmlEntities = (str) => {
+            if (!str) return str;
+            // Decode numeric entities (decimal and hex)
+            str = str.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
+            str = str.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+            // Minimal named entities map (extend as needed)
+            const map = {
+                '&amp;': '&',
+                '&quot;': '"',
+                '&apos;': '\'',
+                '&lt;': '<',
+                '&gt;': '>',
+                '&oacute;': 'ó',
+                '&Oacute;': 'Ó',
+                '&nbsp;': ' '
+            };
+            return str.replace(/&(amp|quot|apos|lt|gt|oacute|Oacute|nbsp);/g, (m) => map[m] || m);
+        };
+        plainText = decodeHtmlEntities(plainText);
+
         // Remove the leading Alarm Studencki announcement if present so it doesn't pollute SEO/OG descriptions
         // Example full intro:
         // "Tekst jest częścią siódmego numeru Alarmu Studenckiego. Chcesz nas wesprzeć? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę."
         // We generalize to any "... numeru Alarmu Studenckiego. Chcesz nas wesprzeć? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę."
-        const alarmIntroPattern = /^\s*Tekst jest częścią .*? numeru Alarmu Studenckiego\. Chcesz nas wesprzeć\? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę\.(\s+|$)/;
+        const alarmIntroPattern = /^\s*Tekst jest częścią.*?naszą gazetę\.(\s+|$)/i;
         if (alarmIntroPattern.test(plainText)) {
             plainText = plainText.replace(alarmIntroPattern, '').trim();
         }

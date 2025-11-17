@@ -76,6 +76,16 @@ export function stripHtmlAndDecodeEntities(html?: string): string {
 }
 
 /**
+ * Remove the "Alarm Studencki" intro text from the beginning of content
+ * Matches everything from "Tekst jest częścią" up to and including "naszą gazetę." (case-insensitive)
+ */
+export function stripAlarmIntro(text?: string): string {
+  if (!text) return '';
+  const pattern = /^\s*Tekst jest częścią.*?naszą gazetę\.(\s+|$)/i;
+  return text.replace(pattern, '').trim();
+}
+
+/**
  * Sanitizes a filename by replacing Polish characters with their Latin equivalents
  * and replacing spaces with underscores
  * @param filename The filename to sanitize

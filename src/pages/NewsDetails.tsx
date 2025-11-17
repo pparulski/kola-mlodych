@@ -55,7 +55,11 @@ export function NewsDetails() {
   const generateDescription = (content?: string): string => {
     if (!content) return '';
     // Use our improved HTML stripping function with proper spacing
-    const plainText = stripHtmlAndDecodeEntities(content);
+    let plainText = stripHtmlAndDecodeEntities(content);
+
+    // Strip the Alarm Studencki intro (mirror middleware behavior)
+    const alarmPattern = /^\s*Tekst jest częścią.*?naszą gazetę\.(\s+|$)/i;
+    plainText = plainText.replace(alarmPattern, '').trim();
     
     // Ensure exactly 160 characters
     if (plainText.length > 160) {
