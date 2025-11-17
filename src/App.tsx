@@ -2,10 +2,6 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { RM } from '@request-metrics/browser-agent';
-RM.install({
-    token: "x8eq6hq:m8wk2cx"
-});
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from 'react-helmet-async';
 import { Layout } from "@/components/Layout";
