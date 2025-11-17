@@ -4,16 +4,28 @@
 
 async function fetchAll(context, path) {
   const { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } = context.env;
-  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) return [];
+  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) {
+    console.error('sitemap: missing Supabase env');
+    return [];
+  }
   const url = `${VITE_SUPABASE_URL}/rest/v1/${path}`;
-  const res = await fetch(url, {
-    headers: {
-      apikey: VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`,
-    },
-  });
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      console.error('sitemap: fetch failed', res.status, res.statusText, url, text);
+      return [];
+    }
+    return await res.json();
+  } catch (e) {
+    console.error('sitemap: fetch error', url, e);
+    return [];
+  }
 }
 
 function isoDate(d) {
@@ -40,14 +52,21 @@ export async function onRequest(context) {
   const { request } = context;
   const origin = new URL(request.url).origin;
 
-  // Collect data in parallel
-  const [news, staticPages, categories, ebooks] = await Promise.all([
-    // Select minimal fields; include date fields when available
-    fetchAll(context, 'news?select=slug,updated_at,created_at,date'),
+  // Collect data in parallel (fetch static assets first)
+  const [staticPages, categories, ebooks] = await Promise.all([
     fetchAll(context, 'static_pages?select=slug,updated_at,created_at'),
     fetchAll(context, 'categories?select=slug,updated_at,created_at'),
     fetchAll(context, 'ebooks?select=slug,updated_at,created_at'),
   ]);
+
+  // Fetch news adaptively: prefer public view (news_preview), fallback to base table (news)
+  const [newsFromPreview, newsFromTable] = await Promise.all([
+    fetchAll(context, 'news_preview?select=slug,updated_at,created_at,date'),
+    fetchAll(context, 'news?select=slug,updated_at,created_at,date'),
+  ]);
+  const news = (Array.isArray(newsFromPreview) && newsFromPreview.length > 0)
+    ? newsFromPreview
+    : (newsFromTable || []);
 
   // Build URL entries
   const nowIso = new Date().toISOString();
@@ -85,19 +104,27 @@ export async function onRequest(context) {
     });
   }
 
-  // Categories
+  // Categories (list pages) and their feeds
   for (const c of (categories || [])) {
     if (!c?.slug) continue;
     const lastmod = isoDate(c.updated_at || c.created_at) || nowIso;
+    // Category page
     urls.push({
       loc: `${origin}/category/${encodeURIComponent(c.slug)}`,
       changefreq: 'weekly',
       priority: 0.5,
       lastmod,
     });
+    // Category feed (if you expose feeds per category)
+    urls.push({
+      loc: `${origin}/news?category=${encodeURIComponent(c.slug)}`,
+      changefreq: 'daily',
+      priority: 0.5,
+      lastmod,
+    });
   }
 
-  // Ebooks
+  // Ebooks (detail pages)
   for (const e of (ebooks || [])) {
     if (!e?.slug) continue;
     const lastmod = isoDate(e.updated_at || e.created_at) || nowIso;

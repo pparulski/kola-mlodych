@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-SaZUvP/strip-cf-connecting-ip-header.js
+// ../.wrangler/tmp/bundle-3pda0s/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -19,16 +19,28 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
 // sitemap.xml.js
 async function fetchAll(context, path) {
   const { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } = context.env;
-  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) return [];
+  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) {
+    console.error("sitemap: missing Supabase env");
+    return [];
+  }
   const url = `${VITE_SUPABASE_URL}/rest/v1/${path}`;
-  const res = await fetch(url, {
-    headers: {
-      apikey: VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("sitemap: fetch failed", res.status, res.statusText, url, text);
+      return [];
     }
-  });
-  if (!res.ok) return [];
-  return res.json();
+    return await res.json();
+  } catch (e) {
+    console.error("sitemap: fetch error", url, e);
+    return [];
+  }
 }
 __name(fetchAll, "fetchAll");
 function isoDate(d) {
@@ -49,13 +61,16 @@ __name(xmlEscape, "xmlEscape");
 async function onRequest(context) {
   const { request } = context;
   const origin = new URL(request.url).origin;
-  const [news, staticPages, categories, ebooks] = await Promise.all([
-    // Select minimal fields; include date fields when available
-    fetchAll(context, "news?select=slug,updated_at,created_at,date"),
+  const [staticPages, categories, ebooks] = await Promise.all([
     fetchAll(context, "static_pages?select=slug,updated_at,created_at"),
     fetchAll(context, "categories?select=slug,updated_at,created_at"),
     fetchAll(context, "ebooks?select=slug,updated_at,created_at")
   ]);
+  const [newsFromPreview, newsFromTable] = await Promise.all([
+    fetchAll(context, "news_preview?select=slug,updated_at,created_at,date"),
+    fetchAll(context, "news?select=slug,updated_at,created_at,date")
+  ]);
+  const news = Array.isArray(newsFromPreview) && newsFromPreview.length > 0 ? newsFromPreview : newsFromTable || [];
   const nowIso = (/* @__PURE__ */ new Date()).toISOString();
   const urls = [];
   urls.push({ loc: `${origin}/`, changefreq: "daily", priority: 1, lastmod: nowIso });
@@ -90,6 +105,12 @@ async function onRequest(context) {
     urls.push({
       loc: `${origin}/category/${encodeURIComponent(c.slug)}`,
       changefreq: "weekly",
+      priority: 0.5,
+      lastmod
+    });
+    urls.push({
+      loc: `${origin}/news?category=${encodeURIComponent(c.slug)}`,
+      changefreq: "daily",
       priority: 0.5,
       lastmod
     });
@@ -5920,7 +5941,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-SaZUvP/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-3pda0s/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -5952,7 +5973,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-SaZUvP/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-3pda0s/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

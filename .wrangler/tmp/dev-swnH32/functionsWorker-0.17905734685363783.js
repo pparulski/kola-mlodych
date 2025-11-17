@@ -35,16 +35,28 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
 });
 async function fetchAll(context, path) {
   const { VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY } = context.env;
-  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) return [];
+  if (!VITE_SUPABASE_URL || !VITE_SUPABASE_ANON_KEY) {
+    console.error("sitemap: missing Supabase env");
+    return [];
+  }
   const url = `${VITE_SUPABASE_URL}/rest/v1/${path}`;
-  const res = await fetch(url, {
-    headers: {
-      apikey: VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${VITE_SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("sitemap: fetch failed", res.status, res.statusText, url, text);
+      return [];
     }
-  });
-  if (!res.ok) return [];
-  return res.json();
+    return await res.json();
+  } catch (e) {
+    console.error("sitemap: fetch error", url, e);
+    return [];
+  }
 }
 __name(fetchAll, "fetchAll");
 __name2(fetchAll, "fetchAll");
@@ -68,13 +80,16 @@ __name2(xmlEscape, "xmlEscape");
 async function onRequest(context) {
   const { request } = context;
   const origin = new URL(request.url).origin;
-  const [news, staticPages, categories, ebooks] = await Promise.all([
-    // Select minimal fields; include date fields when available
-    fetchAll(context, "news?select=slug,updated_at,created_at,date"),
+  const [staticPages, categories, ebooks] = await Promise.all([
     fetchAll(context, "static_pages?select=slug,updated_at,created_at"),
     fetchAll(context, "categories?select=slug,updated_at,created_at"),
     fetchAll(context, "ebooks?select=slug,updated_at,created_at")
   ]);
+  const [newsFromPreview, newsFromTable] = await Promise.all([
+    fetchAll(context, "news_preview?select=slug,updated_at,created_at,date"),
+    fetchAll(context, "news?select=slug,updated_at,created_at,date")
+  ]);
+  const news = Array.isArray(newsFromPreview) && newsFromPreview.length > 0 ? newsFromPreview : newsFromTable || [];
   const nowIso = (/* @__PURE__ */ new Date()).toISOString();
   const urls = [];
   urls.push({ loc: `${origin}/`, changefreq: "daily", priority: 1, lastmod: nowIso });
@@ -109,6 +124,12 @@ async function onRequest(context) {
     urls.push({
       loc: `${origin}/category/${encodeURIComponent(c.slug)}`,
       changefreq: "weekly",
+      priority: 0.5,
+      lastmod
+    });
+    urls.push({
+      loc: `${origin}/news?category=${encodeURIComponent(c.slug)}`,
+      changefreq: "daily",
       priority: 0.5,
       lastmod
     });
