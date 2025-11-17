@@ -167,6 +167,7 @@ export function NewsDetails() {
               adaptiveAspectRatio={true}
               objectFit="cover"
               priority
+              sizes="100vw"
               className="w-full mb-2"
             />
           )}

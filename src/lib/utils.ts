@@ -85,6 +85,42 @@ export function stripAlarmIntro(text?: string): string {
   return text.replace(pattern, '').trim();
 }
 
+// Detect Supabase public storage URLs and transform to on-the-fly optimized variants
+// Example input: https://supabase.example.com/storage/v1/object/public/news_images/foo.png
+// Transformed:   https://supabase.example.com/storage/v1/render/image/public/news_images/foo.png?w=768&q=70&resize=cover&format=webp
+export function getOptimizedSupabaseImageUrl(src: string, opts?: { width?: number; height?: number; quality?: number; format?: 'webp'|'jpeg'|'png'; resize?: 'cover'|'contain'|'fill'|'inside'|'outside' }) {
+  try {
+    const u = new URL(src);
+    // match /storage/v1/object/... pattern
+    if (!u.pathname.startsWith('/storage/v1/object/')) return { url: src };
+    const pathAfterObject = u.pathname.replace('/storage/v1/object/', '');
+    const renderPath = '/storage/v1/render/image/' + pathAfterObject;
+    const url = new URL(u.origin + renderPath);
+
+    const width = opts?.width;
+    const height = opts?.height;
+    const quality = opts?.quality ?? 80;
+    const format = opts?.format ?? 'webp';
+    if (width) url.searchParams.set('width', String(width));
+    if (height) url.searchParams.set('height', String(height));
+    url.searchParams.set('quality', String(quality));
+    // Avoid forcing format to maximize compatibility across deployments
+
+    return { url: url.toString() };
+  } catch {
+    return { url: src };
+  }
+}
+
+export function getResponsiveSrcSet(src: string, widths: number[], baseOpts?: { quality?: number; format?: 'webp'|'jpeg'|'png'; resize?: 'cover'|'contain'|'fill'|'inside'|'outside' }) {
+  const entries: string[] = [];
+  for (const w of widths) {
+    const { url } = getOptimizedSupabaseImageUrl(src, { width: w, quality: baseOpts?.quality, format: baseOpts?.format, resize: baseOpts?.resize });
+    entries.push(`${url} ${w}w`);
+  }
+  return entries.join(', ');
+}
+
 /**
  * Sanitizes a filename by replacing Polish characters with their Latin equivalents
  * and replacing spaces with underscores

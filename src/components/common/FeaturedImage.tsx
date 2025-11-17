@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getOptimizedSupabaseImageUrl, getResponsiveSrcSet } from "@/lib/utils";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 
 export interface FeaturedImageProps {
+  sizes?: string;
+  qualityMobile?: number; // default 80
+  qualityDesktop?: number; // default 100
   src: string | null | undefined;
   alt?: string;
   aspectRatio?: number; // e.g., 16/9, 4/3, 1, etc.
@@ -45,6 +49,9 @@ export function FeaturedImage({
   lazyloadHeight = 200,
   lazyloadOffset = 100,
   adaptiveAspectRatio = false,
+  sizes,
+  qualityMobile = 80,
+  qualityDesktop = 100,
 }: FeaturedImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
@@ -87,11 +94,41 @@ export function FeaturedImage({
 
   // Create the image element
   const renderImage = () => {
+    // Build responsive sources for Supabase storage images
+    // Mobile-first sizes; adjust as needed for your cards/article headers
+    const widths = [360, 540, 720, 960, 1200];
+
+    const isSupabase = src.includes('/storage/v1/object/public/');
+    const selectedQuality = (typeof window !== 'undefined' && window.innerWidth >= 1024) ? qualityDesktop : qualityMobile;
+    const optimized = isSupabase
+      ? getOptimizedSupabaseImageUrl(src, { width: 720, quality: selectedQuality, resize: objectFit === 'contain' ? 'contain' : 'cover' })
+      : { url: src };
+
+    const initialSrc = optimized.url || src;
+    const initialSet = isSupabase ? getResponsiveSrcSet(src, widths, { quality: selectedQuality, resize: objectFit === 'contain' ? 'contain' : 'cover' }) : undefined;
+
+    const [currentSrc, setCurrentSrc] = React.useState<string>(initialSrc);
+    const [currentSet, setCurrentSet] = React.useState<string | undefined>(initialSet);
+    const [usedOptimized, setUsedOptimized] = React.useState<boolean>(isSupabase);
+
+    const handleImgError = () => {
+      // Fallback to original object URL once if optimized fails
+      if (usedOptimized) {
+        setCurrentSrc(src);
+        setCurrentSet(undefined);
+        setUsedOptimized(false);
+        return;
+      }
+      handleError();
+    };
+
     // Force eager loading for priority images or when lazyload is disabled
     if (priority || !lazyload) {
       return (
         <img
-          src={src}
+          src={currentSrc}
+          srcSet={currentSet}
+          sizes={sizes ?? "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"}
           alt={alt}
           className={cn(
             // Remove transition-opacity for priority images to reduce render delay
@@ -111,7 +148,7 @@ export function FeaturedImage({
           onError={handleError}
           loading="eager"
           {...((priority || priorityLevel === 'high' || priorityLevel === 'medium') && {
-            fetchPriority: (priority || priorityLevel === 'high') ? 'high' : 'high',
+            fetchpriority: (priority || priorityLevel === 'high') ? 'high' : 'high',
             decoding: (priority || priorityLevel === 'high') ? 'sync' : 'async'
           })}
           onClick={onClick}
@@ -121,7 +158,9 @@ export function FeaturedImage({
       // Use LazyLoadImage for lazy loading
       return (
         <LazyLoadImage
-          src={src}
+          src={currentSrc}
+          srcSet={currentSet}
+          sizes={sizes ?? "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"}
           alt={alt}
           className={cn(
             "transition-opacity",

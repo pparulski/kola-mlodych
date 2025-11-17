@@ -54,12 +54,13 @@ export function NewsPreview({
           adaptiveAspectRatio={!isAboveFold} // Disable adaptive ratio for above-fold to reduce render delay
           objectFit="cover"
           className="w-full"
-          priority={articleIndex === 0} // Highest priority for first article
-          priorityLevel={articleIndex === 0 ? 'high' : articleIndex === 1 ? 'medium' : 'low'} // Granular priority
-          lazyload={!isAboveFold} // Disable lazy loading for above-fold images
-          lazyloadHeight={150}
-          alt={title}
-        />
+         sizes="100vw"
+         priority={articleIndex === 0} // Highest priority for first article
+         priorityLevel={articleIndex === 0 ? 'high' : articleIndex === 1 ? 'medium' : 'low'} // Granular priority
+         lazyload={!isAboveFold} // Disable lazy loading for above-fold images
+         lazyloadHeight={150}
+         alt={title}
+       />
       )}
       <div className="space-y-4 md:space-y-2 md:pt-2">
         <div className="space-y-2">
