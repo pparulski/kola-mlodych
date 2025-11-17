@@ -54,15 +54,15 @@ export async function onRequest(context) {
 
   // Collect data in parallel (fetch static assets first)
   const [staticPages, categories, ebooks] = await Promise.all([
-    fetchAll(context, 'static_pages?select=slug,updated_at,created_at'),
-    fetchAll(context, 'categories?select=slug,updated_at,created_at'),
-    fetchAll(context, 'ebooks?select=slug,updated_at,created_at'),
+    fetchAll(context, 'static_pages?select=slug,created_at'),
+    fetchAll(context, 'categories?select=slug,created_at'),
+    fetchAll(context, 'ebooks?select=slug,created_at'),
   ]);
 
   // Fetch news adaptively: prefer public view (news_preview), fallback to base table (news)
   const [newsFromPreview, newsFromTable] = await Promise.all([
-    fetchAll(context, 'news_preview?select=slug,updated_at,created_at,date'),
-    fetchAll(context, 'news?select=slug,updated_at,created_at,date'),
+    fetchAll(context, 'news_preview?select=slug,date,created_at'),
+    fetchAll(context, 'news?select=slug,date,created_at'),
   ]);
   const news = (Array.isArray(newsFromPreview) && newsFromPreview.length > 0)
     ? newsFromPreview
@@ -82,7 +82,7 @@ export async function onRequest(context) {
   // News articles
   for (const n of news || []) {
     if (!n?.slug) continue;
-    const lastmod = isoDate(n.updated_at || n.date || n.created_at) || nowIso;
+    const lastmod = isoDate(n.date || n.created_at) || nowIso;
     urls.push({
       loc: `${origin}/news/${encodeURIComponent(n.slug)}`,
       changefreq: 'daily',
@@ -95,7 +95,7 @@ export async function onRequest(context) {
   for (const p of staticPages || []) {
     if (!p?.slug) continue;
     if (['auth', 'manage'].includes(p.slug)) continue;
-    const lastmod = isoDate(p.updated_at || p.created_at) || nowIso;
+    const lastmod = isoDate(p.updated_at || p.created_at) || nowIso; // updated_at exists on static_pages per schema
     urls.push({
       loc: `${origin}/${encodeURIComponent(p.slug)}`,
       changefreq: 'monthly',

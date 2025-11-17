@@ -81,13 +81,13 @@ async function onRequest(context) {
   const { request } = context;
   const origin = new URL(request.url).origin;
   const [staticPages, categories, ebooks] = await Promise.all([
-    fetchAll(context, "static_pages?select=slug,updated_at,created_at"),
-    fetchAll(context, "categories?select=slug,updated_at,created_at"),
-    fetchAll(context, "ebooks?select=slug,updated_at,created_at")
+    fetchAll(context, "static_pages?select=slug,created_at"),
+    fetchAll(context, "categories?select=slug,created_at"),
+    fetchAll(context, "ebooks?select=slug,created_at")
   ]);
   const [newsFromPreview, newsFromTable] = await Promise.all([
-    fetchAll(context, "news_preview?select=slug,updated_at,created_at,date"),
-    fetchAll(context, "news?select=slug,updated_at,created_at,date")
+    fetchAll(context, "news_preview?select=slug,date,created_at"),
+    fetchAll(context, "news?select=slug,date,created_at")
   ]);
   const news = Array.isArray(newsFromPreview) && newsFromPreview.length > 0 ? newsFromPreview : newsFromTable || [];
   const nowIso = (/* @__PURE__ */ new Date()).toISOString();
@@ -99,7 +99,7 @@ async function onRequest(context) {
   urls.push({ loc: `${origin}/struktury`, changefreq: "monthly", priority: 0.4, lastmod: nowIso });
   for (const n of news || []) {
     if (!n?.slug) continue;
-    const lastmod = isoDate(n.updated_at || n.date || n.created_at) || nowIso;
+    const lastmod = isoDate(n.date || n.created_at) || nowIso;
     urls.push({
       loc: `${origin}/news/${encodeURIComponent(n.slug)}`,
       changefreq: "daily",
