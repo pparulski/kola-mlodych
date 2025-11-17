@@ -26,7 +26,7 @@ export function NewsList({ newsItems }: NewsListProps) {
           category_names={Array.isArray(article.category_names) ?
             article.category_names.filter(name => name !== null && name !== undefined) :
             []}
-          isAboveFold={index < 2} // Mark first TWO articles as above-fold
+          isAboveFold={index === 0} // Only the very first article is considered above-the-fold on mobile
           articleIndex={index} // Pass the index for granular prioritization
         />
       ))}

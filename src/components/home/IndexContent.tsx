@@ -40,26 +40,9 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
   const filterType = searchQuery ? "wyszukiwania" : "kategorii";
   const filterTitle = searchQuery ? `"${searchQuery}"` : "";
 
-  // Get the first TWO articles' featured images for preloading
-  const firstArticleImage = currentPageItems?.[0]?.featured_image;
-  const secondArticleImage = currentPageItems?.[1]?.featured_image;
-  const shouldPreload = !hasFilterOrSearch && currentPageItems && currentPageItems.length > 0;
-
+  // Keep only first image as priority via FeaturedImage itself; avoid extra <link rel="preload"> inflating bandwidth
   return (
     <div>
-      {/* Preload the first TWO articles' images for better LCP */}
-      {shouldPreload && firstArticleImage && (
-        <ImagePreloader
-          imageUrl={firstArticleImage}
-          priority={true}
-        />
-      )}
-      {shouldPreload && secondArticleImage && (
-        <ImagePreloader
-          imageUrl={secondArticleImage}
-          priority={true}
-        />
-      )}
       
       {hasFilterOrSearch && (
         <div className="mb-6 p-4 bg-muted/30 rounded-lg">

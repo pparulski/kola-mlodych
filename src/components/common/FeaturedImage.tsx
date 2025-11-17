@@ -111,8 +111,8 @@ export function FeaturedImage({
           onError={handleError}
           loading="eager"
           {...((priority || priorityLevel === 'high' || priorityLevel === 'medium') && {
-            fetchpriority: (priority || priorityLevel === 'high') ? "high" as any : "high" as any,
-            decoding: (priority || priorityLevel === 'high') ? "sync" as any : "async" as any
+            fetchPriority: (priority || priorityLevel === 'high') ? 'high' : 'high',
+            decoding: (priority || priorityLevel === 'high') ? 'sync' : 'async'
           })}
           onClick={onClick}
         />
