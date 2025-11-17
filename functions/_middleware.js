@@ -63,10 +63,21 @@ export async function onRequest(context) {
     // --- Universal Description Generator ---
     const generateDescription = (content, maxLength = 160) => {
         if (!content) return null;
+        // Strip HTML and normalize whitespace
         let plainText = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+
+        // Remove the leading Alarm Studencki announcement if present so it doesn't pollute SEO/OG descriptions
+        // Example full intro:
+        // "Tekst jest częścią siódmego numeru Alarmu Studenckiego. Chcesz nas wesprzeć? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę."
+        // We generalize to any "... numeru Alarmu Studenckiego. Chcesz nas wesprzeć? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę."
+        const alarmIntroPattern = /^\s*Tekst jest częścią .*? numeru Alarmu Studenckiego\. Chcesz nas wesprzeć\? Wpłać na zrzutkę, dzięki której wydajemy naszą gazetę\.(\s+|$)/;
+        if (alarmIntroPattern.test(plainText)) {
+            plainText = plainText.replace(alarmIntroPattern, '').trim();
+        }
+
         if (plainText.length > maxLength) {
             let truncatedText = plainText.substring(0, maxLength);
-            truncatedText = truncatedText.substring(0, Math.min(truncatedText.length, truncatedText.lastIndexOf(" ")));
+            truncatedText = truncatedText.substring(0, Math.min(truncatedText.length, truncatedText.lastIndexOf(' ')));
             return truncatedText + '...';
         }
         return plainText;
