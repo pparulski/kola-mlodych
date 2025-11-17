@@ -86,7 +86,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "vite-plugin-critters": "^0.4.0",
+    "beasties": "^0.2.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/dompurify": "^3.0.5",

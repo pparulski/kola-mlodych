@@ -9,13 +9,19 @@ export default defineConfig(async ({ mode }) => {
   const plugins = [react()];
 
   if (mode === 'production') {
-    const critters = (await import('vite-plugin-critters')).default;
+    const beasties = (await import('beasties')).default;
     plugins.push(
-      critters({
-        preload: 'swap',
+      beasties({
+        // Only log errors
+        logger: 1,
+        // Resolve CSS/asset paths relative to project root
+        path: '.',
+        // Inline critical CSS. 0 means always inline what's critical for the page
+        inlineThreshold: 0,
+        // Remove inlined CSS from external sheets to avoid duplication
         pruneSource: true,
-        reduceInlineStyles: true,
-        mergeStylesheets: true,
+        // Merge multiple stylesheets into one when possible
+        merge: true,
       })
     );
   }
