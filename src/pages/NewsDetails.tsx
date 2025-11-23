@@ -1,5 +1,5 @@
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
@@ -152,9 +152,11 @@ export function NewsDetails() {
             {articleCategories && articleCategories.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {articleCategories.map((category) => (
-                  <span key={category.id} className="category-pill">
-                    {category.name}
-                  </span>
+                  <Link key={category.id} to={`/category/${category.slug}`} className="no-underline">
+                    <span className="category-pill">
+                      {category.name}
+                    </span>
+                  </Link>
                 ))}
               </div>
             )}

@@ -35,7 +35,7 @@ export const useNewsCategories = () => {
     const { count: totalCount, error: countError } = await supabase
       .from('news_preview')
       .select('*', { count: 'exact', head: true })
-      .contains('category_ids', categoryIds);
+      .overlaps('category_ids', categoryIds);
     
     if (countError) {
       console.error("Error getting total count:", countError);
@@ -46,7 +46,7 @@ export const useNewsCategories = () => {
     const { data: previewItems, error: previewError } = await supabase
       .from('news_preview')
       .select('*')
-      .contains('category_ids', categoryIds)
+      .overlaps('category_ids', categoryIds)
       .order('date', { ascending: false })
       .range(from, to);
       

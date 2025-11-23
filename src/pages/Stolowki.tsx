@@ -138,6 +138,9 @@ function buildEmail({
     "biuro@krasp.org.pl",
     "rzecznik@krasp.org.pl",
     "president@krasp.org.pl",
+    "sekretariat.bm@mnisw.gov.pl",
+    "sekretariat.dsw@mnisw.gov.pl",
+    "sekretariat.dbf@mnisw.gov.pl"
   ];
 
   const rawCc = university && UNIVERSITY_CC[university] ? UNIVERSITY_CC[university] : [];

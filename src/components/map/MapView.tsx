@@ -106,13 +106,32 @@ export const MapView = ({
         onStyleData={() => {
           const m = mapRef.current?.getMap();
           if (!m) return;
-          const hideLayer = (id: string) => {
-            try { m.setLayoutProperty(id, 'visibility', 'none'); } catch {}
+
+          const layerExists = (id: string) => {
+            try {
+              // Prefer native getLayer if available
+              // @ts-ignore
+              if (typeof m.getLayer === 'function') return !!m.getLayer(id);
+            } catch {}
+            try {
+              const style = m.getStyle();
+              return !!style?.layers?.some((l: any) => l.id === id);
+            } catch {
+              return false;
+            }
           };
+
+          const hideLayer = (id: string) => {
+            if (!layerExists(id)) return;
+            try {
+              m.setLayoutProperty(id, 'visibility', 'none');
+            } catch {}
+          };
+
+          // Hide known country label layer if present
           hideLayer('country-label');
-          hideLayer('country-label-sm');
-          hideLayer('country-label-lg');
-          // Hide any other symbol layer with country in id
+
+          // Hide any other symbol layer with 'country' in id
           const style = m.getStyle();
           if (style?.layers) {
             for (const layer of style.layers as any[]) {

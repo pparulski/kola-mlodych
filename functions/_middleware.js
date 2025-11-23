@@ -46,6 +46,19 @@ export async function onRequest(context) {
 
     const userAgent = request.headers.get("User-Agent") || "";
 
+    // --- Simple redirects for old category slugs ---
+    const categoryPathMatch = url.pathname.match(/^\/category\/(.+)$/);
+    if (categoryPathMatch) {
+        const oldSlug = categoryPathMatch[1];
+        try {
+            const redirect = await fetchFromSupabase(context, `category_slug_redirects?old_slug=eq.${oldSlug}&select=new_slug`);
+            if (redirect && redirect.new_slug) {
+                const target = new URL(`/category/${redirect.new_slug}${url.search}`, url.origin);
+                return new Response(null, { status: 301, headers: { Location: target.href } });
+            }
+        } catch (_) {}
+    }
+
     if (!isCrawler(userAgent)) {
         return next();
     }

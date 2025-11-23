@@ -53,12 +53,20 @@ export function IndexContent({ searchQuery, selectedCategories }: IndexContentPr
                 {searchQuery ? ` "${searchQuery}"` : ''}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {totalItems > 0 
-                  ? `Znaleziono ${totalItems} ${
-                      totalItems === 1 ? 'artykuł' : 
-                      totalItems < 5 ? 'artykuły' : 'artykułów'
-                    } dla ${filterType} ${filterTitle}` 
-                  : `Brak artykułów dla ${filterType} ${filterTitle}`}
+                {(() => {
+                  const noun = totalItems === 1 ? 'artykuł' : totalItems < 5 ? 'artykuły' : 'artykułów';
+                  if (searchQuery) {
+                    return totalItems > 0
+                      ? `Znaleziono ${totalItems} ${noun} dla wyszukiwania "${searchQuery}"`
+                      : `Brak artykułów dla wyszukiwania "${searchQuery}"`;
+                  }
+                  if (selectedCategories.length > 0) {
+                    return totalItems > 0
+                      ? `Znaleziono ${totalItems} ${noun} dla wybranych kategorii`
+                      : `Brak artykułów dla wybranych kategorii`;
+                  }
+                  return '';
+                })()}
               </p>
             </div>
           </div>

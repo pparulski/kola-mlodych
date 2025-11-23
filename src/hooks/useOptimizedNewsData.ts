@@ -1,5 +1,8 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
+
+// Module-level cache to persist totals across unmounts (e.g., navigating to article and back)
+const STICKY_TOTALS: Record<string, number> = {};
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { ARTICLES_PER_PAGE } from "./news/useNewsBase";
@@ -15,7 +18,9 @@ interface NewsQueryResult {
 }
 
 export function useOptimizedNewsData(searchQuery: string, selectedCategories: string[]) {
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItems, setTotalItems] = useState<number>(STICKY_TOTALS['-'] ?? 0);
+  // Sticky total per filterKey to avoid collapsing total during route transitions
+  const lastTotalByFilterKey = useRef<Record<string, number>>({});
   const location = useLocation();
   const previousFilterKey = useRef('');
   const initialLoadCompleted = useRef(false);
@@ -32,24 +37,36 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
     return `${searchQuery}-${selectedCategories.sort().join(',')}`; 
   }, [searchQuery, selectedCategories]);
 
-  // When filter key changes, log it but don't reset pagination automatically
+  // Initialize total from module-level sticky cache for this filterKey
+  useEffect(() => {
+    if (STICKY_TOTALS[filterKey] !== undefined) {
+      setTotalItems(STICKY_TOTALS[filterKey]);
+      console.log(`useOptimizedNewsData: initialized total from STICKY_TOTALS for filterKey=${filterKey}: ${STICKY_TOTALS[filterKey]}`);
+    }
+  }, [filterKey]);
+
+  // When filter key changes, reset pagination to page 1 to avoid fetching with old page ranges
   useEffect(() => {
     if (previousFilterKey.current !== filterKey) {
       console.log("Filter key changed, resetting pagination:", filterKey);
       previousFilterKey.current = filterKey;
+      // Reset page to 1 immediately to prevent out-of-range fetch with old page value
+      handlePageChange(1);
     }
-  }, [filterKey]);
+  }, [filterKey, handlePageChange]);
 
-  // Reset totalItems only on pathname change (actual route change), not on search param changes
+  // Do not reset totalItems on pathname change; preserve for proper back navigation
+  // Keeping totalItems intact prevents unintended page resets
   useEffect(() => {
-    const pathOnly = location.pathname;
-    if (initialLoadCompleted.current) {
-      console.log(`Path changed to ${pathOnly}, resetting totalItems`);
-      setTotalItems(0);
-    } else {
+    if (!initialLoadCompleted.current) {
       initialLoadCompleted.current = true;
     }
-  }, [location.pathname]); // Only dependent on pathname, not full location
+  }, [location.pathname]);
+
+  // Log totalItems whenever it changes for debug
+  useEffect(() => {
+    console.log(`useOptimizedNewsData: totalItems now ${totalItems} for filterKey=${filterKey}`);
+  }, [totalItems, filterKey]);
 
   // Query for news data with server-side pagination and filtering
   const { data: newsData, isLoading, error } = useQuery<NewsQueryResult>({
@@ -93,8 +110,17 @@ export function useOptimizedNewsData(searchQuery: string, selectedCategories: st
           itemsCount: result.items.length
         });
         
-        // Update total items for pagination
-        setTotalItems(result.total);
+        // Update total items for pagination with sticky behavior per filterKey
+        if (typeof result.total === 'number' && result.total >= 0) {
+          lastTotalByFilterKey.current[filterKey] = result.total;
+          STICKY_TOTALS[filterKey] = result.total;
+          setTotalItems(result.total);
+          console.log(`useOptimizedNewsData: setTotalItems(${result.total}) for filterKey=${filterKey}`);
+        } else if (lastTotalByFilterKey.current[filterKey] !== undefined) {
+          const sticky = lastTotalByFilterKey.current[filterKey];
+          setTotalItems(sticky);
+          console.log(`useOptimizedNewsData: reusing sticky total ${sticky} for filterKey=${filterKey}`);
+        }
         return result;
       } catch (error) {
         console.error("Error fetching news data:", error);

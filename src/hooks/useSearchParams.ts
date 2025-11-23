@@ -12,11 +12,19 @@ export function useSearchParams() {
 
   // Initialize state from URL ONLY ONCE
   const [searchQuery, setSearchQueryState] = useState(() => actualSearchParams.get('search') || '');
-  const [selectedCategories, setSelectedCategoriesState] = useState<string[]>(() =>
-    (actualSearchParams.get('categories') || '').split(',').filter(Boolean)
-  );
+  const [selectedCategories, setSelectedCategoriesState] = useState<string[]>(() => {
+    const fromSearch = actualSearchParams.get('search') || '';
+    if (fromSearch) return []; // Exclusivity: if search is set in URL, ignore categories on init
+    return (actualSearchParams.get('categories') || '').split(',').filter(Boolean);
+  });
 
   const isHomePage = location.pathname === '/';
+  // Track last location change to introduce a quiet period for URL writes
+  const lastLocationChangeRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    lastLocationChangeRef.current = Date.now();
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -34,9 +42,37 @@ export function useSearchParams() {
     debounce((currentQuery: string, currentCategories: string[]) => {
       if (!isHomePage || !isMounted.current) return;
 
-      const params = new URLSearchParams();
-      if (currentQuery) params.set('search', currentQuery);
-      if (currentCategories.length > 0) params.set('categories', currentCategories.join(','));
+      // Quiet period after route/search changes to avoid racing with POP/back and pagination URL sync
+      const now = Date.now();
+      const sinceNav = now - lastLocationChangeRef.current;
+      if (sinceNav < 500) {
+        console.log(`useSearchParams (State -> URL): Quiet period active (${sinceNav}ms since nav), skipping write`);
+        return;
+      }
+
+      // Start from current search params to preserve unrelated keys like "page"
+      const params = new URLSearchParams(location.search);
+
+      // Exclusivity: if search is provided, clear categories; if categories provided, clear search
+      const queryTrimmed = currentQuery.trim();
+      const hasSearch = queryTrimmed.length > 0;
+      const hasCategories = currentCategories.length > 0;
+
+      if (hasSearch) {
+        params.set('search', queryTrimmed);
+        params.delete('categories');
+        // Reset page when changing search
+        params.delete('page');
+      } else if (hasCategories) {
+        params.set('categories', currentCategories.join(','));
+        params.delete('search');
+        // Reset page when changing categories
+        params.delete('page');
+      } else {
+        params.delete('search');
+        params.delete('categories');
+        // Keep page as-is when clearing filters
+      }
       
       const newQueryString = params.toString();
       const currentPathWithQuery = `${location.pathname}${newQueryString ? `?${newQueryString}` : ''}`;
@@ -47,7 +83,7 @@ export function useSearchParams() {
         navigate(currentPathWithQuery, { replace: true });
       }
     }, 300),
-    [navigate, isHomePage, location.pathname] // Removed location.search
+    [navigate, isHomePage, location.pathname, location.search]
   );
 
   // Effect to trigger URL update when local state changes
@@ -97,10 +133,14 @@ export function useSearchParams() {
 
 
   const setMainSearchQuery = useCallback((query: string) => {
+    // Exclusivity: setting search clears categories and resets page in URL writer
+    setSelectedCategoriesState([]);
     setSearchQueryState(query);
   }, []);
 
   const setMainSelectedCategories = useCallback((categories: string[]) => {
+    // Exclusivity: selecting categories clears search and resets page in URL writer
+    setSearchQueryState("");
     setSelectedCategoriesState(categories);
   }, []);
   

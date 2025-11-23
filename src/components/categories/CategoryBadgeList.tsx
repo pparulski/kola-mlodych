@@ -1,6 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Category } from "@/types/categories";
+import { Link } from "react-router-dom";
 
 interface CategoryBadgeListProps {
   categories: Category[];
@@ -13,13 +14,18 @@ export function CategoryBadgeList({ categories, className = "" }: CategoryBadgeL
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {categories.map((category) => (
-        <Badge 
-          key={category.id} 
-          variant="outline" 
-          className="bg-primary/20 hover:bg-primary/30 text-xs px-2 py-1 border-none font-medium"
+        <Link
+          key={category.id}
+          to={`/category/${category.slug}`}
+          className="no-underline"
         >
-          {category.name}
-        </Badge>
+          <Badge 
+            variant="outline" 
+            className="bg-primary/20 hover:bg-primary/30 text-xs px-2 py-1 border-none font-medium"
+          >
+            {category.name}
+          </Badge>
+        </Link>
       ))}
     </div>
   );

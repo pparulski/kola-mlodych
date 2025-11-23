@@ -67,7 +67,11 @@ export function EbookCardDesktop({
 
   return (
     <div className="p-6">
-      <h3 className="text-xl font-semibold mb-4 text-center">{ebook.title}</h3>
+      <h3 className="text-xl font-semibold mb-4 text-center">
+        <Link to={`/ebooks/${ebook.slug || slugify(ebook.title)}`} className="no-underline group inline-block">
+          <span className="text-primary group-hover:text-accent transition-colors">{ebook.title}</span>
+        </Link>
+      </h3>
       
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-1/4 flex flex-col items-center h-fit">

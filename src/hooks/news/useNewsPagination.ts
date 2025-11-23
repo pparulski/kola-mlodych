@@ -18,14 +18,15 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
   // Calculate total pages ensuring at least 1 page
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   
-  // Update URL when page changes
+  // Update URL when page changes (but avoid doing this while totalItems is unknown/0 or when hydrating)
   useEffect(() => {
+    if (totalItems === 0) return; // Skip URL updates until we know the total
+    if (isHydratingFromURL.current) return; // Avoid ping-pong during hydration from URL
+
     // Only update if valid page
     if (currentPage >= 1 && currentPage <= totalPages) {
-      // Don't trigger for initial state or invalid pages
       const newSearchParams = new URLSearchParams(searchParams);
       if (currentPage === 1) {
-        // Remove page param if it's page 1 (cleaner URLs)
         newSearchParams.delete("page");
       } else {
         newSearchParams.set("page", currentPage.toString());
@@ -38,27 +39,55 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
         setSearchParams(newSearchParams, { replace: true });
       }
     }
-  }, [currentPage, totalPages, searchParams, setSearchParams]);
+  }, [currentPage, totalPages, searchParams, setSearchParams, totalItems]);
   
-  // Reset to page 1 ONLY when actual navigation between different routes occurs
-  // Not when search params, filter params, or other query parameters change
+  // Suppress URL writes during initial hydration from URL to state
+  const isHydratingFromURL = useRef(true);
+  const [hydrationReady, setHydrationReady] = useState(false);
+
+  // Ensure hydration completes even on initial mount when pathname/search haven't changed
+  useEffect(() => {
+    // Allow other effects (like CategoryFeed) to mount first
+    const t = setTimeout(() => {
+      if (isHydratingFromURL.current) {
+        const pageParam = parseInt(new URLSearchParams(location.search).get("page") || "1", 10);
+        setCurrentPage(isNaN(pageParam) ? 1 : pageParam);
+        isHydratingFromURL.current = false;
+        setHydrationReady(true);
+        console.log(`useNewsPagination: initial hydration complete, currentPage from URL: ${isNaN(pageParam) ? 1 : pageParam}`);
+      }
+    }, 0);
+    return () => clearTimeout(t);
+  }, [location.search]);
+
+  // Sync currentPage with URL when route changes or when back/forward updates search params
   useEffect(() => {
     const pathChanged = location.pathname !== previousPathname.current;
-    
-    if (pathChanged) {
-      console.log(`Route changed from ${previousPathname.current} to ${location.pathname}, resetting page to 1`);
-      setCurrentPage(1);
+    const searchChanged = location.search !== previousSearch.current;
+
+    if (pathChanged || searchChanged) {
+      const pageParam = parseInt(new URLSearchParams(location.search).get("page") || "1", 10);
+      console.log(`Route/search changed to ${location.pathname}${location.search}, syncing page from URL: ${pageParam}`);
+      isHydratingFromURL.current = true;
+      setCurrentPage(isNaN(pageParam) ? 1 : pageParam);
       previousPathname.current = location.pathname;
       previousSearch.current = location.search;
+      // Stop hydration flag after a short delay to allow all listeners to settle
+      setTimeout(() => { 
+        isHydratingFromURL.current = false; 
+        setHydrationReady(true);
+        console.log('useNewsPagination: hydration complete');
+      }, 0);
     }
-    // Don't reset page when only search params change
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
   
   // Reset to page 1 when total items changes and current page would be out of bounds
   useEffect(() => {
-    // Only reset if we have a valid total and we're on a page that would be out of bounds
+    // Ignore resets when totalItems is unknown or 0 to avoid clobbering back navigation
+    if (totalItems <= 0) return;
+
     const maxPage = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-    if (totalItems >= 0 && currentPage > maxPage) {
+    if (currentPage > maxPage) {
       console.log(`Resetting page to 1 (was ${currentPage}) because totalItems changed to ${totalItems}, max page is now ${maxPage}`);
       setCurrentPage(1);
     }
@@ -87,6 +116,7 @@ export const useNewsPagination = (totalItems: number, itemsPerPage: number) => {
     currentPage,
     totalPages,
     handlePageChange,
-    getPaginationIndices
+    getPaginationIndices,
+    hydrationReady
   };
 };

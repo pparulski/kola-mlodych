@@ -1,5 +1,8 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+// Persist category totals across unmounts to avoid pagination collapse on return
+const STICKY_CATEGORY_TOTALS: Record<string, number> = {};
 import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,8 +23,10 @@ interface CategoryArticlesResult {
 export default function CategoryFeed() {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
+  const lastLocationRef = useRef<string>("");
   const [categoryName, setCategoryName] = useState("");
-  const [totalArticles, setTotalArticles] = useState(0);
+  const [totalArticles, setTotalArticles] = useState(() => slug && STICKY_CATEGORY_TOTALS[slug] ? STICKY_CATEGORY_TOTALS[slug] : 0);
+  const prevCountRef = useRef<number | null>(null);
   
   // Fetch the category details
   const { data: category, isLoading: isCategoryLoading } = useQuery({
@@ -45,8 +50,18 @@ export default function CategoryFeed() {
   // Parse page from URL or use default
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
 
+  // Log route changes to verify back navigation and totals
+  const location = useLocation();
+  useEffect(() => {
+    const currentLoc = `${location.pathname}${location.search}`;
+    if (lastLocationRef.current !== currentLoc) {
+      console.log(`CategoryFeed: route changed to ${currentLoc}, totalArticles=${totalArticles}`);
+      lastLocationRef.current = currentLoc;
+    }
+  }, [location.pathname, location.search, totalArticles]);
+
   // Set up pagination - important to do this after we have a category
-  const { currentPage, totalPages, handlePageChange, getPaginationIndices } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
+  const { currentPage, totalPages, handlePageChange, getPaginationIndices, hydrationReady } = useNewsPagination(totalArticles, ARTICLES_PER_PAGE);
   
   useEffect(() => {
     if (category) {
@@ -59,7 +74,14 @@ export default function CategoryFeed() {
   
   useEffect(() => {
     if (slug !== previousSlug) {
-      setTotalArticles(0);
+      const sticky = slug ? STICKY_CATEGORY_TOTALS[slug] : undefined;
+      if (typeof sticky === 'number') {
+        setTotalArticles(sticky);
+        prevCountRef.current = sticky;
+        console.log(`CategoryFeed: initialized totals from STICKY_CATEGORY_TOTALS for slug=${slug}: ${sticky}`);
+      } else {
+        setTotalArticles(0);
+      }
       setPreviousSlug(slug);
     }
   }, [slug, previousSlug]);
@@ -82,8 +104,20 @@ export default function CategoryFeed() {
         
       if (countError) throw countError;
       
-      // Update total count state
-      setTotalArticles(count || 0);
+      // Update total count state with sticky behavior to avoid collapsing to 1 page during transitions
+      if (typeof count === 'number' && count > 0) {
+        prevCountRef.current = count;
+        STICKY_CATEGORY_TOTALS[slug!] = count;
+        setTotalArticles(count);
+      } else if (prevCountRef.current !== null) {
+        console.log(`CategoryFeed: reusing previous total ${prevCountRef.current} to avoid pagination collapse`);
+        setTotalArticles(prevCountRef.current);
+      } else if (slug && typeof STICKY_CATEGORY_TOTALS[slug] === 'number') {
+        console.log(`CategoryFeed: using sticky cache total ${STICKY_CATEGORY_TOTALS[slug]} for slug=${slug}`);
+        setTotalArticles(STICKY_CATEGORY_TOTALS[slug]);
+      } else {
+        setTotalArticles(0);
+      }
       
       console.log(`CategoryFeed: Found ${count} total articles for category ${category.name}`);
       
@@ -112,7 +146,7 @@ export default function CategoryFeed() {
         count: count || 0
       };
     },
-    enabled: !!category,
+    enabled: !!category && hydrationReady,
     staleTime: 10000,
   });
   
@@ -207,6 +241,7 @@ export default function CategoryFeed() {
                 date={article.date || undefined}
                 featured_image={article.featured_image || undefined}
                 category_names={[category.name]}
+                category_slugs={[category.slug]}
               />
             ))}
           </div>

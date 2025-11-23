@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { useCategories } from "@/hooks/useCategories";
 import { format, isValid } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ArrowRight } from "lucide-react";
@@ -13,6 +15,7 @@ interface NewsPreviewProps {
   date?: string;
   featured_image?: string;
   category_names?: (string | null)[];
+  category_slugs?: (string | null)[]; // Optional: parallel array of slugs matching category_names indices
   isAboveFold?: boolean; // Add this prop
   articleIndex?: number; // Add index for more granular prioritization
 }
@@ -25,6 +28,7 @@ export function NewsPreview({
   date,
   featured_image,
   category_names = [],
+  category_slugs = [],
   isAboveFold = false, // Default to false
   articleIndex = 0, // Default to 0
 }: NewsPreviewProps) {
@@ -44,9 +48,21 @@ export function NewsPreview({
   const validCategoryNames = (category_names || []).filter((name): name is string => 
     name !== null && name !== undefined && name !== ""
   );
+  // If slugs are not provided, try to map names to slugs using categories hook (only on homepage where it's enabled)
+  const { data: allCategories } = useCategories();
+  const nameToSlugMap = useMemo(() => {
+    const map = new Map<string, string>();
+    (allCategories || []).forEach(cat => map.set(cat.name, cat.slug));
+    return map;
+  }, [allCategories]);
+
+  const validCategorySlugs = (category_slugs && category_slugs.length > 0
+    ? category_slugs
+    : validCategoryNames.map(name => nameToSlugMap.get(name) || null)
+  ).filter((slug): slug is string => slug !== null && slug !== undefined && slug !== "");
 
   return (
-    <article className="news-card card-hover overflow-hidden animate-fade-in">
+    <article className="news-card overflow-hidden animate-fade-in">
       {featured_image && (
         <FeaturedImage
           src={featured_image}
@@ -78,11 +94,19 @@ export function NewsPreview({
             
             {validCategoryNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {validCategoryNames.map((name) => (
-                  <span key={name} className="category-pill">
-                    {name}
-                  </span>
-                ))}
+                {validCategoryNames.map((name, idx) => {
+                  const slug = validCategorySlugs[idx];
+                  const pill = (
+                    <span key={name} className="category-pill">
+                      {name}
+                    </span>
+                  );
+                  return slug ? (
+                    <Link key={`${name}-${slug}`} to={`/category/${slug}`} className="no-underline">
+                      {pill}
+                    </Link>
+                  ) : pill;
+                })}
               </div>
             )}
           </div>

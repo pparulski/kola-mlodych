@@ -45,7 +45,17 @@ export const PageHeaderContent = ({
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    navigate(-1);
+    try {
+      const historyState = (window.history && (window.history as any).state) || {};
+      const canGoBack = (typeof historyState.idx === 'number' && historyState.idx > 0) || window.history.length > 1;
+      if (canGoBack) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
+    } catch {
+      navigate('/');
+    }
   };
 
   return (

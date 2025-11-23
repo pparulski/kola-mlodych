@@ -68,18 +68,16 @@ export function PageLayout() {
     if (previousPathname.current !== location.pathname) {
       window.scrollTo(0, 0);
       
-      // ONLY clear filters when:
-      // 1. Moving FROM home page TO a non-category page
-      // 2. Moving FROM category page TO a non-home, non-category page
-      const isFromHomepage = previousPathname.current === '/';
-      const isToHomepage = location.pathname === '/';
-      const isFromCategoryPage = previousPathname.current.startsWith('/category/');
-      const isToCategoryPage = location.pathname.startsWith('/category/');
-      
-      // Only clear filters on specific content section changes
-      // Do NOT clear filters when navigating between content-related pages
-      if ((isFromHomepage && !isToCategoryPage && !isToHomepage) || 
-          (isFromCategoryPage && !isToCategoryPage && !isToHomepage)) {
+      // Define what we consider "content" routes that should preserve filters/pagination
+      const isContentRoute = (path: string) => 
+        path === '/' || path.startsWith('/category/') || path.startsWith('/news/');
+
+      const wasContent = isContentRoute(previousPathname.current);
+      const isContent = isContentRoute(location.pathname);
+
+      // Clear filters ONLY when moving from a content route to a non-content route
+      // Keep filters when navigating within content (home <-> category <-> news article)
+      if (wasContent && !isContent) {
         console.log(`Navigation from ${previousPathname.current} to ${location.pathname}: clearing filters`);
         clearFilters();
       } else {
