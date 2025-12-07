@@ -11,23 +11,19 @@ export const formatNewsItems = (rawNewsItems: any[] | null): NewsArticle[] => {
   if (!rawNewsItems) return [];
   
   return rawNewsItems.map(item => {
-    // Process content to create consistent preview content with proper length
+    // Produce preview content: rely on preview_content from the DB view when present
     let previewContent = '';
-    
-    // Use provided preview_content if available, otherwise generate from content
-    if (item.preview_content) {
-      previewContent = stripHtmlAndDecodeEntities(item.preview_content);
-    } else if (item.content) {
-      // Process the full content to get plain text, preserving all elements with proper spacing
-      previewContent = stripHtmlAndDecodeEntities(item.content);
-    }
-    
-    // Make sure we don't exceed our preview length
-    if (previewContent.length > PREVIEW_LENGTH) {
-      previewContent = previewContent.substring(0, PREVIEW_LENGTH).trim();
-      
-      // Always add ellipsis at the end when we truncate content
-      previewContent += '...';
+
+    if (typeof item.preview_content === 'string' && item.preview_content.length > 0) {
+      // Trust server-side cleaned and truncated preview_content
+      previewContent = item.preview_content;
+    } else if (typeof item.content === 'string' && item.content.length > 0) {
+      // Fallback for non-view sources: make a minimal preview from full content
+      let text = stripHtmlAndDecodeEntities(item.content);
+      if (text.length > PREVIEW_LENGTH) {
+        text = text.substring(0, PREVIEW_LENGTH).trim() + '...';
+      }
+      previewContent = text;
     }
 
     // If the data comes from news_preview view, it already has category_names as an array

@@ -150,7 +150,7 @@ export function NewsDetails() {
             )}
             
             {articleCategories && articleCategories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="ml-auto flex flex-wrap gap-2">
                 {articleCategories.map((category) => (
                   <Link key={category.id} to={`/category/${category.slug}`} className="no-underline">
                     <span className="category-pill">
@@ -174,7 +174,7 @@ export function NewsDetails() {
             />
           )}
           
-          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert text-foreground break-words overflow-hidden [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:w-full [&>img]:h-auto [&>img]:rounded-lg [&>img]:shadow-sm">
+          <div className="editor-content">
             <UnifiedContentRenderer content={article.content} />
           </div>
         </div>

@@ -35,6 +35,8 @@ export function NewsPreview({
   // The preview_content should already be processed by formatNewsItems
   const previewContent = preview_content || "";
   
+  // Cleanup now fully handled in useNewsBase; no additional trimming here to preserve max length logic.
+  
   const formattedDate = date 
     ? (() => {
         const parsedDate = new Date(date);
@@ -113,7 +115,7 @@ export function NewsPreview({
         </div>
         
         {previewContent && (
-          <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert break-words overflow-hidden">
+          <div className="editor-content text-justify break-words overflow-hidden">
             {previewContent}
           </div>
         )}
