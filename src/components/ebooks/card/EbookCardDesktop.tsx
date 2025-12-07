@@ -141,7 +141,7 @@ export function EbookCardDesktop({
               <UnifiedContentRenderer 
                 content={descriptionText} 
                 applyProseStyles={true}
-                className="prose prose-sm md:prose-base dark:prose-invert"
+                className=""
               />
             </div>
           </div>

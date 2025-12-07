@@ -1,0 +1,141 @@
+/* Bridge CSS: Normalize HugeRTE preview typography into site rendering (colors intentionally omitted) */
+.hugerte-content { max-width: none; }
+/* NOTE: content is not rendered inside an iframe body; drop body-level margins for responsiveness */
+/* .hugerte-content body { ... } removed intentionally */
+.hugerte-content p {
+  margin-top: 0.875rem; /* 14px */
+  margin-bottom: 0.875rem; /* 14px */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.225rem; /* ~19.6px */
+  list-style-type: disc;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: justify;
+}
+
+.hugerte-content blockquote {
+  margin-top: 0.875rem; /* 14px */
+  margin-bottom: 0.875rem; /* 14px */
+  margin-left: 1.5rem; /* 24px */
+  margin-right: 2.5rem; /* 40px */
+  padding: 0.75rem 1rem; /* top/bottom 12px, left/right 16px */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.225rem; /* ~19.6px */
+  list-style-type: disc;
+  list-style-position: outside;
+  border-left-width: 2px;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: start;
+}
+
+.hugerte-content a {
+  /* Inherit size/line-height from parent (e.g., headings) */
+  font-weight: inherit;
+  line-height: inherit;
+  /* Let parent control alignment to avoid justification gaps */
+  /* Enable safe breaking for long URLs */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+.hugerte-content h1,
+.hugerte-content h2,
+.hugerte-content h3,
+.hugerte-content h4 {
+  margin-top: 0.875rem; /* 14px */
+  margin-bottom: 0.5rem; /* 8px */
+  font-weight: 700;
+  /* default 700 weight across headings; sizes below */
+  list-style-type: disc;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: start;
+}
+.hugerte-content ul {
+  padding-right: 1rem; /* prevent touching content edge */
+  margin-top: 0.875rem; /* 14px */
+  margin-bottom: 0.875rem; /* 14px */
+  padding-left: 2.5rem; /* 40px */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.225rem; /* ~19.6px */
+  list-style-type: disc;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: justify;
+}
+.hugerte-content li {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.225rem; /* ~19.6px */
+  /* Do NOT force list-style-type here; let ul/ol decide (disc/decimal) */
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: justify;
+}
+.hugerte-content img {
+  /* Dropping suspicious negative margin reported by extraction to avoid layout shift */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 700;
+  line-height: 1.225rem; /* ~19.6px */
+  list-style-type: disc;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: start;
+}
+.hugerte-content iframe {
+  font-size: 14px;
+  font-weight: 400;
+  list-style-type: disc;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: justify;
+}
+.hugerte-content ul ul,
+.hugerte-content ul ol,
+.hugerte-content ol ul,
+.hugerte-content ol ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Ordered lists should render numbers like in editor */
+.hugerte-content ol {
+  padding-right: 1rem; /* prevent touching content edge */
+  margin-top: 0.875rem; /* 14px */
+  margin-bottom: 0.875rem; /* 14px */
+  padding-left: 2.5rem; /* 40px */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.225rem; /* ~19.6px */
+  list-style-type: decimal;
+  list-style-position: outside;
+  border-collapse: separate;
+  vertical-align: baseline;
+  text-align: justify;
+}
+
+/* Ensure lists inside table cells are visible and aligned nicely */
+.hugerte-content td ol,
+.hugerte-content th ol,
+.hugerte-content td ul,
+.hugerte-content th ul {
+  list-style-position: inside;
+  padding-left: 1.25rem; /* ~20px */
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.hugerte-content pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}

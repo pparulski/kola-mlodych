@@ -38,7 +38,7 @@ export function NewsContent({ content, title, date, featured_image }: NewsConten
           priority
         />
       )}
-      <div className="prose prose-lg dark:prose-invert hugerte-content">
+      <div className="hugerte-content">
         <SocialMediaRenderer content={content} />
       </div>
     </div>

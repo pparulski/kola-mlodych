@@ -90,7 +90,7 @@ export function EbookCardMobile({
                 <UnifiedContentRenderer 
                   content={ebook.description} 
                   applyProseStyles={true}
-                  className="prose prose-sm dark:prose-invert text-justify"
+                  className="text-justify"
                 />
               </div>
             )}

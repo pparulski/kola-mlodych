@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+@import './styles/hugerte-content.css';
 @tailwind base;
 
 /* Handwritten cozy font */
@@ -99,9 +100,15 @@
 
 /* Typography styles */
 @layer components {
-  /* Links in articles */
-  article a {
-    @apply text-primary hover:text-accent no-underline transition-colors;
+  /* Canonical link styling inside editor content */
+  .hugerte-content a {
+    @apply text-primary no-underline transition-colors;
+    text-underline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hugerte-content a:hover {
+      @apply text-accent underline;
+    }
   }
 
   /* Content containers */
@@ -126,13 +133,6 @@
            hover:border-border p-4;
   }
 
-  /* Interactive cards with subtle hover effect */
-  .news-card,
-  .ebook-card,
-  .category-feed-item {
-    /* Remove hover translate for news cards */
-    /* @apply hover:translate-y-[-2px]; */
-  }
 
   /* Text elements */
   .text-content,
@@ -157,42 +157,54 @@
   }
 
   /* HugeRTE content styling */
-  .hugerte-content {
-    @apply prose prose-base lg:prose-lg dark:prose-invert max-w-none;
-  }
-
+  /* Keep only color/border-centric theming here to avoid spacing drift */
   .hugerte-content table {
-    @apply border-collapse border border-border my-4 w-full;
+    @apply border-collapse border border-border w-full;
   }
 
   .hugerte-content th,
   .hugerte-content td {
-    @apply border border-border p-2 text-foreground;
+    @apply border border-border text-foreground;
   }
 
   .hugerte-content blockquote {
-    @apply border-l-4 border-primary pl-4 italic my-4 bg-muted/50 py-2 rounded-r;
+    @apply border-l-4 border-primary italic bg-muted/90;
+    position: relative;
+    overflow: visible;
+  }
+  .hugerte-content blockquote::after {
+    content: "\201D"; /* closing double quote ” */
+    position: absolute;
+    top: -0.4rem; /* bleed into top border */
+    right: 0.5rem;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: hsl(var(--foreground));
+    opacity: 0.12; /* subtle */
+    pointer-events: none;
+    user-select: none;
+  }
+  .dark .hugerte-content blockquote {
+    @apply bg-muted/90;
+  }
+  .dark .hugerte-content blockquote::after {
+    opacity: 0.18; /* slightly more visible on dark */
   }
 
   .hugerte-content code {
-    @apply bg-muted px-1 py-0.5 rounded text-sm;
+    @apply bg-muted;
   }
 
   .hugerte-content pre {
-    @apply bg-muted p-4 rounded-md overflow-x-auto my-4 border border-border/50;
+    @apply bg-muted overflow-x-auto border border-border/50;
   }
 
   .hugerte-content img {
-    @apply max-w-full h-auto rounded-md my-4 shadow-md;
+    @apply max-w-full h-auto;
   }
 
-  .hugerte-content ul {
-    @apply list-disc pl-5 my-4;
-  }
-
-  .hugerte-content ol {
-    @apply list-decimal pl-5 my-4;
-  }
   
   /* Table styles with improved readability */
   .table-zebra tbody tr:nth-child(odd) {
