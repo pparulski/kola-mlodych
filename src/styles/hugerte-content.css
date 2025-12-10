@@ -5,9 +5,8 @@
 .hugerte-content p {
   margin-top: 0.875rem; /* 14px */
   margin-bottom: 0.875rem; /* 14px */
-  font-size: 0.875rem; /* 14px */
   font-weight: 400;
-  line-height: 1.5rem; /* 24px */
+  line-height: 1.65; /* fluid and slightly looser for larger bases */
   list-style-type: disc;
   list-style-position: outside;
   border-collapse: separate;
@@ -21,9 +20,9 @@
   margin-left: 1.5rem; /* 24px */
   margin-right: 2.5rem; /* 40px */
   padding: 0.75rem 1rem; /* top/bottom 12px, left/right 16px */
-  font-size: 0.875rem; /* 14px */
+  font-size: 1em; /* inherit fluid base */
   font-weight: 400;
-  line-height: 1.225rem; /* ~19.6px */
+  line-height: 1.6; /* comfortable multi-line quotes */
   list-style-type: disc;
   list-style-position: outside;
   border-left-width: 2px;
@@ -57,13 +56,13 @@
   text-align: start;
 }
 .hugerte-content ul {
+  /* Slightly tighter line-height inside lists vs paragraphs */
   padding-right: 1rem; /* prevent touching content edge */
   margin-top: 0.875rem; /* 14px */
   margin-bottom: 0.875rem; /* 14px */
   padding-left: 2.5rem; /* 40px */
-  font-size: 0.875rem; /* 14px */
   font-weight: 400;
-  line-height: 1.225rem; /* ~19.6px */
+  line-height: 1.5;
   list-style-type: disc;
   list-style-position: outside;
   border-collapse: separate;
@@ -71,9 +70,8 @@
   text-align: justify;
 }
 .hugerte-content li {
-  font-size: 0.875rem; /* 14px */
   font-weight: 400;
-  line-height: 1.225rem; /* ~19.6px */
+  line-height: 1.5;
   /* Do NOT force list-style-type here; let ul/ol decide (disc/decimal) */
   border-collapse: separate;
   vertical-align: baseline;
@@ -133,6 +131,13 @@
   margin-top: 0.5em;
   margin-bottom: 0.5em;
   text-align: left; /* avoid justification artifacts in narrow cells */
+}
+
+/* Normalize list item content so mixed <li>text</li> and <li><p>text</p></li> render uniformly */
+.hugerte-content ul p,
+.hugerte-content ol p {
+  margin: 0;              /* avoid extra spacing from paragraph margins inside li */
+  line-height: inherit;   /* use the list item's line-height for uniformity */
 }
 
 .hugerte-content pre code {
