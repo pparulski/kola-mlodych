@@ -196,7 +196,7 @@ export default function CategoryFeed() {
           title="Kategoria nie znaleziona"
           description="Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie."
         />
-        <p className="content-box text-muted-foreground p-5">
+        <p className="content-box text-muted-foreground px-3 py-3 md:px-5 md:py-5">
           Przepraszamy, ale nie mogliśmy znaleźć kategorii o podanym adresie.
         </p>
       </div>

@@ -118,7 +118,7 @@ export function PageLayout() {
           className="transition-all duration-300 ease-in-out" 
         >
           {/* This inner div now handles the consistent page padding for content */}
-          <div className="p-3 md:p-5"> 
+          <div className="px-3 py-3 md:px-5 md:py-5"> 
             <CategorySection 
                 isHomePage={isHomePage}
                 selectedCategories={selectedCategories}

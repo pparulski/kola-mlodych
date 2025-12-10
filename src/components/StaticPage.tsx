@@ -145,14 +145,14 @@ export function StaticPage() {
       
       <div className="relative">
         {page && page.content ? (
-          <div className="bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="bg-[hsl(var(--content-box))] px-3 py-3 md:px-5 md:py-5 rounded-lg shadow-sm">
             <UnifiedContentRenderer
               content={page.content}
               applyProseStyles={true}
             />
           </div>
         ) : (
-          <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] p-4 md:p-5 rounded-lg shadow-sm">
+          <div className="text-center text-muted-foreground bg-[hsl(var(--content-box))] px-3 py-3 md:px-5 md:py-5 rounded-lg shadow-sm">
             <p>Ta strona nie istnieje.</p>
           </div>
         )}

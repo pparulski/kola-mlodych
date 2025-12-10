@@ -104,7 +104,7 @@ export function NewsDetails() {
           title="Artykuł nie znaleziony"
           description="Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty."
         />
-        <div className="p-5 text-center content-box">
+        <div className="px-3 py-3 sm:px-5 sm:py-5 text-center content-box">
           <h1 className="text-xl md:text-2xl font-bold mb-3">Artykuł nie został znaleziony</h1>
           <p className="text-muted-foreground">
             Przepraszamy, ale artykuł o tym adresie nie istnieje lub został usunięty.
@@ -114,9 +114,14 @@ export function NewsDetails() {
     );
   }
 
-  const formattedDate = article.date 
+  const formattedDateFull = article.date 
     ? format(new Date(article.date), "d MMMM yyyy", { locale: pl }) 
     : (article.created_at ? format(new Date(article.created_at), "d MMMM yyyy", { locale: pl }) : "");
+
+  const toRoman = (m: number) => ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][m];
+  const formattedDateRoman = article.date
+    ? (() => { const d = new Date(article.date); return `${d.getDate()} ${toRoman(d.getMonth())} ${d.getFullYear()}`; })()
+    : (article.created_at ? (() => { const d = new Date(article.created_at); return `${d.getDate()} ${toRoman(d.getMonth())} ${d.getFullYear()}`; })() : "");
   
   // Extract category names for SEO keywords
   const categoryNames = articleCategories?.map(cat => cat.name).filter(Boolean) || [];
@@ -140,13 +145,16 @@ export function NewsDetails() {
         keywords={categoryNames.join(', ')}
       />
       
-      <article className="p-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
+      <article className="px-3 py-3 sm:px-5 sm:py-5 bg-[hsl(var(--content-box))] rounded-lg border border-border overflow-hidden">
         <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold text-primary break-words">{article.title}</h1>
           
           <div className="flex flex-wrap items-center gap-2">
-            {formattedDate && (
-              <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">{formattedDate}</p>
+            {(formattedDateFull || formattedDateRoman) && (
+              <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">
+                <span className="sm:hidden">{formattedDateRoman}</span>
+                <span className="hidden sm:inline">{formattedDateFull}</span>
+              </p>
             )}
             
             {articleCategories && articleCategories.length > 0 && (

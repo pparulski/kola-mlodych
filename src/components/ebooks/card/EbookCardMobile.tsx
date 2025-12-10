@@ -43,7 +43,7 @@ export function EbookCardMobile({
   };
   
   return (
-    <div className="p-4">
+    <div className="px-3 py-3">
       <h3 className="text-lg font-semibold mb-3 text-center">
         <Link to={`/ebooks/${ebook.slug || slugify(ebook.title)}`} className="no-underline group inline-block">
           <span className="text-primary group-hover:text-accent transition-colors">{ebook.title}</span>

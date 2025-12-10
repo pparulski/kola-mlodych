@@ -37,11 +37,21 @@ export function NewsPreview({
   
   // Cleanup now fully handled in useNewsBase; no additional trimming here to preserve max length logic.
   
-  const formattedDate = date 
+  const formattedDateFull = date 
     ? (() => {
         const parsedDate = new Date(date);
         return isValid(parsedDate) 
           ? format(parsedDate, "d MMMM yyyy", { locale: pl })
+          : "";
+      })()
+    : "";
+
+  // Mobile-friendly roman month format
+  const formattedDateRoman = date
+    ? (() => {
+        const parsedDate = new Date(date);
+        return isValid(parsedDate) 
+          ? `${parsedDate.getDate()} ${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][parsedDate.getMonth()]} ${parsedDate.getFullYear()}`
           : "";
       })()
     : "";
@@ -90,8 +100,11 @@ export function NewsPreview({
           </Link>
           
           <div className="flex flex-wrap items-center gap-2 justify-between">
-            {formattedDate && (
-              <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">{formattedDate}</p>
+            {(formattedDateFull || formattedDateRoman) && (
+              <p className="text-sm font-medium italic text-muted-foreground dark:text-muted-foreground my-0">
+                <span className="sm:hidden">{formattedDateRoman}</span>
+                <span className="hidden sm:inline">{formattedDateFull}</span>
+              </p>
             )}
             
             {validCategoryNames.length > 0 && (
@@ -120,7 +133,7 @@ export function NewsPreview({
           </div>
         )}
         
-        <div className="pt-0">
+        <div className="pt-0 flex justify-end">
           <Button
             variant="ghost"
             size="sm"
