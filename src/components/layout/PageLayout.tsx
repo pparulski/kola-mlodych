@@ -1,6 +1,6 @@
 
 // PageLayout.tsx
-import React, { useState, useEffect, useRef } from "react"; 
+import { useState, useEffect, useRef } from "react"; 
 import { Outlet, useLocation } from "react-router-dom";
 import { useSearchParams } from "@/hooks/useSearchParams";
 import { useCategories } from "@/hooks/useCategories";

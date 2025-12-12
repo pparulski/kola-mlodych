@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { EbookUpload } from "@/components/ebooks/EbookUpload";
 import { EbooksList } from "./EbooksList";
 import { useEbooksData } from "./useEbooksData";
-import { Ebook } from "@/components/ebooks/types";
 import { EbooksAlarmCarousel } from "./EbooksAlarmCarousel";
 import { cn } from "@/lib/utils";
 

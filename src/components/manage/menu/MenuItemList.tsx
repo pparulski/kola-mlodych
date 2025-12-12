@@ -14,7 +14,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { isValidIconName, getSafeIconName } from "@/utils/menu/iconUtils";
-import React from "react";
 import dynamic, { wrapDynamicIconImport } from "@/lib/dynamic";
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { LucideProps } from "lucide-react";

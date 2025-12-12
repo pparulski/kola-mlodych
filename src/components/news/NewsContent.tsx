@@ -1,5 +1,4 @@
 
-import { GalleryRenderer } from "../gallery/GalleryRenderer";
 import { SocialMediaRenderer } from "../editor/SocialMediaRenderer";
 import { useEffect } from "react";
 import { FeaturedImage } from "@/components/common/FeaturedImage";

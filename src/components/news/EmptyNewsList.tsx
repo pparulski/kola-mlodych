@@ -1,6 +1,3 @@
-
-import React from "react";
-
 export function EmptyNewsList() {
   return (
     <div className="text-center p-8 bg-[hsl(var(--content-box))] rounded-lg border-2 border-border">

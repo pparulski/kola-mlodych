@@ -35,7 +35,6 @@ export function FeaturedImage({
   alt = "",
   aspectRatio = 16/9,
   className,
-  fill = false,
   height,
   width,
   objectFit = "cover",

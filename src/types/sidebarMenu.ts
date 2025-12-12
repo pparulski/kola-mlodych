@@ -1,5 +1,4 @@
 
-import { StaticPage } from "./staticPages";
 import { LucideIcon } from "lucide-react";
 
 export enum MenuItemType {

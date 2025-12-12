@@ -1,5 +1,4 @@
 
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { useMenuItems } from "@/hooks/useMenuItems";
 import { MenuList } from "./MenuList";

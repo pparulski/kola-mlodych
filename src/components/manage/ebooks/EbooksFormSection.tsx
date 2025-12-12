@@ -1,5 +1,4 @@
 
-import { BookText } from "lucide-react";
 import { EbookUpload } from "@/components/ebooks/EbookUpload";
 import { Ebook } from "@/components/ebooks/types";
 

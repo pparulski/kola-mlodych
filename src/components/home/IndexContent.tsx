@@ -1,9 +1,7 @@
 
-import React from "react";
 import { NewsList } from "@/components/news/NewsList";
 import { NewsPagination } from "@/components/news/NewsPagination";
 import { LoadingIndicator } from "./LoadingIndicator";
-import { ImagePreloader } from "@/components/common/ImagePreloader";
 import { useOptimizedNewsData } from "@/hooks/useOptimizedNewsData";
 
 interface IndexContentProps {

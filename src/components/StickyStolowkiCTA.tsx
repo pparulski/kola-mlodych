@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 

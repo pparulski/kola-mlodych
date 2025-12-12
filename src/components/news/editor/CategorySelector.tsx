@@ -3,7 +3,6 @@ import { Category } from "@/types/categories";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface CategorySelectorProps {
   selectedCategories: string[];

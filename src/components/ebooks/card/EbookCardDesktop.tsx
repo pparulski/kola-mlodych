@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { BookOpenText, BookText, Edit, Info, Tag, ArrowRight } from "lucide-react";
+import { BookOpenText, BookText, Edit, Tag, ArrowRight } from "lucide-react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -13,10 +13,7 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EbookDeleteButton } from "./EbookDeleteButton";
 import { Ebook } from "../types";
-import { Badge } from "@/components/ui/badge";
-import { TextWithLinks } from "@/components/common/TextWithLinks"; // legacy fallback (unused now)
 import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
-import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { slugify } from "@/utils/slugUtils";
 

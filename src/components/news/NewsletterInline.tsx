@@ -5,6 +5,7 @@ export function NewsletterInline() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [hidden, setHidden] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   // Hide if already submitted previously
   useEffect(() => {
@@ -15,6 +16,7 @@ export function NewsletterInline() {
   }, []);
 
   if (hidden) return null;
+
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +29,8 @@ export function NewsletterInline() {
     try {
       localStorage.setItem("newsletter_submitted", "1");
     } catch {}
-    setHidden(true); // remove block after submit
+    // Show confirmation now, and hide on next load
+    setSubmitted(true);
   };
 
   return (
@@ -51,42 +54,38 @@ export function NewsletterInline() {
 
       <div className="w-full relative z-10 content-box rounded-lg border border-border bg-[hsl(var(--content-box))] px-3 py-3 lg:px-4 lg:py-4">
         <div className="grid grid-cols-1 gap-3 items-center">
-          <form
-            onSubmit={onSubmit}
-            className="grid gap-2 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center"
-          >
-            <span className="block whitespace-nowrap text-sm lg:text-base font-medium text-foreground lg:mr-2">
-              Chcesz być na bieżąco?
-            </span>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError(null);
-                }}
-                onInvalid={(e) =>
-                  (e.currentTarget as HTMLInputElement).setCustomValidity(
-                    "Nieprawidłowy email"
-                  )
-                }
-                onInput={(e) =>
-                  (e.currentTarget as HTMLInputElement).setCustomValidity("")
-                }
-                placeholder="Zostaw maila!"
-                className="w-full lg:w-auto lg:flex-1 lg:basis-0 lg:min-w-[240px] min-w-0 postal-input text-sm lg:text-base text-foreground placeholder:text-muted-foreground"
-                aria-label="Adres e-mail"
-                required
-              />
-              <button
-                type="submit"
-                className="postal-button text-sm lg:text-base"
-              >
-                Wyślij
-              </button>
-            </div>
-          </form>
+          <div className="grid gap-2 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center min-h-[56px]">
+            {submitted ? (
+              <p className="m-0 text-sm lg:text-base text-green-600 dark:text-green-400 col-span-full">
+                Dziękujemy! Sprawdź swoją skrzynkę.
+              </p>
+            ) : (
+              <form onSubmit={onSubmit} className="contents">
+                <span className="block whitespace-nowrap text-sm lg:text-base font-medium text-foreground lg:mr-2">
+                  Chcesz być na bieżąco?
+                </span>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError(null);
+                    }}
+                    onInvalid={(e) => (e.currentTarget as HTMLInputElement).setCustomValidity("Nieprawidłowy email")}
+                    onInput={(e) => (e.currentTarget as HTMLInputElement).setCustomValidity("")}
+                    placeholder="Zostaw maila!"
+                    className="w-full lg:w-auto lg:flex-1 lg:basis-0 lg:min-w-[240px] min-w-0 postal-input text-sm lg:text-base text-foreground placeholder:text-muted-foreground"
+                    aria-label="Adres e-mail"
+                    required
+                  />
+                  <button type="submit" className="postal-button text-sm lg:text-base">
+                    Wyślij
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
       </div>

@@ -40,8 +40,6 @@ export function EbooksAlarmCarousel({ ebooks }: EbooksAlarmCarouselProps) {
 
   // Define how many items you want primarily visible before peeking
   const mobilePrimaryVisibleItems = 1;
-  const desktopSmallPrimaryVisibleItems = 3; // e.g., for screens just above mobile
-  const desktopMediumPrimaryVisibleItems = 4;
   const desktopLargePrimaryVisibleItems = 5;
 
   if (isMobile) {

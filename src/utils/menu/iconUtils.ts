@@ -1,5 +1,4 @@
 
-import { LucideIcon } from 'lucide-react';
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 
 // Create a type for valid icon names from the dynamic imports

@@ -1,5 +1,4 @@
 
-import React from "react";
 import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";
 import { cn } from "@/lib/utils";
 

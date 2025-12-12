@@ -1,7 +1,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SidebarMenuItem, MenuItemType } from "@/types/sidebarMenu";
+import { MenuItemType } from "@/types/sidebarMenu";
 import { 
   fetchSidebarPages, 
   fetchMenuPositions,

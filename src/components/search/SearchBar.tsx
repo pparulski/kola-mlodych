@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, KeyboardEvent, useState, RefObject } from "react";
+import React, { useRef, useEffect, KeyboardEvent, useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 

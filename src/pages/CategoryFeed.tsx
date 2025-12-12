@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useRef } from "react";
-import React from "react";
 import { NewsletterInline } from "@/components/news/NewsletterInline";
 
 // Persist category totals across unmounts to avoid pagination collapse on return
@@ -15,7 +14,6 @@ import { SEO } from "@/components/seo/SEO";
 import { formatNewsItems, ARTICLES_PER_PAGE } from "@/hooks/news/useNewsBase";
 import { useNewsPagination } from "@/hooks/news/useNewsPagination";
 import { NewsPagination } from "@/components/news/NewsPagination";
-import { NewsArticle } from "@/types/news";
 
 interface CategoryArticlesResult {
   articles: any[];

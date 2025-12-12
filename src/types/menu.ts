@@ -1,6 +1,3 @@
-
-import { LucideIcon } from "lucide-react";
-
 export enum MenuItemType {
   DEFAULT = "default",
   STATIC_PAGE = "static_page",

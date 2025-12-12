@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { MenuPosition } from "@/types/menu";
-import { MenuItemType, SidebarMenuItem } from "@/types/sidebarMenu";
+import { SidebarMenuItem } from "@/types/sidebarMenu";
 
 /**
  * Fetches positions for all menu items (regular items, categories, and static pages)

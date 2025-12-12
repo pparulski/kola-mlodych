@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Button } from "@/components/ui/button";
 import { GripVertical, ArrowUp, ArrowDown, FileIcon } from "lucide-react";

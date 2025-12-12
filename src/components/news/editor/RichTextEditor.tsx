@@ -1,4 +1,3 @@
-import React from 'react';
 import { Editor } from '@hugerte/hugerte-react';
 
 // Import core types needed

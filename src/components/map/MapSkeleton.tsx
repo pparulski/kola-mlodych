@@ -1,6 +1,3 @@
-
-import React from "react";
-
 /**
  * Loading skeleton for the map page
  */

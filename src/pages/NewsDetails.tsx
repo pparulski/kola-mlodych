@@ -1,19 +1,17 @@
 
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { FeaturedImage } from "@/components/common/FeaturedImage";
+import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
+import { NewsletterInline } from "@/components/news/NewsletterInline";
+import { SEO } from "@/components/seo/SEO";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { CategoryBadgeList } from "@/components/categories/CategoryBadgeList";
+import { stripHtmlAndDecodeEntities } from "@/lib/utils";
 import { Category } from "@/types/categories";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-import { FeaturedImage } from "@/components/common/FeaturedImage";
-import { Skeleton } from "@/components/ui/skeleton";
-import { SEO } from "@/components/seo/SEO";
-import { stripHtmlAndDecodeEntities } from "@/lib/utils";
-import { UnifiedContentRenderer } from "@/components/content/UnifiedContentRenderer";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export function NewsDetails() {
   const { slug } = useParams();
@@ -187,6 +185,11 @@ export function NewsDetails() {
           </div>
         </div>
       </article>
+
+      {/* Inline newsletter at the end of the article */}
+      <div className="mt-4">
+        <NewsletterInline />
+      </div>
     </div>
   );
 }

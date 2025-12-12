@@ -1,11 +1,6 @@
 
 import type { Editor as HugeRTEEditor } from 'hugerte';
 
-interface SocialMediaEmbedConfig {
-  type: 'twitter' | 'facebook' | 'instagram' | 'linkedin' | 'youtube' | 'tiktok';
-  url: string;
-}
-
 export const socialMediaPlugin = {
   name: 'socialmedia',
   init: (editor: HugeRTEEditor) => {

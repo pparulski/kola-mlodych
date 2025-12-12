@@ -5,7 +5,6 @@ import type { Ebook } from "@/components/ebooks/types";
 import { SEO } from "@/components/seo/SEO";
 import { EbookCard } from "@/components/ebooks/EbookCard";
 import { slugify } from "@/utils/slugUtils";
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogContent,

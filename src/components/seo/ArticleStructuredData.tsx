@@ -1,6 +1,3 @@
-
-import React from 'react';
-
 interface ArticleStructuredDataProps {
   title: string;
   image?: string;

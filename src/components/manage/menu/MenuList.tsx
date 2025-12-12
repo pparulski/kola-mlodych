@@ -1,5 +1,4 @@
 
-import React from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { SidebarMenuItem } from "@/types/sidebarMenu";
 import { MenuItem } from "./MenuItem";

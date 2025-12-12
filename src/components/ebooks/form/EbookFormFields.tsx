@@ -1,6 +1,5 @@
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 // import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor } from "@/components/news/editor/RichTextEditor";
 import { 
@@ -8,8 +7,7 @@ import {
   FormItem,
   FormControl,
   FormLabel,
-  FormMessage,
-  FormDescription
+  FormMessage
 } from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import { EbookFormValues } from "./ebookFormSchema";
@@ -26,8 +24,6 @@ export function EbookFormFields() {
   
   // Get character count for description
   const description = form.watch("description") || "";
-  const characterCount = description.length;
-  const maxCharacters = undefined as unknown as number;
 
   return (
     <>

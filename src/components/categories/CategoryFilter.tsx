@@ -1,7 +1,6 @@
 
-import * as React from "react";
 import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
-import { Category, FilterComponentProps } from "@/types/categories";
+import { FilterComponentProps } from "@/types/categories";
 import { useToast } from "@/hooks/use-toast";
 
 export function CategoryFilter({

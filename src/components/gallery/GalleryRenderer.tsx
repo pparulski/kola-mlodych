@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { SocialMediaRenderer } from "@/components/editor/SocialMediaRenderer";

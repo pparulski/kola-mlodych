@@ -1,6 +1,3 @@
-
-import React from 'react';
-
 interface WebPageStructuredDataProps {
   title: string;
   description?: string;

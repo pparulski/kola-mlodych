@@ -3,7 +3,6 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "@/components/ui/icon-picker/IconPicker";
-import { isValidIconName } from "@/utils/menu/iconUtils";
 import { toKebabCase } from "@/utils/menu/iconUtils";
 
 interface DefaultMenuItemFieldsProps {

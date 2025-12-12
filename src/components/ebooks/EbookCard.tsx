@@ -1,6 +1,5 @@
 
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EbookCardMobile } from "./card/EbookCardMobile";
 import { EbookCardDesktop } from "./card/EbookCardDesktop";

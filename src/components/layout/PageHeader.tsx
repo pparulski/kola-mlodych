@@ -1,6 +1,6 @@
 
 // src/components/layout/PageHeader.tsx
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSidebar } from "@/components/ui/sidebar";
 import { pauseGlobalScrollDirection, resumeGlobalScrollDirection } from '@/hooks/useScrollDirection';

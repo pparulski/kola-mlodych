@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { useState, useEffect } from "react";
 import { PasswordOverlay } from "./home/PasswordOverlay";
 import { config } from "@/config";
-import { Helmet } from 'react-helmet-async';
 import StickyStolowkiCTA from "@/components/StickyStolowkiCTA";
 
 export function Layout() {

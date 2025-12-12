@@ -1,15 +1,13 @@
 
-import { Facebook, Instagram, Mail, Copy } from "lucide-react";
+import { Facebook, Instagram, Mail } from "lucide-react";
 import { 
   Card, 
   CardHeader, 
-  CardContent, 
   CardTitle, 
   CardFooter,
 } from "@/components/ui/card";
-import { cn, formatMailto } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Union } from "./types";
-import { useState } from "react";
 
 interface UnionCardProps {
   union: Union;

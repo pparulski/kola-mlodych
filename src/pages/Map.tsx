@@ -1,12 +1,11 @@
 
-import React from "react";
+import { useMapState } from "@/components/map/hooks/useMapState";
+import { useUnionsData } from "@/components/map/hooks/useUnionsData";
+import { MapContainer } from "@/components/map/MapContainer";
+import { MapPageController } from "@/components/map/MapPageController";
+import { MapSkeleton } from "@/components/map/MapSkeleton";
 import { MapView } from "@/components/map/MapView";
 import { UnionsList } from "@/components/map/UnionsList";
-import { useUnionsData } from "@/components/map/hooks/useUnionsData";
-import { useMapState } from "@/components/map/hooks/useMapState";
-import { MapContainer } from "@/components/map/MapContainer";
-import { MapSkeleton } from "@/components/map/MapSkeleton";
-import { MapPageController } from "@/components/map/MapPageController";
 
 /**
  * UnionsMap page component that displays a map of union locations

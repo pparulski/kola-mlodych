@@ -1,6 +1,3 @@
-
-import React from 'react';
-
 export function OrganizationStructuredData() {
   const organizationData = {
     "@context": "https://schema.org",

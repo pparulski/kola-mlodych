@@ -1,5 +1,5 @@
 // src/hooks/useScrollDirection.ts
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // --- Global flag for pausing (consider React Context for larger apps) ---
 // Ensure this part is at the top level of the module, outside the hook function

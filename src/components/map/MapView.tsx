@@ -2,7 +2,7 @@
 import { useRef, useEffect, useState } from "react";
 import Map, { Marker, NavigationControl, Popup, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapPin, Facebook, Instagram, Mail } from "lucide-react";
+import { Facebook, Instagram, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkerIcon } from "./MarkerIcon";
 import { Union, POLAND_BOUNDS, POLAND_CENTER } from "./types";
