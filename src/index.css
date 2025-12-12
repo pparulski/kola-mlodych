@@ -100,6 +100,31 @@
 
 /* Typography styles */
 @layer components {
+  /* Postal theme styles for newsletter */
+
+  .postal-paper {
+    position: relative;
+    border-radius: 0.5rem; /* rounded-md */
+    background:
+      linear-gradient(0deg, color-mix(in srgb, hsl(var(--muted-foreground)) 12%, transparent) 1px, transparent 1px) 0 0 / 100% 28px,
+      hsl(var(--content-box));
+  }
+
+
+  .postal-input {
+    @apply rounded-md border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring focus:border-ring;
+    border-color: hsl(var(--border));
+  }
+
+  .postal-button {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-medium;
+    background: hsl(var(--primary));
+    color: white;
+    border: 1px solid hsl(var(--primary));
+  }
+  .postal-button:hover { background: hsl(var(--primary) / 0.9); }
+  .dark .postal-button { border-color: hsl(var(--primary)); }
+
   /* Fluid base size for editor-rendered content */
   .hugerte-content {
     --hc-font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem); /* ~16px up to ~17px */

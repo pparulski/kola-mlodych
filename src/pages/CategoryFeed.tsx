@@ -1,5 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
+import React from "react";
+import { NewsletterInline } from "@/components/news/NewsletterInline";
 
 // Persist category totals across unmounts to avoid pagination collapse on return
 const STICKY_CATEGORY_TOTALS: Record<string, number> = {};
@@ -231,18 +233,23 @@ export default function CategoryFeed() {
       {articles && articles.length > 0 ? (
         <>
           <div className="space-y-6 !mt-0">
-            {articles.map((article) => (
-              <NewsPreview 
-                key={article.id}
-                id={article.id}
-                slug={article.slug}
-                title={article.title}
-                preview_content={article.preview_content}
-                date={article.date || undefined}
-                featured_image={article.featured_image || undefined}
-                category_names={[category.name]}
-                category_slugs={[category.slug]}
-              />
+            {articles.map((article, index) => (
+              <>
+                {index === 1 && (
+                  <NewsletterInline />
+                )}
+                <NewsPreview 
+                  key={article.id}
+                  id={article.id}
+                  slug={article.slug}
+                  title={article.title}
+                  preview_content={article.preview_content}
+                  date={article.date || undefined}
+                  featured_image={article.featured_image || undefined}
+                  category_names={[category.name]}
+                  category_slugs={[category.slug]}
+                />
+              </>
             ))}
           </div>
           
