@@ -37,7 +37,7 @@ export function NewsletterInline() {
   <>
     <div
       ref={anchorRef}
-      className="!mt-2 relative flex flex-col items-center max-w-[640px] mx-auto w-full"
+      className="hidden !mt-2 relative flex flex-col items-center max-w-[640px] mx-auto w-full"
     >
       {/* Image:
         - w-[56px]: Smaller size on mobile

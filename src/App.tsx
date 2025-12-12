@@ -2,8 +2,8 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from 'react-helmet-async';
+import { SimpleAnalytics } from "@simpleanalytics/react";
 import { Layout } from "@/components/Layout";
 import Index from "@/pages/Index";
 import { ManageNews } from "@/pages/manage/ManageNews";
@@ -127,6 +127,7 @@ const router = createBrowserRouter([
 function App() {
   return (
      <HelmetProvider> {/* Add the provider here */}
+     <SimpleAnalytics />
       <RouterProvider router={router} />
     </HelmetProvider>
   );
